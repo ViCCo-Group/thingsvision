@@ -91,7 +91,7 @@ def extract(
                                          device=device,
                                          standardize_acts=False,
                                          )
-    out_path += '/' + model_name + '/' + module_name
+    out_path = os.path.join(out_path, model_name, module_name)
     if not os.path.exists(out_path):
         os.makedirs(out_path)
 
