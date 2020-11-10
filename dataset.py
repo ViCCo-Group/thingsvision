@@ -13,6 +13,7 @@ import skimage.io as io
 
 from torchvision import transforms as T
 from typing import Tuple
+from utils import get_digits
 
 class ImageDataset(object):
 
@@ -71,12 +72,16 @@ class ImageDataset(object):
             return resized_img, target
         else:
             obj_path = os.path.join(self.PATH, self.objs[idx])
-            imgs = [img for img in os.listdir(obj_path) if re.search(r'(.jpg|.png|.PNG)$', img)]
+            imgs = np.array([img for img in os.listdir(obj_path) if re.search(r'(.jpg|.png|.PNG)$', img)])
+            if self.things:
+                imgs = self.sort_imgs(imgs)
+
             resized_imgs, targets = [], []
             for i, img in enumerate(imgs):
                 if self.things:
                     if i < self.k:
                         img = io.imread(os.path.join(obj_path, img))
+
                         if self.apply_transforms:
                             resized_imgs.append(self.transforms(img))
                             targets.append(torch.tensor([idx]))
@@ -91,8 +96,7 @@ class ImageDataset(object):
                     else:
                         resized_imgs.append(img)
                         targets.append(idx)
-            if self.things:
-                assert len(resized_imgs) == len(targets) == self.k
+
             return resized_imgs, targets
 
     def __len__(self):
@@ -106,6 +110,7 @@ class ImageDataset(object):
     def obj2idx(self) -> dict:
         return {obj: idx for idx, obj in self.obj_mapping.items()}
 
+
     def flatten_dataset(self, split_data:bool=False):
         #set split_data to True, if you want to obtain img matrix X and target vector y separately
         if split_data:
@@ -113,6 +118,11 @@ class ImageDataset(object):
         #set split_data to False, if you want individual (x, y) tuples
         else:
             return [(img, target) for idx in range(len(self.objs)) for img, target in zip(*self.__getitem__(idx))]
+
+    def sort_imgs(self, imgs:np.ndarray) -> np.ndarray:
+        img_identifiers = list(map(get_digits, imgs))
+        imgs_sorted = imgs[np.argsort(img_identifiers)]
+        return imgs_sorted
 
     #define transformations to be applied to imgs (i.e., imgs must be resized and normalized for pretrained CV models)
     def compose_transforms(self, resize_dim:int, crop_dim:int):

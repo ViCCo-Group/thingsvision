@@ -5,7 +5,9 @@ __all__ = [
             'compose_transforms',
             'extract_features',
             'get_cls_mapping_imgnet',
+            'get_digits',
             'get_model',
+            'get_shape',
             'json2dict',
             'matrix_sparseness',
             'merge_activations',
@@ -186,6 +188,18 @@ def json2dict(PATH:str, filename:str) -> dict:
     with open(os.path.join(PATH, filename), 'r') as f:
         idx2cls = dict(json.load(f))
     return idx2cls
+
+def get_digits(string:str) -> int:
+    c = ""
+    nonzero = False
+    for i in string:
+        if i.isdigit():
+            if (int(i) == 0) and (not nonzero):
+                continue
+            else:
+                c += i
+                nonzero = True
+    return int(c)
 
 def compose_transforms(resize_dim:int, crop_dim:int):
     normalize = T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])

@@ -65,7 +65,7 @@ def extract(
     resize_dim = 256
     crop_dim = 224
 
-    dataset = ImageDataset(in_path, resize_dim, crop_dim, things)
+    dataset = ImageDataset(PATH=in_path, resize_dim=resize_dim, crop_dim=crop_dim, apply_transforms=True, things=things)
     #get idx2class and class2idx mappings (i.e., dictionaries)
     idx2obj = dataset.idx2obj
     obj2idx = dataset.obj2idx
