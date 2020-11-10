@@ -40,8 +40,6 @@ def parseargs():
         help='specify fraction of dataset to be used, if you do not want to extract activations for all images')
     aa('-op', '--out_path', type=str, default='./activations/',
         help='directory where to save hidden unit activations')
-    aa('-mp', '--model_path', type=str, default=None,
-        help='directory where to load torchvision model weights from')
     aa('-dv', '--device', type=str, default='cpu',
         choices=['cpu', 'cuda', 'cuda:0', 'cuda:1'])
     aa('-rs', '--rnd_seed', type=int, default=42,
@@ -65,7 +63,7 @@ def extract(
     resize_dim = 256
     crop_dim = 224
 
-    dataset = ImageDataset(in_path, resize_dim, crop_dim, things)
+    dataset = ImageDataset(PATH=in_path, resize_dim=resize_dim, crop_dim=crop_dim, apply_transforms=True, things=things)
     #get idx2class and class2idx mappings (i.e., dictionaries)
     idx2obj = dataset.idx2obj
     obj2idx = dataset.obj2idx
@@ -133,7 +131,7 @@ if __name__ == '__main__':
 
     #load pretrained torchvision model
     model_name = args.model_name
-    model = get_model(model_name, args.model_path)
+    model = get_model(model_name)
 
     if args.interactive:
         print(model)
