@@ -22,6 +22,7 @@ import torch
 
 import numpy as np
 import torch.nn as nn
+import torchvision.models as models
 
 from typing import Tuple
 from torchvision import transforms as T

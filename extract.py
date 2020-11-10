@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import numpy as np
-import torchvision.models as models
-
 import argparse
 import logging
 import os
 import random
 import re
 import torch
+
+import numpy as np
 
 from dataset import ImageDataset
 from torch.utils.data import DataLoader, Subset
