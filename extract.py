@@ -35,8 +35,8 @@ def parseargs():
         help='specify whether images are from the THINGS images database')
     aa('-f', '--fraction', type=float, default=None,
         help='specify fraction of dataset to be used, if you do not want to extract activations for all images')
-    aa('-ff', '--file_format', type=str, default='txt',
-        choices=['npy', 'txt'],
+    aa('-ff', '--file_format', type=str, default='.txt',
+        choices=['.npy', '.txt'],
         help='specify in what kind of file format activations should be stored')
     aa('-ip', '--in_path', type=str, default='./images/',
         help='directory from where to load images')
@@ -98,7 +98,7 @@ def extract(
     if not os.path.exists(out_path):
         os.makedirs(out_path)
 
-    #save hidden unit actvations to disk (either as one single file or several splits)
+    #save hidden unit actvations to disk (either as one single file or as several splits)
     if len(features.shape) == 2:
         try:
             store_activations(PATH=out_path, features=features, file_format=file_format)
