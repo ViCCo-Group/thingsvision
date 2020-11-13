@@ -15,8 +15,9 @@
  --flatten_acts (bool) (whether or not to flatten activations at lower layers of the model (e.g., convoluatonal layers) before saving them)
  --batch_size (int) (neural activations will be extracted for a batch of image samples; set number of images per mini-batch)
  --things (bool) (specify whether images are from the THINGS images database or not; if they are make sure to first load images from the THINGS image database into in_path)
- --in_path (str) (directory from where to load images)
  --fraction (float) (specify fraction of dataset to be used, if you do not want to extract neural activations for *all* images)
+ --file_format (str) (whether to store activations as .txt or .npy files; note that the latter is more memory efficient but requires NumPy)
+ --in_path (str) (directory from where to load images)
  --out_path (str) (directory where neural activations should be saved)
  --device (str) (CPU or CUDA)
  --rnd_seed (int) (random seed)
@@ -25,7 +26,7 @@
 Here is an example call for `interactive` mode:
 
 ```
-python extract.py --model_name alexnet --interactive --flatten_acts --batch_size 32 --things --in_path ./images/ --out_path ./activations/ --device cuda:1 --rnd_seed 42
+python extract.py --model_name alexnet --interactive --flatten_acts --batch_size 32 --things --file_format .txt --in_path ./images/ --out_path ./activations/ --device cuda:1 --rnd_seed 42
 ```
 
 
