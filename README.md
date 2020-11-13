@@ -16,9 +16,10 @@
  --batch_size (int) (neural activations will be extracted for a batch of image samples; set number of images per mini-batch)
  --things (bool) (specify whether images are from the THINGS images database or not; if they are make sure to first load images from the THINGS image database into in_path)
  --fraction (float) (specify fraction of dataset to be used, if you do not want to extract neural activations for *all* images)
+ --file_format (str) (whether to store activations as .txt or .npy files; note that the latter is more memory efficient but requires NumPy)
  --in_path (str) (directory from where to load images)
- --file_format (str) (whether to store activations as .txt or .npy files; the latter is more memory efficient but requires NumPy)
  --out_path (str) (directory where neural activations should be saved)
+ --model_path (str) (directory where to load torchvision model weights from; weights won't be compute on the fly and must be stored on disk)
  --device (str) (CPU or CUDA)
  --rnd_seed (int) (random seed)
 ```
