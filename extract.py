@@ -33,10 +33,13 @@ def parseargs():
         help='define for how many images per mini-batch activations should be extracted')
     aa('-t', '--things', action='store_true',
         help='specify whether images are from the THINGS images database')
-    aa('-ip', '--in_path', type=str, default='./images/',
-        help='directory from where to load images')
     aa('-f', '--fraction', type=float, default=None,
         help='specify fraction of dataset to be used, if you do not want to extract activations for all images')
+    aa('-ff', '--file_format', type=str, default='.txt',
+        choices=['.npy', '.txt'],
+        help='specify in which file format activations should be stored')
+    aa('-ip', '--in_path', type=str, default='./images/',
+        help='directory from where to load images')
     aa('-op', '--out_path', type=str, default='./activations/',
         help='directory where to save hidden unit activations')
     aa('-mp', '--model_path', type=str, default=None,
@@ -54,6 +57,7 @@ def extract(
             module_name:str,
             batch_size:int,
             things:bool,
+            file_format:str,
             in_path:str,
             out_path:str,
             flatten_acts:bool,
@@ -99,26 +103,30 @@ def extract(
     #save hidden unit actvations to disk (either as one single file or several splits)
     if len(features.shape) == 2:
         try:
-            np.savetxt(os.path.join(out_path, 'activations.txt'), features)
+            store_activations(PATH=out_path, features=features, file_format=file_format)
         except MemoryError:
             #if you want activations to be splitted into more or fewer files, just change number of splits
             n_splits = 10
             print(f'...Could not save activations as one single file due to memory problems.')
             print(f'...Now splitting activations along row axis into several batches.')
             print()
-            split_activations(PATH=out_path, features=features, n_splits=n_splits)
+            split_activations(PATH=out_path, features=features, file_format=file_format, n_splits=n_splits)
             print(f'...Saved activations in {n_splits:02d} different files, enumerated in ascending order.')
             print()
     else:
         print(f'...Cannot save 4-way tensor in a single file.')
-        print(f'...Now slicing tensor to store as matrix.')
+        print(f'...Now slicing tensor to store as a matrix.')
         print()
         tensor2slices(PATH=out_path, file_name='activations.txt', features=features)
-        print(f'...Sliced tensor into parts and saved as matrix.')
+        print(f'...Sliced tensor into separate parts, and saved resulting matrix as .txt file.')
         print()
 
     #save target vector to disk
-    np.savetxt(os.path.join(out_path, 'targets.txt'), targets)
+    if re.search(r'npy', file_format):
+        with open(os.path.join(out_path, 'targets.npy'), 'wb') as f:
+            np.save(f, targets)
+    else:
+        np.savetxt(os.path.join(out_path, 'targets.txt'), targets)
 
 if __name__ == '__main__':
     #parse all arguments
@@ -157,6 +165,7 @@ if __name__ == '__main__':
             module_name=module_name,
             batch_size=args.batch_size,
             things=args.things,
+            file_format=args.file_name,
             in_path=args.in_path,
             out_path=args.out_path,
             flatten_acts=args.flatten_acts,

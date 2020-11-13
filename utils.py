@@ -112,6 +112,13 @@ def extract_features(
         features = standardize_features(features)
     return features, targets
 
+def store_activations(PATH:str, features:np.ndarray, file_format:str) -> None:
+    if re.search(r'npy', file_format):
+        with open(os.path.join(PATH, 'activations.npy'), 'wb') as f:
+            np.save(f, features)
+    else:
+        np.savetxt(os.path.join(PATH, 'activations.txt'), features)
+
 def tensor2slices(PATH:str, file_name:str, features:np.ndarray) -> None:
     with open(os.path.join(PATH, file_name), 'w') as outfile:
         outfile.write(f'# Array shape: {features.shape}\n')
@@ -137,11 +144,15 @@ def slices2tensor(PATH:str, file:str) -> np.ndarray:
     tensor = slices.reshape(shape)
     return tensor
 
-def split_activations(PATH:str, features:np.ndarray, n_splits:int) -> None:
+def split_activations(PATH:str, features:np.ndarray, file_format:str, n_splits:int) -> None:
     splits = np.linspace(0, len(features), n_splits, dtype=int)
     for i in range(1, len(splits)):
         feature_split = features[splits[i-1]:splits[i]]
-        np.savetxt(os.path.join(PATH, f'activations_{i:02d}.txt'), feature_split)
+        if re.search(r'npy', file_format):
+            with open(os.path.join(PATH, f'activations_{i:02d}.npy'), 'wb') as f:
+                np.save(f, feature_split)
+        else:
+            np.savetxt(os.path.join(PATH, f'activations_{i:02d}.txt'), feature_split)
 
 def merge_activations(PATH:str) -> np.ndarray:
     activation_splits = np.array([act for act in os.listdir(PATH) if re.search(r'^act', act) and re.search(r'[0-9]+', act) and act.endswith('.txt')])
