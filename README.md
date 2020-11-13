@@ -19,7 +19,7 @@
  --file_format (str) (whether to store activations as .txt or .npy files; note that the latter is more memory efficient but requires NumPy)
  --in_path (str) (directory from where to load images)
  --out_path (str) (directory where neural activations should be saved)
- --model_path (str) (directory where to load torchvision model weights from; weights won't be compute on the fly and must be stored on disk)
+ --model_path (str) (directory where to load torchvision model weights from; weights won't be computed on the fly and have to be stored on disk beforehand)
  --device (str) (CPU or CUDA)
  --rnd_seed (int) (random seed)
 ```
