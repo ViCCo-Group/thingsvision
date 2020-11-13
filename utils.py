@@ -12,6 +12,7 @@ __all__ = [
             'matrix_sparseness',
             'merge_activations',
             'split_activations',
+            'store_activations',
             'slices2tensor',
             'tensor2slices',
             ]

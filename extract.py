@@ -100,7 +100,7 @@ def extract(
     if not os.path.exists(out_path):
         os.makedirs(out_path)
 
-    #save hidden unit actvations to disk (either as one single file or several splits)
+    #save hidden unit actvations to disk (either as one single file or as several splits)
     if len(features.shape) == 2:
         try:
             store_activations(PATH=out_path, features=features, file_format=file_format)
