@@ -37,7 +37,7 @@ def parseargs():
         help='specify fraction of dataset to be used, if you do not want to extract activations for all images')
     aa('-ff', '--file_format', type=str, default='.txt',
         choices=['.npy', '.txt'],
-        help='specify in which file format activations should be stored')
+        help='specify in what kind of file format activations should be stored')
     aa('-ip', '--in_path', type=str, default='./images/',
         help='directory from where to load images')
     aa('-op', '--out_path', type=str, default='./activations/',
@@ -165,7 +165,7 @@ if __name__ == '__main__':
             module_name=module_name,
             batch_size=args.batch_size,
             things=args.things,
-            file_format=args.file_name,
+            file_format=args.file_format,
             in_path=args.in_path,
             out_path=args.out_path,
             flatten_acts=args.flatten_acts,
