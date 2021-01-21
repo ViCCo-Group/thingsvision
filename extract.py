@@ -25,7 +25,7 @@ def parseargs():
         choices=['alexnet', 'resnet50', 'resnet101', 'vgg13', 'vgg13_bn', 'vgg16', 'vgg16_bn', 'vgg19', 'vgg19_bn', 'clip-ViT', 'clip-RN'],
         help='PyTorch vision or CLIP model for which hidden unit activations / image features should be extracted')
     aa('--interactive', action='store_true',
-        help='whether or not to interact with terminal, and choose model part after looking at model architecture in terminal')
+        help='whether or not to interact with terminal, and select model part after looking at model architecture in terminal')
     aa('--module_name', type=str, default=None,
         help='if in non-interactive mode, then module name for which hidden unit actvations should be extracted must be provided')
     aa('--flatten_acts', action='store_true',
