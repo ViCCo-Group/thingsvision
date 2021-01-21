@@ -31,11 +31,11 @@ def parseargs():
     aa('--flatten_acts', action='store_true',
         help='whether or not to flatten activations at lower layers of the model (e.g., Convoluatonal layers) before storing them')
     aa('--center_acts', action='store_true',
-        help='whether or not to center activations before (move their mean towards zero)')
+        help='whether or not to center features (move their mean towards zero) after extraction')
     aa('--normalize_reps', action='store_true',
         help='whether or not to normalize object representations by their respective l2-norms')
     aa('--compress_acts', action='store_true',
-        help='whether or not to transform activations into lower-dimensional space via PCA before')
+        help='whether or not to transform features into lower-dimensional space via PCA after extraction')
     aa('--batch_size', type=int,
         help='define for how many images per mini-batch activations should be extracted')
     aa('--things', action='store_true',
