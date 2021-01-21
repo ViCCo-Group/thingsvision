@@ -47,9 +47,11 @@ def get_model(model_name:str, pretrained:bool, model_path:str=None, device=None)
         else:
             model, transforms = clip.load("RN50", device=device, model_path=model_path, jit=False)
         return model, transforms
-    if model_path:
-        assert pretrained, '\nTo download a torchvision model from network, pretrained must be set to True.\n'
-    elif re.search(r'bn$', model_name):
+
+    if not model_path:
+        assert pretrained, '\nTo download a torchvision model directly from network, pretrained must be set to True.\n'
+
+    if re.search(r'bn$', model_name):
         if re.search(r'^vgg13', model_name):
             model = models.vgg13_bn(pretrained=pretrained)
         elif re.search(r'^vgg16', model_name):
@@ -69,9 +71,11 @@ def get_model(model_name:str, pretrained:bool, model_path:str=None, device=None)
             model = models.vgg16(pretrained=pretrained)
         elif re.search(r'^vgg19', model_name):
             model = models.vgg19(pretrained=pretrained)
-    if not model_path:
+
+    if model_path:
         state_dict = torch.load(model_path)
         model.load_state_dict(state_dict)
+
     return model
 
 def get_activation(name):
