@@ -15,10 +15,7 @@ __all__ = [
             'parse_imagenet_classes',
             'parse_imagenet_synsets',
             'split_activations',
-<<<<<<< HEAD
-=======
             'register_hook',
->>>>>>> lukas
             'store_activations',
             'slices2tensor',
             'tensor2slices',
@@ -33,10 +30,7 @@ import torch
 import numpy as np
 import pandas as pd
 import torch.nn as nn
-<<<<<<< HEAD
-=======
 import torch.nn.functional as F
->>>>>>> lukas
 import torchvision.models as models
 
 from os.path import join as pjoin
@@ -44,12 +38,6 @@ from skimage.transform import resize
 from typing import Tuple, List
 from torchvision import transforms as T
 
-<<<<<<< HEAD
-def get_model(model_name:str, pretrained:bool=True):
-    """load a pretrained torchvision model of choice into memory"""
-    if re.search(r'bn', model_name):
-        if re.search(r'vgg13', model_name):
-=======
 def get_model(model_name:str, pretrained:bool, model_path:str=None, device=None):
     """load a pretrained Torchvision or CLIP model of choice into memory"""
     if re.search(r'^clip', model_name):
@@ -63,7 +51,6 @@ def get_model(model_name:str, pretrained:bool, model_path:str=None, device=None)
         assert pretrained, '\nTo download a torchvision model from network, pretrained must be set to True.\n'
     elif re.search(r'bn$', model_name):
         if re.search(r'^vgg13', model_name):
->>>>>>> lukas
             model = models.vgg13_bn(pretrained=pretrained)
         elif re.search(r'^vgg16', model_name):
             model = models.vgg16_bn(pretrained=pretrained)
@@ -82,12 +69,9 @@ def get_model(model_name:str, pretrained:bool, model_path:str=None, device=None)
             model = models.vgg16(pretrained=pretrained)
         elif re.search(r'^vgg19', model_name):
             model = models.vgg19(pretrained=pretrained)
-<<<<<<< HEAD
-=======
     if not model_path:
         state_dict = torch.load(model_path)
         model.load_state_dict(state_dict)
->>>>>>> lukas
     return model
 
 def get_activation(name):
@@ -217,17 +201,10 @@ def extract_features(
 
 def store_activations(PATH:str, features:np.ndarray, file_format:str) -> None:
     if re.search(r'npy', file_format):
-<<<<<<< HEAD
-        with open(os.path.join(PATH, 'activations.npy'), 'wb') as f:
-            np.save(f, features)
-    else:
-        np.savetxt(os.path.join(PATH, 'activations.txt'), features)
-=======
         with open(pjoin(PATH, 'activations.npy'), 'wb') as f:
             np.save(f, features)
     else:
         np.savetxt(pjoin(PATH, 'activations.txt'), features)
->>>>>>> lukas
 
 def tensor2slices(PATH:str, file_name:str, features:np.ndarray) -> None:
     with open(pjoin(PATH, file_name), 'w') as outfile:
@@ -271,17 +248,10 @@ def split_activations(PATH:str, features:np.ndarray, file_format:str, n_splits:i
     for i in range(1, len(splits)):
         feature_split = features[splits[i-1]:splits[i]]
         if re.search(r'npy', file_format):
-<<<<<<< HEAD
-            with open(os.path.join(PATH, f'activations_{i:02d}.npy'), 'wb') as f:
-                np.save(f, feature_split)
-        else:
-            np.savetxt(os.path.join(PATH, f'activations_{i:02d}.txt'), feature_split)
-=======
             with open(pjoin(PATH, f'activations_{i:02d}.npy'), 'wb') as f:
                 np.save(f, feature_split)
         else:
             np.savetxt(pjoin(PATH, f'activations_{i:02d}.txt'), feature_split)
->>>>>>> lukas
 
 def merge_activations(PATH:str) -> np.ndarray:
     activation_splits = np.array([act for act in os.listdir(PATH) if re.search(r'^act', act) and re.search(r'[0-9]+', act) and act.endswith('.txt')])
@@ -336,23 +306,7 @@ def json2dict(PATH:str, filename:str) -> dict:
         idx2cls = dict(json.load(f))
     return idx2cls
 
-<<<<<<< HEAD
-def get_digits(string:str) -> int:
-    c = ""
-    nonzero = False
-    for i in string:
-        if i.isdigit():
-            if (int(i) == 0) and (not nonzero):
-                continue
-            else:
-                c += i
-                nonzero = True
-    return int(c)
-
-def compose_transforms(resize_dim:int, crop_dim:int):
-=======
 def compose_transforms(resize_dim:int=256, crop_dim:int=224):
->>>>>>> lukas
     normalize = T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     composition = T.Compose([T.ToPILImage(), T.Resize(resize_dim), T.CenterCrop(crop_dim), T.ToTensor(), normalize])
     return composition

@@ -19,9 +19,6 @@ from functools import cached_property
 from PIL import Image
 from torchvision import transforms as T
 from typing import Tuple
-<<<<<<< HEAD
-from utils import get_digits
-=======
 from utils import get_digits, load_item_names
 
 def parse_img_name(img_name:str):
@@ -29,7 +26,6 @@ def parse_img_name(img_name:str):
 
 def rm_suffix(img:str):
     return re.sub(r'(.jpg|.png|.PNG)$', '', img)
->>>>>>> lukas
 
 class ImageDataset(object):
 
@@ -101,13 +97,8 @@ class ImageDataset(object):
             target = torch.tensor([idx])
             return resized_img, target
         else:
-<<<<<<< HEAD
-            obj_path = os.path.join(self.PATH, self.objs[idx])
-            imgs = np.array([img for img in os.listdir(obj_path) if re.search(r'(.jpg|.png|.PNG)$', img)])
-=======
             obj_path = pjoin(self.PATH, self.objs[idx])
             imgs = np.array([img for img in os.listdir(obj_path) if parse_img_name(img)])
->>>>>>> lukas
             if self.things:
                 imgs = self.sort_imgs(imgs)
 
@@ -115,11 +106,7 @@ class ImageDataset(object):
             for i, img in enumerate(imgs):
                 if self.things:
                     if i < self.k:
-<<<<<<< HEAD
-                        img = io.imread(os.path.join(obj_path, img))
-=======
                         img = Image.open(pjoin(obj_path, img)) if self.clip else io.imread(pjoin(obj_path, img))
->>>>>>> lukas
 
                         if self.apply_transforms:
                             resized_imgs.append(self.transforms(img))
@@ -149,7 +136,6 @@ class ImageDataset(object):
     def obj2idx(self) -> dict:
         return {obj: idx for idx, obj in self.obj_mapping.items()}
 
-
     def flatten_dataset(self, split_data:bool=False):
         #set split_data to True, if you want to obtain img matrix X and target vector y separately
         if split_data:
@@ -157,11 +143,6 @@ class ImageDataset(object):
         #set split_data to False, if you want individual (x, y) tuples
         else:
             return [(img, target) for idx in range(len(self.objs)) for img, target in zip(*self.__getitem__(idx))]
-
-    def sort_imgs(self, imgs:np.ndarray) -> np.ndarray:
-        img_identifiers = list(map(get_digits, imgs))
-        imgs_sorted = imgs[np.argsort(img_identifiers)]
-        return imgs_sorted
 
     #define transformations to be applied to imgs (i.e., imgs must be resized and normalized for pretrained CV models)
     def compose_transforms(self, resize_dim:int, crop_dim:int):

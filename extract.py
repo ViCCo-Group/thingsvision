@@ -10,10 +10,7 @@ import torch
 
 import numpy as np
 
-<<<<<<< HEAD
-=======
 from os.path import join as pjoin
->>>>>>> lukas
 from dataset import ImageDataset
 from torch.utils.data import DataLoader, Subset
 from utils import *
@@ -41,20 +38,6 @@ def parseargs():
         help='whether or not to transform activations into lower-dimensional space via PCA before')
     aa('--batch_size', type=int,
         help='define for how many images per mini-batch activations should be extracted')
-<<<<<<< HEAD
-    aa('-t', '--things', action='store_true',
-        help='specify whether images are from the THINGS images database')
-    aa('-f', '--fraction', type=float, default=None,
-        help='specify fraction of dataset to be used, if you do not want to extract activations for all images')
-    aa('-ff', '--file_format', type=str, default='.txt',
-        choices=['.npy', '.txt'],
-        help='specify in what kind of file format activations should be stored')
-    aa('-ip', '--in_path', type=str, default='./images/',
-        help='directory from where to load images')
-    aa('-op', '--out_path', type=str, default='./activations/',
-        help='directory where to save hidden unit activations')
-    aa('-dv', '--device', type=str, default='cpu',
-=======
     aa('--things', action='store_true',
         help='specify whether images are from the THINGS image database (all images)')
     aa('--things_behavior', action='store_true',
@@ -73,7 +56,6 @@ def parseargs():
     aa('--model_path', type=str, default=None,
         help='directory where to load torchvision model weights from')
     aa('--device', type=str, default='cpu',
->>>>>>> lukas
         choices=['cpu', 'cuda', 'cuda:0', 'cuda:1'])
     aa('--rnd_seed', type=int, default=42,
         help='random seed for reproducibility')
@@ -86,10 +68,7 @@ def extract(
             module_name:str,
             batch_size:int,
             things:bool,
-<<<<<<< HEAD
-=======
             things_behavior:bool,
->>>>>>> lukas
             file_format:str,
             in_path:str,
             out_path:str,
@@ -102,13 +81,6 @@ def extract(
             transforms=None,
             rnd_seed=None,
 ) -> None:
-<<<<<<< HEAD
-    #set variables important for image transformations
-    resize_dim = 256
-    crop_dim = 224
-
-    dataset = ImageDataset(PATH=in_path, resize_dim=resize_dim, crop_dim=crop_dim, apply_transforms=True, things=things)
-=======
     #init dataset
     dataset = ImageDataset(
                             PATH=in_path,
@@ -118,7 +90,6 @@ def extract(
                             clip=True if re.search(r'clip', model_name) else False,
                             transforms=transforms,
                             )
->>>>>>> lukas
     #get idx2class and class2idx mappings (i.e., dictionaries)
     idx2obj = dataset.idx2obj
     obj2idx = dataset.obj2idx
@@ -164,14 +135,10 @@ def extract(
                                          feature_extractor=feature_extractor,
                                          rnd_seed=rnd_seed,
                                          )
-<<<<<<< HEAD
-    out_path = os.path.join(out_path, model_name, module_name)
-=======
 
     print(f'\nFeatures successfully extracted for all {n_samples} images in the database. Now saving to {out_path}.\n')
 
     out_path = pjoin(out_path, model_name, module_name)
->>>>>>> lukas
     if not os.path.exists(out_path):
         os.makedirs(out_path)
 
@@ -182,28 +149,6 @@ def extract(
         except MemoryError:
             #if you want activations to be splitted into more or fewer files, simply change number of splits
             n_splits = 10
-<<<<<<< HEAD
-            print(f'...Could not save activations as one single file due to memory problems.')
-            print(f'...Now splitting activations along row axis into several batches.')
-            print()
-            split_activations(PATH=out_path, features=features, file_format=file_format, n_splits=n_splits)
-            print(f'...Saved activations in {n_splits:02d} different files, enumerated in ascending order.')
-            print()
-    else:
-        print(f'...Cannot save 4-way tensor in a single file.')
-        print(f'...Now slicing tensor to store as a matrix.')
-        print()
-        tensor2slices(PATH=out_path, file_name='activations.txt', features=features)
-        print(f'...Sliced tensor into separate parts, and saved resulting matrix as .txt file.')
-        print()
-
-    #save target vector to disk
-    if re.search(r'npy', file_format):
-        with open(os.path.join(out_path, 'targets.npy'), 'wb') as f:
-            np.save(f, targets)
-    else:
-        np.savetxt(os.path.join(out_path, 'targets.txt'), targets)
-=======
             print(f'\n...Could not save activations as one single file due to memory problems.\n')
             print(f'\n...Now splitting activations along row axis into several batches.\n')
             split_activations(PATH=out_path, features=features, file_format=file_format, n_splits=n_splits)
@@ -220,7 +165,6 @@ def extract(
             np.save(f, targets)
     else:
         np.savetxt(pjoin(out_path, 'targets.txt'), targets)
->>>>>>> lukas
 
 if __name__ == '__main__':
     #parse all arguments
@@ -234,15 +178,11 @@ if __name__ == '__main__':
 
     #load pretrained torchvision or clip model
     model_name = args.model_name
-<<<<<<< HEAD
-    model = get_model(model_name)
-=======
     if re.search(r'^clip', model_name):
         model, transforms = get_model(model_name=model_name, pretrained=args.pretrained, model_path=args.model_path, device=args.device)
     else:
         model = get_model(model_name=model_name, pretrained=args.pretrained, model_path=args.model_path)
         transforms = None
->>>>>>> lukas
 
     if args.interactive:
         if re.search(r'^clip', model_name):
@@ -272,10 +212,7 @@ if __name__ == '__main__':
             module_name=module_name,
             batch_size=args.batch_size,
             things=args.things,
-<<<<<<< HEAD
-=======
             things_behavior=args.things_behavior,
->>>>>>> lukas
             file_format=args.file_format,
             in_path=args.in_path,
             out_path=args.out_path,
