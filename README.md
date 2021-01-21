@@ -1,8 +1,16 @@
 ## Environment Setup
 
-1. The code uses Python 3.8,  [install PyTorch 1.7.1](https://pytorch.org/get-started/locally/) (Note that PyTorch 1.7.1 requires CUDA 10.2 and CUDA 11.0 for OpenAI's CLIP models, if you want to run code on a GPU)
-2. Install PyTorch and `torchvision`: `pip install pytorch` and `pip install torchvision` or `conda install pytorch torchvision -c pytorch` and `conda install -c pytorch torchvision` (the latter way is recommended if you use Anaconda)
-3. Install Python dependencies: `pip install -r requirements.txt` (only necessary, if you don't use Anaconda)
+1. Make sure you have the latest Python version (>= 3.8) and [install PyTorch 1.7.1](https://pytorch.org/get-started/locally/). Note that [PyTorch 1.7.1](https://pytorch.org/) requires CUDA 10.2 or above, if you want to extract features on a GPU. However, the code runs pretty fast on a strong CPU (Intel i7 or i9). 
+
+2. On a CUDA GPU machine, the following will do the trick:
+
+```bash
+$ conda install --yes -c pytorch pytorch=1.7.1 torchvision cudatoolkit=11.0
+$ pip install -r requirements.txt
+```
+
+Replace `cudatoolkit=11.0` above with the appropriate CUDA version on your machine (e.g., 10.2) or `cpuonly` when installing on a machine without a GPU.
+
 
 ## Extract features at specific layer of a state-of-the-art torchvision or CLIP model 
 
@@ -12,13 +20,18 @@
  --model_name (str) (PyTorch vision model for which neural activations should be extracted)
  --interactive (bool) (whether or not to interact with terminal, and choose model part after looking at model architecture in terminal)
  --module_name (str) (if in non-interactive mode, then module name for which hidden unit activations should be extracted must be provided)
- --flatten_acts (bool) (whether or not to flatten activations at lower layers of the model (e.g., convoluatonal layers) before saving them)
+ --flatten_acts (bool) (whether or not to flatten features at lower layers of the model (e.g., convoluatonal layers) before saving them)
+ --center_acts (bool) (whether or not to center features (move their mean towards zero))
+ --normalize_reps (bool) (whether or not to normalize object representations by their l2-norms)
+ --compress_acts (bool) (whether or not to transform features into lower-dimensional space via PCA (only relevant for feature ensembles))
  --batch_size (int) (neural activations will be extracted for a batch of image samples; set number of images per mini-batch)
  --things (bool) (specify whether images are from the THINGS images database or not; if they are make sure to first load images from the THINGS image database into in_path)
+ --pretrained (bool) (specify whether to download a pretrained torchvision or CLIP model from network; if not provided, model_path has to be specified)
  --fraction (float) (specify fraction of dataset to be used, if you do not want to extract neural activations for *all* images)
  --file_format (str) (whether to store activations as .txt or .npy files; note that the latter is both more memory and time efficient but requires NumPy)
  --in_path (str) (directory from where to load images)
- --out_path (str) (directory where neural activations should be saved)
+ --out_path (str) (directory where features should be saved)
+ --model_path (str) (directory where to load torchvision model weights from)
  --device (str) (CPU or CUDA)
  --rnd_seed (int) (random seed)
 ```
@@ -26,7 +39,7 @@
 Here is an example call for `interactive` mode:
 
 ```
-python extract.py --model_name alexnet --interactive --flatten_acts --batch_size 32 --things --file_format .txt --in_path ./images/ --out_path ./activations/ --device cuda --rnd_seed 42
+python extract.py --model_name alexnet --interactive --flatten_acts --pretrained --batch_size 64 --things --file_format .txt --in_path ./images/ --out_path ./activations/ --device cuda --rnd_seed 42
 ```
 
 
@@ -69,7 +82,7 @@ Hence, you have to specify the part of the model like `features.11`, `avgpool`, 
 Here is an example call for `non-interactive` mode (useful for `bash` scripts on a `job-system` such as `Slurm`):
 
 ```
-python extract.py --model_name alexnet --module_name classifier.4 --batch_size 32 --things --in_path ./images/ --out_path ./activations/ --device cuda --rnd_seed 42
+python extract.py --model_name alexnet --module_name classifier.4 --pretrained --batch_size 32 --things --in_path ./images/ --out_path ./activations/ --device cuda --rnd_seed 42
 ```
 
 ## IMPORTANT NOTES:
@@ -96,18 +109,6 @@ python extract.py --model_name alexnet --module_name classifier.4 --batch_size 3
 [[Blog]](https://openai.com/blog/clip/) [[Paper]](https://cdn.openai.com/papers/Learning_Transferable_Visual_Models_From_Natural_Language_Supervision.pdf) [[Model Card]](model-card.md) [[Colab]](https://colab.research.google.com/github/openai/clip/blob/master/Interacting_with_CLIP.ipynb)
 
 CLIP (Contrastive Language-Image Pre-Training) is a neural network trained on a variety of (image, text) pairs. It can be instructed in natural language to predict the most relevant text snippet, given an image, without directly optimizing for the task, similarly to the zero-shot capabilities of GPT-2 and 3. We found CLIP matches the performance of the original ResNet50 on ImageNet “zero-shot” without using any of the original 1.28M labeled examples, overcoming several major challenges in computer vision.
-
-
-### Usage
-
-First, [install PyTorch 1.7.1](https://pytorch.org/get-started/locally/) and torchvision, as well as small additional dependencies. On a CUDA GPU machine, the following will do the trick:
-
-```bash
-$ conda install --yes -c pytorch pytorch=1.7.1 torchvision cudatoolkit=11.0
-$ pip install ftfy regex tqdm
-```
-
-Replace `cudatoolkit=11.0` above with the appropriate CUDA version on your machine or `cpuonly` when installing on a machine without a GPU.
 
 
 ## API
