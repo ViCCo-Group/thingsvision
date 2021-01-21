@@ -1,10 +1,10 @@
-#### Environment Setup
+## Environment Setup
 
-1. The code uses Python 3.8,  [Pytorch 1.6.0](https://pytorch.org/) (Note that PyTorch 1.6.0 requires CUDA 10.2, if you want to run code on a GPU)
+1. The code uses Python 3.8,  [install PyTorch 1.7.1](https://pytorch.org/get-started/locally/) (Note that PyTorch 1.7.1 requires CUDA 10.2 and CUDA 11.0 for OpenAI's CLIP models, if you want to run code on a GPU)
 2. Install PyTorch and `torchvision`: `pip install pytorch` and `pip install torchvision` or `conda install pytorch torchvision -c pytorch` and `conda install -c pytorch torchvision` (the latter way is recommended if you use Anaconda)
 3. Install Python dependencies: `pip install -r requirements.txt` (only necessary, if you don't use Anaconda)
 
-#### Extract hidden unit activations at specific layer of a state-of-the-art torchvision model 
+## Extract features at specific layer of a state-of-the-art torchvision or CLIP model 
 
 ```
   python extract.py
@@ -72,7 +72,7 @@ Here is an example call for `non-interactive` mode (useful for `bash` scripts on
 python extract.py --model_name alexnet --module_name classifier.4 --batch_size 32 --things --in_path ./images/ --out_path ./activations/ --device cuda:1 --rnd_seed 42
 ```
 
-#### IMPORTANT NOTES:
+## IMPORTANT NOTES:
 
 1. Image data will automatically be converted into a ready-to-use dataset class, and subsequently wrapped with a `PyTorch` mini-batch dataloader to make neural activation extraction more efficient.
 
@@ -80,11 +80,66 @@ python extract.py --model_name alexnet --module_name classifier.4 --batch_size 3
 
 3. In case you would like to use your own images or a different dataset make sure that all images are `.jpg`, `.png`, or `.PNG` files. Image files must be saved either in `in_path` (e.g., `./images/image_xy.jpg`), or in subfolders of `in_path` (e.g., `./images/class_xy/image_xy.jpg`) in case images correspond to different classes where `n` images are stored for each of the `k` classes (such as in ImageNet or THINGS). You don't need to tell the script in which of the two ways your images are stored. You just need to pass `in_path`. However, images have to be stored in one way or the other.
 
-4. Hidden unit activations can be extracted at each layer for both `features` and `classifier` for the following `torchvision` models: `alexnet`, `resnet50`, `resnet101`, `vgg13`, `vgg13_bn`, `vgg16`, `vgg16_bn`, `vgg19`, `vgg19_bn`
+4. Features can be extracted at every layer for both `features` and `classifier` for the following `torchvision` models: `alexnet`, `resnet50`, `resnet101`, `vgg13`, `vgg13_bn`, `vgg16`, `vgg16_bn`, `vgg19`, `vgg19_bn`, and additionally for OpenAi's `CLIP` models `RN50` and `ViT-32`.
 
-5. The script automatically extracts hidden unit activations for the specified `model` and `layer` and stores them together with the `targets` in `out_path` (see above).
+5. The script automatically extracts features for the specified `model` and `layer` and stores them together with the `targets` in `out_path` (see above).
 
 6. Since 4-way tensors cannot be easily saved to disk, they must be sliced into different parts to be efficiently stored as a matrix. The helper function `tensor2slices` will slice any 4-way tensor (activations extraced from `features.##`) automatically for you, and will save it as a matrix in a file called `activations.txt`. To merge the slices back into the original shape (i.e., 4-way tensor) simply call `slices2tensor` which takes `out_path` and `file_name` (see above) as input arguments (e.g., `tensor = slices2tensor(PATH, file)`).
 
 7. If you happen to extract hidden unit activations for many images, it is possible to run into `MemoryErrors`. To circumvent such problems, a helper function called `split_activations` will split the activation matrix into several batches, and stores them in separate files. For now, the split parameter is set to `10`. Hence, the function will split the activation matrix into `10` files. This parameter can, however, easily be modified in case you need more (or fewer) splits. To merge the separate activation batches back into a single activation matrix, just call `merge_activations` when loading the activations (e.g., `activations = merge_activations(PATH)`). 
 
+## NEW ADDITION: OpenAI's CLIP models (read carefully)
+
+
+### CLIP
+
+[[Blog]](https://openai.com/blog/clip/) [[Paper]](https://cdn.openai.com/papers/Learning_Transferable_Visual_Models_From_Natural_Language_Supervision.pdf) [[Model Card]](model-card.md) [[Colab]](https://colab.research.google.com/github/openai/clip/blob/master/Interacting_with_CLIP.ipynb)
+
+CLIP (Contrastive Language-Image Pre-Training) is a neural network trained on a variety of (image, text) pairs. It can be instructed in natural language to predict the most relevant text snippet, given an image, without directly optimizing for the task, similarly to the zero-shot capabilities of GPT-2 and 3. We found CLIP matches the performance of the original ResNet50 on ImageNet “zero-shot” without using any of the original 1.28M labeled examples, overcoming several major challenges in computer vision.
+
+
+### Usage
+
+First, [install PyTorch 1.7.1](https://pytorch.org/get-started/locally/) and torchvision, as well as small additional dependencies. On a CUDA GPU machine, the following will do the trick:
+
+```bash
+$ conda install --yes -c pytorch pytorch=1.7.1 torchvision cudatoolkit=11.0
+$ pip install ftfy regex tqdm
+```
+
+Replace `cudatoolkit=11.0` above with the appropriate CUDA version on your machine or `cpuonly` when installing on a machine without a GPU.
+
+
+## API
+
+The CLIP module `clip` provides the following methods:
+
+#### `clip.available_models()`
+
+Returns the name(s) of the available CLIP models.
+
+#### `clip.load(name, device=..., jit=True)`
+
+Returns the model and the TorchVision transform needed by the model, specified by the model name returned by `clip.available_models()`. It will download the model as necessary. The device to run the model can be optionally specified, and the default is to use the first CUDA device if there is any, otherwise the CPU.
+
+When `jit` is `False`, a non-JIT version of the model will be loaded.
+
+#### `clip.tokenize(text: Union[str, List[str]], context_length=77)`
+
+Returns a LongTensor containing tokenized sequences of given text input(s). This can be used as the input to the model
+
+---
+
+The model returned by `clip.load()` supports the following methods:
+
+#### `model.encode_image(image: Tensor)`
+
+Given a batch of images, returns the image features encoded by the vision portion of the CLIP model.
+
+#### `model.encode_text(text: Tensor)`
+
+Given a batch of text tokens, returns the text features encoded by the language portion of the CLIP model.
+
+#### `model(image: Tensor, text: Tensor)`
+
+Given a batch of images and a batch of text tokens, returns two Tensors, containing the logit scores corresponding to each image and text input. The values are cosine similarities between the corresponding image and text features, times 100.
