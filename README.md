@@ -95,7 +95,7 @@ python extract.py --model_name alexnet --module_name classifier.4 --pretrained -
 
 4. Features can be extracted at every layer for both `features` and `classifier` for the following `torchvision` models: `alexnet`, `resnet50`, `resnet101`, `vgg13`, `vgg13_bn`, `vgg16`, `vgg16_bn`, `vgg19`, `vgg19_bn`, and additionally for OpenAi's `CLIP` models `RN50` and `ViT-32`.
 
-5. If you happen to be interested in ensemble of `feature maps`, as introduced in this recent [COLING 2020 paper](https://www.aclweb.org/anthology/2020.coling-main.173/), you can simply extract an ensemble of `conv` or `max-pool` layers. The ensemble can additionally be concatenated with the activations of the penultimate layer, and subsequently transformed into a lower-dimensional space with `PCA`. 
+5. If you happen to be interested in an ensemble of `feature maps`, as introduced in this recent [COLING 2020 paper](https://www.aclweb.org/anthology/2020.coling-main.173/), you can simply extract an ensemble of `conv` or `max-pool` layers. The ensemble can additionally be concatenated with the activations of the penultimate layer, and subsequently transformed into a lower-dimensional space with `PCA` to reduce noise and only keep those dimensions that account for most of the variance. 
 
 6. The script automatically extracts features for the specified `model` and `layer` and stores them together with the `targets` in `out_path` (see above).
 
