@@ -26,7 +26,7 @@
 Here is an example call for `interactive` mode:
 
 ```
-python extract.py --model_name alexnet --interactive --flatten_acts --batch_size 32 --things --file_format .txt --in_path ./images/ --out_path ./activations/ --device cuda:1 --rnd_seed 42
+python extract.py --model_name alexnet --interactive --flatten_acts --batch_size 32 --things --file_format .txt --in_path ./images/ --out_path ./activations/ --device cuda --rnd_seed 42
 ```
 
 
@@ -69,7 +69,7 @@ Hence, you have to specify the part of the model like `features.11`, `avgpool`, 
 Here is an example call for `non-interactive` mode (useful for `bash` scripts on a `job-system` such as `Slurm`):
 
 ```
-python extract.py --model_name alexnet --module_name classifier.4 --batch_size 32 --things --in_path ./images/ --out_path ./activations/ --device cuda:1 --rnd_seed 42
+python extract.py --model_name alexnet --module_name classifier.4 --batch_size 32 --things --in_path ./images/ --out_path ./activations/ --device cuda --rnd_seed 42
 ```
 
 ## IMPORTANT NOTES:
