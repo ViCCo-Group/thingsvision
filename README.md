@@ -101,7 +101,7 @@ python extract.py --model_name alexnet --module_name classifier.4 --pretrained -
 
 7. If you happen to extract hidden unit activations for many images, it is possible to run into `MemoryErrors`. To circumvent such problems, a helper function called `split_activations` will split the activation matrix into several batches, and stores them in separate files. For now, the split parameter is set to `10`. Hence, the function will split the activation matrix into `10` files. This parameter can, however, easily be modified in case you need more (or fewer) splits. To merge the separate activation batches back into a single activation matrix, just call `merge_activations` when loading the activations (e.g., `activations = merge_activations(PATH)`). 
 
-## NEW ADDITION: OpenAI's CLIP models (read carefully)
+## OpenAI's CLIP models (read carefully)
 
 
 ### CLIP
