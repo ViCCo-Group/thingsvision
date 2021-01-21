@@ -1,6 +1,9 @@
+ftfy==5.8
 numpy==1.18.5
 pandas==1.0.5
 scipy==1.5.0
 skimage==0.16.2
+regex==2.5.82
 torch==1.7.1
 torchvision==0.7.0
+tqdm==4.47.0
