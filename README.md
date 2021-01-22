@@ -2,7 +2,13 @@
 
 1. Make sure you have the latest Python version (>= 3.8) and [install PyTorch 1.7.1](https://pytorch.org/get-started/locally/). Note that [PyTorch 1.7.1](https://pytorch.org/) requires CUDA 10.2 or above, if you want to extract features on a GPU. However, the code runs pretty fast on a strong CPU (Intel i7 or i9). 
 
-2. On a CUDA GPU machine, the following will do the trick:
+2.
+
+```bash
+$ pip install thingsvision
+```
+
+3. On a CUDA GPU machine, the following will do the trick:
 
 ```bash
 $ conda install --yes -c pytorch pytorch=1.7.1 torchvision cudatoolkit=11.0
@@ -11,39 +17,13 @@ $ pip install -r requirements.txt
 
 Replace `cudatoolkit=11.0` above with the appropriate CUDA version on your machine (e.g., 10.2) or `cpuonly` when installing on a machine without a GPU.
 
+## Extract features at specific layer of a state-of-the-art `torchvision` or `CLIP` model 
 
-## Extract features at specific layer of a state-of-the-art torchvision or CLIP model 
+### Example call for AlexNet:
 
-```
-  python extract.py
-  
- --model_name (str) (PyTorch vision model for which neural activations should be extracted)
- --interactive (bool) (whether or not to interact with terminal, and choose model part after looking at model architecture in terminal)
- --module_name (str) (if in non-interactive mode, then module name for which hidden unit activations should be extracted must be provided)
- --flatten_acts (bool) (whether or not to flatten features at lower layers of the model (e.g., convoluatonal layers) before saving them)
- --center_acts (bool) (whether or not to center features (move their mean towards zero))
- --normalize_reps (bool) (whether or not to normalize object representations by their l2-norms)
- --compress_acts (bool) (whether or not to transform features into lower-dimensional space via PCA (only relevant for feature ensembles))
- --batch_size (int) (neural activations will be extracted for a batch of image samples; set number of images per mini-batch)
- --things (bool) (specify whether images are from the THINGS images database or not; if they are make sure to first load images from the THINGS image database into in_path)
- --pretrained (bool) (specify whether to download a pretrained torchvision or CLIP model from network; if not provided, model_path has to be specified)
- --fraction (float) (specify fraction of dataset to be used, if you do not want to extract neural activations for *all* images)
- --file_format (str) (whether to store activations as .txt or .npy files; note that the latter is both more memory and time efficient but requires NumPy)
- --in_path (str) (directory from where to load images)
- --out_path (str) (directory where features should be saved)
- --model_path (str) (directory where to load torchvision model weights from)
- --device (str) (CPU or CUDA)
- --rnd_seed (int) (random seed)
-```
-
-Here is an example call for `interactive` mode:
-
-```
-python extract.py --model_name alexnet --interactive --flatten_acts --pretrained --batch_size 64 --things --file_format .txt --in_path ./images/ --out_path ./activations/ --device cuda --rnd_seed 42
-```
-
-
-After you've called `extract.py` and all arguments have been parsed, you will see your torchvision model of choice printed like that:
+#### `device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')`
+#### `model = thingsvision.get_model('alexnet', pretrained=True, model_path=None, device=device)`
+#### `module_name = thingsvision.show_model(model, 'alexnet')`
 
 ```
 AlexNet(
@@ -75,15 +55,24 @@ AlexNet(
 )
 ```
 
-Then you will be prompted to interact with the terminal, and subsequently enter the part of the model for which you'd like to extract hidden unit activations.
-Note that each `torchvision` model (e.g., AlexNet) is split into different parts (e.g., `features`, `avgpool`, `classifier`) which are all enumerated separately.
-Hence, you have to specify the part of the model like `features.11`, `avgpool`, or `classifier.4`. The rest will be done automatically for you.
+#### `dl = thingsvision.load_dl('./images/', apply_transforms=True, clip=True, batch_size=64, things=True, transforms=None)`
+#### `features, targets = thingsvision.extract_features(model, dl, module_name, batch_size=64, flatten_acts=False, device=device, clip=False)`
+)
+#### `features = thingsvision.center_features(features)`
+#### `thingsvision.save_features(features, f'./AlexNet/{module_name}/activations', '.npy')`
+#### `thingsvision.save_targets(targets, f'./AlexNet/{module_name}/targets', '.npy')`
 
-Here is an example call for `non-interactive` mode (useful for `bash` scripts on a `job-system` such as `Slurm`):
 
-```
-python extract.py --model_name alexnet --module_name classifier.4 --pretrained --batch_size 32 --things --in_path ./images/ --out_path ./activations/ --device cuda --rnd_seed 42
-```
+### Example call for CLIP:
+
+#### `model, transforms = thingsvision.get_model('clip-ViT', pretrained=True, model_path=None, device=device)`
+#### `module_name = 'visual'`
+#### `dl = thingsvision.load_dl('./images/', apply_transforms=True, clip=True, batch_size=64, things=True, transforms=transforms)`
+#### `features, targets = thingsvision.extract_features(model, dl, module_name, batch_size, flatten_acts=False, device=device, clip=True)`
+#### `features = thingsvision.normalize_features(features)`
+#### `thingsvision.save_features(features, f'./clip-ViT/{module_name}/activations', '.npy')`
+#### `thingsvision.save_targets(targets, f'./clip-ViT/{module_name}/targets', '.npy')`
+
 
 ## IMPORTANT NOTES:
 
