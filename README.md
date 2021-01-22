@@ -9,9 +9,9 @@ $ pip install thingsvision
 $ wget https://github.com/ViCCo-Group/THINGSvision/blob/master/bpe_simple_vocab_16e6.txt.gz
 $ wget https://github.com/ViCCo-Group/THINGSvision/blob/master/data/item_names.tsv
 $ wget https://github.com/ViCCo-Group/THINGSvision/blob/master/data/things_concepts.tsv
-$ mv bpe_simple_vocab_16e6.txt.gz /Users/$(whoami)/anaconda3/lib/python3.#/site-packages/thingsvision/
-$ mkdir /Users/$(whoami)/anaconda3/lib/python3.#/site-packages/thingsvision/data
-$ mv item_names.tsv things_concepts.tsv /Users/$(whoami)/anaconda3/lib/python3.#/site-packages/thingsvision/data/
+$ mv bpe_simple_vocab_16e6.txt.gz /Users/$(whoami)/anaconda3/lib/python3.VERSION/site-packages/thingsvision/
+$ mkdir /Users/$(whoami)/anaconda3/lib/python3.VERSION/site-packages/thingsvision/data
+$ mv item_names.tsv things_concepts.tsv /Users/$(whoami)/anaconda3/lib/python3.VERSION/site-packages/thingsvision/data/
 ```
 
 3. Execute the following lines to have the latest `PyTorch` and `CUDA` versions available:
