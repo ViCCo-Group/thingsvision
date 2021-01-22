@@ -5,6 +5,7 @@ __all__ = ['ImageDataset']
 
 import os
 import re
+import thingsvision
 import torch
 
 import numpy as np
@@ -19,7 +20,6 @@ from functools import cached_property
 from PIL import Image
 from torchvision import transforms as T
 from typing import Tuple
-from thingsvision import get_digits, load_item_names
 
 def parse_img_name(img_name:str):
     return re.search(r'(.jpg|.png|.PNG)$', img_name)
@@ -66,7 +66,7 @@ class ImageDataset(object):
         else:
             if self.things_behavior:
                 #sort objects according to item names in THINGS database
-                self.objs = [pjoin(PATH, name + '.jpg').replace(PATH, '') for name in load_item_names()]
+                self.objs = [pjoin(PATH, name + '.jpg').replace(PATH, '') for name in thingsvision.load_item_names()]
             else:
                 #sort objects in alphabetic order
                 self.objs = sorted([obj for obj in os.listdir(PATH)])
@@ -151,6 +151,6 @@ class ImageDataset(object):
         return composition
 
     def sort_imgs(self, imgs:np.ndarray) -> np.ndarray:
-        img_identifiers = list(map(get_digits, imgs))
+        img_identifiers = list(map(thingsvision.get_digits, imgs))
         imgs_sorted = imgs[np.argsort(img_identifiers)]
         return imgs_sorted

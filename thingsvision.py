@@ -198,19 +198,7 @@ def compress_features(X:np.ndarray, rnd_seed:int, retained_var:float=.9) -> np.n
     transformed_feats = pca.fit_transform(X)
     return transformed_feats
 
-def extract_features(
-                     model,
-                     data_loader,
-                     module_name:str,
-                     batch_size:int,
-                     flatten_acts:bool,
-                     device:torch.device,
-                     center_acts:bool,
-                     compress_acts:bool,
-                     normalize_reps:bool,
-                     clip:bool=False,
-                     feature_extractor=None,
-) -> Tuple[np.ndarray]:
+def extract_features(model, data_loader, module_name:str, batch_size:int, flatten_acts:bool, device:torch.device, clip:bool=False, feature_extractor=None) -> Tuple[np.ndarray]:
     """extract hidden unit activations (at specified layer) for every image in database"""
     if re.search(r'ensemble$', module_name):
         ensembles = ['conv_ensemble', 'maxpool_ensemble']
