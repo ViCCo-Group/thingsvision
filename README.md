@@ -71,11 +71,11 @@ thingsvision.save_targets(targets, f'./AlexNet/{module_name}/targets', '.npy')
 ### Example call for CLIP:
 
 ```
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
 model, transforms = thingsvision.load_model('clip-ViT', pretrained=True, model_path=None, device=device)
-module_name = 'visual' (note that 'visual' in clip is equivalent to the penultimate layer of a CNN-based torchvision model)
-dl = thingsvision.load_dl('./images/', apply_transforms=True, clip=True, batch_size=64, things_behavior=True, transforms=transforms)
-features, targets = thingsvision.extract_features(model, dl, module_name, batch_size, flatten_acts=False, device=device, clip=True)
+module_name = thingsvision.show_model(model, 'clip-ViT')
+dl = thingsvision.load_dl('../vision/reference_images/', apply_transforms=True, clip=True, batch_size=64, things_behavior=True, transforms=transforms)
+features, targets = thingsvision.extract_features(model, dl, module_name, batch_size=64, flatten_acts=False, device=device, clip=True)
 features = thingsvision.normalize_features(features)
 thingsvision.save_features(features, f'./clip-ViT/{module_name}/activations', '.npy')
 thingsvision.save_targets(targets, f'./clip-ViT/{module_name}/targets', '.npy')
