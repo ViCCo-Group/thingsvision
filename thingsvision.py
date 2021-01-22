@@ -2,9 +2,13 @@
 # -*- coding: utf-8 -*-
 
 __all__ = [
+            'load_dl',
+            'load_model',
+            'show_model',
             'center_features',
             'normalize_features',
-            'compose_transforms',
+            'compress_features',
+            'enumerate_layers',
             'extract_features',
             'get_cls_mapping_imgnet',
             'get_digits',
@@ -15,11 +19,11 @@ __all__ = [
             'parse_imagenet_classes',
             'parse_imagenet_synsets',
             'split_activations',
-            'register_hook',
-            'store_activations',
             'slices2tensor',
             'tensor2slices',
             'load_item_names',
+            'save_features',
+            'save_targets',
             ]
 
 import clip
@@ -40,20 +44,6 @@ from typing import Tuple, List, Iterator
 from torch.utils.data import DataLoader, Subset
 from torchvision import transforms as T
 from dataset import ImageDataset
-
-def show_model(model, model_name:str) -> str:
-    if re.search(r'^clip', model_name):
-        for l, (n, p) in enumerate(model.named_modules()):
-            if l > 1:
-                if re.search(r'^visual', n):
-                    print(n)
-        print('visual')
-    else:
-        print(model)
-    print(f'\nEnter part of the model for which you would like to extract features:\n')
-    module_name = str(input())
-    print()
-    return module_name
 
 def load_dl(
              PATH:str,
@@ -91,7 +81,7 @@ def load_dl(
 
     return dataset
 
-def get_model(model_name:str, pretrained:bool, device:torch.device, model_path:str=None):
+def load_model(model_name:str, pretrained:bool, device:torch.device, model_path:str=None):
     """load a pretrained Torchvision or CLIP model of choice into memory"""
     if re.search(r'^clip', model_name):
         assert isinstance(device, str), '\nFor CLIP models, name of device (str) has to be provided.\n'
@@ -133,6 +123,20 @@ def get_model(model_name:str, pretrained:bool, device:torch.device, model_path:s
     model.to(device)
     model.eval()
     return model
+
+def show_model(model, model_name:str) -> str:
+    if re.search(r'^clip', model_name):
+        for l, (n, p) in enumerate(model.named_modules()):
+            if l > 1:
+                if re.search(r'^visual', n):
+                    print(n)
+        print('visual')
+    else:
+        print(model)
+    print(f'\nEnter part of the model for which you would like to extract features:\n')
+    module_name = str(input())
+    print()
+    return module_name
 
 def get_activation(name):
     """store hidden unit activations at each layer of model"""
