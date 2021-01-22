@@ -79,7 +79,7 @@ def load_dl(
     else:
         dl = DataLoader(dataset, batch_size=batch_size, shuffle=False)
 
-    return dataset
+    return dl
 
 def load_model(model_name:str, pretrained:bool, device:torch.device, model_path:str=None):
     """load a pretrained Torchvision or CLIP model of choice into memory"""
