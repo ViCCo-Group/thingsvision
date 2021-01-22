@@ -2,10 +2,21 @@
 
 1. Make sure you have the latest Python version (>= 3.7) and [install PyTorch 1.7.1](https://pytorch.org/get-started/locally/). Note that [PyTorch 1.7.1](https://pytorch.org/) requires CUDA 10.2 or above, if you want to extract features on a GPU. However, the code runs pretty fast on a strong CPU (Intel i7 or i9). Run the following `pip` command in your terminal. 
 
-2. On a CUDA GPU machine, the following will do the trick:
+2. You have to download files from the parent repository and move them into the Anaconda site-package directory on your machine. Simply execute the following lines in your terminal:
+
+``` bash
+$ pip install thingsvision
+$ wget https://github.com/ViCCo-Group/THINGSvision/blob/master/bpe_simple_vocab_16e6.txt.gz
+$ wget https://github.com/ViCCo-Group/THINGSvision/blob/master/data/item_names.tsv
+$ wget https://github.com/ViCCo-Group/THINGSvision/blob/master/data/things_concepts.tsv
+$ mv bpe_simple_vocab_16e6.txt.gz /Users/$(whoami)/anaconda3/lib/python3.VERSION/site-packages/thingsvision/
+$ mkdir /Users/$(whoami)/anaconda3/lib/python3.VERSION/site-packages/thingsvision/data
+$ mv item_names.tsv things_concepts.tsv /Users/$(whoami)/anaconda3/lib/python3.VERSION/site-packages/thingsvision/data/
+```
+
+3. Execute the following lines to have the latest `PyTorch` and `CUDA` versions available:
 
 ```bash
-$ pip install thingsvision
 $ conda install --yes -c pytorch pytorch=1.7.1 torchvision cudatoolkit=11.0
 $ pip install -r requirements.txt
 ```
@@ -60,11 +71,11 @@ thingsvision.save_targets(targets, f'./AlexNet/{module_name}/targets', '.npy')
 ### Example call for CLIP:
 
 ```
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
 model, transforms = thingsvision.load_model('clip-ViT', pretrained=True, model_path=None, device=device)
-module_name = 'visual' (note that 'visual' in clip is equivalent to the penultimate layer of a CNN-based torchvision model)
-dl = thingsvision.load_dl('./images/', apply_transforms=True, clip=True, batch_size=64, things_behavior=True, transforms=transforms)
-features, targets = thingsvision.extract_features(model, dl, module_name, batch_size, flatten_acts=False, device=device, clip=True)
+module_name = thingsvision.show_model(model, 'clip-ViT')
+dl = thingsvision.load_dl('../vision/reference_images/', apply_transforms=True, clip=True, batch_size=64, things_behavior=True, transforms=transforms)
+features, targets = thingsvision.extract_features(model, dl, module_name, batch_size=64, flatten_acts=False, device=device, clip=True)
 features = thingsvision.normalize_features(features)
 thingsvision.save_features(features, f'./clip-ViT/{module_name}/activations', '.npy')
 thingsvision.save_targets(targets, f'./clip-ViT/{module_name}/targets', '.npy')
