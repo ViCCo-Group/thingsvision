@@ -26,7 +26,6 @@ __all__ = [
             'save_targets',
             ]
 
-import clip
 import os
 import random
 import re
@@ -34,6 +33,7 @@ import torch
 
 import numpy as np
 import pandas as pd
+import thingsvision.clip as clip
 import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.models as models
@@ -43,7 +43,7 @@ from skimage.transform import resize
 from typing import Tuple, List, Iterator
 from torch.utils.data import DataLoader, Subset
 from torchvision import transforms as T
-from dataset import ImageDataset
+from thingsvision.dataset import ImageDataset
 
 def load_dl(
              PATH:str,
@@ -207,7 +207,7 @@ def extract_features(model, data_loader, module_name:str, batch_size:int, flatte
             feature_extractor = nn.Conv2d
         else:
             feature_extractor = nn.MaxPool2d
-    n_samples = len(data_loader)
+    n_samples = int(len(data_loader) * batch_size)
     #initialise dictionary to store hidden unit activations on the fly
     global activations
     activations = {}

@@ -5,12 +5,12 @@ __all__ = ['ImageDataset']
 
 import os
 import re
-import thingsvision
 import torch
 
 import numpy as np
 import pandas as pd
 import skimage.io as io
+import thingsvision.vision as vision
 
 from os.path import isdir as pisdir
 from os.path import exists as pexists
@@ -66,7 +66,7 @@ class ImageDataset(object):
         else:
             if self.things_behavior:
                 #sort objects according to item names in THINGS database
-                self.objs = [pjoin(PATH, name + '.jpg').replace(PATH, '') for name in thingsvision.load_item_names()]
+                self.objs = [pjoin(PATH, name + '.jpg').replace(PATH, '') for name in vision.load_item_names()]
             else:
                 #sort objects in alphabetic order
                 self.objs = sorted([obj for obj in os.listdir(PATH)])
@@ -151,6 +151,6 @@ class ImageDataset(object):
         return composition
 
     def sort_imgs(self, imgs:np.ndarray) -> np.ndarray:
-        img_identifiers = list(map(thingsvision.get_digits, imgs))
+        img_identifiers = list(map(vision.get_digits, imgs))
         imgs_sorted = imgs[np.argsort(img_identifiers)]
         return imgs_sorted
