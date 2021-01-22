@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="thingsvision",
-    version="0.0.1",
+    version="0.0.2",
     author="Lukas Muttenthaler",
     author_email="muttenthaler@cbs.mpg.de",
     description="A library to extract image features from state-of-the-art neural networks for Computer Vision",
@@ -18,5 +18,5 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    python_requires='>=3.6',
+    python_requires='>=3.7',
 )
