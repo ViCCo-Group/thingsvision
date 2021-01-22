@@ -1,6 +1,6 @@
 ## Environment Setup
 
-1. Make sure you have the latest Python version (>= 3.8) and [install PyTorch 1.7.1](https://pytorch.org/get-started/locally/). Note that [PyTorch 1.7.1](https://pytorch.org/) requires CUDA 10.2 or above, if you want to extract features on a GPU. However, the code runs pretty fast on a strong CPU (Intel i7 or i9). Run the following `pip` command in your terminal. 
+1. Make sure you have the latest Python version (>= 3.7) and [install PyTorch 1.7.1](https://pytorch.org/get-started/locally/). Note that [PyTorch 1.7.1](https://pytorch.org/) requires CUDA 10.2 or above, if you want to extract features on a GPU. However, the code runs pretty fast on a strong CPU (Intel i7 or i9). Run the following `pip` command in your terminal. 
 
 2. On a CUDA GPU machine, the following will do the trick:
 
@@ -49,7 +49,7 @@ AlexNet(
   )
 )
 
-dl = thingsvision.load_dl('./images/', apply_transforms=True, clip=True, batch_size=64, things=True, transforms=None)
+dl = thingsvision.load_dl('./images/', apply_transforms=True, clip=False, batch_size=64, things_behavior=True, transforms=None)
 features, targets = thingsvision.extract_features(model, dl, module_name, batch_size=64, flatten_acts=False, device=device, clip=False)
 features = thingsvision.center_features(features)
 thingsvision.save_features(features, f'./AlexNet/{module_name}/activations', '.npy')
@@ -63,7 +63,7 @@ thingsvision.save_targets(targets, f'./AlexNet/{module_name}/targets', '.npy')
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model, transforms = thingsvision.load_model('clip-ViT', pretrained=True, model_path=None, device=device)
 module_name = 'visual' (note that 'visual' in clip is equivalent to the penultimate layer of a CNN-based torchvision model)
-dl = thingsvision.load_dl('./images/', apply_transforms=True, clip=True, batch_size=64, things=True, transforms=transforms)
+dl = thingsvision.load_dl('./images/', apply_transforms=True, clip=True, batch_size=64, things_behavior=True, transforms=transforms)
 features, targets = thingsvision.extract_features(model, dl, module_name, batch_size, flatten_acts=False, device=device, clip=True)
 features = thingsvision.normalize_features(features)
 thingsvision.save_features(features, f'./clip-ViT/{module_name}/activations', '.npy')
