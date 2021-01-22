@@ -19,7 +19,7 @@ from functools import cached_property
 from PIL import Image
 from torchvision import transforms as T
 from typing import Tuple
-from utils import get_digits, load_item_names
+from thingsvision import get_digits, load_item_names
 
 def parse_img_name(img_name:str):
     return re.search(r'(.jpg|.png|.PNG)$', img_name)
