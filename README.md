@@ -21,11 +21,11 @@ Replace `cudatoolkit=11.0` above with the appropriate CUDA version on your machi
 
 ### Example call for AlexNet:
 
-#### `device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')`
-#### `model = thingsvision.get_model('alexnet', pretrained=True, model_path=None, device=device)`
-#### `module_name = thingsvision.show_model(model, 'alexnet')`
-
 ```
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+model = thingsvision.get_model('alexnet', pretrained=True, model_path=None, device=device)
+module_name = thingsvision.show_model(model, 'alexnet')
+
 AlexNet(
   (features): Sequential(
     (0): Conv2d(3, 64, kernel_size=(11, 11), stride=(4, 4), padding=(2, 2))
@@ -53,14 +53,13 @@ AlexNet(
     (6): Linear(in_features=4096, out_features=1000, bias=True)
   )
 )
-```
 
-#### `dl = thingsvision.load_dl('./images/', apply_transforms=True, clip=True, batch_size=64, things=True, transforms=None)`
-#### `features, targets = thingsvision.extract_features(model, dl, module_name, batch_size=64, flatten_acts=False, device=device, clip=False)`
-)
-#### `features = thingsvision.center_features(features)`
-#### `thingsvision.save_features(features, f'./AlexNet/{module_name}/activations', '.npy')`
-#### `thingsvision.save_targets(targets, f'./AlexNet/{module_name}/targets', '.npy')`
+dl = thingsvision.load_dl('./images/', apply_transforms=True, clip=True, batch_size=64, things=True, transforms=None)
+features, targets = thingsvision.extract_features(model, dl, module_name, batch_size=64, flatten_acts=False, device=device, clip=False)
+features = thingsvision.center_features(features)
+thingsvision.save_features(features, f'./AlexNet/{module_name}/activations', '.npy')
+thingsvision.save_targets(targets, f'./AlexNet/{module_name}/targets', '.npy')
+```
 
 
 ### Example call for CLIP:
