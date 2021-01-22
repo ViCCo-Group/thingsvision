@@ -4,14 +4,14 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="thingsvision-LukasMut", # Replace with your own username
+    name="thingsvision",
     version="0.0.1",
     author="Lukas Muttenthaler",
     author_email="muttenthaler@cbs.mpg.de",
     description="A library to extract image features from state-of-the-art neural networks for Computer Vision",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/pypa/thingsvision",
+    url="https://github.com/ViCCo-Group/thingsvision",
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
