@@ -6,7 +6,7 @@
 $ pip install thingsvision
 ```
 
-2. You have to download files from the parent repository and move them into the Anaconda site-package directory on your machine. Simply execute the following lines in your terminal:
+2. You have to download files from the parent repository (i.e., this repo) and move them into the Anaconda site-package directory on your machine. Simply execute the following lines in your terminal:
 
 ``` bash
 $ wget https://github.com/ViCCo-Group/THINGSvision/blob/master/bpe_simple_vocab_16e6.txt.gz
