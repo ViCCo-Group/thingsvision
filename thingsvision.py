@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 
 __all__ = [
-            'center_activations',
+            'center_features',
+            'normalize_features',
             'compose_transforms',
             'extract_features',
             'get_cls_mapping_imgnet',
@@ -10,7 +11,6 @@ __all__ = [
             'get_model',
             'get_shape',
             'json2dict',
-            'sparsity',
             'merge_activations',
             'parse_imagenet_classes',
             'parse_imagenet_synsets',
@@ -24,6 +24,7 @@ __all__ = [
 
 import clip
 import os
+import random
 import re
 import torch
 
@@ -35,10 +36,62 @@ import torchvision.models as models
 
 from os.path import join as pjoin
 from skimage.transform import resize
-from typing import Tuple, List
+from typing import Tuple, List, Iterator
+from torch.utils.data import DataLoader, Subset
 from torchvision import transforms as T
+from dataset import ImageDataset
 
-def get_model(model_name:str, pretrained:bool, model_path:str=None, device=None):
+def show_model(model, model_name:str) -> str:
+    if re.search(r'^clip', model_name):
+        for l, (n, p) in enumerate(model.named_modules()):
+            if l > 1:
+                if re.search(r'^visual', n):
+                    print(n)
+        print('visual')
+    else:
+        print(model)
+    print(f'\nEnter part of the model for which you would like to extract features:\n')
+    module_name = str(input())
+    print()
+    return module_name
+
+def load_dl(
+             PATH:str,
+             apply_transforms:bool,
+             clip:bool,
+             batch_size:int,
+             things=None,
+             things_behavior=None,
+             fraction=None,
+             transforms=None,
+             ) -> Iterator:
+    print(f'\n...Loading dataset into memory.')
+    dataset = ImageDataset(
+                            PATH=PATH,
+                            apply_transforms=apply_transforms,
+                            things=things,
+                            things_behavior=things_behavior,
+                            clip=clip,
+                            transforms=transforms,
+                            )
+
+    print(f'...Transforming dataset into DataLoader.\n')
+    #if dataset consists of more images than classes, then apply flattening
+    if len(dataset.imgs) > len(dataset.objs):
+        dataset = dataset.flatten_dataset(split_data=False)
+
+    n_samples = len(dataset)
+    if isinstance(fraction, float):
+        n_subset = int(n_samples * fraction)
+        rndperm = torch.randperm(n_samples)[:n_subset]
+        subset = Subset(dataset, rndperm)
+        dl = DataLoader(subset, batch_size=batch_size, shuffle=False)
+    else:
+        dl = DataLoader(dataset, batch_size=batch_size, shuffle=False)
+
+    return dataset
+
+def get_model(model_name:str, pretrained:bool, device:torch.device, model_path:str=None):
     """load a pretrained Torchvision or CLIP model of choice into memory"""
     if re.search(r'^clip', model_name):
         assert isinstance(device, str), '\nFor CLIP models, name of device (str) has to be provided.\n'
@@ -46,6 +99,7 @@ def get_model(model_name:str, pretrained:bool, model_path:str=None, device=None)
             model, transforms = clip.load("ViT-B/32", device=device, model_path=model_path, jit=False)
         else:
             model, transforms = clip.load("RN50", device=device, model_path=model_path, jit=False)
+        model.eval()
         return model, transforms
 
     if not model_path:
@@ -75,7 +129,9 @@ def get_model(model_name:str, pretrained:bool, model_path:str=None, device=None)
     if model_path:
         state_dict = torch.load(model_path)
         model.load_state_dict(state_dict)
-
+    #move pretrained model to current device and set it to evaluation mode
+    model.to(device)
+    model.eval()
     return model
 
 def get_activation(name):
@@ -95,13 +151,21 @@ def register_hook(model):
 
 def normalize_features(X:np.ndarray) -> np.ndarray:
     """normalize feature vectors by their l2-norm"""
-    X /= np.linalg.norm(X, axis=1)[:, np.newaxis]
-    return X
+    try:
+        X /= np.linalg.norm(X, axis=1)[:, np.newaxis]
+        return X
+    except:
+        print(f'\nMake sure features are represented through a two-dimensional array\n')
+        return None
 
-def center_activations(X:np.ndarray) -> np.ndarray:
+def center_features(X:np.ndarray) -> np.ndarray:
     """center activations to have zero mean"""
-    X -= X.mean(axis=0)
-    return X
+    try:
+        X -= X.mean(axis=0)
+        return X
+    except:
+        print('\nMake sure features are represented through a two-dimensional array\n')
+        return None
 
 def enumerate_layers(model, feature_extractor) -> List[int]:
     layers = []
@@ -113,7 +177,7 @@ def enumerate_layers(model, feature_extractor) -> List[int]:
             k += 1
     return layers
 
-def ensemble_featmaps(activations:dict, layers:list, pooling:str='max', alpha:float=5., beta:float=10.) -> torch.Tensor:
+def ensemble_featmaps(activations:dict, layers:list, pooling:str='max', alpha:float=3., beta:float=5.) -> torch.Tensor:
     """concatenate globally (max or average) pooled feature maps"""
     acts = [activations[''.join(('features.', str(l)))] for l in layers]
     func = torch.max if pooling == 'max' else torch.mean
@@ -125,6 +189,7 @@ def ensemble_featmaps(activations:dict, layers:list, pooling:str='max', alpha:fl
 
 def compress_features(X:np.ndarray, rnd_seed:int, retained_var:float=.9) -> np.ndarray:
     from sklearn.decomposition import PCA
+    assert isinstance(rnd_seed, int), '\nTo reproduce results, random state for PCA must be defined.\n'
     pca = PCA(n_components=retained_var, svd_solver='full', random_state=rnd_seed)
     transformed_feats = pca.fit_transform(X)
     return transformed_feats
@@ -141,17 +206,21 @@ def extract_features(
                      normalize_reps:bool,
                      clip:bool=False,
                      feature_extractor=None,
-                     rnd_seed=None,
 ) -> Tuple[np.ndarray]:
     """extract hidden unit activations (at specified layer) for every image in database"""
+    if re.search(r'ensemble$', module_name):
+        ensembles = ['conv_ensemble', 'maxpool_ensemble']
+        assert module_name in ensembles, f'\nIf aggregating filters across layers and subsequently concatenating activations, module name must be one of {ensembles}\n'
+        if re.search(r'^conv', module_name):
+            feature_extractor = nn.Conv2d
+        else:
+            feature_extractor = nn.MaxPool2d
+    n_samples = len(data_loader)
     #initialise dictionary to store hidden unit activations on the fly
     global activations
     activations = {}
     #register forward hook to store activations
     model = register_hook(model)
-    #move pretrained model to current device and set it to evaluation mode
-    model.to(device)
-    model.eval()
     features, targets = [], []
     with torch.no_grad():
         for i, batch in enumerate(data_loader):
@@ -166,8 +235,6 @@ def extract_features(
             if re.search(r'ensemble$', module_name):
                 layers = enumerate_layers(model, feature_extractor)
                 act = ensemble_featmaps(activations, layers, 'max')
-                if re.search(r'pen', module_name):
-                    act = torch.cat((act, activations['classifier.3']), dim=-1)
             else:
                 act = activations[module_name]
                 if flatten_acts:
@@ -185,22 +252,7 @@ def extract_features(
     features = np.vstack(features)
     targets = np.asarray(targets).ravel()
     assert len(features) == len(targets)
-
-    if center_acts:
-        assert re.search(r'(^classifier|ensemble$|^visual)', module_name) or flatten_acts or clip, \
-        '\nMake sure features are represented through a two-dimensional array\n'
-        #center features to have zero mean (centered around the origin of the coordinate system)
-        features = center_activations(features)
-    if normalize_reps:
-        assert re.search(r'(^classifier|ensemble$|^visual)', module_name) or flatten_acts or clip, \
-        '\nMake sure features are represented through a two-dimensional array\n'
-        #normalize object representations by their respective l2-norms
-        features = normalize_features(features)
-    if re.search(r'ensemble$', module_name) and compress_acts:
-        #transform features into lower-dimensional space via PCA (retain 90% or 95% of the variance)
-        assert isinstance(rnd_seed, int), '\nTo reproduce results, random state for PCA must be defined\n'
-        features = compress_features(features, rnd_seed)
-
+    print(f'\nFeatures successfully extracted for all {n_samples} images in the database\n')
     return features, targets
 
 def store_activations(PATH:str, features:np.ndarray, file_format:str) -> None:
@@ -264,9 +316,6 @@ def merge_activations(PATH:str) -> np.ndarray:
     activations = np.vstack([np.loadtxt(pjoin(PATH, act)) for act in activation_splits])
     return activations
 
-def sparsity(A:np.ndarray) -> float:
-    return 1.0 - (A[A>0].size/A.size)
-
 def parse_imagenet_synsets(file_name:str, folder:str='./data/'):
     def parse_str(str):
         return re.sub(r'[^a-zA-Z]', '', str).rstrip('n').lower()
@@ -317,3 +366,34 @@ def compose_transforms(resize_dim:int=256, crop_dim:int=224):
 
 def load_item_names(folder:str='./data') -> np.ndarray:
     return pd.read_csv(pjoin(folder, 'item_names.tsv'), encoding='utf-8', sep='\t').uniqueID.values
+
+def save_features(features:np.ndarray, out_path:str, file_format:str, n_splits:int=10) -> None:
+    if not os.path.exists(out_path):
+        print(f'\nOutput directory did not exist. Creating directories to save features...\n')
+        os.makedirs(out_path)
+    #save hidden unit actvations to disk (either as one single file or as several splits)
+    if len(features.shape) == 2:
+        try:
+            store_activations(PATH=out_path, features=features, file_format=file_format)
+        except MemoryError:
+            print(f'\n...Could not save activations as one single file due to memory problems.')
+            print(f'...Now splitting activations along row axis into several batches.')
+            split_activations(PATH=out_path, features=features, file_format=file_format, n_splits=n_splits)
+            print(f'...Saved activations in {n_splits:02d} different files, enumerated in ascending order.')
+            print(f'If you want activations to be splitted into more or fewer files, simply change number of splits parameter.\n')
+    else:
+        print(f'\n...Cannot save 4-way tensor in a single file.')
+        print(f'...Now slicing tensor to store as a matrix.')
+        tensor2slices(PATH=out_path, file_name='activations.txt', features=features)
+        print(f'\n...Sliced tensor into separate parts, and saved resulting matrix as .txt file.\n')
+
+def save_targets(targets:np.ndarray, out_path:str, file_format:str) -> None:
+    if not os.path.exists(out_path):
+        print(f'\nOutput directory did not exist. Creating directories to save targets...\n')
+        os.makedirs(out_path)
+    if re.search(r'npy', file_format):
+        with open(pjoin(out_path, 'targets.npy'), 'wb') as f:
+            np.save(f, targets)
+    else:
+        np.savetxt(pjoin(out_path, 'targets.txt'), targets)
+    print(f'\nTargets successfully saved to disk.\n')
