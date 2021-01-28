@@ -9,7 +9,7 @@ $ pip install thingsvision
 2. You have to download files from the parent repository (i.e., this repo) and move them into the Anaconda site-package directory on your machine. Simply execute the following lines in your terminal:
 
 ``` bash
-$ wget https://github.com/ViCCo-Group/THINGSvision/blob/master/thingsvision/bpe_simple_vocab_16e6.txt.gz
+$ wget https://github.com/openai/CLIP/blob/main/bpe_simple_vocab_16e6.txt.gz
 $ wget https://github.com/ViCCo-Group/THINGSvision/blob/master/thingsvision/data/item_names.tsv
 $ wget https://github.com/ViCCo-Group/THINGSvision/blob/master/thingsvision/data/things_concepts.tsv
 $ mv bpe_simple_vocab_16e6.txt.gz /Users/$(whoami)/anaconda3/lib/python3.VERSION/site-packages/thingsvision/
