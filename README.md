@@ -6,15 +6,12 @@
 $ pip install thingsvision
 ```
 
-2. You have to download files from the parent repository (i.e., this repo) and move them into the Anaconda site-package directory on your machine. Simply execute the following lines in your terminal:
+2. You have to download files from the parent repository (i.e., this repo) and move them into the Anaconda site-package directory on your machine to leverage. Simply download the shell script `get_files.sh` from this repo and execute it as follows (the shell script will do file downloading and moving for you):
 
 ``` bash
-$ wget https://raw.githubusercontent.com/ViCCo-Group/THINGSvision/master/thingsvision/bpe_simple_vocab_16e6.txt.gz
-$ wget https://raw.githubusercontent.com/ViCCo-Group/THINGSvision/master/thingsvision/data/item_names.tsv
-$ wget https://raw.githubusercontent.com/ViCCo-Group/THINGSvision/master/thingsvision/data/things_concepts.tsv
-$ mv bpe_simple_vocab_16e6.txt.gz /Users/$(whoami)/anaconda3/lib/python3.VERSION/site-packages/thingsvision/
-$ mkdir /Users/$(whoami)/anaconda3/lib/python3.VERSION/site-packages/thingsvision/data
-$ mv item_names.tsv things_concepts.tsv /Users/$(whoami)/anaconda3/lib/python3.VERSION/site-packages/thingsvision/data/
+$ wget https://raw.githubusercontent.com/ViCCo-Group/THINGSvision/master/get_files.sh (Linux)
+$ curl -O https://raw.githubusercontent.com/ViCCo-Group/THINGSvision/master/get_files.sh (Mac)
+$ bash get_files.sh
 ```
 3. Execute the following lines to have the latest `PyTorch` and `CUDA` versions available:
 
