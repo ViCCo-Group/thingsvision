@@ -17,7 +17,11 @@ v=$(echo "$v" | cut -c10)
 path="/Users/$(whoami)/anaconda3/lib/python3.$v/site-packages/thingsvision/"
 subfolder="$(pwd)/data/"
 
-mkdir "$subfolder"
+if [[ -d $subfolder ]]; then
+	echo "PATH $subfolder exists"
+else
+	mkdir "$subfolder"
+fi
 
 for i in ${!URLS[@]}; do
 	file=${FILES[i]}
