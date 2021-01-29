@@ -60,7 +60,7 @@ AlexNet(
   )
 )
 
-dl = vision.load_dl('./THINGS_images/', apply_transforms=True, clip=False, batch_size=64, things=True, transforms=None)
+dl = vision.load_dl('./images/', apply_transforms=True, clip=False, batch_size=64, things=True, transforms=None)
 features, targets = vision.extract_features(model, dl, module_name, batch_size=64, flatten_acts=False, device=device, clip=False)
 features = vision.center_features(features)
 vision.save_features(features, f'./AlexNet/{module_name}/activations', '.npy')
@@ -89,7 +89,7 @@ vision.save_targets(targets, f'./clip-ViT/{module_name}/targets', '.npy')
 
 1. Image data will automatically be converted into a ready-to-use dataset class, and subsequently wrapped with a `PyTorch` mini-batch dataloader to make neural activation extraction more efficient.
 
-2. If you happen to use the [THINGS image database](https://osf.io/jum2f/), make sure to correctly `unzip` all zip files, and have all `object` directories stored in the parent directory `./images/` (e.g., `./images/object_xy/`) as well as the `things_concept.tsv` file stored in the `./data/` folder. The script will automatically check, whether you have done the latter correctly. 
+2. If you happen to use the [THINGS image database](https://osf.io/jum2f/), make sure to correctly `unzip` all zip files (sorted from A-Z), and have all `object` directories stored in the parent directory `./images/` (e.g., `./images/object_xy/`) as well as the `things_concept.tsv` file stored in the `./data/` folder. `bash get_files.sh` does the latter for you. Images, however, must be downloaded from the [THINGS database](https://osf.io/jum2f/).  
 
 3. In case you would like to use your own images or a different dataset make sure that all images are `.jpg`, `.png`, or `.PNG` files. Image files must be saved either in `in_path` (e.g., `./images/image_xy.jpg`), or in subfolders of `in_path` (e.g., `./images/class_xy/image_xy.jpg`) in case images correspond to different classes where `n` images are stored for each of the `k` classes (such as in ImageNet or THINGS). You don't need to tell the script in which of the two ways your images are stored. You just need to pass `in_path`. However, images have to be stored in one way or the other.
 
