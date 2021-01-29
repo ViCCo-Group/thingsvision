@@ -15,9 +15,9 @@ FILES=(
 v=$(python --version)
 v=$(echo "$v" | cut -c10)
 path="/Users/$(whoami)/anaconda3/lib/python3.$v/site-packages/thingsvision"
-subfolder="./data"
+subfolder="$(pwd)/data/"
 
-mkdir "subfolder"
+mkdir "$subfolder"
 
 for i in ${!URLS[@]}; do
 	file=${FILES[i]}
