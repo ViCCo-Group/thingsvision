@@ -3,6 +3,16 @@ import setuptools
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
+requirements = ['ftfy',
+                'numpy',
+                'pandas',
+                'scikit-image',
+                'torch',
+                'torchvision',
+                'tqdm',
+                'regex',
+                'scipy']
+
 setuptools.setup(
                 name="thingsvision",
                 version="0.2.1",
