@@ -14,7 +14,7 @@ FILES=(
 
 v=$(python --version)
 v=$(echo "$v" | cut -c10)
-path="/Users/$(whoami)/anaconda3/lib/python3.$v/site-packages/thingsvision"
+path="/Users/$(whoami)/anaconda3/lib/python3.$v/site-packages/thingsvision/"
 subfolder="$(pwd)/data/"
 
 mkdir "$subfolder"
