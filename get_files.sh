@@ -15,10 +15,9 @@ FILES=(
 v=$(python --version)
 v=$(echo "$v" | cut -c10)
 path="/Users/$(whoami)/anaconda3/lib/python3.$v/site-packages/thingsvision"
-subfolder="/data"
-data_dir="$path$subfolder"
+subfolder="./data"
 
-mkdir "$data_dir"
+mkdir "subfolder"
 
 for i in ${!URLS[@]}; do
 	file=${FILES[i]}
@@ -29,7 +28,7 @@ for i in ${!URLS[@]}; do
 		if [ $i = 0 ]; then
 			mv "$file" "$path"
 		else
-			mv "$file" "$data_dir"
+			mv "$file" "$subfolder"
 		fi
 	else
 		echo "$url not successfully downloaded"
