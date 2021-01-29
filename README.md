@@ -1,23 +1,22 @@
 ## Environment Setup
 
-1. Make sure you have the latest Python version (>= 3.7) and [install PyTorch 1.7.1](https://pytorch.org/get-started/locally/). Note that [PyTorch 1.7.1](https://pytorch.org/) requires CUDA 10.2 or above, if you want to extract features on a GPU. However, the code runs pretty fast on a strong CPU (Intel i7 or i9). Run the following `pip` command in your terminal. 
+Make sure you have the latest Python version (>= 3.7) and [install PyTorch 1.7.1](https://pytorch.org/get-started/locally/). Note that [PyTorch 1.7.1](https://pytorch.org/) requires CUDA 10.2 or above, if you want to extract features on a GPU. However, the code runs already pretty fast on a strong CPU (Intel i7 or i9). Run the following `pip` command in your terminal. 
 
 ``` bash
 $ pip install thingsvision
 ```
 
-2. You have to download files from the parent repository (i.e., this repo) and move them into the Anaconda site-package directory on your machine to leverage. Simply download the shell script `get_files.sh` from this repo and execute it as follows (the shell script will do file downloading and moving for you):
+You have to download files from the parent repository (i.e., this repo) and move them into the Anaconda site-package directory on your machine to leverage. Simply download the shell script `get_files.sh` from this repo and execute it as follows (the shell script will do file downloading and moving for you):
 
 ``` bash
 $ wget https://raw.githubusercontent.com/ViCCo-Group/THINGSvision/master/get_files.sh (Linux)
 $ curl -O https://raw.githubusercontent.com/ViCCo-Group/THINGSvision/master/get_files.sh (Mac)
 $ bash get_files.sh
 ```
-3. Execute the following lines to have the latest `PyTorch` and `CUDA` versions available (not necessary, but perhaps desirable):
+Execute the following lines to have the latest `PyTorch` and `CUDA` versions available (not necessary, but perhaps desirable):
 
 ```bash
 $ conda install --yes -c pytorch pytorch=1.7.1 torchvision cudatoolkit=11.0
-```
 
 Replace `cudatoolkit=11.0` above with the appropriate CUDA version on your machine (e.g., 10.2) or `cpuonly` when installing on a machine without a GPU.
 
