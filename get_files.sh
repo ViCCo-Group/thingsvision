@@ -23,9 +23,9 @@ for i in ${!URLS[@]}; do
 	file=${FILES[i]}
 	url=${URLS[i]}
 	curl -O "$url"
-	if [ -f $file ]; then
+	if [[ -f $file ]]; then
 		echo "$url successfully downloaded"
-		if [ $i = 0 ]; then
+		if [[ $i -eq 0 ]]; then
 			mv "$file" "$path"
 		else
 			mv "$file" "$subfolder"
