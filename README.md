@@ -10,7 +10,7 @@ You have to download files from the parent repository (i.e., this repo) and move
 
 ``` bash
 $ wget https://raw.githubusercontent.com/ViCCo-Group/THINGSvision/master/get_files.sh (Linux)
-$ curl -O https://raw.githubusercontent.com/ViCCo-Group/THINGSvision/master/get_files.sh (Mac)
+$ curl -O https://raw.githubusercontent.com/ViCCo-Group/THINGSvision/master/get_files.sh (macOS)
 $ bash get_files.sh
 ```
 Execute the following lines to have the latest `PyTorch` and `CUDA` versions available (not necessary, but perhaps desirable):
