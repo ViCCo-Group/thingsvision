@@ -11,7 +11,7 @@ setuptools.setup(
                 description="A library to extract image features from state-of-the-art neural networks for Computer Vision",
                 long_description=long_description,
                 long_description_content_type="text/markdown",
-                url="https://github.com/ViCCo-Group/thingsvision",
+                url="https://github.com/ViCCo-Group/THINGSvision",
                 packages=setuptools.find_packages(),
                 install_requires=requirements,
                 classifiers=[
