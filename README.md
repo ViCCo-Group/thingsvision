@@ -21,7 +21,7 @@ $ conda install --yes -c pytorch pytorch=1.7.1 torchvision cudatoolkit=11.0
 
 Replace `cudatoolkit=11.0` above with the appropriate CUDA version on your machine (e.g., 10.2) or `cpuonly` when installing on a machine without a GPU.
 
-## Extract features at specific layer of a state-of-the-art `torchvision` or `CLIP` model 
+## Extract features at specific layer of a state-of-the-art `torchvision`, `CORnet` or `CLIP` model 
 
 ### Example call for AlexNet:
 
@@ -29,9 +29,11 @@ Replace `cudatoolkit=11.0` above with the appropriate CUDA version on your machi
 import torch
 import thingsvision.vision as vision
 
+model_name = 'alexnet'
+
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-model, transforms = vision.load_model('alexnet', pretrained=True, model_path=None, device=device)
-module_name = vision.show_model(model, 'alexnet')
+model, transforms = vision.load_model(model_name, pretrained=True, model_path=None, device=device)
+module_name = vision.show_model(model, model_name)
 
 AlexNet(
   (features): Sequential(
@@ -61,29 +63,144 @@ AlexNet(
   )
 )
 
+Enter part of the model for which you would like to extract features:
+
+(e.g., "features.10")
+
 dl = vision.load_dl('./images/', batch_size=64, things=True, transforms=transforms)
-features, targets = vision.extract_features(model, dl, module_name, batch_size=64, flatten_acts=False, device=device, clip=False)
+features, targets = vision.extract_features(model, dl, module_name, batch_size=64, flatten_acts=True, device=device)
 features = vision.center_features(features)
-vision.save_features(features, f'./AlexNet/{module_name}/activations', '.npy')
-vision.save_targets(targets, f'./AlexNet/{module_name}/targets', '.npy')
+
+vision.save_features(features, f'./{model_name}/{module_name}/activations', '.npy')
+vision.save_targets(targets, f'./{model_name}/{module_name}/targets', '.npy')
 ```
 
-
-### Example call for CLIP:
+### Example call for [CLIP](https://github.com/openai/CLIP):
 
 ```
 import torch
 import thingsvision.vision as vision
 
+model_name = 'clip-ViT'
+module_name = 'visual'
+
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
-model, transforms = vision.load_model('clip-ViT', pretrained=True, model_path=None, device=device)
-module_name = vision.show_model(model, 'clip-ViT')
+
+model, transforms = vision.load_model(model_name, pretrained=True, model_path=None, device=device)
 dl = vision.load_dl('./IMAGE_FOLDER/', batch_size=64, transforms=transforms)
 features, targets = vision.extract_features(model, dl, module_name, batch_size=64, flatten_acts=False, device=device, clip=True)
+
 features = vision.center_features(features)
 features = vision.normalize_features(features)
-vision.save_features(features, f'./clip-ViT/{module_name}/activations', '.npy')
-vision.save_targets(targets, f'./clip-ViT/{module_name}/targets', '.npy')
+
+vision.save_features(features, f'./{model_name}/{module_name}/activations', '.npy')
+vision.save_targets(targets, f'./{model_name}/{module_name}/targets', '.npy')
+```
+
+### Example call for [CORnet](https://github.com/dicarlolab/CORnet)
+
+```
+import torch
+import thingsvision.vision as vision
+
+model_name = 'cornet-s'
+
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+model, transforms = vision.load_model(model_name, pretrained=True, model_path=None, device=device)
+module_name = vision.show_model(model, model_name)
+
+Sequential(
+  (V1): Sequential(
+    (conv1): Conv2d(3, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
+    (norm1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (nonlin1): ReLU(inplace=True)
+    (pool): MaxPool2d(kernel_size=3, stride=2, padding=1, dilation=1, ceil_mode=False)
+    (conv2): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+    (norm2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (nonlin2): ReLU(inplace=True)
+    (output): Identity()
+  )
+  (V2): CORblock_S(
+    (conv_input): Conv2d(64, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+    (skip): Conv2d(128, 128, kernel_size=(1, 1), stride=(2, 2), bias=False)
+    (norm_skip): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (conv1): Conv2d(128, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+    (nonlin1): ReLU(inplace=True)
+    (conv2): Conv2d(512, 512, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False)
+    (nonlin2): ReLU(inplace=True)
+    (conv3): Conv2d(512, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+    (nonlin3): ReLU(inplace=True)
+    (output): Identity()
+    (norm1_0): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (norm2_0): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (norm3_0): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (norm1_1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (norm2_1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (norm3_1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  )
+  (V4): CORblock_S(
+    (conv_input): Conv2d(128, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+    (skip): Conv2d(256, 256, kernel_size=(1, 1), stride=(2, 2), bias=False)
+    (norm_skip): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (conv1): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
+    (nonlin1): ReLU(inplace=True)
+    (conv2): Conv2d(1024, 1024, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False)
+    (nonlin2): ReLU(inplace=True)
+    (conv3): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+    (nonlin3): ReLU(inplace=True)
+    (output): Identity()
+    (norm1_0): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (norm2_0): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (norm3_0): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (norm1_1): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (norm2_1): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (norm3_1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (norm1_2): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (norm2_2): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (norm3_2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (norm1_3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (norm2_3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (norm3_3): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  )
+  (IT): CORblock_S(
+    (conv_input): Conv2d(256, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+    (skip): Conv2d(512, 512, kernel_size=(1, 1), stride=(2, 2), bias=False)
+    (norm_skip): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (conv1): Conv2d(512, 2048, kernel_size=(1, 1), stride=(1, 1), bias=False)
+    (nonlin1): ReLU(inplace=True)
+    (conv2): Conv2d(2048, 2048, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False)
+    (nonlin2): ReLU(inplace=True)
+    (conv3): Conv2d(2048, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+    (nonlin3): ReLU(inplace=True)
+    (output): Identity()
+    (norm1_0): BatchNorm2d(2048, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (norm2_0): BatchNorm2d(2048, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (norm3_0): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (norm1_1): BatchNorm2d(2048, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (norm2_1): BatchNorm2d(2048, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (norm3_1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  )
+  (decoder): Sequential(
+    (avgpool): AdaptiveAvgPool2d(output_size=1)
+    (flatten): Flatten()
+    (linear): Linear(in_features=512, out_features=1000, bias=True)
+    (output): Identity()
+  )
+)
+
+Enter part of the model for which you would like to extract features:
+
+(e.g., "decoder.flatten")
+
+dl = vision.load_dl('./IMAGE_FOLDER/', batch_size=64, transforms=transforms)
+features, targets = vision.extract_features(model, dl, module_name, batch_size=64, flatten_acts=False, device=device)
+
+features = vision.center_features(features)
+features = vision.normalize_features(features)
+
+vision.save_features(features, f'./{model_name}/{module_name}/activations', '.npy')
+vision.save_targets(targets, f'./{model_name}/{module_name}/targets', '.npy')
 ```
 
 ## IMPORTANT NOTES:
