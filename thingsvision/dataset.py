@@ -23,8 +23,8 @@ def parse_img_name(img_name:str) -> bool:
 def rm_suffix(img:str) -> str:
     return re.sub(r'(.jpg|.jpeg|.png|.PNG|.tif|.tiff)$', '', img)
 
-def instance_dataset(PATH:str, cls_to_idx:Dict[str, int]) -> List[Tuple[str, int]]:
-    instances = [os.path.join(PATH, ''.join((cls, '.jpg'))) for cls in cls_to_idx.keys()]
+def instance_dataset(root:str, images:list) -> List[Tuple[str, int]]:
+    instances = [os.path.join(root, img) for img in images]
     samples = tuple((instance, target) for target, instance in enumerate(instances))
     return samples
 
@@ -89,19 +89,18 @@ class ImageDataset(object):
         classes, idx_to_cls, cls_to_idx, class_folders = self.find_classes_()
         self.class_dataset = class_folders
 
-        self.samples = self.make_dataset(cls_to_idx)
+        if self.class_dataset:
+            self.samples = class_dataset(self.root, cls_to_idx)
+            self.classes = classes
+        else:
+            self.samples = instance_dataset(self.root, classes)
+            self.classes = list(cls_to_idx.keys())
+
         images, targets = zip(*self.samples)
 
-        self.classes = classes
         self.idx_to_cls = idx_to_cls
         self.cls_to_idx = cls_to_idx
         self.targets = targets
-
-    def make_dataset(self, class_to_idx:Dict[str, int]) -> List[Tuple[str, int]]:
-        if self.class_dataset:
-            return class_dataset(self.root, class_to_idx)
-        else:
-            return instance_dataset(self.root, class_to_idx)
 
     def find_classes_(self) -> Tuple[list, dict, dict]:
         classes = sorted([d.name for d in os.scandir(self.root) if d.is_dir()])
@@ -118,14 +117,15 @@ class ImageDataset(object):
                 concept_ids = pd.read_csv(pjoin(data_path, concept_file), encoding='utf-8', sep='\t').uniqueID.tolist()
                 assert len(classes) == len(concept_ids), '\nNumber of categories in dataset must be equal to the number of concept IDs. Check img folder.\n'
                 classes = classes if classes == concept_ids else concept_ids
+            idx_to_cls = dict(enumerate(classes))
         else:
             class_folders = False
             if self.things_behavior:
                 #sort objects according to item names in THINGS database
-                classes = [os.path.join(self.root, name + '.jpg').replace(self.root, '') for name in vision.load_item_names()]
+                classes = [''.join((name,'.jpg')) for name in vision.load_item_names()]
             else:
-                classes = sorted([rm_suffix(f.name) for f in os.scandir(self.root) if f.is_file() and parse_img_name(f.name)])
-        idx_to_cls = dict(enumerate(classes))
+                classes = sorted([f.name for f in os.scandir(self.root) if f.is_file() and parse_img_name(f.name)])
+                idx_to_cls = dict(enumerate(list(map(rm_suffix, classes))))
         cls_to_idx = {cls:idx for idx, cls in idx_to_cls.items()}
         return classes, idx_to_cls, cls_to_idx, class_folders
 
