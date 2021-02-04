@@ -9,148 +9,136 @@ import torch
 
 import numpy as np
 import pandas as pd
-import skimage.io as io
-import thingsvision.vision as vision
 
-from os.path import isdir as pisdir
-from os.path import exists as pexists
 from os.path import join as pjoin
 
-from functools import cached_property
 from PIL import Image
 from torchvision import transforms as T
-from typing import Tuple
+from typing import Tuple, List, Dict, Any
+from vision import load_inds_and_item_names
 
-def parse_img_name(img_name:str):
-    return re.search(r'(.jpg|.png|.PNG)$', img_name)
+def parse_img_name(img_name:str) -> bool:
+    return re.search(r'(.jpg|.jpeg|.png|.PNG|.tif|.tiff)$', img_name)
 
-def rm_suffix(img:str):
-    return re.sub(r'(.jpg|.png|.PNG)$', '', img)
+def rm_suffix(img:str) -> str:
+    return re.sub(r'(.jpg|.jpeg|.png|.PNG|.tif|.tiff)$', '', img)
+
+def instance_dataset(PATH:str, cls_to_idx:Dict[str, int]) -> List[Tuple[str, int]]:
+    instances = [os.path.join(PATH, ''.join((cls, '.jpg'))) for cls in cls_to_idx.keys()]
+    samples = tuple((instance, target) for target, instance in enumerate(instances))
+    return samples
+
+def class_dataset(PATH:str, cls_to_idx:Dict[str, int], things=None, add_ref_imgs=None) -> List[Tuple[str, int]]:
+    samples = []
+    for target_cls in sorted(cls_to_idx.keys()):
+        cls_idx = cls_to_idx[target_cls]
+        target_dir = os.path.join(PATH, target_cls)
+        if os.path.isdir(target_dir):
+            for root, _, files in sorted(os.walk(target_dir, followlinks=True)):
+                if (self.things and self.add_ref_imgs):
+                    first_img = files[0].rstrip('.jpg')
+                    if not first_img.endswith('b'):
+                        ref_img_path = get_ref_img(first_img)
+                        item = ref_img_path, class_idx
+                        instances.append(item)
+                for k, file in enumerate(sorted(files)):
+                    path = os.path.join(root, file)
+                    if os.path.isfile(path) and parse_img_name(file):
+                        item = path, cls_idx
+                        samples.append(item)
+    return samples
+
+def get_ref_img(first_img:str, folder:str='./reference_images/') -> str:
+    if not os.path.exists(folder):
+        raise FileNotFoundError(f'Directory for reference images not found. Move reference images to {folder}.')
+    ref_images = [f.name for f in os.scandir(folder) if f.is_file() and parse_img_name(f)]
+    for ref_img in ref_images:
+        img_name = ref_img.rstrip('.jpg')
+        if re.search(f'^{img_name}', first_img):
+            return os.path.join(folder, img_name)
 
 class ImageDataset(object):
+    """
+        :params:
+        root (str) - parent directory from where to load images
+        things (bool) - whether images are from the THINGS database
+        things_behavior (bool) - whether images correspond to the THINGS images used in the behavioral experiments
+        add_ref_imgs (bool) - whether to prepend references images (i.e., images used in behavioral experiments) to the *full* THINGS image dataset
+        transforms (Any) - whether to apply a composition of image transformations
 
+        :args:
+        transforms (Any) - composition of image transformations
+        samples (tuple) - tuple of image (PIL Image or torch.Tensor) and class index (np.ndarray or torch.Tensor) pairs
+        idx_to_cls (dict) - index-to-class mapping
+        cls_to_idx (dict) - class-to-index mapping
+        targets (tuple) - tuple of class indices (stored as np.ndarray or torch.Tensor)
+    """
     def __init__(
-                 self,
-                 PATH:str,
-                 apply_transforms:bool,
-                 things:bool,
-                 things_behavior:bool,
-                 resize_dim:int=256,
-                 crop_dim:int=224,
-                 k:int=12,
-                 clip:bool=False,
-                 transforms=None,
-                 ):
-        self.PATH = PATH
-        self.apply_transforms = apply_transforms
+                self,
+                root:str,
+                things:bool,
+                things_behavior:bool,
+                add_ref_imgs:bool,
+                transforms=None,
+                ):
+        self.root = root
         self.things = things
         self.things_behavior = things_behavior
-        self.clip = clip
+        self.transforms = transforms
 
-        if self.things:
-            self.objs = sorted([obj for obj in os.listdir(PATH) if pisdir(pjoin(PATH, obj))])
-            self.k = k #number of instances per object
-            data_path = './data'
-            concept_file = 'things_concepts.tsv'
-            if not pexists(pjoin(data_path, concept_file)):
-                os.mkdir(data_path)
-                print(f'\n...Created PATH: {data_path}\n')
-                raise FileNotFoundError(f'To extract activations for THINGS images concept file is required. Move {concept_file} to {data_path}.')
+        classes, idx_to_cls, cls_to_idx, class_folders = self.find_classes_()
+        self.class_dataset = class_folders
 
-            self.concept_ids = pd.read_csv(pjoin(data_path, concept_file), encoding='utf-8', sep='\t').uniqueID.tolist()
-            assert len(self.objs) == len(self.concept_ids), 'Number of categories in dataset must be equal to the number of concept IDs (check img folder)'
-            self.objs = self.objs if self.objs == self.concept_ids else self.concept_ids
+        self.samples = self.make_dataset(cls_to_idx)
+        images, targets = zip(*self.samples)
 
-            self.imgs = [img for obj in self.objs for i, img in enumerate(os.listdir(pjoin(PATH, obj))) if parse_img_name(img) and i < self.k]
+        self.classes = classes
+        self.idx_to_cls = idx_to_cls
+        self.cls_to_idx = cls_to_idx
+        self.targets = targets
 
+    def make_dataset(self, class_to_idx:Dict[str, int]) -> List[Tuple[str, int]]:
+        if self.class_dataset:
+            return class_dataset(self.root, class_to_idx)
         else:
+            return instance_dataset(self.root, class_to_idx)
+
+    def find_classes_(self) -> Tuple[list, dict, dict]:
+        classes = sorted([d.name for d in os.scandir(self.root) if d.is_dir()])
+        if classes:
+            class_folders = True
+            if self.things:
+                data_path = './data'
+                concept_file = 'things_concepts.tsv'
+                if not os.path.exists(os.path.join(data_path, concept_file)):
+                    os.mkdir(data_path)
+                    print(f'\n...Created PATH: {data_path}\n')
+                    raise FileNotFoundError(f'To extract features for THINGS images, concept file is required. Move {concept_file} to {data_path}.')
+
+                concept_ids = pd.read_csv(pjoin(data_path, concept_file), encoding='utf-8', sep='\t').uniqueID.tolist()
+                assert len(classes) == len(concept_ids), '\nNumber of categories in dataset must be equal to the number of concept IDs. Check img folder.\n'
+                classes = classes if classes == concept_ids else concept_ids
+        else:
+            class_folders = False
             if self.things_behavior:
                 #sort objects according to item names in THINGS database
-                self.objs = [pjoin(PATH, name + '.jpg').replace(PATH, '') for name in vision.load_item_names()]
+                item_names, _ = load_inds_and_item_names()
+                classes = [os.path.join(self.root, name + '.jpg').replace(self.root, '') for name in item_names]
             else:
-                #sort objects in alphabetic order
-                self.objs = sorted([obj for obj in os.listdir(PATH)])
+                classes = sorted([rm_suffix(f.name) for f in os.scandir(self.root) if f.is_file() and parse_img_name(f.name)])
+        idx_to_cls = dict(enumerate(classes))
+        cls_to_idx = {cls:idx for idx, cls in idx_to_cls.items()}
+        return classes, idx_to_cls, cls_to_idx, class_folders
 
-            #check whether objs are paths or files
-            n_folders = sum(pisdir(pjoin(self.PATH, obj)) for obj in self.objs)
-
-            if n_folders == len(self.objs):
-                self.imgs = [img for obj in self.objs for img in os.listdir(pjoin(PATH, obj)) if parse_img_name(img)]
-            else:
-                self.imgs = [img for img in self.objs if parse_img_name(img)]
-                self.objs = list(map(rm_suffix, self.imgs))
-
-        self.obj_mapping = dict(enumerate(self.objs))
-
-        if self.apply_transforms:
-            if not transforms and not self.clip:
-                self.transforms = self.compose_transforms(resize_dim, crop_dim)
-            else:
-                assert self.clip, '\nCLIP models require a different image transformation than other torchvision models.\n'
-                self.transforms = transforms
-
-    def __getitem__(self, idx:int) -> Tuple:
-        if len(self.imgs) == len(self.objs):
-            img_path = pjoin(self.PATH, self.imgs[idx])
-            img = Image.open(img_path) if self.clip else io.imread(img_path)
-            resized_img = self.transforms(img)
-            target = torch.tensor([idx])
-            return resized_img, target
+    def __getitem__(self, idx:int) -> Tuple[Any, Any]:
+        img_path, target = self.samples[idx]
+        img = Image.open(img_path).convert('RGB')
+        if self.transforms is not None:
+            img = self.transforms(img)
+            target = torch.tensor([target])
         else:
-            obj_path = pjoin(self.PATH, self.objs[idx])
-            imgs = np.array([img for img in os.listdir(obj_path) if parse_img_name(img)])
-            if self.things:
-                imgs = self.sort_imgs(imgs)
+            target = np.array([target])
+        return img, target
 
-            resized_imgs, targets = [], []
-            for i, img in enumerate(imgs):
-                if self.things:
-                    if i < self.k:
-                        img = Image.open(pjoin(obj_path, img)) if self.clip else io.imread(pjoin(obj_path, img))
-
-                        if self.apply_transforms:
-                            resized_imgs.append(self.transforms(img))
-                            targets.append(torch.tensor([idx]))
-                        else:
-                            resized_imgs.append(img)
-                            targets.append(idx)
-                else:
-                    img = Image.open(pjoin(obj_path, img)) if self.clip else io.imread(pjoin(obj_path, img))
-                    if self.apply_transforms:
-                        resized_imgs.append(self.transforms(img))
-                        targets.append(torch.tensor([idx]))
-                    else:
-                        resized_imgs.append(img)
-                        targets.append(idx)
-
-            return resized_imgs, targets
-
-    def __len__(self):
-        return len(self.imgs)
-
-    @property
-    def idx2obj(self) -> dict:
-        return self.obj_mapping
-
-    @cached_property
-    def obj2idx(self) -> dict:
-        return {obj: idx for idx, obj in self.obj_mapping.items()}
-
-    def flatten_dataset(self, split_data:bool=False):
-        #set split_data to True, if you want to obtain img matrix X and target vector y separately
-        if split_data:
-            return zip(*[(img, target) for idx in range(len(self.objs)) for img, target in zip(*self.__getitem__(idx))])
-        #set split_data to False, if you want individual (x, y) tuples
-        else:
-            return [(img, target) for idx in range(len(self.objs)) for img, target in zip(*self.__getitem__(idx))]
-
-    #define transformations to be applied to imgs (i.e., imgs must be resized and normalized for pretrained CV models)
-    def compose_transforms(self, resize_dim:int, crop_dim:int):
-        normalize = T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-        composition = T.Compose([T.ToPILImage(), T.Resize(resize_dim), T.CenterCrop(crop_dim), T.ToTensor(), normalize])
-        return composition
-
-    def sort_imgs(self, imgs:np.ndarray) -> np.ndarray:
-        img_identifiers = list(map(vision.get_digits, imgs))
-        imgs_sorted = imgs[np.argsort(img_identifiers)]
-        return imgs_sorted
+    def __len__(self) -> int:
+        return len(self.samples)

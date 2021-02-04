@@ -18,6 +18,7 @@ __all__ = [
             'merge_activations',
             'parse_imagenet_classes',
             'parse_imagenet_synsets',
+            'store_activations',
             'split_activations',
             'slices2tensor',
             'tensor2slices',
@@ -40,36 +41,29 @@ import torchvision.models as models
 
 from os.path import join as pjoin
 from skimage.transform import resize
-from typing import Tuple, List, Iterator
+from typing import Tuple, List, Iterator, Dict, Any
 from torch.utils.data import DataLoader, Subset
 from torchvision import transforms as T
 from thingsvision.dataset import ImageDataset
 
 def load_dl(
-             PATH:str,
-             apply_transforms:bool,
-             clip:bool,
+             root:str,
              batch_size:int,
              things=None,
              things_behavior=None,
-             fraction=None,
+             add_ref_imgs=None,
              transforms=None,
+             fraction=None,
              ) -> Iterator:
     print(f'\n...Loading dataset into memory.')
     dataset = ImageDataset(
-                            PATH=PATH,
-                            apply_transforms=apply_transforms,
+                            root=root,
                             things=things,
                             things_behavior=things_behavior,
-                            clip=clip,
+                            add_ref_imgs=add_ref_imgs,
                             transforms=transforms,
                             )
-
-    print(f'...Transforming dataset into DataLoader.\n')
-    #if dataset consists of more images than classes, then apply flattening
-    if len(dataset.imgs) > len(dataset.objs):
-        dataset = dataset.flatten_dataset(split_data=False)
-
+    print(f'...Transforming dataset into PyTorch DataLoader.\n')
     n_samples = len(dataset)
     if isinstance(fraction, float):
         n_subset = int(n_samples * fraction)
@@ -78,13 +72,12 @@ def load_dl(
         dl = DataLoader(subset, batch_size=batch_size, shuffle=False)
     else:
         dl = DataLoader(dataset, batch_size=batch_size, shuffle=False)
-
     return dl
 
 def load_model(model_name:str, pretrained:bool, device:torch.device, model_path:str=None):
-    """load a pretrained Torchvision or CLIP model of choice into memory"""
+    """load a pretrained *torchvision* or OpenAI CLIP model into memory"""
     if re.search(r'^clip', model_name):
-        assert isinstance(device, str), '\nFor CLIP models, name of device (str) has to be provided.\n'
+        assert isinstance(device, str), '\nFor CLIP models, name of device (str) must be provided.\n'
         if re.search(r'ViT$', model_name):
             model, transforms = clip.load("ViT-B/32", device=device, model_path=model_path, jit=False)
         else:
@@ -119,10 +112,12 @@ def load_model(model_name:str, pretrained:bool, device:torch.device, model_path:
     if model_path:
         state_dict = torch.load(model_path)
         model.load_state_dict(state_dict)
+
     #move pretrained model to current device and set it to evaluation mode
     model.to(device)
     model.eval()
-    return model
+    transforms = compose_transforms()
+    return model, transforms
 
 def show_model(model, model_name:str) -> str:
     if re.search(r'^clip', model_name):
@@ -153,23 +148,21 @@ def register_hook(model):
         module.register_forward_hook(get_activation(name))
     return model
 
-def normalize_features(X:np.ndarray) -> np.ndarray:
-    """normalize feature vectors by their l2-norm"""
-    try:
-        X /= np.linalg.norm(X, axis=1)[:, np.newaxis]
-        return X
-    except:
-        print(f'\nMake sure features are represented through a two-dimensional array\n')
-        return None
-
 def center_features(X:np.ndarray) -> np.ndarray:
     """center activations to have zero mean"""
     try:
         X -= X.mean(axis=0)
         return X
     except:
-        print('\nMake sure features are represented through a two-dimensional array\n')
-        return None
+        raise Exception('\nMake sure features are represented through a two-dimensional array\n')
+
+def normalize_features(X:np.ndarray) -> np.ndarray:
+    """normalize feature vectors by their l2-norm"""
+    try:
+        X /= np.linalg.norm(X, axis=1)[:, np.newaxis]
+        return X
+    except:
+        raise Exception(f'\nMake sure features are represented through a two-dimensional array\n')
 
 def enumerate_layers(model, feature_extractor) -> List[int]:
     layers = []
@@ -198,8 +191,17 @@ def compress_features(X:np.ndarray, rnd_seed:int, retained_var:float=.9) -> np.n
     transformed_feats = pca.fit_transform(X)
     return transformed_feats
 
-def extract_features(model, data_loader, module_name:str, batch_size:int, flatten_acts:bool, device:torch.device, clip:bool=False, feature_extractor=None) -> Tuple[np.ndarray]:
-    """extract hidden unit activations (at specified layer) for every image in database"""
+def extract_features(
+                    model:Any,
+                    data_loader:Any,
+                    module_name:str,
+                    batch_size:int,
+                    flatten_acts:bool,
+                    device:torch.device,
+                    clip:bool=False,
+                    feature_extractor=None,
+) -> Tuple[np.ndarray, np.ndarray]:
+    """extract hidden unit activations (at specified layer) for every image in the database"""
     if re.search(r'ensemble$', module_name):
         ensembles = ['conv_ensemble', 'maxpool_ensemble']
         assert module_name in ensembles, f'\nIf aggregating filters across layers and subsequently concatenating activations, module name must be one of {ensembles}\n'
