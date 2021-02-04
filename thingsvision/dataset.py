@@ -15,7 +15,7 @@ from os.path import join as pjoin
 from PIL import Image
 from torchvision import transforms as T
 from typing import Tuple, List, Dict, Any
-from vision import load_inds_and_item_names
+from thingsvision.vision import load_inds_and_item_names
 
 def parse_img_name(img_name:str) -> bool:
     return re.search(r'(.jpg|.jpeg|.png|.PNG|.tif|.tiff)$', img_name)
