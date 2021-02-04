@@ -355,7 +355,7 @@ def json2dict(PATH:str, filename:str) -> dict:
 
 def compose_transforms(resize_dim:int=256, crop_dim:int=224):
     normalize = T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-    composition = T.Compose([T.ToPILImage(), T.Resize(resize_dim), T.CenterCrop(crop_dim), T.ToTensor(), normalize])
+    composition = T.Compose([T.Resize(resize_dim), T.CenterCrop(crop_dim), T.ToTensor(), normalize])
     return composition
 
 def load_item_names(folder:str='./data') -> np.ndarray:
