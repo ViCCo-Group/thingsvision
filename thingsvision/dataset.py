@@ -35,7 +35,7 @@ def class_dataset(PATH:str, cls_to_idx:Dict[str, int], things=None, add_ref_imgs
         target_dir = os.path.join(PATH, target_cls)
         if os.path.isdir(target_dir):
             for root, _, files in sorted(os.walk(target_dir, followlinks=True)):
-                if (self.things and self.add_ref_imgs):
+                if (things and add_ref_imgs):
                     first_img = files[0].rstrip('.jpg')
                     if not first_img.endswith('b'):
                         ref_img_path = get_ref_img(first_img)
