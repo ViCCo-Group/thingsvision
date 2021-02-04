@@ -37,7 +37,10 @@ import torch
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+
+import thingsvision.cornet as cornet
 import thingsvision.clip as clip
+
 import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.models as models
@@ -87,19 +90,14 @@ def load_model(model_name:str, pretrained:bool, device:torch.device, model_path:
             model, transforms = clip.load("ViT-B/32", device=device, model_path=model_path, jit=False)
         else:
             model, transforms = clip.load("RN50", device=device, model_path=model_path, jit=False)
-        model.eval()
-        return model, transforms
-
-    if not model_path:
-        assert pretrained, '\nTo download a torchvision model directly from network, pretrained must be set to True.\n'
-
-    if re.search(r'bn$', model_name):
+    elif re.search(r'bn$', model_name):
         if re.search(r'^vgg13', model_name):
             model = models.vgg13_bn(pretrained=pretrained)
         elif re.search(r'^vgg16', model_name):
             model = models.vgg16_bn(pretrained=pretrained)
         elif re.search(r'^vgg19', model_name):
             model = models.vgg19_bn(pretrained=pretrained)
+        transforms = compose_transforms()
     else:
         if re.search(r'^alex', model_name):
             model = models.alexnet(pretrained=pretrained)
@@ -113,15 +111,20 @@ def load_model(model_name:str, pretrained:bool, device:torch.device, model_path:
             model = models.vgg16(pretrained=pretrained)
         elif re.search(r'^vgg19', model_name):
             model = models.vgg19(pretrained=pretrained)
-
+        elif re.search(r'^cor', model_name):
+            try:
+                model = getattr(cornet, f'cornet_{model_name[-1]}')
+            except:
+                model = getattr(cornet, f'cornet_{model_name[-2:]}')
+            model = model(pretrained=pretrained, map_location=device)
+            model = model.module  #remove DataParallel
+            model = model.to(device)
+        transforms = compose_transforms()
     if model_path:
-        state_dict = torch.load(model_path)
+        state_dict = torch.load(model_path, map_location=device)
         model.load_state_dict(state_dict)
-
-    #move pretrained model to current device and set it to evaluation mode
     model.to(device)
     model.eval()
-    transforms = compose_transforms()
     return model, transforms
 
 def show_model(model, model_name:str) -> str:
