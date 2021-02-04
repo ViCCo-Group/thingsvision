@@ -25,6 +25,8 @@ __all__ = [
             'load_item_names',
             'save_features',
             'save_targets',
+            'compute_magnitudes',
+            'compute_rdm',
             ]
 
 import os
@@ -39,7 +41,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.models as models
 
+from numba import njit, jit
 from os.path import join as pjoin
+from scipy.stats import rankdata
 from skimage.transform import resize
 from typing import Tuple, List, Iterator, Dict, Any
 from torch.utils.data import DataLoader, Subset
@@ -248,6 +252,11 @@ def extract_features(
     print(f'\nFeatures successfully extracted for all {len(features)} images in the database\n')
     return features, targets
 
+
+########################################################################################################
+################ HELPER FUNCTIONS FOR SAVING, MERGING AND SLICING FEATURE MATRICES #####################
+########################################################################################################
+
 def store_activations(PATH:str, features:np.ndarray, file_format:str) -> None:
     if re.search(r'npy', file_format):
         with open(pjoin(PATH, 'activations.npy'), 'wb') as f:
@@ -390,3 +399,37 @@ def save_targets(targets:np.ndarray, out_path:str, file_format:str) -> None:
     else:
         np.savetxt(pjoin(out_path, 'targets.txt'), targets)
     print(f'\nTargets successfully saved to disk.\n')
+
+
+########################################################################################################
+################################ HELPER FUNCTIONS FOR RDM COMPUTATIONS #################################
+########################################################################################################
+
+@njit(fastmath=True)
+def compute_magnitudes(l2_norms:np.ndarray) -> np.ndarray:
+    magnitudes = [[l2_i*l2_j for l2_j in l2_norms] for l2_i in l2_norms]
+    return np.asarray(magnitudes)
+
+def compute_rdm(F:np.ndarray, a_min:float=-1., a_max:float=1.) -> np.ndarray:
+    F_c = F - F.mean(axis=1)[:, np.newaxis]
+    cov = F_c @ F_c.T
+    l2_norms = np.linalg.norm(F_c, axis=1) #compute l2-norm across rows
+    denom = compute_magnitudes(l2_norms)
+    corr_mat = (cov / denom).clip(min=a_min, max=a_max) #counteract potential rounding errors
+    rdm = np.ones_like(corr_mat) - corr_mat
+    return rdm
+
+def plot_rdm(out_path:str, F:np.ndarray, show_plot:bool=False) -> None:
+    rdm = compute_rdm(F)
+    plt.figure(figsize=(10, 4), dpi=150)
+    plt.imshow(rankdata(rdm).reshape(rdm.shape), cmap=plt.cm.cividis)
+    plt.xticks([])
+    plt.yticks([])
+    plt.tight_layout()
+    if not os.path.exists(out_path):
+        print(f'\nOutput directory did not exists. Creating directories...\n')
+        os.makedirs(out_path)
+    plt.savefig(os.path.join(out_path, 'rdm.png'))
+    if show_plot:
+        plt.show()
+    plt.close()

@@ -4,6 +4,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 requirements = [
+                'numba',
                 'ftfy',
                 'numpy',
                 'pandas',
@@ -17,7 +18,7 @@ requirements = [
 
 setuptools.setup(
                 name="thingsvision",
-                version="0.3.0",
+                version="0.3.2",
                 author="Lukas Muttenthaler",
                 author_email="muttenthaler@cbs.mpg.de",
                 description="Extracting image features from state-of-the-art neural networks for Computer Vision made easy",
