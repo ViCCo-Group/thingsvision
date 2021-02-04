@@ -209,7 +209,6 @@ def extract_features(
             feature_extractor = nn.Conv2d
         else:
             feature_extractor = nn.MaxPool2d
-    n_samples = int(len(data_loader) * batch_size)
     #initialise dictionary to store hidden unit activations on the fly
     global activations
     activations = {}
@@ -246,7 +245,7 @@ def extract_features(
     features = np.vstack(features)
     targets = np.asarray(targets).ravel()
     assert len(features) == len(targets)
-    print(f'\nFeatures successfully extracted for all {n_samples} images in the database\n')
+    print(f'\nFeatures successfully extracted for all {len(features)} images in the database\n')
     return features, targets
 
 def store_activations(PATH:str, features:np.ndarray, file_format:str) -> None:
