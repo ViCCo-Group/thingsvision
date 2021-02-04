@@ -9,13 +9,13 @@ import torch
 
 import numpy as np
 import pandas as pd
+import thingsvision.vision as vision
 
 from os.path import join as pjoin
 
 from PIL import Image
 from torchvision import transforms as T
 from typing import Tuple, List, Dict, Any
-from thingsvision.vision import load_inds_and_item_names
 
 def parse_img_name(img_name:str) -> bool:
     return re.search(r'(.jpg|.jpeg|.png|.PNG|.tif|.tiff)$', img_name)
@@ -122,8 +122,7 @@ class ImageDataset(object):
             class_folders = False
             if self.things_behavior:
                 #sort objects according to item names in THINGS database
-                item_names, _ = load_inds_and_item_names()
-                classes = [os.path.join(self.root, name + '.jpg').replace(self.root, '') for name in item_names]
+                classes = [os.path.join(self.root, name + '.jpg').replace(self.root, '') for name in vision.load_item_names()]
             else:
                 classes = sorted([rm_suffix(f.name) for f in os.scandir(self.root) if f.is_file() and parse_img_name(f.name)])
         idx_to_cls = dict(enumerate(classes))
