@@ -17,18 +17,17 @@ requirements = [
 
 setuptools.setup(
                 name="thingsvision",
-                version="0.2.2",
+                version="0.2.3",
                 author="Lukas Muttenthaler",
                 author_email="muttenthaler@cbs.mpg.de",
-                description="A library to extract image features from state-of-the-art neural networks for Computer Vision",
+                description="Extracting image features from state-of-the-art neural networks for Computer Vision made easy",
                 long_description=long_description,
                 long_description_content_type="text/markdown",
                 url="https://github.com/ViCCo-Group/THINGSvision",
                 packages=setuptools.find_packages(),
-                include_package_data=True,
                 license="MIT License",
                 install_requires=requirements,
-                keywords='feature extraction',
+                keywords="feature extraction",
                 classifiers=[
                     "Programming Language :: Python :: 3.7",
                     "Natural Language :: English",
