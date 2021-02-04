@@ -30,7 +30,7 @@ import torch
 import thingsvision.vision as vision
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-model = vision.load_model('alexnet', pretrained=True, model_path=None, device=device)
+model, transforms = vision.load_model('alexnet', pretrained=True, model_path=None, device=device)
 module_name = vision.show_model(model, 'alexnet')
 
 AlexNet(
@@ -61,7 +61,7 @@ AlexNet(
   )
 )
 
-dl = vision.load_dl('./images/', apply_transforms=True, clip=False, batch_size=64, things=True, transforms=None)
+dl = vision.load_dl('./images/', batch_size=64, things=True, transforms=transforms)
 features, targets = vision.extract_features(model, dl, module_name, batch_size=64, flatten_acts=False, device=device, clip=False)
 features = vision.center_features(features)
 vision.save_features(features, f'./AlexNet/{module_name}/activations', '.npy')
@@ -78,8 +78,9 @@ import thingsvision.vision as vision
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 model, transforms = vision.load_model('clip-ViT', pretrained=True, model_path=None, device=device)
 module_name = vision.show_model(model, 'clip-ViT')
-dl = vision.load_dl('./IMAGE_FOLDER/', apply_transforms=True, clip=True, batch_size=64, transforms=transforms)
+dl = vision.load_dl('./IMAGE_FOLDER/', batch_size=64, transforms=transforms)
 features, targets = vision.extract_features(model, dl, module_name, batch_size=64, flatten_acts=False, device=device, clip=True)
+features = vision.center_features(features)
 features = vision.normalize_features(features)
 vision.save_features(features, f'./clip-ViT/{module_name}/activations', '.npy')
 vision.save_targets(targets, f'./clip-ViT/{module_name}/targets', '.npy')
