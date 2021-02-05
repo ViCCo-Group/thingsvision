@@ -5,6 +5,7 @@ __all__ = [
             'load_dl',
             'load_model',
             'show_model',
+            'get_module_names',
             'center_features',
             'normalize_features',
             'compress_features',
@@ -27,6 +28,8 @@ __all__ = [
             'save_targets',
             'compute_magnitudes',
             'compute_rdm',
+            'extract_features_across_models_and_datasets',
+            'extract_features_across_models_datasets_and_modules,'
             ]
 
 import os
@@ -136,10 +139,57 @@ def show_model(model, model_name:str) -> str:
         print('visual')
     else:
         print(model)
-    print(f'\nEnter part of the model for which you would like to extract features:\n')
+    print(f'\nEnter module name for which you would like to extract features:\n')
     module_name = str(input())
     print()
     return module_name
+
+def get_module_names(model, module:str) -> list:
+    """helper to extract correct module names, if users wants to iterate over multiple modules"""
+    module_names, _ = zip(*model.named_modules())
+    return list(filter(lambda n: re.search(f'{module}$', n), module_names))
+
+def extract_features_across_models_and_datasets(
+                                                out_path:str,
+                                                model_names:list,
+                                                img_paths:list,
+                                                module_names:list,
+                                                pretrained:bool,
+                                                batch_size:int,
+                                                flatten_acts:bool,
+                                                f_format:str='.txt',
+                                                clip:bool=False,
+) -> None:
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    device = device if clip else torch.device(device)
+    for i, model_name in enumerate(model_names):
+        model, transforms = load_model(model_name, pretrained=pretrained, model_path=None, device=device)
+        for img_path in img_paths:
+            dl = load_dl(img_path, batch_size=batch_size, transforms=transforms)
+            features, _ = extract_features(model, dl, module_names[i], batch_size=batch_size, flatten_acts=flatten_acts, device=device, clip=clip)
+            save_features(features, os.path.join(out_path, img_path, model_name, module_names[i], 'activations'), f_format)
+
+def extract_features_across_models_datasets_and_modules(
+                                                        out_path:str,
+                                                        model_names:list,
+                                                        img_paths:list,
+                                                        module_names:list,
+                                                        pretrained:bool,
+                                                        batch_size:int,
+                                                        flatten_acts:bool,
+                                                        f_format:str='.txt',
+                                                        clip:bool=False,
+) -> None:
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    device = device if clip else torch.device(device)
+    for i, model_name in enumerate(model_names):
+        model, transforms = load_model(model_name, pretrained=pretrained, model_path=None, device=device)
+        modules = get_module_names(model, module_names[i])
+        for img_path in img_paths:
+            dl = load_dl(img_path, batch_size=batch_size, transforms=transforms)
+            for module_name in modules:
+                features, _ = extract_features(model, dl, module_name, batch_size=batch_size, flatten_acts=flatten_acts, device=device, clip=clip)
+                save_features(features, os.path.join(out_path, img_path, model_name, module_name, 'activations'), f_format)
 
 def get_activation(name):
     """store hidden unit activations at each layer of model"""
@@ -152,8 +202,8 @@ def get_activation(name):
 
 def register_hook(model):
     """register a forward hook to store activations"""
-    for name, module in model.named_modules():
-        module.register_forward_hook(get_activation(name))
+    for n, m in model.named_modules():
+        m.register_forward_hook(get_activation(n))
     return model
 
 def center_features(X:np.ndarray) -> np.ndarray:
@@ -243,7 +293,7 @@ def extract_features(
                         if re.search(r'attn$', module_name):
                             act = act[0]
                         else:
-                            if act.size(0) != batch_size:
+                            if act.size(0) != X.shape[0] and len(act.shape) == 3:
                                 act = act.permute(1, 0, 2)
                     act = act.view(act.size(0), -1)
             features.append(act.cpu())
@@ -404,7 +454,6 @@ def save_targets(targets:np.ndarray, out_path:str, file_format:str) -> None:
         np.savetxt(pjoin(out_path, 'targets.txt'), targets)
     print(f'\nTargets successfully saved to disk.\n')
 
-
 ########################################################################################################
 ################################ HELPER FUNCTIONS FOR RDM COMPUTATIONS #################################
 ########################################################################################################
@@ -420,7 +469,7 @@ def compute_rdm(F:np.ndarray, a_min:float=-1., a_max:float=1.) -> np.ndarray:
     l2_norms = np.linalg.norm(F_c, axis=1) #compute l2-norm across rows
     denom = compute_magnitudes(l2_norms)
     corr_mat = (cov / denom).clip(min=a_min, max=a_max) #counteract potential rounding errors
-    rdm = np.ones_like(corr_mat) - corr_mat
+    rdm = np.ones_like(corr_mat) - corr_mat #subtract correlation matrix from 1
     return rdm
 
 def plot_rdm(out_path:str, F:np.ndarray, show_plot:bool=False) -> None:
