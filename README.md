@@ -63,7 +63,7 @@ AlexNet(
   )
 )
 
-Enter part of the model for which you would like to extract features:
+#Enter part of the model for which you would like to extract features:
 
 (e.g., "features.10")
 
@@ -189,7 +189,7 @@ Sequential(
   )
 )
 
-Enter part of the model for which you would like to extract features:
+#Enter part of the model for which you would like to extract features:
 
 (e.g., "decoder.flatten")
 
