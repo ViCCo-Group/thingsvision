@@ -25,7 +25,7 @@ Replace `cudatoolkit=11.0` above with the appropriate CUDA version on your machi
 
 ### Example call for AlexNet:
 
-```
+```python
 import torch
 import thingsvision.vision as vision
 
@@ -63,7 +63,7 @@ AlexNet(
   )
 )
 
-Enter part of the model for which you would like to extract features:
+#Enter part of the model for which you would like to extract features:
 
 (e.g., "features.10")
 
@@ -77,7 +77,7 @@ vision.save_targets(targets, f'./{model_name}/{module_name}/targets', '.npy')
 
 ### Example call for [CLIP](https://github.com/openai/CLIP):
 
-```
+```python
 import torch
 import thingsvision.vision as vision
 
@@ -99,7 +99,7 @@ vision.save_targets(targets, f'./{model_name}/{module_name}/targets', '.npy')
 
 ### Example call for [CORnet](https://github.com/dicarlolab/CORnet)
 
-```
+```python
 import torch
 import thingsvision.vision as vision
 
@@ -189,7 +189,7 @@ Sequential(
   )
 )
 
-Enter part of the model for which you would like to extract features:
+#Enter part of the model for which you would like to extract features:
 
 (e.g., "decoder.flatten")
 
