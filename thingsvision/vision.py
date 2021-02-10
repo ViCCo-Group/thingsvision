@@ -40,6 +40,7 @@ import torch
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import scipy.stats as stats
 
 import thingsvision.cornet as cornet
 import thingsvision.clip as clip
@@ -475,10 +476,11 @@ def pearsonr(u:np.ndarray, v:np.ndarray, a_min:float=-1., a_max:float=1.) -> np.
     rho = (num / denom).clip(min=a_min, max=a_max)
     return rho
 
-def correlate_rdms(rdm_1:np.ndarray, rdm_2:np.ndarray):
+def correlate_rdms(rdm_1:np.ndarray, rdm_2:np.ndarray, correlation:str='pearson') -> float:
     #since RDMs are symmetric matrices, we only need to compare their lower triangular parts (main diagonal can be omitted)
     tril_inds = np.tril_indices(len(rdm_1), k=-1)
-    rho = pearsonr(rdm_1[tril_inds], rdm_2[tril_inds])
+    corr_func = getattr(stats, ''.join((correlation, 'r')))
+    rho = corr_func(rdm_1[tril_inds], rdm_2[tril_inds])[0]
     return rho
 
 def compute_rdm(F:np.ndarray, a_min:float=-1., a_max:float=1.) -> np.ndarray:
@@ -490,7 +492,7 @@ def compute_rdm(F:np.ndarray, a_min:float=-1., a_max:float=1.) -> np.ndarray:
     rdm = np.ones_like(corr_mat) - corr_mat #subtract correlation matrix from 1
     return rdm
 
-def plot_rdm(out_path:str, F:np.ndarray, show_plot:bool=False) -> None:
+def plot_rdm(out_path:str, F:np.ndarray, format:str='.png', show_plot:bool=False) -> None:
     rdm = compute_rdm(F)
     plt.figure(figsize=(10, 4), dpi=150)
     plt.imshow(rankdata(rdm).reshape(rdm.shape), cmap=plt.cm.cividis)
@@ -500,7 +502,7 @@ def plot_rdm(out_path:str, F:np.ndarray, show_plot:bool=False) -> None:
     if not os.path.exists(out_path):
         print(f'\nOutput directory did not exists. Creating directories...\n')
         os.makedirs(out_path)
-    plt.savefig(os.path.join(out_path, 'rdm.png'))
+    plt.savefig(os.path.join(out_path, ''.join(('rdm', format))))
     if show_plot:
         plt.show()
     plt.close()
