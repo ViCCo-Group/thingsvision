@@ -468,14 +468,6 @@ def save_targets(targets:np.ndarray, out_path:str, file_format:str) -> None:
 ################################ HELPER FUNCTIONS FOR RDM COMPUTATIONS #################################
 ########################################################################################################
 
-def pearsonr(u:np.ndarray, v:np.ndarray, a_min:float=-1., a_max:float=1.) -> np.ndarray:
-    u_c = u - np.mean(u)
-    v_c = v - np.mean(v)
-    num = u_c @ v_c
-    denom = np.linalg.norm(u_c) * np.linalg.norm(v_c)
-    rho = (num / denom).clip(min=a_min, max=a_max)
-    return rho
-
 def correlate_rdms(rdm_1:np.ndarray, rdm_2:np.ndarray, correlation:str='pearson') -> float:
     #since RDMs are symmetric matrices, we only need to compare their lower triangular parts (main diagonal can be omitted)
     tril_inds = np.tril_indices(len(rdm_1), k=-1)
