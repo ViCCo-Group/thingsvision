@@ -16,11 +16,11 @@ __all__ = [
             'get_model',
             'get_shape',
             'json2dict',
-            'merge_activations',
+            'merge_features',
             'parse_imagenet_classes',
             'parse_imagenet_synsets',
-            'store_activations',
-            'split_activations',
+            'store_features',
+            'split_features',
             'slices2tensor',
             'tensor2slices',
             'load_item_names',
@@ -167,7 +167,7 @@ def extract_features_across_models_and_datasets(
         for img_path in img_paths:
             dl = load_dl(img_path, batch_size=batch_size, transforms=transforms)
             features, _ = extract_features(model, dl, module_names[i], batch_size=batch_size, flatten_acts=flatten_acts, device=device, clip=clip)
-            save_features(features, os.path.join(out_path, img_path, model_name, module_names[i], 'activations'), f_format)
+            save_features(features, os.path.join(out_path, img_path, model_name, module_names[i], 'features'), f_format)
 
 def extract_features_across_models_datasets_and_modules(
                                                         out_path:str,
@@ -189,7 +189,7 @@ def extract_features_across_models_datasets_and_modules(
             dl = load_dl(img_path, batch_size=batch_size, transforms=transforms)
             for module_name in modules:
                 features, _ = extract_features(model, dl, module_name, batch_size=batch_size, flatten_acts=flatten_acts, device=device, clip=clip)
-                save_features(features, os.path.join(out_path, img_path, model_name, module_name, 'activations'), f_format)
+                save_features(features, os.path.join(out_path, img_path, model_name, module_name, 'features'), f_format)
 
 def get_activation(name):
     """store hidden unit activations at each layer of model"""
@@ -207,7 +207,7 @@ def register_hook(model):
     return model
 
 def center_features(X:np.ndarray) -> np.ndarray:
-    """center activations to have zero mean"""
+    """center features to have zero mean"""
     try:
         X -= X.mean(axis=0)
         return X
@@ -262,7 +262,7 @@ def extract_features(
     """extract hidden unit activations (at specified layer) for every image in the database"""
     if re.search(r'ensemble$', module_name):
         ensembles = ['conv_ensemble', 'maxpool_ensemble']
-        assert module_name in ensembles, f'\nIf aggregating filters across layers and subsequently concatenating activations, module name must be one of {ensembles}\n'
+        assert module_name in ensembles, f'\nIf aggregating filters across layers and subsequently concatenating features, module name must be one of {ensembles}\n'
         if re.search(r'^conv', module_name):
             feature_extractor = nn.Conv2d
         else:
@@ -311,12 +311,12 @@ def extract_features(
 ################ HELPER FUNCTIONS FOR SAVING, MERGING AND SLICING FEATURE MATRICES #####################
 ########################################################################################################
 
-def store_activations(PATH:str, features:np.ndarray, file_format:str) -> None:
+def store_features(PATH:str, features:np.ndarray, file_format:str) -> None:
     if re.search(r'npy', file_format):
-        with open(pjoin(PATH, 'activations.npy'), 'wb') as f:
+        with open(pjoin(PATH, 'features.npy'), 'wb') as f:
             np.save(f, features)
     else:
-        np.savetxt(pjoin(PATH, 'activations.txt'), features)
+        np.savetxt(pjoin(PATH, 'features.txt'), features)
 
 def tensor2slices(PATH:str, file_name:str, features:np.ndarray) -> None:
     with open(pjoin(PATH, file_name), 'w') as outfile:
@@ -355,22 +355,31 @@ def slices2tensor(PATH:str, file:str) -> np.ndarray:
     tensor = slices.reshape(shape)
     return tensor
 
-def split_activations(PATH:str, features:np.ndarray, file_format:str, n_splits:int) -> None:
+def split_features(PATH:str, features:np.ndarray, file_format:str, n_splits:int) -> None:
     splits = np.linspace(0, len(features), n_splits, dtype=int)
     for i in range(1, len(splits)):
         feature_split = features[splits[i-1]:splits[i]]
         if re.search(r'npy', file_format):
-            with open(pjoin(PATH, f'activations_{i:02d}.npy'), 'wb') as f:
+            with open(pjoin(PATH, f'features_{i:02d}.npy'), 'wb') as f:
                 np.save(f, feature_split)
         else:
-            np.savetxt(pjoin(PATH, f'activations_{i:02d}.txt'), feature_split)
+            np.savetxt(pjoin(PATH, f'features_{i:02d}.txt'), feature_split)
 
-def merge_activations(PATH:str) -> np.ndarray:
-    activation_splits = np.array([act for act in os.listdir(PATH) if re.search(r'^act', act) and re.search(r'[0-9]+', act) and act.endswith('.txt')])
-    enumerations = np.array([int(re.sub(r'\D', '', act)) for act in activation_splits])
-    activation_splits = activation_splits[np.argsort(enumerations)]
-    activations = np.vstack([np.loadtxt(pjoin(PATH, act)) for act in activation_splits])
-    return activations
+def merge_features(PATH:str, file_format:str) -> np.ndarray:
+    feature_splits = np.array([split for split in os.listdir(PATH) if re.search(r'^feature', split) and split.endswith(file_format) and re.search(r'[0-9]+$', split.rstrip(file_format))])
+    enumerations = np.array([int(re.sub(r'\D', '', feature)) for feature in feature_splits])
+    feature_splits = feature_splits[np.argsort(enumerations)]
+    if file_format == '.txt':
+        features = np.vstack([np.loadtxt(pjoin(PATH, feature)) for feature in feature_splits])
+    elif file_format == '.npy':
+        features = []
+        for feature in feature_splits:
+            with open(pjoin(PATH, feature), 'rb') as f:
+                features.append(np.load(f))
+        features = np.vstack(features)
+    else:
+        raise Exception('Can only process .npy or .txt files')
+    return features
 
 def parse_imagenet_synsets(file_name:str, folder:str='./data/'):
     def parse_str(str):
@@ -430,17 +439,17 @@ def save_features(features:np.ndarray, out_path:str, file_format:str, n_splits:i
     #save hidden unit actvations to disk (either as one single file or as several splits)
     if len(features.shape) == 2:
         try:
-            store_activations(PATH=out_path, features=features, file_format=file_format)
+            store_features(PATH=out_path, features=features, file_format=file_format)
         except MemoryError:
-            print(f'\n...Could not save activations as one single file due to memory problems.')
-            print(f'...Now splitting activations along row axis into several batches.')
-            split_activations(PATH=out_path, features=features, file_format=file_format, n_splits=n_splits)
-            print(f'...Saved activations in {n_splits:02d} different files, enumerated in ascending order.')
-            print(f'If you want activations to be splitted into more or fewer files, simply change number of splits parameter.\n')
+            print(f'\n...Could not save features as one single file due to memory problems.')
+            print(f'...Now splitting features along row axis into several batches.')
+            split_features(PATH=out_path, features=features, file_format=file_format, n_splits=n_splits)
+            print(f'...Saved features in {n_splits:02d} different files, enumerated in ascending order.')
+            print(f'If you want features to be splitted into more or fewer files, simply change number of splits parameter.\n')
     else:
         print(f'\n...Cannot save 4-way tensor in a single file.')
         print(f'...Now slicing tensor to store as a matrix.')
-        tensor2slices(PATH=out_path, file_name='activations.txt', features=features)
+        tensor2slices(PATH=out_path, file_name='features.txt', features=features)
         print(f'\n...Sliced tensor into separate parts, and saved resulting matrix as .txt file.\n')
 
 def save_targets(targets:np.ndarray, out_path:str, file_format:str) -> None:
