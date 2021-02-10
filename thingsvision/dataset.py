@@ -19,10 +19,10 @@ from torchvision import transforms as T
 from typing import Tuple, List, Dict, Any
 
 def parse_img_name(img_name:str) -> bool:
-    return re.search(r'(.jpg|.jpeg|.png|.PNG|.tif|.tiff)$', img_name)
+    return re.search(r'(.eps|.jpg|.jpeg|.png|.PNG|.tif|.tiff)$', img_name)
 
 def rm_suffix(img:str) -> str:
-    return re.sub(r'(.jpg|.jpeg|.png|.PNG|.tif|.tiff)$', '', img)
+    return re.sub(r'(.eps|.jpg|.jpeg|.png|.PNG|.tif|.tiff)$', '', img)
 
 def instance_dataset(root:str, images:list) -> List[Tuple[str, int]]:
     instances = [os.path.join(root, img) for img in images]
