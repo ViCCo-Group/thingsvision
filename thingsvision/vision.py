@@ -26,8 +26,8 @@ __all__ = [
             'load_item_names',
             'save_features',
             'save_targets',
-            'compute_magnitudes',
             'compute_rdm',
+            'correlate_rdms',
             'extract_features_across_models_and_datasets',
             'extract_features_across_models_datasets_and_modules,'
             ]
@@ -467,16 +467,25 @@ def save_targets(targets:np.ndarray, out_path:str, file_format:str) -> None:
 ################################ HELPER FUNCTIONS FOR RDM COMPUTATIONS #################################
 ########################################################################################################
 
-@njit(fastmath=True)
-def compute_magnitudes(l2_norms:np.ndarray) -> np.ndarray:
-    magnitudes = [[l2_i*l2_j for l2_j in l2_norms] for l2_i in l2_norms]
-    return np.asarray(magnitudes)
+def pearsonr(u:np.ndarray, v:np.ndarray, a_min:float=-1., a_max:float=1.) -> np.ndarray:
+    u_c = u - np.mean(u)
+    v_c = v - np.mean(v)
+    num = u_c @ v_c
+    denom = np.linalg.norm(u_c) * np.linalg.norm(v_c)
+    rho = (num / denom).clip(min=a_min, max=a_max)
+    return rho
+
+def correlate_rdms(rdm_1:np.ndarray, rdm_2:np.ndarray):
+    #since RDMs are symmetric matrices, we only need to compare their lower triangular parts (main diagonal can be omitted)
+    tril_inds = np.tril_indices(len(rdm_1), k=-1)
+    rho = pearsonr(rdm_1[tril_inds], rdm_2[tril_inds])
+    return rho
 
 def compute_rdm(F:np.ndarray, a_min:float=-1., a_max:float=1.) -> np.ndarray:
     F_c = F - F.mean(axis=1)[:, np.newaxis]
     cov = F_c @ F_c.T
     l2_norms = np.linalg.norm(F_c, axis=1) #compute l2-norm across rows
-    denom = compute_magnitudes(l2_norms)
+    denom = np.outer(l2_norms, l2_norms)
     corr_mat = (cov / denom).clip(min=a_min, max=a_max) #counteract potential rounding errors
     rdm = np.ones_like(corr_mat) - corr_mat #subtract correlation matrix from 1
     return rdm
