@@ -40,7 +40,7 @@ import torch
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import scipy.stats as stats
+import scipy.stats
 
 import thingsvision.cornet as cornet
 import thingsvision.clip as clip
@@ -49,7 +49,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.models as models
 
-from numba import njit, jit
+from numba import njit, jit, prange
 from os.path import join as pjoin
 from scipy.stats import rankdata
 from skimage.transform import resize
@@ -464,27 +464,45 @@ def save_targets(targets:np.ndarray, out_path:str, file_format:str) -> None:
         np.savetxt(pjoin(out_path, 'targets.txt'), targets)
     print(f'\nTargets successfully saved to disk.\n')
 
-########################################################################################################
-################################ HELPER FUNCTIONS FOR RDM COMPUTATIONS #################################
-########################################################################################################
+#############################################################################################################
+################################ HELPER FUNCTIONS FOR RSA & RDM COMPUTATIONS ################################
+#############################################################################################################
 
-def correlate_rdms(rdm_1:np.ndarray, rdm_2:np.ndarray, correlation:str='pearson') -> float:
-    #since RDMs are symmetric matrices, we only need to compare their lower triangular parts (main diagonal can be omitted)
-    tril_inds = np.tril_indices(len(rdm_1), k=-1)
-    corr_func = getattr(stats, ''.join((correlation, 'r')))
-    rho = corr_func(rdm_1[tril_inds], rdm_2[tril_inds])[0]
-    return rho
+@njit(parallel=True, fastmath=True)
+def squared_dists(F:np.ndarray) -> np.ndarray:
+    N = F.shape[0]
+    D = np.zeros((N, N))
+    for i in prange(N):
+        for j in prange(N):
+            D[i, j] = np.linalg.norm(F[i] - F[j]) ** 2
+    return D
 
-def compute_rdm(F:np.ndarray, a_min:float=-1., a_max:float=1.) -> np.ndarray:
+def gaussian_kernel(F:np.ndarray) -> np.ndarray:
+    D = squared_dists(F)
+    return np.exp(-D/np.mean(D))
+
+def correlation_matrix(F:np.ndarray, a_min:float=-1., a_max:float=1.) -> np.ndarray:
     F_c = F - F.mean(axis=1)[:, np.newaxis]
     cov = F_c @ F_c.T
     l2_norms = np.linalg.norm(F_c, axis=1) #compute l2-norm across rows
     denom = np.outer(l2_norms, l2_norms)
     corr_mat = (cov / denom).clip(min=a_min, max=a_max) #counteract potential rounding errors
-    rdm = np.ones_like(corr_mat) - corr_mat #subtract correlation matrix from 1
-    return rdm
+    return corr_mat
 
-def plot_rdm(out_path:str, F:np.ndarray, format:str='.png', show_plot:bool=False) -> None:
+def compute_rdm(F:np.ndarray, method:str='correlation') -> np.ndarray:
+    methods = ['correlation', 'gaussian']
+    assert method in methods, f'\nMethod to compute RDM must be one of {methods}.\n'
+    rsm = correlation_matrix(F) if method == 'correlation' else gaussian_kernel(F)
+    return 1 - rsm
+
+def correlate_rdms(rdm_1:np.ndarray, rdm_2:np.ndarray, correlation:str='pearson') -> float:
+    #since RDMs are symmetric matrices, we only need to compare their lower triangular parts (main diagonal can be omitted)
+    tril_inds = np.tril_indices(len(rdm_1), k=-1)
+    corr_func = getattr(scipy.stats, ''.join((correlation, 'r')))
+    rho = corr_func(rdm_1[tril_inds], rdm_2[tril_inds])[0]
+    return rho
+
+def plot_rdm(out_path:str, F:np.ndarray, method:str='correlation', format:str='.png', show_plot:bool=False) -> None:
     rdm = compute_rdm(F)
     plt.figure(figsize=(10, 4), dpi=150)
     plt.imshow(rankdata(rdm).reshape(rdm.shape), cmap=plt.cm.cividis)
