@@ -503,8 +503,8 @@ def correlate_rdms(rdm_1:np.ndarray, rdm_2:np.ndarray, correlation:str='pearson'
     return rho
 
 def plot_rdm(out_path:str, F:np.ndarray, method:str='correlation', format:str='.png', show_plot:bool=False) -> None:
-    rdm = compute_rdm(F)
-    plt.figure(figsize=(10, 4), dpi=150)
+    rdm = compute_rdm(F, method)
+    plt.figure(figsize=(10, 4), dpi=200)
     plt.imshow(rankdata(rdm).reshape(rdm.shape), cmap=plt.cm.cividis)
     plt.xticks([])
     plt.yticks([])
