@@ -86,48 +86,30 @@ def load_dl(
         dl = DataLoader(dataset, batch_size=batch_size, shuffle=False)
     return dl
 
-def load_model(model_name:str, pretrained:bool, device:torch.device, model_path:str=None):
-    """load a pretrained *torchvision* or OpenAI CLIP model into memory"""
+def load_model(model_name:str, pretrained:bool, device:torch.device, model_path:str=None) -> Tuple:
+    """load a pretrained *torchvision* or CLIP model into memory"""
     if re.search(r'^clip', model_name):
-        assert isinstance(device, str), '\nFor CLIP models, name of device (str) must be provided.\n'
+        assert isinstance(device, str), '\nFor CLIP models, device must be passed as a str instance.\n'
         if re.search(r'ViT$', model_name):
             model, transforms = clip.load("ViT-B/32", device=device, model_path=model_path, jit=False)
         else:
             model, transforms = clip.load("RN50", device=device, model_path=model_path, jit=False)
-    elif re.search(r'bn$', model_name):
-        if re.search(r'^vgg13', model_name):
-            model = models.vgg13_bn(pretrained=pretrained)
-        elif re.search(r'^vgg16', model_name):
-            model = models.vgg16_bn(pretrained=pretrained)
-        elif re.search(r'^vgg19', model_name):
-            model = models.vgg19_bn(pretrained=pretrained)
-        transforms = compose_transforms()
     else:
-        if re.search(r'^alex', model_name):
-            model = models.alexnet(pretrained=pretrained)
-        elif re.search(r'^resnet50', model_name):
-            model = models.resnet50(pretrained=pretrained)
-        elif re.search(r'^resnet101', model_name):
-            model = models.resnet101(pretrained=pretrained)
-        elif re.search(r'^vgg13', model_name):
-            model = models.vgg13(pretrained=pretrained)
-        elif re.search(r'^vgg16', model_name):
-            model = models.vgg16(pretrained=pretrained)
-        elif re.search(r'^vgg19', model_name):
-            model = models.vgg19(pretrained=pretrained)
-        elif re.search(r'^cor', model_name):
+        if re.search(r'^cornet', model_name):
             try:
                 model = getattr(cornet, f'cornet_{model_name[-1]}')
             except:
                 model = getattr(cornet, f'cornet_{model_name[-2:]}')
             model = model(pretrained=pretrained, map_location=device)
             model = model.module  #remove DataParallel
-            model = model.to(device)
+        else:
+            model = getattr(models, model_name)
+            model = model(pretrained=pretrained)
+        model = model.to(device)
         transforms = compose_transforms()
     if model_path:
         state_dict = torch.load(model_path, map_location=device)
         model.load_state_dict(state_dict)
-    model.to(device)
     model.eval()
     return model, transforms
 
