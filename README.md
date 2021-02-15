@@ -6,7 +6,7 @@ Make sure you have the latest Python version (>= 3.7) and [install PyTorch 1.7.1
 $ pip install thingsvision
 ```
 
-You have to download files from the parent repository (i.e., this repo) and move them into the Anaconda site-package directory on your machine to leverage. Simply download the shell script `get_files.sh` from this repo and execute it as follows (the shell script will do file downloading and moving for you):
+You have to download files from the parent repository (i.e., this repo) and move them into the Anaconda site-package directory on your machine to leverage `CLIP`. Simply download the shell script `get_files.sh` from this repo and execute it as follows (the shell script will do file downloading and moving for you):
 
 ``` bash
 $ wget https://raw.githubusercontent.com/ViCCo-Group/THINGSvision/master/get_files.sh (Linux)
