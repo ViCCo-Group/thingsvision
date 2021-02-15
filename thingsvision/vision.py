@@ -61,11 +61,11 @@ from thingsvision.dataset import ImageDataset
 def load_dl(
              root:str,
              batch_size:int,
-             things=None,
-             things_behavior=None,
-             add_ref_imgs=None,
+             things:bool=None,
+             things_behavior:bool=None,
+             add_ref_imgs:bool=None,
+             file_names:List[str]=None,
              transforms=None,
-             fraction=None,
              ) -> Iterator:
     print(f'\n...Loading dataset into memory.')
     dataset = ImageDataset(
@@ -73,17 +73,11 @@ def load_dl(
                             things=things,
                             things_behavior=things_behavior,
                             add_ref_imgs=add_ref_imgs,
+                            file_names=file_names,
                             transforms=transforms,
                             )
     print(f'...Transforming dataset into PyTorch DataLoader.\n')
-    n_samples = len(dataset)
-    if isinstance(fraction, float):
-        n_subset = int(n_samples * fraction)
-        rndperm = torch.randperm(n_samples)[:n_subset]
-        subset = Subset(dataset, rndperm)
-        dl = DataLoader(subset, batch_size=batch_size, shuffle=False)
-    else:
-        dl = DataLoader(dataset, batch_size=batch_size, shuffle=False)
+    dl = DataLoader(dataset, batch_size=batch_size, shuffle=False)
     return dl
 
 def load_model(model_name:str, pretrained:bool, device:torch.device, model_path:str=None) -> Tuple:
@@ -289,7 +283,6 @@ def extract_features(
     print(f'\nFeatures successfully extracted for all {len(features)} images in the database\n')
     return features, targets
 
-
 ########################################################################################################
 ################ HELPER FUNCTIONS FOR SAVING, MERGING AND SLICING FEATURE MATRICES #####################
 ########################################################################################################
@@ -484,10 +477,10 @@ def correlate_rdms(rdm_1:np.ndarray, rdm_2:np.ndarray, correlation:str='pearson'
     rho = corr_func(rdm_1[tril_inds], rdm_2[tril_inds])[0]
     return rho
 
-def plot_rdm(out_path:str, F:np.ndarray, method:str='correlation', format:str='.png', show_plot:bool=False) -> None:
+def plot_rdm(out_path:str, F:np.ndarray, method:str='correlation', format:str='.png', colormap:str='cividis', show_plot:bool=False) -> None:
     rdm = compute_rdm(F, method)
     plt.figure(figsize=(10, 4), dpi=200)
-    plt.imshow(rankdata(rdm).reshape(rdm.shape), cmap=plt.cm.cividis)
+    plt.imshow(rankdata(rdm).reshape(rdm.shape), cmap=getattr(plt.cm, colormap))
     plt.xticks([])
     plt.yticks([])
     plt.tight_layout()
