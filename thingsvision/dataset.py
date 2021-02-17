@@ -40,36 +40,43 @@ def parse_img_name(img_name:str) -> bool:
 def rm_suffix(img:str) -> str:
     return re.sub(r'(.eps|.jpg|.jpeg|.png|.PNG|.tif|.tiff)$', '', img)
 
-def instance_dataset(root:str, images:list) -> List[Tuple[str, int]]:
-    instances = [os.path.join(root, img) for img in images]
+def instance_dataset(root:str, out_path:str, images:list) -> List[Tuple[str, int]]:
+    instances = []
+    with open(os.path.join(out_path, 'file_names.txt'), 'w') as f:
+        for img in images:
+            f.write(f'{img}\n')
+            instances.append(os.path.join(root, img))
     samples = tuple((instance, target) for target, instance in enumerate(instances))
     return samples
 
-def class_dataset(PATH:str, cls_to_idx:Dict[str, int], things:bool=None, add_ref_imgs:bool=None, cls_to_files:Dict[list]=None) -> List[Tuple[str, int]]:
+def class_dataset(PATH:str, out_path:str, cls_to_idx:Dict[str, int], things:bool=None, add_ref_imgs:bool=None, cls_to_files:Dict[list]=None) -> List[Tuple[str, int]]:
     samples = []
-    for target_cls in sorted(cls_to_idx.keys()):
-        cls_idx = cls_to_idx[target_cls]
-        target_dir = os.path.join(PATH, target_cls)
-        if os.path.isdir(target_dir):
-            if cls_to_files is None:
-                for root, _, files in sorted(os.walk(target_dir, followlinks=True)):
-                    if (things and add_ref_imgs):
-                        first_img = files[0].rstrip('.jpg')
-                        if not first_img.endswith('b'):
-                            ref_img_path = get_ref_img(first_img)
-                            item = ref_img_path, class_idx
-                            instances.append(item)
-                    for k, file in enumerate(sorted(files)):
-                        path = os.path.join(root, file)
-                        if os.path.isfile(path) and parse_img_name(file):
+    with open(os.path.join(out_path, 'file_names.txt'), 'w') as f:
+        for target_cls in sorted(cls_to_idx.keys()):
+            cls_idx = cls_to_idx[target_cls]
+            target_dir = os.path.join(PATH, target_cls)
+            if os.path.isdir(target_dir):
+                if cls_to_files is None:
+                    for root, _, files in sorted(os.walk(target_dir, followlinks=True)):
+                        if (things and add_ref_imgs):
+                            first_img = files[0].rstrip('.jpg')
+                            if not first_img.endswith('b'):
+                                ref_img_path = get_ref_img(first_img)
+                                item = ref_img_path, class_idx
+                                instances.append(item)
+                        for k, file in enumerate(sorted(files)):
+                            path = os.path.join(root, file)
+                            f.write(f'{path}\n')
+                            if os.path.isfile(path) and parse_img_name(file):
+                                item = path, cls_idx
+                                samples.append(item)
+                else:
+                    for f_name in cls_to_files[target_cls]:
+                        path = os.path.join(target_dir, f_name)
+                        f.write(f'{path}\n')
+                        if os.path.isfile(path) and parse_img_name(f_name):
                             item = path, cls_idx
                             samples.append(item)
-            else:
-                for f_name in cls_to_files[target_cls]:
-                    path = os.path.join(target_dir, f_name)
-                    if os.path.isfile(path) and parse_img_name(f_name):
-                        item = path, cls_idx
-                        samples.append(item)
     return samples
 
 def get_ref_img(first_img:str, folder:str='./reference_images/') -> str:
@@ -85,6 +92,7 @@ class ImageDataset(object):
     """
         :params:
         root (str) - parent directory from where to load images
+        out_path (str) - output directory where to save image features (to store .txt file with corresponding file_names)
         things (bool) - whether images are from the THINGS database
         things_behavior (bool) - whether images correspond to the THINGS images used in the behavioral experiments
         add_ref_imgs (bool) - whether to prepend references images (i.e., images used in behavioral experiments) to the *full* THINGS image dataset
@@ -101,6 +109,7 @@ class ImageDataset(object):
     def __init__(
                 self,
                 root:str,
+                out_path:str,
                 things:bool,
                 things_behavior:bool,
                 add_ref_imgs:bool,
@@ -119,12 +128,12 @@ class ImageDataset(object):
         if self.class_dataset:
             if self.file_names:
                 _, cls_to_files = get_classes(self.file_names)
-                self.samples = class_dataset(self.root, cls_to_idx, self.things, add_ref_imgs, cls_to_files)
+                self.samples = class_dataset(self.root, out_path, cls_to_idx, self.things, add_ref_imgs, cls_to_files)
             else:
-                self.samples = class_dataset(self.root, cls_to_idx, self.things, add_ref_imgs)
+                self.samples = class_dataset(self.root, out_path, cls_to_idx, self.things, add_ref_imgs)
             self.classes = classes
         else:
-            self.samples = instance_dataset(self.root, classes)
+            self.samples = instance_dataset(self.root, out_path, classes)
             self.classes = list(cls_to_idx.keys())
 
         images, targets = zip(*self.samples)
