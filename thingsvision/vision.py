@@ -60,6 +60,7 @@ from thingsvision.dataset import ImageDataset
 
 def load_dl(
              root:str,
+             out_path:str,
              batch_size:int,
              things:bool=None,
              things_behavior:bool=None,
