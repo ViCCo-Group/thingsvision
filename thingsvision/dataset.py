@@ -19,7 +19,7 @@ from PIL import Image
 from torchvision import transforms as T
 from typing import Tuple, List, Dict, Iterator, Any
 
-def get_classes(file_names:List[str]) -> List[str]:
+def get_classes(file_names:List[str]) -> Tuple[List[str], Dict[list]]:
     cls_to_files = defaultdict(list)
     classes = []
     for file in file_names:
@@ -88,7 +88,7 @@ class ImageDataset(object):
         things (bool) - whether images are from the THINGS database
         things_behavior (bool) - whether images correspond to the THINGS images used in the behavioral experiments
         add_ref_imgs (bool) - whether to prepend references images (i.e., images used in behavioral experiments) to the *full* THINGS image dataset
-        file_names (List[str]) - whether extracted features should be sorted according to a provided list of file names (['class/img_xy.png', ...] OR ['img_xy.png', ...])
+        file_names (List[str]) - whether extracted features should be sorted according to a provided list of file names (following ['class/img_xy.png', ...] OR ['img_xy.png', ...])
         transforms (Any) - whether to apply a composition of image transformations
 
         :args:
