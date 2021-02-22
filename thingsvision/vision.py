@@ -74,6 +74,7 @@ def load_dl(
     print(f'\n...Loading dataset into memory.')
     dataset = ImageDataset(
                             root=root,
+                            out_path=out_path,
                             things=things,
                             things_behavior=things_behavior,
                             add_ref_imgs=add_ref_imgs,
