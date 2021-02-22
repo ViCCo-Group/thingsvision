@@ -26,6 +26,9 @@ __all__ = [
             'load_item_names',
             'save_features',
             'save_targets',
+            'correlation_matrix',
+            'euclidean_matrix',
+            'cosine_matrix',
             'compute_rdm',
             'correlate_rdms',
             'extract_features_across_models_and_datasets',
@@ -35,12 +38,12 @@ __all__ = [
 import os
 import random
 import re
+import scipy
 import torch
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import scipy.stats
 
 import thingsvision.cornet as cornet
 import thingsvision.clip as clip
@@ -465,10 +468,32 @@ def correlation_matrix(F:np.ndarray, a_min:float=-1., a_max:float=1.) -> np.ndar
     corr_mat = (cov / denom).clip(min=a_min, max=a_max) #counteract potential rounding errors
     return corr_mat
 
+def cosine_matrix(F:np.ndarray, a_min:float=-1., a_max:float=1.) -> np.ndarray:
+    num = F @ F.T
+    l2_norms = np.linalg.norm(F, axis=1) #compute l2-norm across rows
+    denom = np.outer(l2_norms, l2_norms)
+    cos_mat = (num / denom).clip(min=a_min, max=a_max)
+    return cos_mat
+
+@njit(parallel=True, fastmath=True)
+def euclidean_matrix(F:np.ndarray) -> np.ndarray:
+    N = F.shape[0]
+    rdm = [[np.linalg.norm(F[i] - F[j]) for j in prange(N)] for i in prange(N)]
+    return np.asarray(rdm)
+
 def compute_rdm(F:np.ndarray, method:str='correlation') -> np.ndarray:
-    methods = ['correlation', 'gaussian']
+    methods = ['correlation', 'cosine', 'euclidean', 'gaussian']
     assert method in methods, f'\nMethod to compute RDM must be one of {methods}.\n'
-    rsm = correlation_matrix(F) if method == 'correlation' else gaussian_kernel(F)
+    if method == 'euclidean':
+        rdm = euclidean_matrix(F)
+        return rdm / rdm.max()
+    else:
+        if method == 'correlation':
+            rsm =  correlation_matrix(F)
+        elif method == 'cosine':
+            rsm = cosine_matrix(F)
+        elif method == 'euclidean':
+            rsm = gaussian_kernel(F)
     return 1 - rsm
 
 def correlate_rdms(rdm_1:np.ndarray, rdm_2:np.ndarray, correlation:str='pearson') -> float:
