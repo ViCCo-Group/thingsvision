@@ -38,12 +38,12 @@ __all__ = [
 import os
 import random
 import re
+import scipy
 import torch
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import scipy.stats
 
 import thingsvision.cornet as cornet
 import thingsvision.clip as clip
