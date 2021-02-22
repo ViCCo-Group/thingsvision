@@ -168,7 +168,7 @@ class ImageDataset(object):
                 classes = [''.join((name,'.jpg')) for name in vision.load_item_names()]
             else:
                 if self.file_names:
-                    classes = [os.path.join(self.root, f) for f in file_names if os.path.isfile(f) and parse_img_name(f)]
+                    classes = [os.path.join(self.root, f) for f in self.file_names if os.path.isfile(f) and parse_img_name(f)]
                 else:
                     classes = sorted([f.name for f in os.scandir(self.root) if f.is_file() and parse_img_name(f.name)])
             idx_to_cls = dict(enumerate(list(map(rm_suffix, classes))))
