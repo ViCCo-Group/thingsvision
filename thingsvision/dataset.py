@@ -19,7 +19,7 @@ from PIL import Image
 from torchvision import transforms as T
 from typing import Tuple, List, Dict, Iterator, Any
 
-def get_classes(file_names:List[str]) -> Tuple[List[str], Dict[list]]:
+def get_classes(file_names:List[str]) -> Tuple[List[str], Dict[str, list]]:
     cls_to_files = defaultdict(list)
     classes = []
     for file in file_names:
@@ -49,7 +49,7 @@ def instance_dataset(root:str, out_path:str, images:list) -> List[Tuple[str, int
     samples = tuple((instance, target) for target, instance in enumerate(instances))
     return samples
 
-def class_dataset(PATH:str, out_path:str, cls_to_idx:Dict[str, int], things:bool=None, add_ref_imgs:bool=None, cls_to_files:Dict[list]=None) -> List[Tuple[str, int]]:
+def class_dataset(PATH:str, out_path:str, cls_to_idx:Dict[str, int], things:bool=None, add_ref_imgs:bool=None, cls_to_files:Dict[str, list]=None) -> List[Tuple[str, int]]:
     samples = []
     with open(os.path.join(out_path, 'file_names.txt'), 'w') as f:
         for target_cls in sorted(cls_to_idx.keys()):
