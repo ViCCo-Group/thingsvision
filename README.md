@@ -25,7 +25,7 @@ Replace `cudatoolkit=11.0` above with the appropriate CUDA version on your machi
 
 Features can be extraced for all models in [torchvision](https://pytorch.org/vision/0.8/models.html), each of the [CORnet](https://github.com/dicarlolab/CORnet) versions and both [CLIP](https://github.com/openai/CLIP) variants (`clip-ViT` and `clip-RN`). 
 
-Examples:  `alexnet`, `resnet50`, `resnet101`, `vgg13`, `vgg13_bn`, `vgg16`, `vgg16_bn`, `vgg19`, `vgg19_bn`, `cornet-s`, `clip-ViT`. Have a look [here](https://github.com/pytorch/vision/tree/master/torchvision/models) for the correct abbrevations of [torchvision](https://pytorch.org/vision/0.8/models.html) models.
+Examples:  `alexnet`, `resnet50`, `resnet101`, `vgg13`, `vgg13_bn`, `vgg16`, `vgg16_bn`, `vgg19`, `vgg19_bn`, `cornet-s`, `clip-ViT`.  For the correct abbrevations of [torchvision](https://pytorch.org/vision/0.8/models.html) models have a look [here](https://github.com/pytorch/vision/tree/master/torchvision/models). For the correct abbrevations of [CORnet](https://github.com/dicarlolab/CORnet) version look [here](https://github.com/dicarlolab/CORnet/tree/master/cornet). To separate `cornet` from its variant (e.g., `s`, `z`) use a hyphen rather than an underscore (e.g., `cornet-s`, `cornet-z`).
 
 ## Extract features at specific layer of a state-of-the-art `torchvision`, `CORnet` or `CLIP` model 
 
