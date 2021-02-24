@@ -1,3 +1,9 @@
+## THINGSvision's model collection
+
+Features can be extraced for all models in [torchvision](https://pytorch.org/vision/0.8/models.html), each of the [CORnet](https://github.com/dicarlolab/CORnet) versions and both [CLIP](https://github.com/openai/CLIP) variants (`clip-ViT` and `clip-RN`). For the correct abbrevations of [torchvision](https://pytorch.org/vision/0.8/models.html) models have a look [here](https://github.com/pytorch/vision/tree/master/torchvision/models). For the correct abbrevations of [CORnet](https://github.com/dicarlolab/CORnet) models look [here](https://github.com/dicarlolab/CORnet/tree/master/cornet). To separate the string `cornet` from its variant (e.g., `s`, `z`) use a hyphen rather than an underscore (e.g., `cornet-s`, `cornet-z`).<br>
+
+Examples:  `alexnet`, `resnet50`, `resnet101`, `vgg13`, `vgg13_bn`, `vgg16`, `vgg16_bn`, `vgg19`, `vgg19_bn`, `cornet-s`, `clip-ViT`.
+
 ## Environment Setup
 
 Make sure you have the latest Python version (>= 3.7) and [install PyTorch 1.7.1](https://pytorch.org/get-started/locally/). Note that [PyTorch 1.7.1](https://pytorch.org/) requires CUDA 10.2 or above, if you want to extract features on a GPU. However, the code runs already pretty fast on a strong CPU (Intel i7 or i9). Run the following `pip` command in your terminal. 
@@ -20,12 +26,6 @@ $ conda install --yes -c pytorch pytorch=1.7.1 torchvision cudatoolkit=11.0
 ```
 
 Replace `cudatoolkit=11.0` above with the appropriate CUDA version on your machine (e.g., 10.2) or `cpuonly` when installing on a machine without a GPU.
-
-## Model collection
-
-Features can be extraced for all models in [torchvision](https://pytorch.org/vision/0.8/models.html), each of the [CORnet](https://github.com/dicarlolab/CORnet) versions and both [CLIP](https://github.com/openai/CLIP) variants (`clip-ViT` and `clip-RN`). For the correct abbrevations of [torchvision](https://pytorch.org/vision/0.8/models.html) models have a look [here](https://github.com/pytorch/vision/tree/master/torchvision/models). For the correct abbrevations of [CORnet](https://github.com/dicarlolab/CORnet) models look [here](https://github.com/dicarlolab/CORnet/tree/master/cornet). To separate the string `cornet` from its variant (e.g., `s`, `z`) use a hyphen rather than an underscore (e.g., `cornet-s`, `cornet-z`).<br>
-
-Examples:  `alexnet`, `resnet50`, `resnet101`, `vgg13`, `vgg13_bn`, `vgg16`, `vgg16_bn`, `vgg19`, `vgg19_bn`, `cornet-s`, `clip-ViT`.
 
 ## Extract features at specific layer of a state-of-the-art `torchvision`, `CORnet` or `CLIP` model 
 
