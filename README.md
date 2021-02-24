@@ -21,6 +21,10 @@ $ conda install --yes -c pytorch pytorch=1.7.1 torchvision cudatoolkit=11.0
 
 Replace `cudatoolkit=11.0` above with the appropriate CUDA version on your machine (e.g., 10.2) or `cpuonly` when installing on a machine without a GPU.
 
+## Model collection
+
+Features can be extraced for all models in [torchvision](https://pytorch.org/vision/0.8/models.html), all [CORnet](https://github.com/dicarlolab/CORnet) versions and both [CLIP](https://github.com/openai/CLIP) variants, `CLIP-ViT` and `CLIP-RN`.
+
 ## Extract features at specific layer of a state-of-the-art `torchvision`, `CORnet` or `CLIP` model 
 
 ### Example call for AlexNet:
