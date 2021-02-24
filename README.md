@@ -23,7 +23,7 @@ Replace `cudatoolkit=11.0` above with the appropriate CUDA version on your machi
 
 ## Model collection
 
-Features can be extraced for all models in [torchvision](https://pytorch.org/vision/0.8/models.html), all [CORnet](https://github.com/dicarlolab/CORnet) versions and both [CLIP](https://github.com/openai/CLIP) variants (`clip-ViT` and `clip-RN`). 
+Features can be extraced for all models in [torchvision](https://pytorch.org/vision/0.8/models.html), each of the [CORnet](https://github.com/dicarlolab/CORnet) versions and both [CLIP](https://github.com/openai/CLIP) variants (`clip-ViT` and `clip-RN`). 
 
 Examples:  `alexnet`, `resnet50`, `resnet101`, `vgg13`, `vgg13_bn`, `vgg16`, `vgg16_bn`, `vgg19`, `vgg19_bn`, `cornet-s`, `clip-ViT`. Have a look [here](https://github.com/pytorch/vision/tree/master/torchvision/models) for the correct abbrevations of [torchvision](https://pytorch.org/vision/0.8/models.html) models.
 
