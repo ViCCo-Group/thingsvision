@@ -33,6 +33,9 @@ __all__ = [
             'correlate_rdms',
             'extract_features_across_models_and_datasets',
             'extract_features_across_models_datasets_and_modules,'
+            'compare_models',
+            'get_features',
+            'compare_models_to_humans',
             ]
 
 import os
@@ -40,6 +43,7 @@ import random
 import re
 import scipy
 import torch
+import itertools
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -52,9 +56,10 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.models as models
 
+from collections import defaultdict
 from numba import njit, jit, prange
 from os.path import join as pjoin
-from scipy.stats import rankdata
+from scipy.stats import rankdata, ttest_rel
 from skimage.transform import resize
 from typing import Tuple, List, Iterator, Dict, Any
 from torch.utils.data import DataLoader, Subset
@@ -518,3 +523,143 @@ def plot_rdm(out_path:str, F:np.ndarray, method:str='correlation', format:str='.
     if show_plot:
         plt.show()
     plt.close()
+
+
+#################################################################################################################
+####################################### BOOTSTRAPPING HELPER FUNCTIONS ##########################################
+################################################################################################################
+
+def bootstrap_(
+               features_i:np.ndarray,
+               features_j:np.ndarray,
+               model_i:str,
+               model_j:str,
+               human_rdm:np.ndarray,
+               n_bootstraps:int=1000,
+               dissimilarity:str='correlation',
+               correlation:str='pearson',
+
+) -> Tuple[Dict[str, list], float]:
+    """random sampling with replacement (resampled dataset must be of equal size to the original, observed dataset)"""
+    human_correlations = defaultdict(list)
+    N = features_i.shape[0]
+    for _ in range(n_bootstraps):
+        resample_i = np.random.choice(np.arange(N), size=N, replace=True)
+        resample_j = np.random.choice(np.arange(N), size=N, replace=True)
+        rdm_i = compute_rdm(features_i[resample_i], dissimilarity)
+        rdm_j = compute_rdm(features_j[resample_j], dissimilarity)
+
+        human_rdm_resample_i = human_rdm[resample_i]
+        human_rdm_resample_i = human_rdm_resample_i[:, resample_i]
+        human_rdm_resample_j = human_rdm[resample_j]
+        human_rdm_resample_j = human_rdm_resample_j[:, resample_j]
+
+        human_corr_i = correlate_rdms(human_rdm_resample_i, rdm_i, correlation)
+        human_corr_j = correlate_rdms(human_rdm_resample_j, rdm_j, correlation)
+        human_correlations[model_i].append(human_corr_i)
+        human_correlations[model_j].append(human_corr_j)
+    return human_correlations
+
+def get_features(
+                img_path:str,
+                out_path:str,
+                model_names:List[str],
+                module_names:List[str],
+                pretrained:bool,
+                batch_size:int,
+                flatten_acts:bool,
+                clip:List[bool],
+) -> Dict[str, dict]:
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    model_features = defaultdict(dict)
+    for i, model_name in enumerate(model_names):
+        device = device if clip[i] else torch.device(device)
+        model, transforms = load_model(model_name, pretrained=pretrained, model_path=None, device=device)
+        dl = load_dl(img_path, out_path, batch_size=batch_size, transforms=transforms)
+        features, _ = extract_features(model, dl, module_names[i], batch_size=batch_size, flatten_acts=flatten_acts, device=device, clip=clip[i])
+        model_features[model_name][module_names[i]] = features
+    return model_features
+
+def compare_models_to_humans(
+                            img_path:str,
+                            out_path:str,
+                            model_names:List[str],
+                            module_names:List[str],
+                            pretrained:bool,
+                            batch_size:int,
+                            flatten_acts:bool,
+                            clip:List[bool],
+                            human_rdm:np.ndarray,
+                            save_features:bool=True,
+                            n_bootstraps:int=1000,
+                            dissimilarity:str='correlation',
+                            correlation:str='pearson',
+
+) -> Dict[Tuple[str, str], Dict[Tuple[str, str], str]]:
+    #extract features for each model and its corresponding module
+    model_features = get_features(img_path, out_path, model_names, module_names, pretrained, batch_size, flatten_acts, clip)
+    #save model features to disc
+    if save_features:
+        pickle_file_(model_features, out_path, 'features')
+
+    #compare features of each model combination for N bootstraps
+    scores = defaultdict(lambda: defaultdict(dict))
+    model_combs = list(itertools.combinations(model_names, 2))
+    for (model_i, model_j) in model_combs:
+        module_i = module_names[model_names.index(model_i)]
+        module_j = module_names[model_names.index(model_j)]
+        features_i = model_features[model_i][module_i]
+        features_j = model_features[model_j][module_j]
+        human_correlations = bootstrap_(
+                                        features_i=features_i,
+                                        features_j=features_j,
+                                        model_i=model_i,
+                                        model_j=model_j,
+                                        human_rdm=human_rdm,
+                                        n_bootstraps=n_bootstraps,
+                                        dissimilarity=dissimilarity,
+                                        correlation=correlation,
+        )
+        mean_human_corrs = (np.mean(human_correlations[model_i]), np.mean(human_correlations[model_j]))
+        scores[(model_i, model_j)][(module_i, module_j)]['human_corrs'] = (human_correlations[model_i], human_correlations[model_j])
+        scores[(model_i, model_j)][(module_i, module_j)]['mean_human_corrs'] = mean_human_corrs
+    return scores
+
+def compare_models(
+                    img_path:str,
+                    out_path:str,
+                    model_names:List[str],
+                    module_names:List[str],
+                    pretrained:bool,
+                    batch_size:int,
+                    flatten_acts:bool,
+                    clip:List[bool],
+                    save_features:bool=True,
+                    dissimilarity:str='correlation',
+                    correlation:str='pearson',
+) -> pd.DataFrame:
+    #extract features for each model and corresponding module
+    model_features = get_features(img_path, out_path, model_names, module_names, pretrained, batch_size, flatten_acts, clip)
+    #save model features to disc
+    if save_features:
+        pickle_file_(model_features, out_path, 'features')
+
+    #compare features of each model combination for N bootstraps
+    corrs = pd.DataFrame(index=np.arange(len(model_names)), columns=model_names, dtype=float)
+    model_combs = list(itertools.product(model_names, model_names))
+    for (model_i, model_j) in model_combs:
+        module_i = module_names[model_names.index(model_i)]
+        module_j = module_names[model_names.index(model_j)]
+        features_i = model_features[model_i][module_i]
+        features_j = model_features[model_j][module_j]
+        rdm_i = compute_rdm(features_i, dissimilarity)
+        rdm_j = compute_rdm(features_j, dissimilarity)
+        corr = correlate_rdms(rdm_i, rdm_j, correlation)
+        corrs.loc[model_names.index(model_i), model_j] = corr
+    corrs['model_names'] = df.columns.to_list()
+    corrs.set_index('model_names', inplace=True, drop=True)
+    return corrs
+
+def pickle_file_(file:dict, out_path:str, f_name:str) -> None:
+    with open(os.path.join(out_path, f_name + '.p'), 'wb') as f:
+        pickle.dump(scores, f)
