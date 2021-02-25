@@ -608,7 +608,6 @@ def compare_models_to_humans(
     #save model features to disc
     if save_features:
         pickle_file_(model_features, out_path, 'features')
-
     #compare features of each model combination for N bootstraps
     scores = defaultdict(lambda: defaultdict(dict))
     model_combs = list(itertools.combinations(model_names, 2))
@@ -650,7 +649,6 @@ def compare_models(
     #save model features to disc
     if save_features:
         pickle_file_(model_features, out_path, 'features')
-
     #compare features of each model combination for N bootstraps
     corrs = pd.DataFrame(index=np.arange(len(model_names)), columns=model_names, dtype=float)
     model_combs = list(itertools.product(model_names, model_names))
