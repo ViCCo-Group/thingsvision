@@ -568,7 +568,7 @@ def bootstrap_(
     return human_correlations
 
 def get_features(
-                img_path:str,
+                root:str,
                 out_path:str,
                 model_names:List[str],
                 module_names:List[str],
@@ -582,13 +582,13 @@ def get_features(
     for i, model_name in enumerate(model_names):
         device = device if clip[i] else torch.device(device)
         model, transforms = load_model(model_name, pretrained=pretrained, model_path=None, device=device)
-        dl = load_dl(img_path, out_path, batch_size=batch_size, transforms=transforms)
+        dl = load_dl(root, out_path, batch_size=batch_size, transforms=transforms)
         features, _ = extract_features(model, dl, module_names[i], batch_size=batch_size, flatten_acts=flatten_acts, device=device, clip=clip[i])
         model_features[model_name][module_names[i]] = features
     return model_features
 
 def compare_models_to_humans(
-                            img_path:str,
+                            root:str,
                             out_path:str,
                             model_names:List[str],
                             module_names:List[str],
@@ -604,7 +604,7 @@ def compare_models_to_humans(
 
 ) -> Dict[Tuple[str, str], Dict[Tuple[str, str], str]]:
     #extract features for each model and its corresponding module
-    model_features = get_features(img_path, out_path, model_names, module_names, pretrained, batch_size, flatten_acts, clip)
+    model_features = get_features(root, out_path, model_names, module_names, pretrained, batch_size, flatten_acts, clip)
     #save model features to disc
     if save_features:
         pickle_file_(model_features, out_path, 'features')
@@ -633,7 +633,7 @@ def compare_models_to_humans(
     return scores
 
 def compare_models(
-                    img_path:str,
+                    root:str,
                     out_path:str,
                     model_names:List[str],
                     module_names:List[str],
@@ -646,7 +646,7 @@ def compare_models(
                     correlation:str='pearson',
 ) -> pd.DataFrame:
     #extract features for each model and corresponding module
-    model_features = get_features(img_path, out_path, model_names, module_names, pretrained, batch_size, flatten_acts, clip)
+    model_features = get_features(root, out_path, model_names, module_names, pretrained, batch_size, flatten_acts, clip)
     #save model features to disc
     if save_features:
         pickle_file_(model_features, out_path, 'features')
