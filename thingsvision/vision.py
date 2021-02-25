@@ -36,6 +36,7 @@ __all__ = [
             'compare_models',
             'get_features',
             'compare_models_to_humans',
+            'bootstrap_',
             ]
 
 import os
@@ -528,6 +529,12 @@ def plot_rdm(out_path:str, F:np.ndarray, method:str='correlation', format:str='.
 #################################################################################################################
 ####################################### BOOTSTRAPPING HELPER FUNCTIONS ##########################################
 ################################################################################################################
+
+def compute_pval_(human_correlations:dict, model_i:str, model_j:str) -> float:
+    model_i_corrs = np.asarray(human_correlations[model_i])
+    model_j_corrs = np.asarray(human_correlations[model_j])
+    p_val = 1 - np.mean([model_i_corr > model_j_corr for model_i_corr, model_j_corr in zip(model_i_corrs, model_j_corrs)])
+    return p_val.round(3)
 
 def bootstrap_(
                features_i:np.ndarray,
