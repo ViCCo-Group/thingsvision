@@ -576,12 +576,12 @@ def get_features(
                 batch_size:int,
                 flatten_acts:bool,
                 clip:List[bool],
-) -> Dict[str, dict]:
+) -> Dict[str, Dict[str, np.ndarray]]:
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     model_features = defaultdict(dict)
     for i, model_name in enumerate(model_names):
-        device = device if clip[i] else torch.device(device)
-        model, transforms = load_model(model_name, pretrained=pretrained, model_path=None, device=device)
+        dv = device if clip[i] else torch.device(device)
+        model, transforms = load_model(model_name, pretrained=pretrained, model_path=None, device=dv)
         dl = load_dl(root, out_path, batch_size=batch_size, transforms=transforms)
         features, _ = extract_features(model, dl, module_names[i], batch_size=batch_size, flatten_acts=flatten_acts, device=device, clip=clip[i])
         model_features[model_name][module_names[i]] = features
@@ -650,8 +650,8 @@ def compare_models(
     if save_features:
         pickle_file_(model_features, out_path, 'features')
     #compare features of each model combination for N bootstraps
-    corrs = pd.DataFrame(index=np.arange(len(model_names)), columns=model_names, dtype=float)
-    model_combs = list(itertools.product(model_names, model_names))
+    corrs = pd.DataFrame(np.eye(len(model_names)), index=np.arange(len(model_names)), columns=model_names, dtype=float)
+    model_combs = list(itertools.combinations(model_names, 2))
     for (model_i, model_j) in model_combs:
         module_i = module_names[model_names.index(model_i)]
         module_j = module_names[model_names.index(model_j)]
@@ -661,6 +661,7 @@ def compare_models(
         rdm_j = compute_rdm(features_j, dissimilarity)
         corr = correlate_rdms(rdm_i, rdm_j, correlation)
         corrs.loc[model_names.index(model_i), model_j] = corr
+        corrs.loc[model_names.index(model_j), model_i] = corr
     corrs['model_names'] = df.columns.to_list()
     corrs.set_index('model_names', inplace=True, drop=True)
     return corrs
