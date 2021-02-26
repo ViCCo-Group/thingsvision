@@ -662,7 +662,7 @@ def compare_models(
         corr = correlate_rdms(rdm_i, rdm_j, correlation)
         corrs.loc[model_names.index(model_i), model_j] = corr
         corrs.loc[model_names.index(model_j), model_i] = corr
-    corrs['model_names'] = df.columns.to_list()
+    corrs['model_names'] = corrs.columns.to_list()
     corrs.set_index('model_names', inplace=True, drop=True)
     return corrs
 
