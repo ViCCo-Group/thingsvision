@@ -43,6 +43,7 @@ import os
 import random
 import re
 import scipy
+import scipy.io
 import torch
 import itertools
 
@@ -299,11 +300,17 @@ def extract_features(
 ########################################################################################################
 
 def store_features(PATH:str, features:np.ndarray, file_format:str) -> None:
+    if not os.path.exists(PATH):
+        print(f'\nOutput directory did not exist. Creating directories to save targets...\n')
+        os.makedirs(PATH)
     if re.search(r'npy', file_format):
         with open(pjoin(PATH, 'features.npy'), 'wb') as f:
             np.save(f, features)
+    elif re.search(r'mat', file_format):
+        scipy.io.savemat(pjoin(PATH, 'features.mat'), {'features': features})
     else:
         np.savetxt(pjoin(PATH, 'features.txt'), features)
+    print(f'\nFeatures successfully saved to disk.\n')
 
 def tensor2slices(PATH:str, file_name:str, features:np.ndarray) -> None:
     with open(pjoin(PATH, file_name), 'w') as outfile:
@@ -349,6 +356,8 @@ def split_features(PATH:str, features:np.ndarray, file_format:str, n_splits:int)
         if re.search(r'npy', file_format):
             with open(pjoin(PATH, f'features_{i:02d}.npy'), 'wb') as f:
                 np.save(f, feature_split)
+        elif re.search(r'mat', file_format):
+            scipy.io.savemat(pjoin(PATH, f'features_{i:02d}.mat'), {'features': features})
         else:
             np.savetxt(pjoin(PATH, f'features_{i:02d}.txt'), feature_split)
 
@@ -358,6 +367,8 @@ def merge_features(PATH:str, file_format:str) -> np.ndarray:
     feature_splits = feature_splits[np.argsort(enumerations)]
     if file_format == '.txt':
         features = np.vstack([np.loadtxt(pjoin(PATH, feature)) for feature in feature_splits])
+    elif file_format == '.mat':
+        features = np.vstack([scipy.io.loadmat(pjoin(PATH, feature))['features'] for feature in feature_splits])
     elif file_format == '.npy':
         features = []
         for feature in feature_splits:
@@ -365,7 +376,7 @@ def merge_features(PATH:str, file_format:str) -> np.ndarray:
                 features.append(np.load(f))
         features = np.vstack(features)
     else:
-        raise Exception('Can only process .npy or .txt files')
+        raise Exception('\nCan only process .npy, .mat, or .txt files.\n')
     return features
 
 def parse_imagenet_synsets(file_name:str, folder:str='./data/'):
@@ -446,6 +457,8 @@ def save_targets(targets:np.ndarray, out_path:str, file_format:str) -> None:
     if re.search(r'npy', file_format):
         with open(pjoin(out_path, 'targets.npy'), 'wb') as f:
             np.save(f, targets)
+    elif re.search(r'mat', file_format):
+        scipy.io.savemat(pjoin(out_path, 'targets.mat'), {'targets': targets})
     else:
         np.savetxt(pjoin(out_path, 'targets.txt'), targets)
     print(f'\nTargets successfully saved to disk.\n')
