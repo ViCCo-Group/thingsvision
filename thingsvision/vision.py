@@ -299,6 +299,9 @@ def extract_features(
 ################ HELPER FUNCTIONS FOR SAVING, MERGING AND SLICING FEATURE MATRICES #####################
 ########################################################################################################
 
+def rm_suffix(img:str) -> str:
+    return re.sub(r'(.eps|.jpg|.jpeg|.png|.PNG|.tif|.tiff)$', '', img)
+
 def store_features(PATH:str, features:np.ndarray, file_format:str) -> None:
     if not os.path.exists(PATH):
         print(f'\nOutput directory did not exist. Creating directories to save targets...\n')
@@ -307,7 +310,13 @@ def store_features(PATH:str, features:np.ndarray, file_format:str) -> None:
         with open(pjoin(PATH, 'features.npy'), 'wb') as f:
             np.save(f, features)
     elif re.search(r'mat', file_format):
-        scipy.io.savemat(pjoin(PATH, 'features.mat'), {'features': features})
+        try:
+            with open(pjoin(PATH, 'file_names.txt'), 'r') as f:
+                file_names = [rm_suffix(l.strip()) for l in f]
+            features = {file_name: feature for file_name, feature in zip(file_names, features)}
+            scipy.io.savemat(pjoin(PATH, 'features.mat'), features)
+        except FileNotFoundError:
+            scipy.io.savemat(pjoin(PATH, 'features.mat'), {'features': features})
     else:
         np.savetxt(pjoin(PATH, 'features.txt'), features)
     print(f'\nFeatures successfully saved to disk.\n')
@@ -350,6 +359,12 @@ def slices2tensor(PATH:str, file:str) -> np.ndarray:
     return tensor
 
 def split_features(PATH:str, features:np.ndarray, file_format:str, n_splits:int) -> None:
+    if re.search(r'mat', file_format):
+        try:
+            with open(pjoin(PATH, 'file_names.txt'), 'r') as f:
+                file_names = [rm_suffix(l.strip()) for l in f]
+        except FileNotFoundError:
+            file_names = None
     splits = np.linspace(0, len(features), n_splits, dtype=int)
     for i in range(1, len(splits)):
         feature_split = features[splits[i-1]:splits[i]]
@@ -357,7 +372,12 @@ def split_features(PATH:str, features:np.ndarray, file_format:str, n_splits:int)
             with open(pjoin(PATH, f'features_{i:02d}.npy'), 'wb') as f:
                 np.save(f, feature_split)
         elif re.search(r'mat', file_format):
-            scipy.io.savemat(pjoin(PATH, f'features_{i:02d}.mat'), {'features': features})
+            if file_names:
+                file_name_split = file_names[splits[i-1]:splits[i]]
+                features = {file_name_split[i]: feature for i, feature in enumerate(feature_split)}
+                scipy.io.savemat(pjoin(PATH, f'features_{i:02d}.mat'), features)
+            else:
+                scipy.io.savemat(pjoin(PATH, f'features_{i:02d}.mat'), {'features': features})
         else:
             np.savetxt(pjoin(PATH, f'features_{i:02d}.txt'), feature_split)
 
