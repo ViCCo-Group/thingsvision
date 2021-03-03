@@ -526,7 +526,7 @@ def compute_rdm(F:np.ndarray, method:str='correlation') -> np.ndarray:
     assert method in methods, f'\nMethod to compute RDM must be one of {methods}.\n'
     if method == 'euclidean':
         rdm = euclidean_matrix(F)
-        return rdm / rdm.max()
+        return rdm
     else:
         if method == 'correlation':
             rsm =  correlation_matrix(F)
