@@ -37,7 +37,7 @@ import thingsvision.vision as vision
 
 model_name = 'alexnet'
 
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
 model, transforms = vision.load_model(model_name, pretrained=True, model_path=None, device=device)
 module_name = vision.show_model(model, model_name)
 
@@ -73,11 +73,11 @@ AlexNet(
 
 (e.g., "features.10")
 
-dl = vision.load_dl('./images/', batch_size=64, things=True, transforms=transforms)
+dl = vision.load_dl(root='./images/', out_path=f'./{model_name}/{module_name}/features', batch_size=64, things=True, transforms=transforms)
 features, targets = vision.extract_features(model, dl, module_name, batch_size=64, flatten_acts=True, device=device)
 features = vision.center_features(features)
 
-vision.save_features(features, f'./{model_name}/{module_name}/activations', '.npy')
+vision.save_features(features, f'./{model_name}/{module_name}/features', '.npy')
 vision.save_targets(targets, f'./{model_name}/{module_name}/targets', '.npy')
 ```
 
@@ -93,13 +93,13 @@ module_name = 'visual'
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 model, transforms = vision.load_model(model_name, pretrained=True, model_path=None, device=device)
-dl = vision.load_dl('./IMAGE_FOLDER/', batch_size=64, transforms=transforms)
+dl = vision.load_dl(root='./images/', out_path=f'./{model_name}/{module_name}/features', batch_size=64, things=True, transforms=transforms)
 features, targets = vision.extract_features(model, dl, module_name, batch_size=64, flatten_acts=False, device=device, clip=True)
 
 features = vision.center_features(features)
 features = vision.normalize_features(features)
 
-vision.save_features(features, f'./{model_name}/{module_name}/activations', '.npy')
+vision.save_features(features, f'./{model_name}/{module_name}/features', '.npy')
 vision.save_targets(targets, f'./{model_name}/{module_name}/targets', '.npy')
 ```
 
@@ -110,8 +110,7 @@ import torch
 import thingsvision.vision as vision
 
 model_name = 'cornet-s'
-
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 model, transforms = vision.load_model(model_name, pretrained=True, model_path=None, device=device)
 module_name = vision.show_model(model, model_name)
@@ -199,13 +198,13 @@ Sequential(
 
 (e.g., "decoder.flatten")
 
-dl = vision.load_dl('./IMAGE_FOLDER/', batch_size=64, transforms=transforms)
+dl = vision.load_dl(root='./images/', out_path=f'./{model_name}/{module_name}/features', batch_size=64, things=True, transforms=transforms)
 features, targets = vision.extract_features(model, dl, module_name, batch_size=64, flatten_acts=False, device=device)
 
 features = vision.center_features(features)
 features = vision.normalize_features(features)
 
-vision.save_features(features, f'./{model_name}/{module_name}/activations', '.npy')
+vision.save_features(features, f'./{model_name}/{module_name}/features', '.npy')
 vision.save_targets(targets, f'./{model_name}/{module_name}/targets', '.npy')
 ```
 
