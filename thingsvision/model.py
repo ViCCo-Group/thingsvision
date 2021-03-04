@@ -357,11 +357,9 @@ def convert_weights(model: nn.Module):
                 if attr is not None:
                     attr.data = attr.data.half()
 
-    pass
-    #NOTE: we cannot register a forward hook in fp16 mode (which is what we ultimately want)
-    #model.apply(_convert_weights_to_fp16)
+    model.apply(_convert_weights_to_fp16)
 
-def build_model(state_dict: dict):
+def build_model(state_dict: dict, pretrained:bool=True):
     vit = "visual.proj" in state_dict
 
     if vit:
@@ -395,6 +393,8 @@ def build_model(state_dict: dict):
     for key in ["input_resolution", "context_length", "vocab_size"]:
         del state_dict[key]
 
-    convert_weights(model)
-    model.load_state_dict(state_dict)
+    #NOTE: we cannot register a forward hook in fp16 mode (which is what we ultimately want to extract network activations for each layer)
+    #convert_weights(model)
+    if pretrained:
+        model.load_state_dict(state_dict)
     return model.eval()

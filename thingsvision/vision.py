@@ -79,6 +79,9 @@ def load_dl(
              transforms=None,
              ) -> Iterator:
     print(f'\n...Loading dataset into memory.')
+    if not os.path.exists(out_path):
+        os.makedirs(out_path)
+        print(f'...Creating output directory.')
     dataset = ImageDataset(
                             root=root,
                             out_path=out_path,
@@ -92,15 +95,15 @@ def load_dl(
     dl = DataLoader(dataset, batch_size=batch_size, shuffle=False)
     return dl
 
-def load_model(model_name:str, pretrained:bool, device:torch.device, model_path:str=None) -> Tuple:
+def load_model(model_name:str, pretrained:bool, device:str, model_path:str=None) -> Tuple[Any, Any]:
     """load a pretrained *torchvision* or CLIP model into memory"""
     if re.search(r'^clip', model_name):
-        assert isinstance(device, str), '\nFor CLIP models, device must be passed as a str instance.\n'
         if re.search(r'ViT$', model_name):
-            model, transforms = clip.load("ViT-B/32", device=device, model_path=model_path, jit=False)
+            model, transforms = clip.load("ViT-B/32", device=device, model_path=model_path, pretrained=pretrained, jit=False)
         else:
-            model, transforms = clip.load("RN50", device=device, model_path=model_path, jit=False)
+            model, transforms = clip.load("RN50", device=device, model_path=model_path, pretrained=pretrained, jit=False)
     else:
+        device = torch.device(device)
         if re.search(r'^cornet', model_name):
             try:
                 model = getattr(cornet, f'cornet_{model_name[-1]}')
@@ -140,45 +143,45 @@ def get_module_names(model, module:str) -> list:
 
 def extract_features_across_models_and_datasets(
                                                 out_path:str,
-                                                model_names:list,
-                                                img_paths:list,
-                                                module_names:list,
+                                                model_names:List[str],
+                                                img_paths:List[str],
+                                                module_names:List[str],
+                                                clip:List[bool],
                                                 pretrained:bool,
                                                 batch_size:int,
                                                 flatten_acts:bool,
                                                 f_format:str='.txt',
-                                                clip:bool=False,
 ) -> None:
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    device = device if clip else torch.device(device)
     for i, model_name in enumerate(model_names):
         model, transforms = load_model(model_name, pretrained=pretrained, model_path=None, device=device)
         for img_path in img_paths:
-            dl = load_dl(img_path, batch_size=batch_size, transforms=transforms)
-            features, _ = extract_features(model, dl, module_names[i], batch_size=batch_size, flatten_acts=flatten_acts, device=device, clip=clip)
-            save_features(features, os.path.join(out_path, img_path, model_name, module_names[i], 'features'), f_format)
+            PATH = os.path.join(out_path, img_path, model_name, module_names[i], 'features')
+            dl = load_dl(img_path, out_path=PATH, batch_size=batch_size, transforms=transforms)
+            features, _ = extract_features(model, dl, module_names[i], batch_size=batch_size, flatten_acts=flatten_acts, device=device, clip=clip[i])
+            save_features(features, out_path, f_format)
 
 def extract_features_across_models_datasets_and_modules(
                                                         out_path:str,
-                                                        model_names:list,
-                                                        img_paths:list,
-                                                        module_names:list,
+                                                        model_names:List[str],
+                                                        img_paths:List[str],
+                                                        module_names:List[str],
+                                                        clip:List[str],
                                                         pretrained:bool,
                                                         batch_size:int,
                                                         flatten_acts:bool,
                                                         f_format:str='.txt',
-                                                        clip:bool=False,
 ) -> None:
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    device = device if clip else torch.device(device)
     for i, model_name in enumerate(model_names):
         model, transforms = load_model(model_name, pretrained=pretrained, model_path=None, device=device)
         modules = get_module_names(model, module_names[i])
         for img_path in img_paths:
-            dl = load_dl(img_path, batch_size=batch_size, transforms=transforms)
             for module_name in modules:
-                features, _ = extract_features(model, dl, module_name, batch_size=batch_size, flatten_acts=flatten_acts, device=device, clip=clip)
-                save_features(features, os.path.join(out_path, img_path, model_name, module_name, 'features'), f_format)
+                PATH = os.path.join(out_path, img_path, model_name, module_name, 'features')
+                dl = load_dl(img_path, out_path=PATH, batch_size=batch_size, transforms=transforms)
+                features, _ = extract_features(model, dl, module_name, batch_size=batch_size, flatten_acts=flatten_acts, device=device, clip=clip[i])
+                save_features(features, PATH, f_format)
 
 def get_activation(name):
     """store hidden unit activations at each layer of model"""
@@ -244,7 +247,7 @@ def extract_features(
                     module_name:str,
                     batch_size:int,
                     flatten_acts:bool,
-                    device:torch.device,
+                    device:str,
                     clip:bool=False,
                     feature_extractor=None,
 ) -> Tuple[np.ndarray, np.ndarray]:
@@ -256,6 +259,7 @@ def extract_features(
             feature_extractor = nn.Conv2d
         else:
             feature_extractor = nn.MaxPool2d
+    device = torch.device(device)
     #initialise dictionary to store hidden unit activations on the fly
     global activations
     activations = {}
@@ -292,7 +296,7 @@ def extract_features(
     features = np.vstack(features)
     targets = np.asarray(targets).ravel()
     assert len(features) == len(targets)
-    print(f'\nFeatures successfully extracted for all {len(features)} images in the database\n')
+    print(f'...Features successfully extracted for all {len(features)} images in the database.')
     return features, targets
 
 ########################################################################################################
@@ -304,7 +308,7 @@ def rm_suffix(img:str) -> str:
 
 def store_features(PATH:str, features:np.ndarray, file_format:str) -> None:
     if not os.path.exists(PATH):
-        print(f'\nOutput directory did not exist. Creating directories to save targets...\n')
+        print(f'...Output directory did not exist. Creating directories to save features.')
         os.makedirs(PATH)
     if re.search(r'npy', file_format):
         with open(pjoin(PATH, 'features.npy'), 'wb') as f:
@@ -319,7 +323,7 @@ def store_features(PATH:str, features:np.ndarray, file_format:str) -> None:
             scipy.io.savemat(pjoin(PATH, 'features.mat'), {'features': features})
     else:
         np.savetxt(pjoin(PATH, 'features.txt'), features)
-    print(f'\nFeatures successfully saved to disk.\n')
+    print(f'...Features successfully saved to disk.\n')
 
 def tensor2slices(PATH:str, file_name:str, features:np.ndarray) -> None:
     with open(pjoin(PATH, file_name), 'w') as outfile:
@@ -551,7 +555,7 @@ def plot_rdm(out_path:str, F:np.ndarray, method:str='correlation', format:str='.
     plt.yticks([])
     plt.tight_layout()
     if not os.path.exists(out_path):
-        print(f'\nOutput directory did not exists. Creating directories...\n')
+        print(f'\n...Output directory did not exists. Creating directories.\n')
         os.makedirs(out_path)
     plt.savefig(os.path.join(out_path, ''.join(('rdm', format))))
     if show_plot:
@@ -605,17 +609,16 @@ def get_features(
                 out_path:str,
                 model_names:List[str],
                 module_names:List[str],
+                clip:List[bool],
                 pretrained:bool,
                 batch_size:int,
                 flatten_acts:bool,
-                clip:List[bool],
 ) -> Dict[str, Dict[str, np.ndarray]]:
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     model_features = defaultdict(dict)
     for i, model_name in enumerate(model_names):
-        dv = device if clip[i] else torch.device(device)
-        model, transforms = load_model(model_name, pretrained=pretrained, model_path=None, device=dv)
-        dl = load_dl(root, out_path, batch_size=batch_size, transforms=transforms)
+        model, transforms = load_model(model_name, pretrained=pretrained, model_path=None, device=device)
+        dl = load_dl(root, out_path=out_path, batch_size=batch_size, transforms=transforms)
         features, _ = extract_features(model, dl, module_names[i], batch_size=batch_size, flatten_acts=flatten_acts, device=device, clip=clip[i])
         model_features[model_name][module_names[i]] = features
     return model_features
@@ -625,10 +628,10 @@ def compare_models_to_humans(
                             out_path:str,
                             model_names:List[str],
                             module_names:List[str],
+                            clip:List[bool],
                             pretrained:bool,
                             batch_size:int,
                             flatten_acts:bool,
-                            clip:List[bool],
                             human_rdm:np.ndarray,
                             save_features:bool=True,
                             n_bootstraps:int=1000,
