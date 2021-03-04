@@ -99,7 +99,7 @@ features, targets = vision.extract_features(model, dl, module_name, batch_size=6
 features = vision.center_features(features)
 features = vision.normalize_features(features)
 
-vision.save_features(features, f'./{model_name}/{module_name}/activations', '.npy')
+vision.save_features(features, f'./{model_name}/{module_name}/features', '.npy')
 vision.save_targets(targets, f'./{model_name}/{module_name}/targets', '.npy')
 ```
 
@@ -204,7 +204,7 @@ features, targets = vision.extract_features(model, dl, module_name, batch_size=6
 features = vision.center_features(features)
 features = vision.normalize_features(features)
 
-vision.save_features(features, f'./{model_name}/{module_name}/activations', '.npy')
+vision.save_features(features, f'./{model_name}/{module_name}/features', '.npy')
 vision.save_targets(targets, f'./{model_name}/{module_name}/targets', '.npy')
 ```
 
