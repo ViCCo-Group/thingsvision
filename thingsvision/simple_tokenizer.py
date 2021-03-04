@@ -7,9 +7,10 @@ import ftfy
 import regex as re
 
 
-@lru_cache()
-def default_bpe():
-    return os.path.join(os.path.dirname(os.path.abspath(__file__)), "bpe_simple_vocab_16e6.txt.gz")
+#NOTE: uncomment, if you want to extend THINGSvision to multi-modal feature extraction (i.e., text and featres)
+#@lru_cache()
+#def default_bpe():
+#    return os.path.join(os.path.dirname(os.path.abspath(__file__)), "bpe_simple_vocab_16e6.txt.gz")
 
 
 @lru_cache()
@@ -59,6 +60,8 @@ def whitespace_clean(text):
     return text
 
 
+#NOTE: uncomment, if you want to extend THINGSvision to multi-modal feature extraction (i.e., text and featres)
+"""
 class SimpleTokenizer(object):
     def __init__(self, bpe_path: str = default_bpe()):
         self.byte_encoder = bytes_to_unicode()
@@ -75,7 +78,8 @@ class SimpleTokenizer(object):
         self.decoder = {v: k for k, v in self.encoder.items()}
         self.bpe_ranks = dict(zip(merges, range(len(merges))))
         self.cache = {'<|startoftext|>': '<|startoftext|>', '<|endoftext|>': '<|endoftext|>'}
-        self.pat = re.compile(r"""<\|startoftext\|>|<\|endoftext\|>|'s|'t|'re|'ve|'m|'ll|'d|[\p{L}]+|[\p{N}]|[^\s\p{L}\p{N}]+""", re.IGNORECASE)
+        #TODO: change regex below back to its original version
+        self.pat = re.compile(r""<\|startoftext\|>|<\|endoftext\|>|'s|'t|'re|'ve|'m|'ll|'d|[\p{L}]+|[\p{N}]|[^\s\p{L}\p{N}]+"", re.IGNORECASE)
 
     def bpe(self, token):
         if token in self.cache:
@@ -130,3 +134,4 @@ class SimpleTokenizer(object):
         text = ''.join([self.decoder[token] for token in tokens])
         text = bytearray([self.byte_decoder[c] for c in text]).decode('utf-8', errors="replace").replace('</w>', ' ')
         return text
+"""
