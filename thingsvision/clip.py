@@ -10,10 +10,11 @@ from torchvision.transforms import Compose, Resize, CenterCrop, ToTensor, Normal
 from tqdm import tqdm
 
 from thingsvision.model import build_model
-from thingsvision.simple_tokenizer import SimpleTokenizer as _Tokenizer
 
-__all__ = ["available_models", "load", "tokenize"]
-_tokenizer = _Tokenizer()
+#from thingsvision.simple_tokenizer import SimpleTokenizer as _Tokenizer
+
+__all__ = ["available_models", "load"] #, "tokenize"]
+#_tokenizer = _Tokenizer()
 
 _MODELS = {
     "RN50": "https://openaipublic.azureedge.net/clip/models/afeb0e10f9e5a86da6080e35cf09123aca3b358a0c3e3b6c78a7b63bc04b6762/RN50.pt",
@@ -57,7 +58,7 @@ def available_models():
     return list(_MODELS.keys())
 
 
-def load(name: str, device: Union[str, torch.device] = "cuda" if torch.cuda.is_available() else "cpu", jit=True, model_path=None):
+def load(name: str, device: Union[str, torch.device] = "cuda" if torch.cuda.is_available() else "cpu", jit=True, pretrained=True, model_path=None):
     if name not in _MODELS:
         raise RuntimeError(f"Model {name} not found; available models = {available_models()}")
 
@@ -76,7 +77,7 @@ def load(name: str, device: Union[str, torch.device] = "cuda" if torch.cuda.is_a
     ])
 
     if not jit:
-        model = build_model(model.state_dict()).to(device)
+        model = build_model(model.state_dict(), pretrained).to(device)
         return model, transform
 
     # patch the device names
@@ -123,7 +124,8 @@ def load(name: str, device: Union[str, torch.device] = "cuda" if torch.cuda.is_a
 
     return model, transform
 
-
+#NOTE: uncomment, if you want to extend THINGSvision to multi-modal feature extraction (i.e., text and featres)
+"""
 def tokenize(texts: Union[str, List[str]], context_length: int = 77):
     if isinstance(texts, str):
         texts = [texts]
@@ -139,3 +141,4 @@ def tokenize(texts: Union[str, List[str]], context_length: int = 77):
         result[i, :len(tokens)] = torch.tensor(tokens)
 
     return result
+"""
