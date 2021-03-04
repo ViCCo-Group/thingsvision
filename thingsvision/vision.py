@@ -485,7 +485,7 @@ def save_targets(targets:np.ndarray, out_path:str, file_format:str) -> None:
         scipy.io.savemat(pjoin(out_path, 'targets.mat'), {'targets': targets})
     else:
         np.savetxt(pjoin(out_path, 'targets.txt'), targets)
-    print(f'\nTargets successfully saved to disk.\n')
+    print(f'...Targets successfully saved to disk.\n')
 
 #############################################################################################################
 ################################ HELPER FUNCTIONS FOR RSA & RDM COMPUTATIONS ################################
