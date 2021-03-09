@@ -143,8 +143,8 @@ class ImageDataset(object):
         self.targets = targets
 
     def find_classes_(self) -> Tuple[list, dict, dict]:
-        classes = sorted([d.name for d in os.scandir(self.root) if d.is_dir()])
-        if classes:
+        children = sorted([d.name for d in os.scandir(self.root) if d.is_dir()])
+        if children:
             class_folders = True
             if self.file_names:
                 classes, _ = get_classes(self.file_names)
@@ -168,7 +168,7 @@ class ImageDataset(object):
                 classes = [''.join((name,'.jpg')) for name in vision.load_item_names()]
             else:
                 if self.file_names:
-                    classes = [f for f in self.file_names if os.path.isfile(f) and parse_img_name(f)]
+                    classes = list(filter(parse_img_name, self.file_names))
                 else:
                     classes = sorted([f.name for f in os.scandir(self.root) if f.is_file() and parse_img_name(f.name)])
             idx_to_cls = dict(enumerate(list(map(rm_suffix, classes))))
