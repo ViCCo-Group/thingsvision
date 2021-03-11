@@ -541,10 +541,10 @@ def compute_rdm(F:np.ndarray, method:str='correlation') -> np.ndarray:
     return 1 - rsm
 
 def correlate_rdms(rdm_1:np.ndarray, rdm_2:np.ndarray, correlation:str='pearson') -> float:
-    #since RDMs are symmetric matrices, we only need to compare their lower triangular parts (main diagonal can be omitted)
-    tril_inds = np.tril_indices(len(rdm_1), k=-1)
+    #since RDMs are symmetric matrices, we only need to compare their upper (or lower) triangular parts (main diagonal can be omitted)
+    triu_inds = np.triu_indices(len(rdm_1), k=1)
     corr_func = getattr(scipy.stats, ''.join((correlation, 'r')))
-    rho = corr_func(rdm_1[tril_inds], rdm_2[tril_inds])[0]
+    rho = corr_func(rdm_1[triu_inds], rdm_2[triu_inds])[0]
     return rho
 
 def plot_rdm(out_path:str, F:np.ndarray, method:str='correlation', format:str='.png', colormap:str='cividis', show_plot:bool=False) -> None:
