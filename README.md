@@ -236,7 +236,7 @@ CLIP (Contrastive Language-Image Pre-Training) is a neural network trained on a 
 If you use this GitHub repository (or any modules associated with it), we would grately appreciate to cite us as follows:
 
 ```latex
-@article {Muttenthaler_2021,
+@article{Muttenthaler_2021,
 	author = {Muttenthaler, Lukas and Hebart, Martin N.},
 	title = {THINGSvision: a Python toolbox for streamlining the extraction of activations from deep neural networks},
 	elocation-id = {2021.03.11.434979},
