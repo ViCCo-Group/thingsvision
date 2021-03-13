@@ -224,7 +224,7 @@ vision.save_targets(targets, f'./{model_name}/{module_name}/targets', '.npy')
 
 ## Citation
 
-If you use this repository (or any modules associated with it), we would grately appreciate if you could cite us as follows:
+If you use this GitHub repository (or any modules associated with it), we would grately appreciate to cite us as follows:
 
 ```latex
 @article {Muttenthaler_2021,
