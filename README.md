@@ -232,7 +232,7 @@ CLIP (Contrastive Language-Image Pre-Training) is a neural network trained on a 
 
 ## Citation
 
-If you use this GitHub repository (or any modules associated with it), we would grately appreciate to cite us as follows:
+If you happen to use this GitHub repository (or any modules associated with it), we would grately appreciate to cite us as follows:
 
 ```latex
 @article{Muttenthaler_2021,
