@@ -204,23 +204,46 @@ vision.save_features(features, f'./{model_name}/{module_name}/features', '.npy')
 vision.save_targets(targets, f'./{model_name}/{module_name}/targets', '.npy')
 ```
 
+## Model comparison
+
+To compare object representations extracted from specifid models and layers against each other, for a \texttt{List} of models and layers a user can perform the following operation,
+
+
+```python
+clip_list = [n.startswith('clip') for n in model_names]
+
+correlations = vision.compare_models(
+                                     root=root,
+                                     out_path=out_path,
+                                     model_names=model_names,
+                                     module_names=module_names,
+                                     pretrained=True,
+                                     batch_size=batch_size,
+                                     flatten_acts=True,
+                                     clip=clip_list,
+                                     save_features=True,
+                                     dissimilarity='correlation',
+                                     correlation='pearson',
+                                    )
+```
+
+The function returns a correlation matrix in the form of a `Pandas` dataframe whose rows and columns correspond to the names of the models in `model_names`. The cell elements are the correlation coefficients for each model combination. The dataframe can subsequenly be converted into a heatmap with `matplotlib` or `seaborn`. We will release a clear and concise documentary as soon as possible. Until then, we recommend to look at Section 3.2.3 in the [bioRxiv preprint](https://www.biorxiv.org/content/10.1101/2021.03.11.434979v1.full).
+
 ## IMPORTANT NOTES:
 
 1. Image data will automatically be converted into a ready-to-use dataset class, and subsequently wrapped with a `PyTorch` mini-batch dataloader to make neural activation extraction more efficient.
 
 2. If you happen to use the [THINGS image database](https://osf.io/jum2f/), make sure to correctly `unzip` all zip files (sorted from A-Z), and have all `object` directories stored in the parent directory `./images/` (e.g., `./images/object_xy/`) as well as the `things_concept.tsv` file stored in the `./data/` folder. `bash get_files.sh` does the latter for you. Images, however, must be downloaded from the [THINGS database](https://osf.io/jum2f/). 
 
-3. In case you would like to use your own images or a different dataset make sure that all images are `.jpg`, `.png`, or `.PNG` files. Image files must be saved either in `in_path` (e.g., `./images/image_xy.jpg`), or in subfolders of `in_path` (e.g., `./images/class_xy/image_xy.jpg`) in case images correspond to different classes where `n` images are stored for each of the `k` classes (such as in ImageNet or THINGS). You don't need to tell the script in which of the two ways your images are stored. You just need to pass `in_path`. However, images have to be stored in one way or the other.
+3. Features can be extracted at every layer for all `torchvision`, `CORnet` and `CLIP` models.
 
-4. Features can be extracted at every layer for all `torchvision`, `CORnet` and `CLIP` models.
+4. If you happen to be interested in an ensemble of `feature maps`, as introduced in this recent [COLING 2020 paper](https://www.aclweb.org/anthology/2020.coling-main.173/), you can simply extract an ensemble of `conv` or `max-pool` layers. The ensemble can additionally be concatenated with the activations of the penultimate layer, and subsequently transformed into a lower-dimensional space with `PCA` to reduce noise and only keep those dimensions that account for most of the variance. 
 
-5. If you happen to be interested in an ensemble of `feature maps`, as introduced in this recent [COLING 2020 paper](https://www.aclweb.org/anthology/2020.coling-main.173/), you can simply extract an ensemble of `conv` or `max-pool` layers. The ensemble can additionally be concatenated with the activations of the penultimate layer, and subsequently transformed into a lower-dimensional space with `PCA` to reduce noise and only keep those dimensions that account for most of the variance. 
+5. The script automatically extracts features for the specified `model` and `layer` and stores them together with the `targets` in `out_path` (see above).
 
-6. The script automatically extracts features for the specified `model` and `layer` and stores them together with the `targets` in `out_path` (see above).
+6. Since 4-way tensors cannot be easily saved to disk, they must be sliced into different parts to be efficiently stored as a matrix. The helper function `tensor2slices` will slice any 4-way tensor (activations extraced from `features.##`) automatically for you, and will save it as a matrix in a file called `activations.txt`. To merge the slices back into the original shape (i.e., 4-way tensor) simply call `slices2tensor` which takes `out_path` and `file_name` (see above) as input arguments (e.g., `tensor = slices2tensor(PATH, file)`).
 
-7. Since 4-way tensors cannot be easily saved to disk, they must be sliced into different parts to be efficiently stored as a matrix. The helper function `tensor2slices` will slice any 4-way tensor (activations extraced from `features.##`) automatically for you, and will save it as a matrix in a file called `activations.txt`. To merge the slices back into the original shape (i.e., 4-way tensor) simply call `slices2tensor` which takes `out_path` and `file_name` (see above) as input arguments (e.g., `tensor = slices2tensor(PATH, file)`).
-
-8. If you happen to extract hidden unit activations for many images, it is possible to run into `MemoryErrors`. To circumvent such problems, a helper function called `split_activations` will split the activation matrix into several batches, and stores them in separate files. For now, the split parameter is set to `10`. Hence, the function will split the activation matrix into `10` files. This parameter can, however, easily be modified in case you need more (or fewer) splits. To merge the separate activation batches back into a single activation matrix, just call `merge_activations` when loading the activations (e.g., `activations = merge_activations(PATH)`). 
+7. If you happen to extract hidden unit activations for many images, it is possible to run into `MemoryErrors`. To circumvent such problems, a helper function called `split_activations` will split the activation matrix into several batches, and stores them in separate files. For now, the split parameter is set to `10`. Hence, the function will split the activation matrix into `10` files. This parameter can, however, easily be modified in case you need more (or fewer) splits. To merge the separate activation batches back into a single activation matrix, just call `merge_activations` when loading the activations (e.g., `activations = merge_activations(PATH)`). 
 
 ## OpenAI's CLIP models
 
@@ -232,7 +255,7 @@ CLIP (Contrastive Language-Image Pre-Training) is a neural network trained on a 
 
 ## Citation
 
-If you happen to use this GitHub repository (or any modules associated with it), we would grately appreciate to cite us as follows:
+If use this GitHub repository (or any modules associated with it), we would grately appreciate to cite us as follows:
 
 ```latex
 @article{Muttenthaler_2021,
@@ -247,3 +270,5 @@ If you happen to use this GitHub repository (or any modules associated with it),
 	journal = {bioRxiv}
 }
 ```
+
+Here is the link to the [preprint](https://www.biorxiv.org/content/10.1101/2021.03.11.434979v1.full)
