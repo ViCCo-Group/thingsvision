@@ -206,7 +206,7 @@ vision.save_targets(targets, f'./{model_name}/{module_name}/targets', '.npy')
 
 ## Model comparison
 
-To compare object representations extracted from specifid models and layers against each other, for a \texttt{List} of models and layers a user can perform the following operation,
+To compare object representations extracted from specifid models and layers against each other, for a `List[str]` of models and layers a user can perform the following operation,
 
 
 ```python
