@@ -206,7 +206,7 @@ vision.save_features(features, f'./{model_name}/{module_name}/features', '.npy')
 
 ## Predictions and ImageNet classes
 
-Do you want to get model predictions alongside activations for free, and subsequently convert them into `ImageNet` classes? Simply set the `return_predictions` argument to `True` and use the `get_imagenet_classes` helper (this works for both `synsets` and `.txt` files). Note that this is, unfortunately, not (yet) possible for `CLIP` models due to their multi-modality, and different training objectives.
+Do you want to get model predictions alongside activations for free, and subsequently convert them into `ImageNet` classes? Simply set the `return_predictions` argument to `True` and use the `get_imagenet_classes` helper (the function works for both `synset` and `class` files). Note that this is, unfortunately, not (yet) possible for `CLIP` models due to their multi-modality, and different training objectives.
 
 ```python
 
