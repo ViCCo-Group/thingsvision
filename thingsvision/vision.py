@@ -271,7 +271,7 @@ def extract_features(
     features, targets = [], []
 
     if return_predictions:
-        assert not clip, `\nCannot extract activations for CLIP and return class predictions simultaneously. This feature will be implemented in a future version.\n`
+        assert not clip, '\nCannot extract activations for CLIP and return class predictions simultaneously. This feature will be implemented in a future version.\n'
         predictions = []
 
     with torch.no_grad():
