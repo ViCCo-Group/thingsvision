@@ -74,7 +74,7 @@ AlexNet(
 (e.g., "features.10")
 
 dl = vision.load_dl(root='./images/', out_path=f'./{model_name}/{module_name}/features', batch_size=64, transforms=transforms)
-features, targets = vision.extract_features(model, dl, module_name, batch_size=64, flatten_acts=True, device=device)
+features, targets, predictions = vision.extract_features(model, dl, module_name, batch_size=64, flatten_acts=True, device=device, return_predictions=True)
 
 vision.save_features(features, f'./{model_name}/{module_name}/features', '.npy')
 vision.save_targets(targets, f'./{model_name}/{module_name}/targets', '.npy')
@@ -93,7 +93,7 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 model, transforms = vision.load_model(model_name, pretrained=True, model_path=None, device=device)
 dl = vision.load_dl(root='./images/', out_path=f'./{model_name}/{module_name}/features', batch_size=64, transforms=transforms)
-features, targets = vision.extract_features(model, dl, module_name, batch_size=64, flatten_acts=False, device=device, clip=True)
+features, targets = vision.extract_features(model, dl, module_name, batch_size=64, flatten_acts=False, device=device, clip=True, return_predictions=False)
 
 vision.save_features(features, f'./{model_name}/{module_name}/features', '.npy')
 vision.save_targets(targets, f'./{model_name}/{module_name}/targets', '.npy')
@@ -195,13 +195,23 @@ Sequential(
 (e.g., "decoder.flatten")
 
 dl = vision.load_dl(root='./images/', out_path=f'./{model_name}/{module_name}/features', batch_size=64, transforms=transforms)
-features, targets = vision.extract_features(model, dl, module_name, batch_size=64, flatten_acts=False, device=device)
+features, targets = vision.extract_features(model, dl, module_name, batch_size=64, flatten_acts=False, device=device, return_predictions=False)
 
 features = vision.center_features(features)
 features = vision.normalize_features(features)
 
 vision.save_features(features, f'./{model_name}/{module_name}/features', '.npy')
 vision.save_targets(targets, f'./{model_name}/{module_name}/targets', '.npy')
+```
+
+## Predictions and ImageNet classes
+
+Do you want to get model predictions alongside activations for free, and subsequently convert them into `ImageNet` classes? Simply set the `return_predictions` argument to `True` and use the `get_imagenet_classes` helper. Note that this is, unfortunately, not (yet) possible for `CLIP` models due to their multi-modality, and different training objectives.
+
+```python
+
+features, targets, predictions = vision.extract_features(model, dl, module_name, batch_size, flatten_acts=False, device=device, return_predictions=True)
+imagenet_classes = vision.get_imagenet_classes(PATH='./data/imagenet1000_classes.txt', predictions=predictions)
 ```
 
 ## Model comparison
