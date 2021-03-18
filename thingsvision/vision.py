@@ -12,6 +12,7 @@ __all__ = [
             'enumerate_layers',
             'extract_features',
             'get_cls_mapping_imgnet',
+            'get_imagenet_classes',
             'get_digits',
             'get_model',
             'get_shape',
@@ -249,6 +250,7 @@ def extract_features(
                     flatten_acts:bool,
                     device:str,
                     clip:bool=False,
+                    return_predictions:bool=False,
                     feature_extractor=None,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """extract hidden unit activations (at specified layer) for every image in the database"""
@@ -259,6 +261,7 @@ def extract_features(
             feature_extractor = nn.Conv2d
         else:
             feature_extractor = nn.MaxPool2d
+
     device = torch.device(device)
     #initialise dictionary to store hidden unit activations on the fly
     global activations
@@ -266,6 +269,11 @@ def extract_features(
     #register forward hook to store activations
     model = register_hook(model)
     features, targets = [], []
+
+    if return_predictions:
+        assert not clip, `\nCannot extract activations for CLIP and return class predictions simultaneously. This feature will be implemented in a future version.\n`
+        predictions = []
+
     with torch.no_grad():
         for i, batch in enumerate(data_loader):
             batch = (t.to(device) for t in batch)
@@ -276,6 +284,10 @@ def extract_features(
                     assert torch.unique(activations[module_name] == img_features).item(), '\nImage features should represent activations in last encoder layer.\n'
             else:
                 out = model(X)
+                if return_predictions:
+                    probas = F.softmax(out, dim=1)
+                    predictions.extend(torch.argmax(probas, dim=1).numpy())
+
             if re.search(r'ensemble$', module_name):
                 layers = enumerate_layers(model, feature_extractor)
                 act = ensemble_featmaps(activations, layers, 'max')
@@ -295,8 +307,12 @@ def extract_features(
     #stack each mini-batch of hidden activations to obtain an N x F matrix, and flatten targets to yield vector
     features = np.vstack(features)
     targets = np.asarray(targets).ravel()
-    assert len(features) == len(targets)
     print(f'...Features successfully extracted for all {len(features)} images in the database.')
+    if return_predictions:
+        predictions = np.asarray(predictions).ravel()
+        assert len(features) == len(targets) == len(predictions), '\nFeatures, targets, and predictions must correspond to the same number of images.\n'
+        return features, targets, predictions
+    assert len(features) == len(targets), '\nFeatures and targets must correspond to the same number of images.\n'
     return features, targets
 
 ########################################################################################################
@@ -403,20 +419,20 @@ def merge_features(PATH:str, file_format:str) -> np.ndarray:
         raise Exception('\nCan only process .npy, .mat, or .txt files.\n')
     return features
 
-def parse_imagenet_synsets(file_name:str, folder:str='./data/'):
+def parse_imagenet_synsets(PATH:str):
     def parse_str(str):
         return re.sub(r'[^a-zA-Z]', '', str).rstrip('n').lower()
     imagenet_synsets = []
-    with open(pjoin(folder, file_name), 'r') as f:
+    with open(PATH, 'r') as f:
         for i, l in enumerate(f):
             l = l.split('_')
             cls = '_'.join(list(map(parse_str, l)))
             imagenet_synsets.append(cls)
     return imagenet_synsets
 
-def parse_imagenet_classes(file_name:str, folder:str='./data/'):
+def parse_imagenet_classes(PATH:str):
     imagenet_classes = []
-    with open(pjoin(folder, file_name), 'r') as f:
+    with open(PATH, 'r') as f:
         for i, l in enumerate(f):
             l = l.strip().split()
             cls = '_'.join(l[1:]).rstrip(',').strip("'").lower()
@@ -428,18 +444,22 @@ def parse_imagenet_classes(file_name:str, folder:str='./data/'):
 def get_class_intersection(imagenet_classes:list, things_objects:list) -> set:
     return set(things_objects).intersection(set(imagenet_classes))
 
-def get_cls_mapping_imgnet(PATH:str, filename:str, save_as_json:bool) -> dict:
+def get_cls_mapping_imgnet(PATH:str, save_as_json:bool=False) -> dict:
     """store ImageNet classes in a idx2cls dictionary, and subsequently save as .json file"""
     if re.search(r'synset', filename):
-        imagenet_classes = parse_imagenet_synsets(filename, PATH)
+        imagenet_classes = parse_imagenet_synsets(PATH)
     else:
-        imagenet_classes = parse_imagenet_classes(filename, PATH)
+        imagenet_classes = parse_imagenet_classes(PATH)
     idx2cls = dict(enumerate(imagenet_classes))
     if save_as_json:
         filename = 'imagenet_idx2class.json'
         with open(pjoin(PATH, filename), 'w') as f:
             json.dump(idx2cls, f)
     return idx2cls
+
+def get_imagenet_classes(PATH:str, predictions:np.ndarray, save_as_json:bool=False) -> List[str]:
+    idx2cls = get_cls_mapping_imgnet(PATH, save_as_json)
+    return [idx2cls[pred] for pred in predictions]
 
 def json2dict(PATH:str, filename:str) -> dict:
     with open(pjoin(PATH, filename), 'r') as f:
