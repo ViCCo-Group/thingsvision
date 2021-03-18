@@ -446,13 +446,14 @@ def get_class_intersection(imagenet_classes:list, things_objects:list) -> set:
 
 def get_cls_mapping_imgnet(PATH:str, save_as_json:bool=False) -> dict:
     """store ImageNet classes in a idx2cls dictionary, and subsequently save as .json file"""
-    if re.search(r'synset', filename):
+    if re.search(r'synset', PATH.split('/')[-1]):
         imagenet_classes = parse_imagenet_synsets(PATH)
     else:
         imagenet_classes = parse_imagenet_classes(PATH)
     idx2cls = dict(enumerate(imagenet_classes))
     if save_as_json:
         filename = 'imagenet_idx2class.json'
+        PATH = '/'.join(PATH.split('/')[:-1])
         with open(pjoin(PATH, filename), 'w') as f:
             json.dump(idx2cls, f)
     return idx2cls
