@@ -62,8 +62,8 @@ def class_dataset(PATH:str, out_path:str, cls_to_idx:Dict[str, int], things:bool
                             first_img = files[0].rstrip('.jpg')
                             if not first_img.endswith('b'):
                                 ref_img_path = get_ref_img(first_img)
-                                item = ref_img_path, class_idx
-                                instances.append(item)
+                                item = ref_img_path, cls_idx
+                                samples.append(item)
                         for k, file in enumerate(sorted(files)):
                             path = os.path.join(root, file)
                             f.write(f'{path}\n')
