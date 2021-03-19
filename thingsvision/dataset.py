@@ -35,10 +35,10 @@ def get_classes(file_names:List[str]) -> Tuple[List[str], Dict[str, list]]:
     return classes, cls_to_files
 
 def parse_img_name(img_name:str) -> bool:
-    return re.search(r'(.eps|.jpg|.jpeg|.png|.PNG|.tif|.tiff)$', img_name)
+    return re.search(r'(.eps|.jpg|.JPG|.jpeg|.JPEG|.png|.PNG|.tif|.tiff)$', img_name)
 
 def rm_suffix(img:str) -> str:
-    return re.sub(r'(.eps|.jpg|.jpeg|.png|.PNG|.tif|.tiff)$', '', img)
+    return re.sub(r'(.eps|.jpg|.JPG|.jpeg|.JPEG|.png|.PNG|.tif|.tiff)$', '', img)
 
 def instance_dataset(root:str, out_path:str, images:list) -> List[Tuple[str, int]]:
     instances = []
