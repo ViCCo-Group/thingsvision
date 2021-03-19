@@ -141,6 +141,7 @@ class ImageDataset(object):
         self.idx_to_cls = idx_to_cls
         self.cls_to_idx = cls_to_idx
         self.targets = targets
+        self.images = images
 
     def find_classes_(self) -> Tuple[list, dict, dict]:
         children = sorted([d.name for d in os.scandir(self.root) if d.is_dir()])
