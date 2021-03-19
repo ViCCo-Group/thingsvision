@@ -86,7 +86,7 @@ def get_ref_img(first_img:str, folder:str='./reference_images/') -> str:
     for ref_img in ref_images:
         img_name = ref_img.rstrip('.jpg')
         if re.search(f'^{img_name}', first_img):
-            return os.path.join(folder, img_name)
+            return os.path.join(folder, ref_img)
 
 class ImageDataset(object):
     """
