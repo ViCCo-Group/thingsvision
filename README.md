@@ -204,14 +204,14 @@ features = vision.normalize_features(features)
 vision.save_features(features, f'./{model_name}/{module_name}/features', '.npy')
 ```
 
-## Predictions and ImageNet classes
+## ImageNet class predictions
 
-Do you want to know the probabilities corresponding to the `top k` ImageNet classes for each of your image files? Simply set the `return_probabilities` argument to `True` and use the `get_imagenet_class_probabilities` helper (the function works for both `synset` and `class` files). Note that this is, unfortunately, not (yet) possible for `CLIP` models due to their multi-modality and different training objectives. `out_path` must correspond to the path that was used in `vision.load_dl`.
+Do you want to know the probabilities corresponding to the `top k` ImageNet classes for each of your image files? Simply set the `return_probabilities` argument to `True` and use the `get_class_probabilities` helper (the function works for both `synset` and `class` files). Note that this is, unfortunately, not (yet) possible for `CLIP` models due to their multi-modality and different training objectives. `out_path` must correspond to the path that was used in `vision.load_dl`.
 
 ```python
 
 features, targets, probabilities = vision.extract_features(model, dl, module_name, batch_size, flatten_acts=False, device=device, return_probabilities=True)
-class_probas = vision.get_imagenet_class_probabilities(probas=probas, out_path=out_path, cls_file='./data/imagenet1000_classes.txt', top_k=5)
+class_probas = vision.get_class_probabilities(probas=probas, out_path=out_path, cls_file='./data/imagenet1000_classes.txt', top_k=5, save_as_json=True)
 ```
 
 ## Model comparison
