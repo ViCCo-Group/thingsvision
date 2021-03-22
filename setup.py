@@ -19,7 +19,7 @@ requirements = [
 
 setuptools.setup(
                 name="thingsvision",
-                version="0.7.6",
+                version="0.7.7",
                 author="Lukas Muttenthaler",
                 author_email="muttenthaler@cbs.mpg.de",
                 description="Extracting image features from state-of-the-art neural networks for Computer Vision made easy",

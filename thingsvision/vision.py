@@ -250,7 +250,7 @@ def extract_features(
                     flatten_acts:bool,
                     device:str,
                     clip:bool=False,
-                    return_predictions:bool=False,
+                    return_probabilities:bool=False,
                     feature_extractor=None,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """extract hidden unit activations (at specified layer) for every image in the database"""
@@ -270,9 +270,9 @@ def extract_features(
     model = register_hook(model)
     features, targets = [], []
 
-    if return_predictions:
+    if return_probabilities:
         assert not clip, '\nCannot extract activations for CLIP and return class predictions simultaneously. This feature will be implemented in a future version.\n'
-        predictions = []
+        probabilities = []
 
     with torch.no_grad():
         for i, batch in enumerate(data_loader):
@@ -284,9 +284,9 @@ def extract_features(
                     assert torch.unique(activations[module_name] == img_features).item(), '\nImage features should represent activations in last encoder layer.\n'
             else:
                 out = model(X)
-                if return_predictions:
+                if return_probabilities:
                     probas = F.softmax(out, dim=1)
-                    predictions.extend(torch.argmax(probas, dim=1).numpy())
+                    probabilities.append(probas)
 
             if re.search(r'ensemble$', module_name):
                 layers = enumerate_layers(model, feature_extractor)
@@ -308,10 +308,10 @@ def extract_features(
     features = np.vstack(features)
     targets = np.asarray(targets).ravel()
     print(f'...Features successfully extracted for all {len(features)} images in the database.')
-    if return_predictions:
-        predictions = np.asarray(predictions).ravel()
-        assert len(features) == len(targets) == len(predictions), '\nFeatures, targets, and predictions must correspond to the same number of images.\n'
-        return features, targets, predictions
+    if return_probabilities:
+        probabilities = np.vstack(probabilities)
+        assert len(features) == len(targets) == len(probabilities), '\nFeatures, targets, and probabilities must correspond to the same number of images.\n'
+        return features, targets, probabilities
     assert len(features) == len(targets), '\nFeatures and targets must correspond to the same number of images.\n'
     return features, targets
 
@@ -458,9 +458,14 @@ def get_cls_mapping_imgnet(PATH:str, save_as_json:bool=False) -> dict:
             json.dump(idx2cls, f)
     return idx2cls
 
-def get_imagenet_classes(PATH:str, predictions:np.ndarray, save_as_json:bool=False) -> List[str]:
-    idx2cls = get_cls_mapping_imgnet(PATH, save_as_json)
-    return [idx2cls[pred] for pred in predictions]
+def get_imagenet_class_probabilities(probas:np.ndarray, out_path:str, cls_file:str, top_k:int=5) -> Dict[str, dict]:
+    file_names = open(os.path.join(out_path, 'file_names.txt'), 'r').read().splitlines()
+    idx2cls = get_cls_mapping_imgnet(cls_file)
+    class_probas = {}
+    for i, (file, p_i) in enumerate(zip(file_names, probas)):
+        sorted_predictions = np.argsort(-p_i)[:top_k]
+        class_probas[file] = {idx2cls[pred]: p_i[pred] for pred in sorted_predictions}
+    return class_probas
 
 def json2dict(PATH:str, filename:str) -> dict:
     with open(pjoin(PATH, filename), 'r') as f:
