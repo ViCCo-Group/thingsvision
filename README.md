@@ -74,7 +74,7 @@ AlexNet(
 (e.g., "features.10")
 
 dl = vision.load_dl(root='./images/', out_path=f'./{model_name}/{module_name}/features', batch_size=64, transforms=transforms)
-features, targets, predictions = vision.extract_features(model, dl, module_name, batch_size=64, flatten_acts=True, device=device, return_predictions=True)
+features, targets, probas = vision.extract_features(model, dl, module_name, batch_size=64, flatten_acts=True, device=device, return_probabilities=True)
 
 vision.save_features(features, f'./{model_name}/{module_name}/features', '.npy')
 ```
@@ -92,7 +92,7 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 model, transforms = vision.load_model(model_name, pretrained=True, model_path=None, device=device)
 dl = vision.load_dl(root='./images/', out_path=f'./{model_name}/{module_name}/features', batch_size=64, transforms=transforms)
-features, targets = vision.extract_features(model, dl, module_name, batch_size=64, flatten_acts=False, device=device, clip=True, return_predictions=False)
+features, targets = vision.extract_features(model, dl, module_name, batch_size=64, flatten_acts=False, device=device, clip=True, return_probabilities=False)
 
 features = vision.center_features(features)
 
@@ -196,7 +196,7 @@ Sequential(
 (e.g., "decoder.flatten")
 
 dl = vision.load_dl(root='./images/', out_path=f'./{model_name}/{module_name}/features', batch_size=64, transforms=transforms)
-features, targets = vision.extract_features(model, dl, module_name, batch_size=64, flatten_acts=False, device=device, return_predictions=False)
+features, targets = vision.extract_features(model, dl, module_name, batch_size=64, flatten_acts=False, device=device, return_probabilities=False)
 
 features = vision.center_features(features)
 features = vision.normalize_features(features)
@@ -210,7 +210,7 @@ Would you like to know the probabilities corresponding to the `top k` predicted 
 
 ```python
 
-features, targets, probabilities = vision.extract_features(model, dl, module_name, batch_size, flatten_acts=False, device=device, return_probabilities=True)
+features, targets, probas = vision.extract_features(model, dl, module_name, batch_size, flatten_acts=False, device=device, return_probabilities=True)
 class_probas = vision.get_class_probabilities(probas=probas, out_path=out_path, cls_file='./data/imagenet1000_classes.txt', top_k=5, save_as_json=True)
 ```
 
