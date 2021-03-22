@@ -11,8 +11,8 @@ __all__ = [
             'compress_features',
             'enumerate_layers',
             'extract_features',
-            'get_cls_mapping_imgnet',
-            'get_imagenet_classes',
+            'get_class_probabilities',
+            'get_cls_mapping_imagenet',
             'get_digits',
             'get_model',
             'get_shape',
@@ -40,6 +40,7 @@ __all__ = [
             'bootstrap_',
             ]
 
+import json
 import os
 import random
 import re
@@ -444,7 +445,7 @@ def parse_imagenet_classes(PATH:str):
 def get_class_intersection(imagenet_classes:list, things_objects:list) -> set:
     return set(things_objects).intersection(set(imagenet_classes))
 
-def get_cls_mapping_imgnet(PATH:str, save_as_json:bool=False) -> dict:
+def get_cls_mapping_imagenet(PATH:str, save_as_json:bool=False) -> dict:
     """store ImageNet classes in a idx2cls dictionary, and subsequently save as .json file"""
     if re.search(r'synset', PATH.split('/')[-1]):
         imagenet_classes = parse_imagenet_synsets(PATH)
@@ -458,13 +459,16 @@ def get_cls_mapping_imgnet(PATH:str, save_as_json:bool=False) -> dict:
             json.dump(idx2cls, f)
     return idx2cls
 
-def get_imagenet_class_probabilities(probas:np.ndarray, out_path:str, cls_file:str, top_k:int=5) -> Dict[str, dict]:
-    file_names = open(os.path.join(out_path, 'file_names.txt'), 'r').read().splitlines()
-    idx2cls = get_cls_mapping_imgnet(cls_file)
+def get_class_probabilities(probas:np.ndarray, out_path:str, cls_file:str, top_k:int, save_as_json:bool) -> Dict[str, Dict[str, float]]:
+    file_names = open(pjoin(out_path, 'file_names.txt'), 'r').read().splitlines()
+    idx2cls = get_cls_mapping_imagenet(cls_file)
     class_probas = {}
     for i, (file, p_i) in enumerate(zip(file_names, probas)):
         sorted_predictions = np.argsort(-p_i)[:top_k]
-        class_probas[file] = {idx2cls[pred]: p_i[pred] for pred in sorted_predictions}
+        class_probas[file] = {idx2cls[pred]: float(p_i[pred]) for pred in sorted_predictions}
+    if save_as_json:
+        with open(pjoin(out_path, 'class_probabilities.json'), 'w') as f:
+            json.dump(class_probas, f)
     return class_probas
 
 def json2dict(PATH:str, filename:str) -> dict:
