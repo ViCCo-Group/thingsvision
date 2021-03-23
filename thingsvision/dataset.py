@@ -6,11 +6,10 @@ __all__ = ['ImageDataset']
 import os
 import re
 import torch
+import vision
 
 import numpy as np
 import pandas as pd
-
-import thingsvision.vision as vision
 
 from collections import defaultdict
 from os.path import join as pjoin
