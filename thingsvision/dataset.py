@@ -59,7 +59,7 @@ def class_dataset(PATH:str, out_path:str, cls_to_idx:Dict[str, int], things:bool
                 if cls_to_files is None:
                     for root, _, files in sorted(os.walk(target_dir, followlinks=True)):
                         if (things and add_ref_imgs):
-                            first_img = files[0].rstrip('.jpg')
+                            first_img = sorted(files)[0].rstrip('.jpg')
                             if not first_img.endswith('b'):
                                 ref_img_path = get_ref_img(first_img)
                                 f.write(f'{ref_img_path}\n')
@@ -80,12 +80,12 @@ def class_dataset(PATH:str, out_path:str, cls_to_idx:Dict[str, int], things:bool
                             samples.append(item)
     return samples
 
-def get_ref_img(first_img:str, folder:str='./reference_images/') -> str:
+def get_ref_img(first_img:str, folder:str='./reference_images/', suffix:str='.jpg') -> str:
     if not os.path.exists(folder):
         raise FileNotFoundError(f'Directory for reference images not found. Move reference images to {folder}.')
     ref_images = [f.name for f in os.scandir(folder) if f.is_file() and parse_img_name(f.name)]
     for ref_img in ref_images:
-        img_name = ref_img.rstrip('.jpg')
+        img_name = ref_img.rstrip(suffix)
         if re.search(f'^{img_name}', first_img):
             return os.path.join(folder, ref_img)
 
