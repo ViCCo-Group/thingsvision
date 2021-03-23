@@ -51,7 +51,8 @@ def instance_dataset(root:str, out_path:str, images:list) -> List[Tuple[str, int
 def class_dataset(PATH:str, out_path:str, cls_to_idx:Dict[str, int], things:bool=None, add_ref_imgs:bool=None, cls_to_files:Dict[str, list]=None) -> List[Tuple[str, int]]:
     samples = []
     with open(os.path.join(out_path, 'file_names.txt'), 'w') as f:
-        for target_cls in sorted(cls_to_idx.keys()):
+        classes = cls_to_idx.keys() if things else sorted(cls_to_idx.keys())
+        for target_cls in classes:
             cls_idx = cls_to_idx[target_cls]
             target_dir = os.path.join(PATH, target_cls)
             if os.path.isdir(target_dir):
@@ -61,6 +62,7 @@ def class_dataset(PATH:str, out_path:str, cls_to_idx:Dict[str, int], things:bool
                             first_img = files[0].rstrip('.jpg')
                             if not first_img.endswith('b'):
                                 ref_img_path = get_ref_img(first_img)
+                                f.write(f'{ref_img_path}\n')
                                 item = ref_img_path, cls_idx
                                 samples.append(item)
                         for k, file in enumerate(sorted(files)):
