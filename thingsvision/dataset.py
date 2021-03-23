@@ -160,6 +160,8 @@ class ImageDataset(object):
                     concept_ids = pd.read_csv(pjoin(data_path, concept_file), encoding='utf-8', sep='\t').uniqueID.tolist()
                     assert len(children) == len(concept_ids), '\nNumber of categories in dataset must be equal to the number of concept IDs. Check img folder.\n'
                     classes = children if children == concept_ids else concept_ids
+                else:
+                    classes = children
             idx_to_cls = dict(enumerate(classes))
         else:
             class_folders = False
