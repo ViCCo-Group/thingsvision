@@ -59,13 +59,17 @@ def class_dataset(PATH:str, out_path:str, cls_to_idx:Dict[str, int], things:bool
                 if cls_to_files is None:
                     for root, _, files in sorted(os.walk(target_dir, followlinks=True)):
                         if (things and add_ref_imgs):
-                            first_img = sorted(files)[0].rstrip('.jpg')
-                            if not first_img.endswith('b'):
-                                ref_img_path = get_ref_img(first_img)
-                                f.write(f'{ref_img_path}\n')
-                                item = ref_img_path, cls_idx
-                                samples.append(item)
-                        for k, file in enumerate(sorted(files)):
+                            first_img = sorted(files)[0]
+                            if parse_img_name(first_img):
+                                first_img = first_img.rstrip('.jpg')
+                                if not first_img.endswith('b'):
+                                    ref_img_path = get_ref_img(first_img)
+                                    f.write(f'{ref_img_path}\n')
+                                    item = ref_img_path, cls_idx
+                                    samples.append(item)
+                            else:
+                                raise Exception(f'\nFound file that does not seem to be in the correct format: {first_img}.\nRemove file before proceeding with feature extraction.\n')
+                        for file in sorted(files):
                             path = os.path.join(root, file)
                             f.write(f'{path}\n')
                             if os.path.isfile(path) and parse_img_name(file):
