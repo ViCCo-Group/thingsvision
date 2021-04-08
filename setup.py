@@ -9,7 +9,6 @@ requirements = [
                 'ftfy',
                 'numpy',
                 'pandas',
-                'scikit-image',
                 'torch',
                 'torchvision',
                 'tqdm',

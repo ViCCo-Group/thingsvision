@@ -63,8 +63,7 @@ import torchvision.models as models
 from collections import defaultdict
 from numba import njit, jit, prange
 from os.path import join as pjoin
-from scipy.stats import rankdata, ttest_rel
-from skimage.transform import resize
+from scipy.stats import rankdata
 from typing import Tuple, List, Iterator, Dict, Any
 from torch.utils.data import DataLoader, Subset
 from torchvision import transforms as T
