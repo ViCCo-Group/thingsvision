@@ -64,24 +64,24 @@ def class_dataset(PATH:str, out_path:str, cls_to_idx:Dict[str, int], things:bool
                                 first_img = first_img.rstrip('.jpg')
                                 if not first_img.endswith('b'):
                                     ref_img_path = get_ref_img(first_img)
-                                    f.write(f'{ref_img_path}\n')
                                     item = ref_img_path, cls_idx
                                     samples.append(item)
+                                    f.write(f'{ref_img_path}\n')
                             else:
                                 raise Exception(f'\nFound file that does not seem to be in the correct format: {first_img}.\nRemove file before proceeding with feature extraction.\n')
                         for file in sorted(files):
                             path = os.path.join(root, file)
-                            f.write(f'{path}\n')
                             if os.path.isfile(path) and parse_img_name(file):
                                 item = path, cls_idx
                                 samples.append(item)
+                                f.write(f'{path}\n')
                 else:
                     for f_name in cls_to_files[target_cls]:
                         path = os.path.join(target_dir, f_name)
-                        f.write(f'{path}\n')
                         if os.path.isfile(path) and parse_img_name(f_name):
                             item = path, cls_idx
                             samples.append(item)
+                            f.write(f'{path}\n')
     return samples
 
 def get_ref_img(first_img:str, folder:str='./reference_images/', suffix:str='.jpg') -> str:
