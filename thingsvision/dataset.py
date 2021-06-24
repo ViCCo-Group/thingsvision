@@ -67,7 +67,7 @@ def instance_dataset(root:str, out_path:str, images:list, imagenet:bool=False, i
             instances.append(os.path.join(root, img))
     if imagenet:
         assert isinstance(img2cls, dict), '\nImage-to-cls mapping must be provided\n'
-        samples = tuple((instance, img2cls[instance]) for instance in instances)
+        samples = tuple((instance, img2cls[instance.split('/')[-1]]) for instance in instances)
     else:
         samples = tuple((instance, target) for target, instance in enumerate(instances))
     return samples
