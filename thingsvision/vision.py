@@ -73,6 +73,8 @@ def load_dl(
              root:str,
              out_path:str,
              batch_size:int,
+             imagenet_train:bool=None,
+             imagenet_val:bool=None,
              things:bool=None,
              things_behavior:bool=None,
              add_ref_imgs:bool=None,
@@ -86,6 +88,8 @@ def load_dl(
     dataset = ImageDataset(
                             root=root,
                             out_path=out_path,
+                            imagenet_train=imagenet_train,
+                            imagenet_val=imagenet_val,
                             things=things,
                             things_behavior=things_behavior,
                             add_ref_imgs=add_ref_imgs,

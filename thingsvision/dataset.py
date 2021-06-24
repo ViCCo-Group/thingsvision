@@ -18,6 +18,26 @@ from PIL import Image
 from torchvision import transforms as T
 from typing import Tuple, List, Dict, Iterator, Any
 
+def get_syn2cls_mapping(root:str) -> Dict[str, int]:
+    try:
+        with open(os.path.join(root, 'LOC_synset_mapping.txt', 'r')) as f:
+            cls2syn = dict(enumerate(list(map(lambda x: x.split()[0], f.readlines()))))
+    except FileNotFoundError:
+        raise Exception('\nCould not find LOC_synset_mapping.txt in root directory. Move file to root directory.\n')
+    syn2cls = {syn:cls for cls, syn in cls2syn.items()}
+    return syn2cls
+
+def get_img2cls_mapping(root:str) -> Dict[str, int]:
+    split = root.split('/')[-1] if root.split('/')[-1] else root.split('/')[-2]
+    try:
+        solution = pd.read_csv(os.path.join(root, f'LOC_{split}_solution.csv'))
+    except FileNotFoundError:
+        raise Exception(f'\nCould not find LOC_{split}_solution.csv in root directory. Move file to root directory.\n')
+    syn2cls = get_syn2cls_mapping(root)
+    img2cls = {row[0]+'.JPEG': syn2cls[row[1].split()[0]] for idx, row in solution.iterrows()}
+    img2cls = dict(sorted(img2cls.items(), key=lambda kv:kv[0]))
+    return img2cls, list(syn2cls.keys())
+
 def get_classes(file_names:List[str]) -> Tuple[List[str], Dict[str, list]]:
     cls_to_files = defaultdict(list)
     classes = []
@@ -39,19 +59,31 @@ def parse_img_name(img_name:str) -> bool:
 def rm_suffix(img:str) -> str:
     return re.sub(r'(.eps|.jpg|.JPG|.jpeg|.JPEG|.png|.PNG|.tif|.tiff)$', '', img)
 
-def instance_dataset(root:str, out_path:str, images:list) -> List[Tuple[str, int]]:
+def instance_dataset(root:str, out_path:str, images:list, imagenet:bool=False, img2cls:dict=None) -> List[Tuple[str, int]]:
     instances = []
     with open(os.path.join(out_path, 'file_names.txt'), 'w') as f:
         for img in images:
             f.write(f'{img}\n')
             instances.append(os.path.join(root, img))
-    samples = tuple((instance, target) for target, instance in enumerate(instances))
+    if imagenet:
+        assert isinstance(img2cls, dict), '\nImage-to-cls mapping must be provided\n'
+        samples = tuple((instance, img2cls[instance]) for instance in instances)
+    else:
+        samples = tuple((instance, target) for target, instance in enumerate(instances))
     return samples
 
-def class_dataset(PATH:str, out_path:str, cls_to_idx:Dict[str, int], things:bool=None, add_ref_imgs:bool=None, cls_to_files:Dict[str, list]=None) -> List[Tuple[str, int]]:
+def class_dataset(
+                  PATH:str,
+                  out_path:str,
+                  cls_to_idx:Dict[str, int],
+                  imagenet:bool=None,
+                  things:bool=None,
+                  add_ref_imgs:bool=None,
+                  cls_to_files:Dict[str, list]=None,
+                  ) -> List[Tuple[str, int]]:
     samples = []
     with open(os.path.join(out_path, 'file_names.txt'), 'w') as f:
-        classes = cls_to_idx.keys() if things else sorted(cls_to_idx.keys())
+        classes = cls_to_idx.keys() if (things or imagenet) else sorted(cls_to_idx.keys())
         for target_cls in classes:
             cls_idx = cls_to_idx[target_cls]
             target_dir = os.path.join(PATH, target_cls)
@@ -115,6 +147,8 @@ class ImageDataset(object):
                 self,
                 root:str,
                 out_path:str,
+                imagenet_train:bool,
+                imagenet_val:bool,
                 things:bool,
                 things_behavior:bool,
                 add_ref_imgs:bool,
@@ -122,6 +156,8 @@ class ImageDataset(object):
                 transforms=None,
                 ):
         self.root = root
+        self.imagenet_train = imagenet_train
+        self.imagenet_val = imagenet_val
         self.things = things
         self.things_behavior = things_behavior
         self.transforms = transforms
@@ -130,16 +166,21 @@ class ImageDataset(object):
         classes, idx_to_cls, cls_to_idx, class_folders = self.find_classes_()
         self.class_dataset = class_folders
 
+        if self.imagenet_val:
+            img2cls, synsets = get_img2cls_mapping(self.root)
+            self.classes = synsets
+
         if self.class_dataset:
             if self.file_names:
                 _, cls_to_files = get_classes(self.file_names)
-                self.samples = class_dataset(self.root, out_path, cls_to_idx, self.things, add_ref_imgs, cls_to_files)
+                self.samples = class_dataset(self.root, out_path, cls_to_idx, self.imagenet_train, self.things, add_ref_imgs, cls_to_files)
             else:
-                self.samples = class_dataset(self.root, out_path, cls_to_idx, self.things, add_ref_imgs)
+                self.samples = class_dataset(self.root, out_path, cls_to_idx, self.imagenet_train, self.things, add_ref_imgs)
             self.classes = classes
         else:
-            self.samples = instance_dataset(self.root, out_path, classes)
-            self.classes = list(cls_to_idx.keys())
+            self.samples = instance_dataset(self.root, out_path, classes, self.imagenet_val, img2cls if self.imagenet_val else None)
+            if not self.imagenet_val:
+                self.classes = list(cls_to_idx.keys())
 
         images, targets = zip(*self.samples)
 
@@ -168,7 +209,12 @@ class ImageDataset(object):
                     classes = children if children == concept_ids else concept_ids
                 else:
                     classes = children
-            idx_to_cls = dict(enumerate(classes))
+            if self.imagenet_train:
+                cls_to_idx = get_syn2cls_mapping(self.root)
+                idx_to_cls = {idx:cls for cls, idx in cls_to_idx.items()}
+                classes = list(cls_to_idx.keys())
+            else:
+                idx_to_cls = dict(enumerate(classes))
         else:
             class_folders = False
             if self.things_behavior:
@@ -180,7 +226,8 @@ class ImageDataset(object):
                 else:
                     classes = sorted([f.name for f in os.scandir(self.root) if f.is_file() and parse_img_name(f.name)])
             idx_to_cls = dict(enumerate(list(map(rm_suffix, classes))))
-        cls_to_idx = {cls:idx for idx, cls in idx_to_cls.items()}
+        if not self.imagenet_train:
+            cls_to_idx = {cls:idx for idx, cls in idx_to_cls.items()}
         return classes, idx_to_cls, cls_to_idx, class_folders
 
     def __getitem__(self, idx:int) -> Tuple[Any, Any]:
