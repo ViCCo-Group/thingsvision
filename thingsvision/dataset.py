@@ -20,7 +20,7 @@ from typing import Tuple, List, Dict, Iterator, Any
 
 def get_syn2cls_mapping(root:str) -> Dict[str, int]:
     try:
-        with open(os.path.join(root, 'LOC_synset_mapping.txt', 'r')) as f:
+        with open(os.path.join(root, 'LOC_synset_mapping.txt'), 'r') as f:
             cls2syn = dict(enumerate(list(map(lambda x: x.split()[0], f.readlines()))))
     except FileNotFoundError:
         raise Exception('\nCould not find LOC_synset_mapping.txt in root directory. Move file to root directory.\n')
