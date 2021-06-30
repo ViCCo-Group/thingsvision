@@ -28,7 +28,6 @@ __all__ = [
             'save_features',
             'save_targets',
             'correlation_matrix',
-            'euclidean_matrix',
             'cosine_matrix',
             'compute_rdm',
             'correlate_rdms',
@@ -64,21 +63,24 @@ from collections import defaultdict
 from numba import njit, jit, prange
 from os.path import join as pjoin
 from scipy.stats import rankdata
-from typing import Tuple, List, Iterator, Dict, Any
+from scipy.spatial.distance import pdist
+from scipy.spatial.distance import squareform
+from thingsvision.dataset import ImageDataset
 from torch.utils.data import DataLoader, Subset
 from torchvision import transforms as T
-from thingsvision.dataset import ImageDataset
+from typing import Tuple, List, Iterator, Dict, Any
+
 
 def load_dl(
-             root:str,
-             out_path:str,
-             batch_size:int,
-             imagenet_train:bool=None,
-             imagenet_val:bool=None,
-             things:bool=None,
-             things_behavior:bool=None,
-             add_ref_imgs:bool=None,
-             file_names:List[str]=None,
+             root: str,
+             out_path: str,
+             batch_size: int,
+             imagenet_train: bool=None,
+             imagenet_val: bool=None,
+             things: bool=None,
+             things_behavior: bool=None,
+             add_ref_imgs: bool=None,
+             file_names: List[str]=None,
              transforms=None,
              ) -> Iterator:
     print(f'\n...Loading dataset into memory.')
@@ -100,13 +102,32 @@ def load_dl(
     dl = DataLoader(dataset, batch_size=batch_size, shuffle=False)
     return dl
 
-def load_model(model_name:str, pretrained:bool, device:str, model_path:str=None) -> Tuple[Any, Any]:
+
+def load_model(
+                model_name: str,
+                pretrained: bool,
+                device: str,
+                model_path: str=None,
+                )
+-> Tuple[Any, Any]:
     """load a pretrained *torchvision* or CLIP model into memory"""
     if re.search(r'^clip', model_name):
         if re.search(r'ViT$', model_name):
-            model, transforms = clip.load("ViT-B/32", device=device, model_path=model_path, pretrained=pretrained, jit=False)
+            model, transforms = clip.load(
+                                            "ViT-B/32",
+                                            device=device,
+                                            model_path=model_path,
+                                            pretrained=pretrained,
+                                            jit=False,
+                                            )
         else:
-            model, transforms = clip.load("RN50", device=device, model_path=model_path, pretrained=pretrained, jit=False)
+            model, transforms = clip.load(
+                                            "RN50",
+                                            device=device,
+                                            model_path=model_path,
+                                            pretrained=pretrained,
+                                            jit=False,
+                                            )
     else:
         device = torch.device(device)
         if re.search(r'^cornet', model_name):
@@ -115,7 +136,7 @@ def load_model(model_name:str, pretrained:bool, device:str, model_path:str=None)
             except:
                 model = getattr(cornet, f'cornet_{model_name[-2:]}')
             model = model(pretrained=pretrained, map_location=device)
-            model = model.module  #remove DataParallel
+            model = model.module    # remove DataParallel
         else:
             model = getattr(models, model_name)
             model = model(pretrained=pretrained)
@@ -127,7 +148,8 @@ def load_model(model_name:str, pretrained:bool, device:str, model_path:str=None)
     model.eval()
     return model, transforms
 
-def show_model(model, model_name:str) -> str:
+
+def show_model(model, model_name: str) -> str:
     if re.search(r'^clip', model_name):
         for l, (n, p) in enumerate(model.named_modules()):
             if l > 1:
@@ -141,21 +163,23 @@ def show_model(model, model_name:str) -> str:
     print()
     return module_name
 
-def get_module_names(model, module:str) -> list:
+
+def get_module_names(model, module: str) -> list:
     """helper to extract correct module names, if users wants to iterate over multiple modules"""
     module_names, _ = zip(*model.named_modules())
     return list(filter(lambda n: re.search(f'{module}$', n), module_names))
 
+
 def extract_features_across_models_and_datasets(
-                                                out_path:str,
-                                                model_names:List[str],
-                                                img_paths:List[str],
-                                                module_names:List[str],
-                                                clip:List[bool],
-                                                pretrained:bool,
-                                                batch_size:int,
-                                                flatten_acts:bool,
-                                                f_format:str='.txt',
+                                                out_path: str,
+                                                model_names: List[str],
+                                                img_paths: List[str],
+                                                module_names: List[str],
+                                                clip: List[bool],
+                                                pretrained: bool,
+                                                batch_size: int,
+                                                flatten_acts: bool,
+                                                f_format: str='.txt',
 ) -> None:
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     for i, model_name in enumerate(model_names):
@@ -166,16 +190,17 @@ def extract_features_across_models_and_datasets(
             features, _ = extract_features(model, dl, module_names[i], batch_size=batch_size, flatten_acts=flatten_acts, device=device, clip=clip[i])
             save_features(features, out_path, f_format)
 
+
 def extract_features_across_models_datasets_and_modules(
-                                                        out_path:str,
-                                                        model_names:List[str],
-                                                        img_paths:List[str],
-                                                        module_names:List[str],
-                                                        clip:List[str],
-                                                        pretrained:bool,
-                                                        batch_size:int,
-                                                        flatten_acts:bool,
-                                                        f_format:str='.txt',
+                                                        out_path: str,
+                                                        model_names: List[str],
+                                                        img_paths: List[str],
+                                                        module_names: List[str],
+                                                        clip: List[str],
+                                                        pretrained: bool,
+                                                        batch_size: int,
+                                                        flatten_acts: bool,
+                                                        f_format: str='.txt',
 ) -> None:
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     for i, model_name in enumerate(model_names):
@@ -188,6 +213,7 @@ def extract_features_across_models_datasets_and_modules(
                 features, _ = extract_features(model, dl, module_name, batch_size=batch_size, flatten_acts=flatten_acts, device=device, clip=clip[i])
                 save_features(features, PATH, f_format)
 
+
 def get_activation(name):
     """store hidden unit activations at each layer of model"""
     def hook(model, input, output):
@@ -197,13 +223,15 @@ def get_activation(name):
             activations[name] = output
     return hook
 
+
 def register_hook(model):
     """register a forward hook to store activations"""
     for n, m in model.named_modules():
         m.register_forward_hook(get_activation(n))
     return model
 
-def center_features(X:np.ndarray) -> np.ndarray:
+
+def center_features(X: np.ndarray) -> np.ndarray:
     """center features to have zero mean"""
     try:
         X -= X.mean(axis=0)
@@ -211,13 +239,15 @@ def center_features(X:np.ndarray) -> np.ndarray:
     except:
         raise Exception('\nMake sure features are represented through a two-dimensional array\n')
 
-def normalize_features(X:np.ndarray) -> np.ndarray:
+
+def normalize_features(X: np.ndarray) -> np.ndarray:
     """normalize feature vectors by their l2-norm"""
     try:
         X /= np.linalg.norm(X, axis=1)[:, np.newaxis]
         return X
     except:
         raise Exception(f'\nMake sure features are represented through a two-dimensional array\n')
+
 
 def enumerate_layers(model, feature_extractor) -> List[int]:
     layers = []
@@ -229,32 +259,41 @@ def enumerate_layers(model, feature_extractor) -> List[int]:
             k += 1
     return layers
 
-def ensemble_featmaps(activations:dict, layers:list, pooling:str='max', alpha:float=3., beta:float=5.) -> torch.Tensor:
+
+def ensemble_featmaps(
+                        activations: dict,
+                        layers: list,
+                        pooling: str='max',
+                        alpha: float=3.,
+                        beta: float=5.,
+) -> torch.Tensor:
     """concatenate globally (max or average) pooled feature maps"""
     acts = [activations[''.join(('features.', str(l)))] for l in layers]
     func = torch.max if pooling == 'max' else torch.mean
     pooled_acts = [torch.tensor([list(map(func, featmaps)) for featmaps in acts_i]) for acts_i in acts]
-    pooled_acts[-2] = pooled_acts[-2] * alpha #upweight second-to-last conv layer by 5.
-    pooled_acts[-1] = pooled_acts[-1] * beta #upweight last conv layer by 10.
+    pooled_acts[-2] = pooled_acts[-2] * alpha   # upweight second-to-last conv layer by 5.
+    pooled_acts[-1] = pooled_acts[-1] * beta    # upweight last conv layer by 10.
     stacked_acts = torch.cat(pooled_acts, dim=1)
     return stacked_acts
 
-def compress_features(X:np.ndarray, rnd_seed:int, retained_var:float=.9) -> np.ndarray:
+
+def compress_features(X: np.ndarray, rnd_seed: int, retained_var: float=.9) -> np.ndarray:
     from sklearn.decomposition import PCA
     assert isinstance(rnd_seed, int), '\nTo reproduce results, random state for PCA must be defined.\n'
     pca = PCA(n_components=retained_var, svd_solver='full', random_state=rnd_seed)
     transformed_feats = pca.fit_transform(X)
     return transformed_feats
 
+
 def extract_features(
-                    model:Any,
-                    data_loader:Any,
-                    module_name:str,
-                    batch_size:int,
-                    flatten_acts:bool,
-                    device:str,
-                    clip:bool=False,
-                    return_probabilities:bool=False,
+                    model: Any,
+                    data_loader: Any,
+                    module_name: str,
+                    batch_size: int,
+                    flatten_acts: bool,
+                    device: str,
+                    clip: bool=False,
+                    return_probabilities: bool=False,
                     feature_extractor=None,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """extract hidden unit activations (at specified layer) for every image in the database"""
@@ -267,10 +306,10 @@ def extract_features(
             feature_extractor = nn.MaxPool2d
 
     device = torch.device(device)
-    #initialise dictionary to store hidden unit activations on the fly
+    # initialise dictionary to store hidden unit activations on the fly
     global activations
     activations = {}
-    #register forward hook to store activations
+    # register forward hook to store activations
     model = register_hook(model)
     features, targets = [], []
 
@@ -308,7 +347,7 @@ def extract_features(
             features.append(act.cpu())
             targets.extend(y.squeeze(-1).cpu())
 
-    #stack each mini-batch of hidden activations to obtain an N x F matrix, and flatten targets to yield vector
+    # stack each mini-batch of hidden activations to obtain an N x F matrix, and flatten targets to yield vector
     features = np.vstack(features)
     targets = np.asarray(targets).ravel()
     print(f'...Features successfully extracted for all {len(features)} images in the database.')
@@ -319,14 +358,20 @@ def extract_features(
     assert len(features) == len(targets), '\nFeatures and targets must correspond to the same number of images.\n'
     return features, targets
 
-########################################################################################################
-################ HELPER FUNCTIONS FOR SAVING, MERGING AND SLICING FEATURE MATRICES #####################
-########################################################################################################
+# ################################################################# #
+# HELPER FUNCTIONS FOR SAVING, MERGING AND SLICING FEATURE MATRICES #
+# ################################################################# #
 
-def rm_suffix(img:str) -> str:
+
+def rm_suffix(img: str) -> str:
     return re.sub(r'(.eps|.jpg|.jpeg|.png|.PNG|.tif|.tiff)$', '', img)
 
-def store_features(PATH:str, features:np.ndarray, file_format:str) -> None:
+
+def store_features(
+                    PATH: str,
+                    features: np.ndarray,
+                    file_format: str,
+) -> None:
     if not os.path.exists(PATH):
         print(f'...Output directory did not exist. Creating directories to save features.')
         os.makedirs(PATH)
@@ -345,18 +390,24 @@ def store_features(PATH:str, features:np.ndarray, file_format:str) -> None:
         np.savetxt(pjoin(PATH, 'features.txt'), features)
     print(f'...Features successfully saved to disk.\n')
 
-def tensor2slices(PATH:str, file_name:str, features:np.ndarray) -> None:
+
+def tensor2slices(
+                    PATH: str,
+                    file_name: str,
+                    features: np.ndarray,
+) -> None:
     with open(pjoin(PATH, file_name), 'w') as outfile:
         outfile.write(f'# Array shape: {features.shape}\n')
         for i in range(features.shape[0]):
             for j in range(features.shape[1]):
-                #formatting string indicates that we are writing out
-                #the values in left-justified columns 7 characters in width
-                #with 5 decimal places
+                # formatting string indicates that we are writing out
+                # the values in left-justified columns 7 characters in width
+                # with 5 decimal places
                 np.savetxt(outfile, features[i, j, :, :], fmt='%-7.5f')
                 outfile.write('# New slice\n')
 
-def get_shape(PATH:str, file:str) -> tuple:
+
+def get_shape(PATH: str, file: str) -> tuple:
     with open(pjoin(PATH, file)) as f:
         line = f.readline().strip()
         line = re.sub(r'\D', ' ', line)
@@ -364,7 +415,8 @@ def get_shape(PATH:str, file:str) -> tuple:
         shape = tuple(map(int, line))
     return shape
 
-def get_digits(string:str) -> int:
+
+def get_digits(string: str) -> int:
     c = ""
     nonzero = False
     for i in string:
@@ -376,13 +428,20 @@ def get_digits(string:str) -> int:
                 nonzero = True
     return int(c)
 
-def slices2tensor(PATH:str, file:str) -> np.ndarray:
+
+def slices2tensor(PATH: str, file: str) -> np.ndarray:
     slices = np.loadtxt(pjoin(PATH, file))
     shape = get_shape(PATH, file)
     tensor = slices.reshape(shape)
     return tensor
 
-def split_features(PATH:str, features:np.ndarray, file_format:str, n_splits:int) -> None:
+
+def split_features(
+                    PATH: str,
+                    features: np.ndarray,
+                    file_format: str,
+                    n_splits: int,
+) -> None:
     if re.search(r'mat', file_format):
         try:
             with open(pjoin(PATH, 'file_names.txt'), 'r') as f:
@@ -405,7 +464,8 @@ def split_features(PATH:str, features:np.ndarray, file_format:str, n_splits:int)
         else:
             np.savetxt(pjoin(PATH, f'features_{i:02d}.txt'), feature_split)
 
-def merge_features(PATH:str, file_format:str) -> np.ndarray:
+
+def merge_features(PATH: str, file_format: str) -> np.ndarray:
     feature_splits = np.array([split for split in os.listdir(PATH) if re.search(r'^feature', split) and split.endswith(file_format) and re.search(r'[0-9]+$', split.rstrip(file_format))])
     enumerations = np.array([int(re.sub(r'\D', '', feature)) for feature in feature_splits])
     feature_splits = feature_splits[np.argsort(enumerations)]
@@ -423,7 +483,8 @@ def merge_features(PATH:str, file_format:str) -> np.ndarray:
         raise Exception('\nCan only process .npy, .mat, or .txt files.\n')
     return features
 
-def parse_imagenet_synsets(PATH:str):
+
+def parse_imagenet_synsets(PATH: str):
     def parse_str(str):
         return re.sub(r'[^a-zA-Z]', '', str).rstrip('n').lower()
     imagenet_synsets = []
@@ -434,7 +495,8 @@ def parse_imagenet_synsets(PATH:str):
             imagenet_synsets.append(cls)
     return imagenet_synsets
 
-def parse_imagenet_classes(PATH:str):
+
+def parse_imagenet_classes(PATH: str):
     imagenet_classes = []
     with open(PATH, 'r') as f:
         for i, l in enumerate(f):
@@ -445,10 +507,12 @@ def parse_imagenet_classes(PATH:str):
             imagenet_classes.append(cls)
     return imagenet_classes
 
-def get_class_intersection(imagenet_classes:list, things_objects:list) -> set:
+
+def get_class_intersection(imagenet_classes: list, things_objects: list) -> set:
     return set(things_objects).intersection(set(imagenet_classes))
 
-def get_cls_mapping_imagenet(PATH:str, save_as_json:bool=False) -> dict:
+
+def get_cls_mapping_imagenet(PATH: str, save_as_json: bool=False) -> dict:
     """store ImageNet classes in a idx2cls dictionary, and subsequently save as .json file"""
     if re.search(r'synset', PATH.split('/')[-1]):
         imagenet_classes = parse_imagenet_synsets(PATH)
@@ -462,7 +526,14 @@ def get_cls_mapping_imagenet(PATH:str, save_as_json:bool=False) -> dict:
             json.dump(idx2cls, f)
     return idx2cls
 
-def get_class_probabilities(probas:np.ndarray, out_path:str, cls_file:str, top_k:int, save_as_json:bool) -> Dict[str, Dict[str, float]]:
+
+def get_class_probabilities(
+                            probas: np.ndarray,
+                            out_path: str,
+                            cls_file: str,
+                            top_k: int,
+                            save_as_json: bool,
+) -> Dict[str, Dict[str, float]]:
     file_names = open(pjoin(out_path, 'file_names.txt'), 'r').read().splitlines()
     idx2cls = get_cls_mapping_imagenet(cls_file)
     class_probas = {}
@@ -474,24 +545,33 @@ def get_class_probabilities(probas:np.ndarray, out_path:str, cls_file:str, top_k
             json.dump(class_probas, f)
     return class_probas
 
-def json2dict(PATH:str, filename:str) -> dict:
+
+def json2dict(PATH: str, filename: str) -> dict:
     with open(pjoin(PATH, filename), 'r') as f:
         idx2cls = dict(json.load(f))
     return idx2cls
 
-def compose_transforms(resize_dim:int=256, crop_dim:int=224):
+
+def compose_transforms(resize_dim: int=256, crop_dim: int=224):
     normalize = T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     composition = T.Compose([T.Resize(resize_dim), T.CenterCrop(crop_dim), T.ToTensor(), normalize])
     return composition
 
-def load_item_names(folder:str='./data') -> np.ndarray:
+
+def load_item_names(folder: str='./data') -> np.ndarray:
     return pd.read_csv(pjoin(folder, 'item_names.tsv'), encoding='utf-8', sep='\t').uniqueID.values
 
-def save_features(features:np.ndarray, out_path:str, file_format:str, n_splits:int=10) -> None:
+
+def save_features(
+                    features: np.ndarray,
+                    out_path: str,
+                    file_format: str,
+                    n_splits: int=10,
+) -> None:
     if not os.path.exists(out_path):
         print(f'\nOutput directory did not exist. Creating directories to save features...\n')
         os.makedirs(out_path)
-    #save hidden unit actvations to disk (either as one single file or as several splits)
+    # save hidden unit actvations to disk (either as one single file or as several splits)
     if len(features.shape) == 2:
         try:
             store_features(PATH=out_path, features=features, file_format=file_format)
@@ -507,7 +587,12 @@ def save_features(features:np.ndarray, out_path:str, file_format:str, n_splits:i
         tensor2slices(PATH=out_path, file_name='features.txt', features=features)
         print(f'\n...Sliced tensor into separate parts, and saved resulting matrix as .txt file.\n')
 
-def save_targets(targets:np.ndarray, out_path:str, file_format:str) -> None:
+
+def save_targets(
+                    targets: np.ndarray,
+                    out_path: str,
+                    file_format: str,
+) -> None:
     if not os.path.exists(out_path):
         print(f'\nOutput directory did not exist. Creating directories to save targets...\n')
         os.makedirs(out_path)
@@ -520,12 +605,14 @@ def save_targets(targets:np.ndarray, out_path:str, file_format:str) -> None:
         np.savetxt(pjoin(out_path, 'targets.txt'), targets)
     print(f'...Targets successfully saved to disk.\n')
 
-#############################################################################################################
-################################ HELPER FUNCTIONS FOR RSA & RDM COMPUTATIONS ################################
-#############################################################################################################
+# ########################################### #
+# HELPER FUNCTIONS FOR RSA & RDM COMPUTATIONS #
+# ########################################### #
+
 
 @njit(parallel=True, fastmath=True)
-def squared_dists(F:np.ndarray) -> np.ndarray:
+def squared_dists(F: np.ndarray) -> np.ndarray:
+    """computes squared l2-distances between feature representations in parallel"""
     N = F.shape[0]
     D = np.zeros((N, N))
     for i in prange(N):
@@ -533,54 +620,71 @@ def squared_dists(F:np.ndarray) -> np.ndarray:
             D[i, j] = np.linalg.norm(F[i] - F[j]) ** 2
     return D
 
-def gaussian_kernel(F:np.ndarray) -> np.ndarray:
+
+def gaussian_kernel(F: np.ndarray) -> np.ndarray:
+    """compute dissimilarity matrix based on a Gaussian kernel"""
     D = squared_dists(F)
     return np.exp(-D/np.mean(D))
 
-def correlation_matrix(F:np.ndarray, a_min:float=-1., a_max:float=1.) -> np.ndarray:
+
+def correlation_matrix(F: np.ndarray, a_min: float=-1., a_max: float=1.) -> np.ndarray:
+    """compute dissimilarity matrix based on correlation distance on matrix-level"""
     F_c = F - F.mean(axis=1)[:, np.newaxis]
     cov = F_c @ F_c.T
-    l2_norms = np.linalg.norm(F_c, axis=1) #compute l2-norm across rows
+    l2_norms = np.linalg.norm(F_c, axis=1)  # compute vector l2-norm across rows
     denom = np.outer(l2_norms, l2_norms)
-    corr_mat = (cov / denom).clip(min=a_min, max=a_max) #counteract potential rounding errors
+    corr_mat = (cov / denom).clip(min=a_min, max=a_max)
     return corr_mat
 
-def cosine_matrix(F:np.ndarray, a_min:float=-1., a_max:float=1.) -> np.ndarray:
+
+def cosine_matrix(F: np.ndarray, a_min: float=-1., a_max: float=1.) -> np.ndarray:
+    """compute dissimilarity matrix based on cosine distance on matrix-level"""
     num = F @ F.T
-    l2_norms = np.linalg.norm(F, axis=1) #compute l2-norm across rows
+    l2_norms = np.linalg.norm(F, axis=1)    # compute vector l2-norm across rows
     denom = np.outer(l2_norms, l2_norms)
     cos_mat = (num / denom).clip(min=a_min, max=a_max)
     return cos_mat
 
-@njit(parallel=True, fastmath=True)
-def euclidean_matrix(F:np.ndarray) -> np.ndarray:
-    N = F.shape[0]
-    rdm = [[np.linalg.norm(F[i] - F[j]) for j in prange(N)] for i in prange(N)]
-    return np.asarray(rdm)
 
-def compute_rdm(F:np.ndarray, method:str='correlation') -> np.ndarray:
+def compute_rdm(F: np.ndarray, method: str) -> np.ndarray:
+    """compute representational dissimilarity matrix based on some distance measure"""
     methods = ['correlation', 'cosine', 'euclidean', 'gaussian']
     assert method in methods, f'\nMethod to compute RDM must be one of {methods}.\n'
     if method == 'euclidean':
-        rdm = euclidean_matrix(F)
+        rdm = squareform(pdist(F, method))
         return rdm
     else:
         if method == 'correlation':
             rsm =  correlation_matrix(F)
         elif method == 'cosine':
             rsm = cosine_matrix(F)
-        elif method == 'euclidean':
+        elif method == 'gaussian':
             rsm = gaussian_kernel(F)
     return 1 - rsm
 
-def correlate_rdms(rdm_1:np.ndarray, rdm_2:np.ndarray, correlation:str='pearson') -> float:
-    #since RDMs are symmetric matrices, we only need to compare their upper (or lower) triangular parts (main diagonal can be omitted)
+
+def correlate_rdms(
+                    rdm_1: np.ndarray,
+                    rdm_2: np.ndarray,
+                    correlation: str='pearson',
+                    ) -> float:
+    """RDMs are symmetric matrices,
+       which is why we only need to compare their upper (or lower)
+       triangular parts (main diagonal can be omitted)"""
     triu_inds = np.triu_indices(len(rdm_1), k=1)
     corr_func = getattr(scipy.stats, ''.join((correlation, 'r')))
     rho = corr_func(rdm_1[triu_inds], rdm_2[triu_inds])[0]
     return rho
 
-def plot_rdm(out_path:str, F:np.ndarray, method:str='correlation', format:str='.png', colormap:str='cividis', show_plot:bool=False) -> None:
+
+def plot_rdm(
+             out_path: str,
+             F: np.ndarray,
+             method: str='correlation',
+             format: str='.png',
+             colormap: str='cividis',
+             show_plot: bool=False,
+             ) -> None:
     rdm = compute_rdm(F, method)
     plt.figure(figsize=(10, 4), dpi=200)
     plt.imshow(rankdata(rdm).reshape(rdm.shape), cmap=getattr(plt.cm, colormap))
@@ -595,27 +699,27 @@ def plot_rdm(out_path:str, F:np.ndarray, method:str='correlation', format:str='.
         plt.show()
     plt.close()
 
+# ############################## #
+# BOOTSTRAPPING HELPER FUNCTIONS #
+# ############################## #
 
-#################################################################################################################
-####################################### BOOTSTRAPPING HELPER FUNCTIONS ##########################################
-################################################################################################################
 
-def compute_pval_(human_correlations:dict, model_i:str, model_j:str) -> float:
+def compute_pval_(human_correlations: dict, model_i: str, model_j: str) -> float:
     model_i_corrs = np.asarray(human_correlations[model_i])
     model_j_corrs = np.asarray(human_correlations[model_j])
     p_val = 1 - np.mean([model_i_corr > model_j_corr for model_i_corr, model_j_corr in zip(model_i_corrs, model_j_corrs)])
     return p_val.round(3)
 
-def bootstrap_(
-               features_i:np.ndarray,
-               features_j:np.ndarray,
-               model_i:str,
-               model_j:str,
-               human_rdm:np.ndarray,
-               n_bootstraps:int=1000,
-               dissimilarity:str='correlation',
-               correlation:str='pearson',
 
+def bootstrap_(
+               features_i: np.ndarray,
+               features_j: np.ndarray,
+               model_i: str,
+               model_j: str,
+               human_rdm: np.ndarray,
+               n_bootstraps: int=1000,
+               dissimilarity: str='correlation',
+               correlation: str='pearson',
 ) -> Tuple[Dict[str, list], float]:
     """random sampling with replacement (resampled dataset must be of equal size to the original, observed dataset)"""
     human_correlations = defaultdict(list)
@@ -637,15 +741,16 @@ def bootstrap_(
         human_correlations[model_j].append(human_corr_j)
     return human_correlations
 
+
 def get_features(
-                root:str,
-                out_path:str,
-                model_names:List[str],
-                module_names:List[str],
-                clip:List[bool],
-                pretrained:bool,
-                batch_size:int,
-                flatten_acts:bool,
+                root: str,
+                out_path: str,
+                model_names: List[str],
+                module_names: List[str],
+                clip: List[bool],
+                pretrained: bool,
+                batch_size: int,
+                flatten_acts: bool,
 ) -> Dict[str, Dict[str, np.ndarray]]:
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     model_features = defaultdict(dict)
@@ -656,28 +761,37 @@ def get_features(
         model_features[model_name][module_names[i]] = features
     return model_features
 
-def compare_models_to_humans(
-                            root:str,
-                            out_path:str,
-                            model_names:List[str],
-                            module_names:List[str],
-                            clip:List[bool],
-                            pretrained:bool,
-                            batch_size:int,
-                            flatten_acts:bool,
-                            human_rdm:np.ndarray,
-                            save_features:bool=True,
-                            n_bootstraps:int=1000,
-                            dissimilarity:str='correlation',
-                            correlation:str='pearson',
 
+def compare_models_to_humans(
+                            root: str,
+                            out_path: str,
+                            model_names: List[str],
+                            module_names: List[str],
+                            clip: List[bool],
+                            pretrained: bool,
+                            batch_size: int,
+                            flatten_acts: bool,
+                            human_rdm: np.ndarray,
+                            save_features: bool=True,
+                            n_bootstraps: int=1000,
+                            dissimilarity: str='correlation',
+                            correlation: str='pearson',
 ) -> Dict[Tuple[str, str], Dict[Tuple[str, str], str]]:
-    #extract features for each model and its corresponding module
-    model_features = get_features(root, out_path, model_names, module_names, pretrained, batch_size, flatten_acts, clip)
-    #save model features to disc
+    # extract features for each model and its corresponding module
+    model_features = get_features(
+                                    root,
+                                    out_path,
+                                    model_names,
+                                    module_names,
+                                    pretrained,
+                                    batch_size,
+                                    flatten_acts,
+                                    clip,
+                                    )
+    # save model features to disc
     if save_features:
         pickle_file_(model_features, out_path, 'features')
-    #compare features of each model combination for N bootstraps
+    # compare features of each model combination for N bootstraps
     scores = defaultdict(lambda: defaultdict(dict))
     model_combs = list(itertools.combinations(model_names, 2))
     for (model_i, model_j) in model_combs:
@@ -700,25 +814,35 @@ def compare_models_to_humans(
         scores[(model_i, model_j)][(module_i, module_j)]['mean_human_corrs'] = mean_human_corrs
     return scores
 
+
 def compare_models(
-                    root:str,
-                    out_path:str,
-                    model_names:List[str],
-                    module_names:List[str],
-                    pretrained:bool,
-                    batch_size:int,
-                    flatten_acts:bool,
-                    clip:List[bool],
-                    save_features:bool=True,
-                    dissimilarity:str='correlation',
-                    correlation:str='pearson',
+                    root: str,
+                    out_path: str,
+                    model_names: List[str],
+                    module_names: List[str],
+                    pretrained: bool,
+                    batch_size: int,
+                    flatten_acts: bool,
+                    clip: List[bool],
+                    save_features: bool=True,
+                    dissimilarity: str='correlation',
+                    correlation: str='pearson',
 ) -> pd.DataFrame:
-    #extract features for each model and corresponding module
-    model_features = get_features(root, out_path, model_names, module_names, pretrained, batch_size, flatten_acts, clip)
-    #save model features to disc
+    # extract features for each model and corresponding module
+    model_features = get_features(
+                                    root,
+                                    out_path,
+                                    model_names,
+                                    module_names,
+                                    pretrained,
+                                    batch_size,
+                                    flatten_acts,
+                                    clip,
+                                    )
+    # save model features to disc
     if save_features:
         pickle_file_(model_features, out_path, 'features')
-    #compare features of each model combination for N bootstraps
+    # compare features of each model combination for N bootstraps
     corrs = pd.DataFrame(np.eye(len(model_names)), index=np.arange(len(model_names)), columns=model_names, dtype=float)
     model_combs = list(itertools.combinations(model_names, 2))
     for (model_i, model_j) in model_combs:
@@ -735,6 +859,8 @@ def compare_models(
     corrs.set_index('model_names', inplace=True, drop=True)
     return corrs
 
-def pickle_file_(file:dict, out_path:str, f_name:str) -> None:
+
+def pickle_file_(file: dict, out_path: str, f_name: str) -> None:
+    """pickle file"""
     with open(os.path.join(out_path, f_name + '.p'), 'wb') as f:
         pickle.dump(scores, f)
