@@ -18,141 +18,53 @@ from PIL import Image
 from torchvision import transforms as T
 from typing import Tuple, List, Dict, Iterator, Any
 
-def get_syn2cls_mapping(root:str) -> Dict[str, int]:
-    try:
-        with open(os.path.join(root, 'LOC_synset_mapping.txt'), 'r') as f:
-            cls2syn = dict(enumerate(list(map(lambda x: x.split()[0], f.readlines()))))
-    except FileNotFoundError:
-        raise Exception('\nCould not find LOC_synset_mapping.txt in root directory. Move file to root directory.\n')
-    syn2cls = {syn:cls for cls, syn in cls2syn.items()}
-    return syn2cls
-
-def get_img2cls_mapping(root:str) -> Dict[str, int]:
-    split = root.split('/')[-1] if root.split('/')[-1] else root.split('/')[-2]
-    try:
-        solution = pd.read_csv(os.path.join(root, f'LOC_{split}_solution.csv'))
-    except FileNotFoundError:
-        raise Exception(f'\nCould not find LOC_{split}_solution.csv in root directory. Move file to root directory.\n')
-    syn2cls = get_syn2cls_mapping(root)
-    img2cls = {row[0]+'.JPEG': syn2cls[row[1].split()[0]] for idx, row in solution.iterrows()}
-    img2cls = dict(sorted(img2cls.items(), key=lambda kv:kv[0]))
-    return img2cls, list(syn2cls.keys())
-
-def get_classes(file_names:List[str]) -> Tuple[List[str], Dict[str, list]]:
-    cls_to_files = defaultdict(list)
-    classes = []
-    for file in file_names:
-        if re.search(r'\\', file):
-            cls, f_name = file.split('\\')
-        elif re.search(r'(/|//)', file):
-            cls, f_name = file.split('/')
-        else:
-            continue
-        if cls not in classes:
-            classes.append(cls)
-        cls_to_files[cls].append(f_name)
-    return classes, cls_to_files
-
-def parse_img_name(img_name:str) -> bool:
-    return re.search(r'(.eps|.jpg|.JPG|.jpeg|.JPEG|.png|.PNG|.tif|.tiff)$', img_name)
-
-def rm_suffix(img:str) -> str:
-    return re.sub(r'(.eps|.jpg|.JPG|.jpeg|.JPEG|.png|.PNG|.tif|.tiff)$', '', img)
-
-def instance_dataset(root:str, out_path:str, images:list, imagenet:bool=False, img2cls:dict=None) -> List[Tuple[str, int]]:
-    instances = []
-    with open(os.path.join(out_path, 'file_names.txt'), 'w') as f:
-        for img in images:
-            f.write(f'{img}\n')
-            instances.append(os.path.join(root, img))
-    if imagenet:
-        assert isinstance(img2cls, dict), '\nImage-to-cls mapping must be provided\n'
-        samples = tuple((instance, img2cls[instance.split('/')[-1]]) for instance in instances)
-    else:
-        samples = tuple((instance, target) for target, instance in enumerate(instances))
-    return samples
-
-def class_dataset(
-                  PATH:str,
-                  out_path:str,
-                  cls_to_idx:Dict[str, int],
-                  imagenet:bool=None,
-                  things:bool=None,
-                  add_ref_imgs:bool=None,
-                  cls_to_files:Dict[str, list]=None,
-                  ) -> List[Tuple[str, int]]:
-    samples = []
-    with open(os.path.join(out_path, 'file_names.txt'), 'w') as f:
-        classes = cls_to_idx.keys() if (things or imagenet) else sorted(cls_to_idx.keys())
-        for target_cls in classes:
-            cls_idx = cls_to_idx[target_cls]
-            target_dir = os.path.join(PATH, target_cls)
-            if os.path.isdir(target_dir):
-                if cls_to_files is None:
-                    for root, _, files in sorted(os.walk(target_dir, followlinks=True)):
-                        if (things and add_ref_imgs):
-                            first_img = sorted(files)[0]
-                            if parse_img_name(first_img):
-                                first_img = first_img.rstrip('.jpg')
-                                if not first_img.endswith('b'):
-                                    ref_img_path = get_ref_img(first_img)
-                                    item = ref_img_path, cls_idx
-                                    samples.append(item)
-                                    f.write(f'{ref_img_path}\n')
-                            else:
-                                raise Exception(f'\nFound file that does not seem to be in the correct format: {first_img}.\nRemove file before proceeding with feature extraction.\n')
-                        for file in sorted(files):
-                            path = os.path.join(root, file)
-                            if os.path.isfile(path) and parse_img_name(file):
-                                item = path, cls_idx
-                                samples.append(item)
-                                f.write(f'{path}\n')
-                else:
-                    for f_name in cls_to_files[target_cls]:
-                        path = os.path.join(target_dir, f_name)
-                        if os.path.isfile(path) and parse_img_name(f_name):
-                            item = path, cls_idx
-                            samples.append(item)
-                            f.write(f'{path}\n')
-    return samples
-
-def get_ref_img(first_img:str, folder:str='./reference_images/', suffix:str='.jpg') -> str:
-    if not os.path.exists(folder):
-        raise FileNotFoundError(f'Directory for reference images not found. Move reference images to {folder}.')
-    ref_images = [f.name for f in os.scandir(folder) if f.is_file() and parse_img_name(f.name)]
-    for ref_img in ref_images:
-        img_name = ref_img.rstrip(suffix)
-        if re.search(f'^{img_name}', first_img):
-            return os.path.join(folder, ref_img)
 
 class ImageDataset(object):
-    """
-        :params:
-        root (str) - parent directory from where to load images
-        out_path (str) - output directory where to save image features (to store .txt file with corresponding file_names)
-        things (bool) - whether images are from the THINGS database
-        things_behavior (bool) - whether images correspond to the THINGS images used in the behavioral experiments
-        add_ref_imgs (bool) - whether to prepend references images (i.e., images used in behavioral experiments) to the *full* THINGS image dataset
-        file_names (List[str]) - whether extracted features should be sorted according to a provided list of file names (following ['class/img_xy.png', ...] OR ['img_xy.png', ...])
-        transforms (Any) - whether to apply a composition of image transformations
+    """Generic image dataset class
 
-        :args:
-        transforms (Any) - composition of image transformations
-        samples (tuple) - tuple of image (PIL Image or torch.Tensor) and class index (np.ndarray or torch.Tensor) pairs
-        idx_to_cls (dict) - index-to-class mapping
-        cls_to_idx (dict) - class-to-index mapping
-        targets (tuple) - tuple of class indices (stored as np.ndarray or torch.Tensor)
+    Parameters
+    ----------
+    root : str
+        Root directory. Directory from where to load images.
+    out_path : str
+        PATH where order of images features should be stored.
+    imagenet_train : bool (optional)
+        Whether ImageNet train set is used.
+    imagenet_val : bool (optional)
+        Whether ImageNet validation set is used.
+    things : bool (optional)
+        Whether THINGS database is used.
+    things_behavior : bool (optional)
+        Whether THINGS images used in behavioral experiments
+        are used.
+    add_ref_imgs : bool (optional)
+        Whether the union of the THINGS database and those
+        images that were used in behavioral experiments is used.
+    file_names : List[str] (optional)
+        List of file names. A list of file names that determines
+        the order in which image features are extracted can optionally
+        be passed.
+    transforms : Any
+        Composition of image transformations. Images must be transformed
+        into the right format for a PyTorch model.
+
+    Returns
+    -------
+    output : Dataset[Tuple[torch.Tensor, torch.Tensor]]
+        Returns a generic image dataset of instance
+        (i.e., image in matrix format) and target
+        (i.e., class label) tensors.
     """
     def __init__(
                 self,
-                root:str,
-                out_path:str,
-                imagenet_train:bool,
-                imagenet_val:bool,
-                things:bool,
-                things_behavior:bool,
-                add_ref_imgs:bool,
-                file_names:List[str]=None,
+                root: str,
+                out_path: str,
+                imagenet_train: bool,
+                imagenet_val: bool,
+                things: bool,
+                things_behavior: bool,
+                add_ref_imgs: bool,
+                file_names: List[str]=None,
                 transforms=None,
                 ):
         self.root = root
@@ -211,15 +123,15 @@ class ImageDataset(object):
                     classes = children
             if self.imagenet_train:
                 cls_to_idx = get_syn2cls_mapping(self.root)
-                idx_to_cls = {idx:cls for cls, idx in cls_to_idx.items()}
+                idx_to_cls = {idx: cls for cls, idx in cls_to_idx.items()}
                 classes = list(cls_to_idx.keys())
             else:
                 idx_to_cls = dict(enumerate(classes))
         else:
             class_folders = False
             if self.things_behavior:
-                #sort objects according to item names in THINGS database
-                classes = [''.join((name,'.jpg')) for name in vision.load_item_names()]
+                # sort objects according to item names in THINGS database
+                classes = [''.join((name, '.jpg')) for name in vision.load_item_names()]
             else:
                 if self.file_names:
                     classes = list(filter(parse_img_name, self.file_names))
@@ -227,10 +139,10 @@ class ImageDataset(object):
                     classes = sorted([f.name for f in os.scandir(self.root) if f.is_file() and parse_img_name(f.name)])
             idx_to_cls = dict(enumerate(list(map(rm_suffix, classes))))
         if not self.imagenet_train:
-            cls_to_idx = {cls:idx for idx, cls in idx_to_cls.items()}
+            cls_to_idx = {cls: idx for idx, cls in idx_to_cls.items()}
         return classes, idx_to_cls, cls_to_idx, class_folders
 
-    def __getitem__(self, idx:int) -> Tuple[Any, Any]:
+    def __getitem__(self, idx: int) -> Tuple[Any, Any]:
         img_path, target = self.samples[idx]
         img = Image.open(img_path).convert('RGB')
         if self.transforms is not None:
@@ -242,3 +154,158 @@ class ImageDataset(object):
 
     def __len__(self) -> int:
         return len(self.samples)
+
+
+def get_syn2cls_mapping(root: str) -> Dict[str, int]:
+    """Maps ImageNet classes (i.e., Wordnet synsets) to numeric labels."""
+    try:
+        with open(os.path.join(root, 'LOC_synset_mapping.txt'), 'r') as f:
+            cls2syn = dict(enumerate(list(map(lambda x: x.split()[0], f.readlines()))))
+    except FileNotFoundError:
+        raise Exception('\nCould not find LOC_synset_mapping.txt in root directory. Move file to root directory.\n')
+    syn2cls = {syn: cls for cls, syn in cls2syn.items()}
+    return syn2cls
+
+
+def get_img2cls_mapping(root: str) -> Dict[str, int]:
+    """Maps each image in the ImageNet subsample to its corresponding class."""
+    split = root.split('/')[-1] if root.split('/')[-1] else root.split('/')[-2]
+    try:
+        solution = pd.read_csv(os.path.join(root, f'LOC_{split}_solution.csv'))
+    except FileNotFoundError:
+        raise Exception(f'\nCould not find LOC_{split}_solution.csv in root directory. Move file to root directory.\n')
+    syn2cls = get_syn2cls_mapping(root)
+    img2cls = {row[0]+'.JPEG': syn2cls[row[1].split()[0]] for idx, row in solution.iterrows()}
+    img2cls = dict(sorted(img2cls.items(), key=lambda kv: kv[0]))
+    return img2cls, list(syn2cls.keys())
+
+
+def get_classes(file_names: List[str]) -> Tuple[List[str], Dict[str, list]]:
+    cls_to_files = defaultdict(list)
+    classes = []
+    for file in file_names:
+        if re.search(r'\\', file):
+            cls, f_name = file.split('\\')
+        elif re.search(r'(/|//)', file):
+            cls, f_name = file.split('/')
+        else:
+            continue
+        if cls not in classes:
+            classes.append(cls)
+        cls_to_files[cls].append(f_name)
+    return classes, cls_to_files
+
+
+def parse_img_name(img_name: str) -> bool:
+    return re.search(r'(.eps|.jpg|.JPG|.jpeg|.JPEG|.png|.PNG|.tif|.tiff)$', img_name)
+
+
+def rm_suffix(img: str) -> str:
+    return re.sub(r'(.eps|.jpg|.JPG|.jpeg|.JPEG|.png|.PNG|.tif|.tiff)$', '', img)
+
+
+def instance_dataset(
+                    root: str,
+                    out_path: str,
+                    images: list,
+                    imagenet: bool=False,
+                    img2cls: dict=None,
+) -> List[Tuple[str, int]]:
+    """Creates a custom <instance> image dataset of image and class label pairs."""
+    instances = []
+    with open(os.path.join(out_path, 'file_names.txt'), 'w') as f:
+        for img in images:
+            f.write(f'{img}\n')
+            instances.append(os.path.join(root, img))
+    if imagenet:
+        assert isinstance(img2cls, dict), '\nImage-to-cls mapping must be provided\n'
+        samples = tuple((instance, img2cls[instance.split('/')[-1]]) for instance in instances)
+    else:
+        samples = tuple((instance, target) for target, instance in enumerate(instances))
+    return samples
+
+
+def class_dataset(
+                  PATH: str,
+                  out_path: str,
+                  cls_to_idx: Dict[str, int],
+                  imagenet: bool=None,
+                  things: bool=None,
+                  add_ref_imgs: bool=None,
+                  cls_to_files: Dict[str, List[str]]=None,
+) -> List[Tuple[str, int]]:
+    """Creates a custom <class> image dataset of image and class label pairs.
+
+    Parameters
+    ----------
+        PATH : str
+            Parent directory. Directory from where to load images.
+        out_path : str
+            PATH where order of images features should be stored.
+        cls_to_idx : Dict[str, int]
+            Dictionary of class to numeric label mapping.
+        imagenet : bool (optional)
+            Whether a subset of ImageNet is used.
+        things : bool (optional)
+            Whether the THINGS database is used.
+        add_ref_imgs : bool (optional)
+            Whether the union of the THINGS database and those
+            images that were used in behavioral experiments is used.
+        cls_to_files : Dict[str, List[str]] (optional)
+            Dictionary that maps each class to a list of file names.
+            For each class, the list of file names determines
+            the order in which image features are extracted.
+
+    Returns
+    -------
+    output : List[Tuple[str, int]]
+        Returns a list of image and class label pairs.
+    """
+    samples = []
+    with open(os.path.join(out_path, 'file_names.txt'), 'w') as f:
+        classes = cls_to_idx.keys() if (things or imagenet) else sorted(cls_to_idx.keys())
+        for target_cls in classes:
+            cls_idx = cls_to_idx[target_cls]
+            target_dir = os.path.join(PATH, target_cls)
+            if os.path.isdir(target_dir):
+                if cls_to_files is None:
+                    for root, _, files in sorted(os.walk(target_dir, followlinks=True)):
+                        if (things and add_ref_imgs):
+                            first_img = sorted(files)[0]
+                            if parse_img_name(first_img):
+                                first_img = first_img.rstrip('.jpg')
+                                if not first_img.endswith('b'):
+                                    ref_img_path = get_ref_img(first_img)
+                                    item = ref_img_path, cls_idx
+                                    samples.append(item)
+                                    f.write(f'{ref_img_path}\n')
+                            else:
+                                raise Exception(f'\nFound file that does not seem to be in the correct format: {first_img}.\nRemove file before proceeding with feature extraction.\n')
+                        for file in sorted(files):
+                            path = os.path.join(root, file)
+                            if os.path.isfile(path) and parse_img_name(file):
+                                item = path, cls_idx
+                                samples.append(item)
+                                f.write(f'{path}\n')
+                else:
+                    for f_name in cls_to_files[target_cls]:
+                        path = os.path.join(target_dir, f_name)
+                        if os.path.isfile(path) and parse_img_name(f_name):
+                            item = path, cls_idx
+                            samples.append(item)
+                            f.write(f'{path}\n')
+    return samples
+
+
+def get_ref_img(
+                first_img: str,
+                folder: str='./reference_images/',
+                suffix: str='.jpg',
+) -> str:
+    if not os.path.exists(folder):
+        raise FileNotFoundError(f'Directory for reference images not found. Move reference images to {folder}.')
+    ref_images = [f.name for f in os.scandir(folder) if f.is_file() and parse_img_name(f.name)]
+    for ref_img in ref_images:
+        img_name = ref_img.rstrip(suffix)
+        if re.search(f'^{img_name}', first_img):
+            return os.path.join(folder, ref_img)

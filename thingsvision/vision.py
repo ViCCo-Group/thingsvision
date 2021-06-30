@@ -1,44 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__all__ = [
-            'load_dl',
-            'load_model',
-            'show_model',
-            'get_module_names',
-            'center_features',
-            'normalize_features',
-            'compress_features',
-            'enumerate_layers',
-            'extract_features',
-            'get_class_probabilities',
-            'get_cls_mapping_imagenet',
-            'get_digits',
-            'get_model',
-            'get_shape',
-            'json2dict',
-            'merge_features',
-            'parse_imagenet_classes',
-            'parse_imagenet_synsets',
-            'store_features',
-            'split_features',
-            'slices2tensor',
-            'tensor2slices',
-            'load_item_names',
-            'save_features',
-            'save_targets',
-            'correlation_matrix',
-            'cosine_matrix',
-            'compute_rdm',
-            'correlate_rdms',
-            'extract_features_across_models_and_datasets',
-            'extract_features_across_models_datasets_and_modules,'
-            'compare_models',
-            'get_features',
-            'compare_models_to_humans',
-            'bootstrap_',
-            ]
-
 import json
 import os
 import random
@@ -83,6 +45,42 @@ def load_dl(
              file_names: List[str]=None,
              transforms=None,
              ) -> Iterator:
+    """Create a data loader for custom image dataset
+
+    Parameters
+    ----------
+    root : str
+        Root directory. Directory where images are stored.
+    out_path : str
+        PATH where order of images features should be stored.
+    batch_size : int (optional)
+        Number of samples (i.e., images) per mini-batch.
+    imagenet_train : bool (optional)
+        Whether ImageNet train set is used.
+    imagenet_val : bool (optional)
+        Whether ImageNet validation set is used.
+    things : bool (optional)
+        Whether THINGS database is used.
+    things_behavior : bool (optional)
+        Whether THINGS images used in behavioral experiments
+        are used.
+    add_ref_imgs : bool (optional)
+        Whether the union of the THINGS database and those
+        images that were used in behavioral experiments is used.
+    file_names : List[str] (optional)
+        List of file names. A list of file names that determines
+        the order in which image features are extracted can optionally
+        be passed.
+    transforms : Any
+        Composition of image transformations. Images must be transformed
+        into the right format for a PyTorch model.
+
+    Returns
+    -------
+    output : Iterator
+        Returns an iterator of image mini-batches.
+        Each mini-batch consists of <batch_size> samples.
+    """
     print(f'\n...Loading dataset into memory.')
     if not os.path.exists(out_path):
         os.makedirs(out_path)
@@ -110,7 +108,34 @@ def load_model(
                 model_path: str=None,
                 )
 -> Tuple[Any, Any]:
-    """load a pretrained *torchvision* or CLIP model into memory"""
+    """Load a pretrained *torchvision* or CLIP model into memory.
+
+    Parameters
+    ----------
+    Model_name : str
+        Model name. Name of model for which features should
+        subsequently be extracted.
+    pretrained : bool
+        Whether to load a model with pretrained or
+        randomly initialized weights into memory.
+    device : str
+        Device. Whether model weights should be moved
+        to CUDA or left on the CPU.
+    model_path : str (optional)
+        path/to/weights. If pretrained is set to False,
+        model weights can be loaded from a path on the
+        user's machine. This is useful when operating
+        on a server without network access, or when
+        features should be extracted for a model that
+        was fine-tuned (or trained) on a custom image
+        dataset.
+
+    Returns
+    -------
+    output : Tuple[model, transforms]
+        Returns the (pretrained or randomly initialized)
+        model and the corresponding image transformations.
+    """
     if re.search(r'^clip', model_name):
         if re.search(r'ViT$', model_name):
             model, transforms = clip.load(
@@ -150,6 +175,7 @@ def load_model(
 
 
 def show_model(model, model_name: str) -> str:
+    """Show architecture of model to select a layer."""
     if re.search(r'^clip', model_name):
         for l, (n, p) in enumerate(model.named_modules()):
             if l > 1:
@@ -165,7 +191,7 @@ def show_model(model, model_name: str) -> str:
 
 
 def get_module_names(model, module: str) -> list:
-    """helper to extract correct module names, if users wants to iterate over multiple modules"""
+    """Extract correct module names, iterating over multiple modules is desired."""
     module_names, _ = zip(*model.named_modules())
     return list(filter(lambda n: re.search(f'{module}$', n), module_names))
 
@@ -215,7 +241,7 @@ def extract_features_across_models_datasets_and_modules(
 
 
 def get_activation(name):
-    """store hidden unit activations at each layer of model"""
+    """Store hidden unit activations at each layer of model."""
     def hook(model, input, output):
         try:
             activations[name] = output.detach()
@@ -225,14 +251,14 @@ def get_activation(name):
 
 
 def register_hook(model):
-    """register a forward hook to store activations"""
+    """Register a forward hook to store activations."""
     for n, m in model.named_modules():
         m.register_forward_hook(get_activation(n))
     return model
 
 
 def center_features(X: np.ndarray) -> np.ndarray:
-    """center features to have zero mean"""
+    """Center features to have zero mean."""
     try:
         X -= X.mean(axis=0)
         return X
@@ -241,7 +267,7 @@ def center_features(X: np.ndarray) -> np.ndarray:
 
 
 def normalize_features(X: np.ndarray) -> np.ndarray:
-    """normalize feature vectors by their l2-norm"""
+    """Normalize feature vectors by their l2-norm."""
     try:
         X /= np.linalg.norm(X, axis=1)[:, np.newaxis]
         return X
@@ -267,7 +293,7 @@ def ensemble_featmaps(
                         alpha: float=3.,
                         beta: float=5.,
 ) -> torch.Tensor:
-    """concatenate globally (max or average) pooled feature maps"""
+    """Concatenate globally (max or average) pooled feature maps."""
     acts = [activations[''.join(('features.', str(l)))] for l in layers]
     func = torch.max if pooling == 'max' else torch.mean
     pooled_acts = [torch.tensor([list(map(func, featmaps)) for featmaps in acts_i]) for acts_i in acts]
@@ -278,6 +304,7 @@ def ensemble_featmaps(
 
 
 def compress_features(X: np.ndarray, rnd_seed: int, retained_var: float=.9) -> np.ndarray:
+    """Compress feature matrix with Principal Components Analysis (PCA)."""
     from sklearn.decomposition import PCA
     assert isinstance(rnd_seed, int), '\nTo reproduce results, random state for PCA must be defined.\n'
     pca = PCA(n_components=retained_var, svd_solver='full', random_state=rnd_seed)
@@ -287,16 +314,52 @@ def compress_features(X: np.ndarray, rnd_seed: int, retained_var: float=.9) -> n
 
 def extract_features(
                     model: Any,
-                    data_loader: Any,
+                    data_loader: Iterator,
                     module_name: str,
                     batch_size: int,
                     flatten_acts: bool,
                     device: str,
                     clip: bool=False,
                     return_probabilities: bool=False,
-                    feature_extractor=None,
 ) -> Tuple[np.ndarray, np.ndarray]:
-    """extract hidden unit activations (at specified layer) for every image in the database"""
+    """Extract hidden unit activations (at specified layer) for every image in the database.
+
+    Parameters
+    ----------
+    model : Any
+        Neural network model. The previously loaded
+        neural network model for which image features
+        should be extraced in a batch-wise manner.
+    data_loader : Iterator
+        Mini-batches. Iterator with equally sized
+        mini-batches, where each element is a
+        subsample of the full image dataset.
+    module_name : str
+        Layer name. Name of neural network layer for
+        which features should be extraced.
+    flatten_acts : bool
+        Whether activation tensor (e.g., activations
+        from an early layer of the neural network model)
+        should be transformed into a vector.
+    device : str
+        Device. Whether feature extraction should
+        be executed on CUDA or CPU.
+    clip : bool (optional)
+        Whether neural network model is a CNN-based
+        torchvision or CLIP-based model. Since CLIP
+        has a different training objective, feature
+        extraction must be performed differently.
+    return_probabilities : bool (optional)
+        Whether class probabilities (softmax predictions)
+        should be returned in addition to the feature matrix
+        and the target vector.
+
+    Returns
+    -------
+    output : Tuple[np.ndarray, np.ndarray] OR Tuple[np.ndarray, np.ndarray, np.ndarray]
+        Returns the feature matrix and the target vector OR in addition to the feature
+        matrix and the target vector, the class probabilities.
+    """
     if re.search(r'ensemble$', module_name):
         ensembles = ['conv_ensemble', 'maxpool_ensemble']
         assert module_name in ensembles, f'\nIf aggregating filters across layers and subsequently concatenating features, module name must be one of {ensembles}\n'
@@ -372,6 +435,7 @@ def store_features(
                     features: np.ndarray,
                     file_format: str,
 ) -> None:
+    """Save feature matrix to disk in pre-defined file format."""
     if not os.path.exists(PATH):
         print(f'...Output directory did not exist. Creating directories to save features.')
         os.makedirs(PATH)
@@ -396,6 +460,7 @@ def tensor2slices(
                     file_name: str,
                     features: np.ndarray,
 ) -> None:
+    """Slice four-dimensional tensor into two-dimensional matrices."""
     with open(pjoin(PATH, file_name), 'w') as outfile:
         outfile.write(f'# Array shape: {features.shape}\n')
         for i in range(features.shape[0]):
@@ -442,6 +507,7 @@ def split_features(
                     file_format: str,
                     n_splits: int,
 ) -> None:
+    """Split feature matrix into <n_splits> subsamples to counteract MemoryErrors."""
     if re.search(r'mat', file_format):
         try:
             with open(pjoin(PATH, 'file_names.txt'), 'r') as f:
@@ -509,11 +575,12 @@ def parse_imagenet_classes(PATH: str):
 
 
 def get_class_intersection(imagenet_classes: list, things_objects: list) -> set:
+    """Return intersection of THINGS objects and ImageNet classes."""
     return set(things_objects).intersection(set(imagenet_classes))
 
 
 def get_cls_mapping_imagenet(PATH: str, save_as_json: bool=False) -> dict:
-    """store ImageNet classes in a idx2cls dictionary, and subsequently save as .json file"""
+    """Store ImageNet classes in an *index_to_class* dictionary, and subsequently save as .json file."""
     if re.search(r'synset', PATH.split('/')[-1]):
         imagenet_classes = parse_imagenet_synsets(PATH)
     else:
@@ -534,6 +601,7 @@ def get_class_probabilities(
                             top_k: int,
                             save_as_json: bool,
 ) -> Dict[str, Dict[str, float]]:
+    """Compute probabilities per ImageNet class."""
     file_names = open(pjoin(out_path, 'file_names.txt'), 'r').read().splitlines()
     idx2cls = get_cls_mapping_imagenet(cls_file)
     class_probas = {}
@@ -568,6 +636,7 @@ def save_features(
                     file_format: str,
                     n_splits: int=10,
 ) -> None:
+    """Save feature matrix to disk."""
     if not os.path.exists(out_path):
         print(f'\nOutput directory did not exist. Creating directories to save features...\n')
         os.makedirs(out_path)
@@ -593,6 +662,7 @@ def save_targets(
                     out_path: str,
                     file_format: str,
 ) -> None:
+    """Save target vector to disk."""
     if not os.path.exists(out_path):
         print(f'\nOutput directory did not exist. Creating directories to save targets...\n')
         os.makedirs(out_path)
@@ -612,7 +682,7 @@ def save_targets(
 
 @njit(parallel=True, fastmath=True)
 def squared_dists(F: np.ndarray) -> np.ndarray:
-    """computes squared l2-distances between feature representations in parallel"""
+    """Compute squared l2-distances between feature representations in parallel."""
     N = F.shape[0]
     D = np.zeros((N, N))
     for i in prange(N):
@@ -622,13 +692,13 @@ def squared_dists(F: np.ndarray) -> np.ndarray:
 
 
 def gaussian_kernel(F: np.ndarray) -> np.ndarray:
-    """compute dissimilarity matrix based on a Gaussian kernel"""
+    """Compute dissimilarity matrix based on a Gaussian kernel."""
     D = squared_dists(F)
     return np.exp(-D/np.mean(D))
 
 
 def correlation_matrix(F: np.ndarray, a_min: float=-1., a_max: float=1.) -> np.ndarray:
-    """compute dissimilarity matrix based on correlation distance on matrix-level"""
+    """Compute dissimilarity matrix based on correlation distance (on the matrix-level)."""
     F_c = F - F.mean(axis=1)[:, np.newaxis]
     cov = F_c @ F_c.T
     l2_norms = np.linalg.norm(F_c, axis=1)  # compute vector l2-norm across rows
@@ -638,7 +708,7 @@ def correlation_matrix(F: np.ndarray, a_min: float=-1., a_max: float=1.) -> np.n
 
 
 def cosine_matrix(F: np.ndarray, a_min: float=-1., a_max: float=1.) -> np.ndarray:
-    """compute dissimilarity matrix based on cosine distance on matrix-level"""
+    """Compute dissimilarity matrix based on cosine distance (on the matrix-level)."""
     num = F @ F.T
     l2_norms = np.linalg.norm(F, axis=1)    # compute vector l2-norm across rows
     denom = np.outer(l2_norms, l2_norms)
@@ -647,7 +717,22 @@ def cosine_matrix(F: np.ndarray, a_min: float=-1., a_max: float=1.) -> np.ndarra
 
 
 def compute_rdm(F: np.ndarray, method: str) -> np.ndarray:
-    """compute representational dissimilarity matrix based on some distance measure"""
+    """Compute representational dissimilarity matrix based on some distance measure.
+
+    Parameters
+    ----------
+    F : ndarray
+        Input array. Feature matrix of size n x m,
+        where n corresponds to the number of observations
+        and m is the number of latent dimensions.
+    method : str
+        Distance metric (e.g., correlation, cosine).
+
+    Returns
+    -------
+    output : ndarray
+        Returns the representational dissimilarity matrix.
+    """
     methods = ['correlation', 'cosine', 'euclidean', 'gaussian']
     assert method in methods, f'\nMethod to compute RDM must be one of {methods}.\n'
     if method == 'euclidean':
@@ -668,9 +753,22 @@ def correlate_rdms(
                     rdm_2: np.ndarray,
                     correlation: str='pearson',
                     ) -> float:
-    """RDMs are symmetric matrices,
-       which is why we only need to compare their upper (or lower)
-       triangular parts (main diagonal can be omitted)"""
+    """Correlate the upper triangular parts of two distinct RDMs.
+
+    Parameters
+    ----------
+    rdm_1 : ndarray
+        First RDM.
+    rdm_2 : ndarray
+        Second RDM.
+    correlation : str
+        Correlation coefficient (e.g., Spearman, Pearson).
+
+    Returns
+    -------
+    output : float
+        Returns the correlation coefficient of the two RDMs.
+    """
     triu_inds = np.triu_indices(len(rdm_1), k=1)
     corr_func = getattr(scipy.stats, ''.join((correlation, 'r')))
     rho = corr_func(rdm_1[triu_inds], rdm_2[triu_inds])[0]
@@ -721,7 +819,7 @@ def bootstrap_(
                dissimilarity: str='correlation',
                correlation: str='pearson',
 ) -> Tuple[Dict[str, list], float]:
-    """random sampling with replacement (resampled dataset must be of equal size to the original, observed dataset)"""
+    """Randomly sample with replacement (resampled dataset must be of equal size to the original, observed dataset)"""
     human_correlations = defaultdict(list)
     N = features_i.shape[0]
     for _ in range(n_bootstraps):
@@ -752,6 +850,46 @@ def get_features(
                 batch_size: int,
                 flatten_acts: bool,
 ) -> Dict[str, Dict[str, np.ndarray]]:
+    """Extract features for a list of neural network models and corresponding modules.
+
+    Parameters
+    ----------
+    root : str
+        Root directory. Directory where images are stored.
+    out_path : str
+        PATH where order of images features should be stored.
+        Files are alphabetically sorted and features are
+        extracted accordingly.
+    model_names : List[str]
+        List of neural network models for which features
+        should be extracted.
+    module_names : List[str]
+        List of neural network layers for which features
+        should be extracted. Modules must correspond to
+        models. This should be thought of as zipped lists.
+    clip : List[bool]
+        List of Booleans which indicates whether the
+        corresponding model in the <model_names> list
+        is a CLIP-based model or not (i.e., True if
+        CLIP, else False)
+    pretrained : bool
+        Whether pretrained or randomly initialized models
+        should be loaded into memory.
+    batch_size : int
+        Integer value that determines the number of images
+        within a single mini-batch (i.e., subsample
+        of the data).
+    flatten_acts : bool
+        Whether activation tensor (e.g., activations
+        from an early layer of the neural network model)
+        should be transformed into a feature vector.
+
+    Returns
+    -------
+    output : Dict[str, Dict[str, np.ndarray]]
+        Returns a dictionary of feature matrices
+        corresponding to the selected models and layers.
+    """
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     model_features = defaultdict(dict)
     for i, model_name in enumerate(model_names):
