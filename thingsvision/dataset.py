@@ -302,6 +302,7 @@ def get_ref_img(
                 folder: str='./reference_images/',
                 suffix: str='.jpg',
 ) -> str:
+    """Create union of THINGS database and images used in behavioral experiments."""
     if not os.path.exists(folder):
         raise FileNotFoundError(f'Directory for reference images not found. Move reference images to {folder}.')
     ref_images = [f.name for f in os.scandir(folder) if f.is_file() and parse_img_name(f.name)]

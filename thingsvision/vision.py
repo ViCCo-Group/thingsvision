@@ -1027,14 +1027,14 @@ def compare_models(
     """
     # extract features for each model and corresponding module
     model_features = get_features(
-                                    root,
-                                    out_path,
-                                    model_names,
-                                    module_names,
-                                    pretrained,
-                                    batch_size,
-                                    flatten_acts,
-                                    clip,
+                                    root=root,
+                                    out_path=out_path,
+                                    model_names=model_names,
+                                    module_names=module_names,
+                                    clip=clip,
+                                    pretrained=pretrained,
+                                    batch_size=batch_size,
+                                    flatten_acts=flatten_acts,
                                     )
     # save model features to disc
     if save_features:
