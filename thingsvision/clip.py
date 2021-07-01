@@ -18,8 +18,10 @@ _MODELS = {
     "ViT-B/32": "https://openaipublic.azureedge.net/clip/models/40d365715913c9da98579312b702a82c18be219cc2a73407c4526f58eba950af/ViT-B-32.pt",
 }
 
-
-def _download(url: str, root: str = os.path.expanduser("~/.cache/clip")):
+def _download(
+                url: str,
+                root: str = os.path.expanduser("~/.cache/clip"),
+):
     os.makedirs(root, exist_ok=True)
     filename = os.path.basename(url)
 
@@ -51,11 +53,17 @@ def _download(url: str, root: str = os.path.expanduser("~/.cache/clip")):
     return download_target
 
 
-def available_models():
+def available_models() -> list:
     return list(_MODELS.keys())
 
 
-def load(name: str, device: Union[str, torch.device] = "cuda" if torch.cuda.is_available() else "cpu", jit=True, pretrained=True, model_path=None):
+def load(
+        name: str,
+        device: Union[str, torch.device] = "cuda" if torch.cuda.is_available() else "cpu",
+        jit=True,
+        pretrained=True,
+        model_path=None,
+):
     if name not in _MODELS:
         raise RuntimeError(f"Model {name} not found; available models = {available_models()}")
 
