@@ -11,10 +11,7 @@ from tqdm import tqdm
 
 from thingsvision.model import build_model
 
-#from thingsvision.simple_tokenizer import SimpleTokenizer as _Tokenizer
-
-__all__ = ["available_models", "load"] #, "tokenize"]
-#_tokenizer = _Tokenizer()
+__all__ = ["available_models", "load"]
 
 _MODELS = {
     "RN50": "https://openaipublic.azureedge.net/clip/models/afeb0e10f9e5a86da6080e35cf09123aca3b358a0c3e3b6c78a7b63bc04b6762/RN50.pt",
@@ -123,22 +120,3 @@ def load(name: str, device: Union[str, torch.device] = "cuda" if torch.cuda.is_a
         model.float()
 
     return model, transform
-
-#NOTE: uncomment, if you want to extend THINGSvision to multi-modal feature extraction (i.e., text and featres)
-"""
-def tokenize(texts: Union[str, List[str]], context_length: int = 77):
-    if isinstance(texts, str):
-        texts = [texts]
-
-    sot_token = _tokenizer.encoder["<|startoftext|>"]
-    eot_token = _tokenizer.encoder["<|endoftext|>"]
-    all_tokens = [[sot_token] + _tokenizer.encode(text) + [eot_token] for text in texts]
-    result = torch.zeros(len(all_tokens), context_length, dtype=torch.long)
-
-    for i, tokens in enumerate(all_tokens):
-        if len(tokens) > context_length:
-            raise RuntimeError(f"Input {texts[i]} is too long for context length {context_length}")
-        result[i, :len(tokens)] = torch.tensor(tokens)
-
-    return result
-"""

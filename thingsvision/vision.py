@@ -531,7 +531,8 @@ def merge_features(PATH: str, file_format: str) -> np.ndarray:
     return features
 
 
-def parse_imagenet_synsets(PATH: str):
+def parse_imagenet_synsets(PATH: str) -> List[str]:
+    """Convert WN synsets into classes."""
     def parse_str(str):
         return re.sub(r'[^a-zA-Z]', '', str).rstrip('n').lower()
     imagenet_synsets = []
@@ -543,7 +544,8 @@ def parse_imagenet_synsets(PATH: str):
     return imagenet_synsets
 
 
-def parse_imagenet_classes(PATH: str):
+def parse_imagenet_classes(PATH: str) -> List[str]:
+    """Disambiguate ImageNet classes."""
     imagenet_classes = []
     with open(PATH, 'r') as f:
         for i, l in enumerate(f):
@@ -624,15 +626,15 @@ def save_features(
     # save hidden unit actvations to disk (either as one single file or as several splits)
     if len(features.shape) > 2 and file_format != '.npy':
         print(f'\n...Cannot save 4-way tensor in a single {file_format} file.')
-        print(f'...Now slicing tensor to store as a two-dimensional matrix.')
+        print(f'...Now slicing tensor to store as a two-dimensional matrix.\n')
         tensor2slices(PATH=out_path, file_name='features.txt', features=features)
-        print(f'\n...Sliced tensor into separate parts, and saved resulting matrix as .txt file.\n')
+        print(f'...Sliced tensor into separate parts, and saved resulting matrix as .txt file.\n')
     else:
         try:
             store_features(PATH=out_path, features=features, file_format=file_format)
         except MemoryError:
             print(f'\n...Could not save features as one single file due to memory problems.')
-            print(f'...Now splitting features along row axis into several batches.')
+            print(f'...Now splitting features along row axis into several batches.\n')
             split_features(PATH=out_path, features=features, file_format=file_format, n_splits=n_splits)
             print(f'...Saved features in {n_splits:02d} different files, enumerated in ascending order.')
             print(f'If you want features to be splitted into more or fewer files, simply change number of splits parameter.\n')
@@ -764,6 +766,30 @@ def plot_rdm(
              colormap: str='cividis',
              show_plot: bool=False,
              ) -> None:
+    """Compute and plot representational dissimilarity matrix based on some distance measure.
+
+    Parameters
+    ----------
+    out_path : str
+        Output directory. Directory where to store plots.
+    F : ndarray
+        Input array. Feature matrix of size n x m,
+        where n corresponds to the number of observations
+        and m is the number of latent dimensions.
+    method : str
+        Distance metric (e.g., correlation, cosine).
+    format : str
+        Image format in which to store visualized RDM.
+    colormap : str
+        Colormap for visualization of RDM.
+    show_plot : bool
+        Whether to show visualization of RDM after storing it to disk.
+
+    Returns
+    -------
+    output : ndarray
+        Returns the representational dissimilarity matrix.
+    """
     rdm = compute_rdm(F, method)
     plt.figure(figsize=(10, 4), dpi=200)
     plt.imshow(rankdata(rdm).reshape(rdm.shape), cmap=getattr(plt.cm, colormap))
@@ -947,6 +973,58 @@ def compare_models(
                     dissimilarity: str='correlation',
                     correlation: str='pearson',
 ) -> pd.DataFrame:
+    """Compare object representations of different models against each other.
+
+    Parameters
+    ----------
+    root : str
+        Root directory. Directory from where to load images.
+    out_path : str
+        Output directory. Directory where to store features
+        corresponding to each neural network model.
+    model_names : List[str]
+        List of neural network models whose object representations
+        should be compared against.
+    module_names : List[str]
+        List of neural network layers for which features
+        should be extracted. Modules must correspond to
+        models. This should be thought of as zipped lists.
+    pretrained : bool
+        Whether pretrained or randomly initialized models
+        should be loaded into memory.
+    batch_size : int
+        Integer value that determines the number of images
+        within a single mini-batch (i.e., subsample
+        of the data).
+    flatten_acts : bool
+        Whether activation tensor (e.g., activations
+        from an early layer of the neural network model)
+        should be transformed into a feature vector.
+    clip : List[bool]
+        List of Booleans which indicates whether the
+        corresponding model in the <model_names> list
+        is a CLIP-based model or not (i.e., True if
+        CLIP, else False)
+    save_features : bool
+        Whether to save model features or solely compare
+        their representations against each other
+        without saving the features to disk.
+    dissimilarity : str
+        Distance metric to be used to compute RDMs
+        corresponding to the model features.
+    correlation : str
+        Correlation coefficient (e.g., Spearman or Pearson)
+        to be used when performing RSA.
+
+    Returns
+    -------
+    output : pd.DataFrame
+        Returns a correlation matrix whose rows and columns
+        correspond to the names of the models in <model_names>.
+        The cell elements are the correlation coefficients
+        for each model combination. The dataframe can subsequently
+        be converted into a heatmap with matplotlib or seaborn.
+    """
     # extract features for each model and corresponding module
     model_features = get_features(
                                     root,
