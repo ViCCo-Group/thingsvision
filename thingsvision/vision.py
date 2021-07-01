@@ -32,7 +32,6 @@ from torch.utils.data import DataLoader, Subset
 from torchvision import transforms as T
 from typing import Tuple, List, Iterator, Dict, Any
 
-
 def load_dl(
              root: str,
              out_path: str,
@@ -44,7 +43,7 @@ def load_dl(
              add_ref_imgs: bool=None,
              file_names: List[str]=None,
              transforms=None,
-             ) -> Iterator:
+) -> Iterator:
     """Create a data loader for custom image dataset
 
     Parameters
@@ -106,8 +105,7 @@ def load_model(
                 pretrained: bool,
                 device: str,
                 model_path: str=None,
-                )
--> Tuple[Any, Any]:
+) -> Tuple[Any, Any]:
     """Load a pretrained *torchvision* or CLIP model into memory.
 
     Parameters
@@ -481,19 +479,6 @@ def get_shape(PATH: str, file: str) -> tuple:
     return shape
 
 
-def get_digits(string: str) -> int:
-    c = ""
-    nonzero = False
-    for i in string:
-        if i.isdigit():
-            if (int(i) == 0) and (not nonzero):
-                continue
-            else:
-                c += i
-                nonzero = True
-    return int(c)
-
-
 def slices2tensor(PATH: str, file: str) -> np.ndarray:
     slices = np.loadtxt(pjoin(PATH, file))
     shape = get_shape(PATH, file)
@@ -540,11 +525,7 @@ def merge_features(PATH: str, file_format: str) -> np.ndarray:
     elif file_format == '.mat':
         features = np.vstack([scipy.io.loadmat(pjoin(PATH, feature))['features'] for feature in feature_splits])
     elif file_format == '.npy':
-        features = []
-        for feature in feature_splits:
-            with open(pjoin(PATH, feature), 'rb') as f:
-                features.append(np.load(f))
-        features = np.vstack(features)
+        features = np.vstack([np.load(pjoin(PATH, feature)) for feature in feature_splits])
     else:
         raise Exception('\nCan only process .npy, .mat, or .txt files.\n')
     return features
@@ -641,7 +622,12 @@ def save_features(
         print(f'\nOutput directory did not exist. Creating directories to save features...\n')
         os.makedirs(out_path)
     # save hidden unit actvations to disk (either as one single file or as several splits)
-    if len(features.shape) == 2:
+    if len(features.shape) > 2 and file_format != '.npy':
+        print(f'\n...Cannot save 4-way tensor in a single {file_format} file.')
+        print(f'...Now slicing tensor to store as a two-dimensional matrix.')
+        tensor2slices(PATH=out_path, file_name='features.txt', features=features)
+        print(f'\n...Sliced tensor into separate parts, and saved resulting matrix as .txt file.\n')
+    else:
         try:
             store_features(PATH=out_path, features=features, file_format=file_format)
         except MemoryError:
@@ -650,11 +636,6 @@ def save_features(
             split_features(PATH=out_path, features=features, file_format=file_format, n_splits=n_splits)
             print(f'...Saved features in {n_splits:02d} different files, enumerated in ascending order.')
             print(f'If you want features to be splitted into more or fewer files, simply change number of splits parameter.\n')
-    else:
-        print(f'\n...Cannot save 4-way tensor in a single file.')
-        print(f'...Now slicing tensor to store as a matrix.')
-        tensor2slices(PATH=out_path, file_name='features.txt', features=features)
-        print(f'\n...Sliced tensor into separate parts, and saved resulting matrix as .txt file.\n')
 
 
 def save_targets(
