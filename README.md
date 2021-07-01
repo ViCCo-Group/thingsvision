@@ -39,7 +39,7 @@ Replace `cudatoolkit=11.0` above with the appropriate CUDA version on your machi
 
 5. The script automatically extracts features for the specified `model` and `layer` and stores them together with the `targets` in `out_path` (see above).
 
-6. Since 4-way tensors cannot be easily saved to disk, they must be sliced into different parts to be efficiently stored as a matrix. The helper function `tensor2slices` will slice any 4-way tensor (activations extraced from `features.##`) automatically for you, and will save it as a matrix in a file called `activations.txt`. To merge the slices back into the original shape (i.e., 4-way tensor) simply call `slices2tensor` which takes `out_path` and `file_name` (see above) as input arguments (e.g., `tensor = slices2tensor(PATH, file)`).
+6. Since 4-way tensors cannot be easily saved to disk in `.txt` format, they must be sliced into different parts to be efficiently stored as a matrix. The helper function `tensor2slices` will slice any 4-way tensor (activations extraced from `features.##`) automatically for you, and will save it as a matrix in a file called `activations.txt`. To merge the slices back into the original shape (i.e., 4-way tensor) simply call `slices2tensor` which takes `out_path` and `file_name` (see above) as input arguments (e.g., `tensor = slices2tensor(PATH, file)`). Ignore this, if you want to save the feature matrices in `.npy` format.
 
 7. If you happen to extract hidden unit activations for many images, it is possible to run into `MemoryErrors`. To circumvent such problems, a helper function called `split_activations` will split the activation matrix into several batches, and stores them in separate files. For now, the split parameter is set to `10`. Hence, the function will split the activation matrix into `10` files. This parameter can, however, easily be modified in case you need more (or fewer) splits. To merge the separate activation batches back into a single activation matrix, just call `merge_activations` when loading the activations (e.g., `activations = merge_activations(PATH)`). 
 
@@ -253,7 +253,7 @@ correlations = vision.compare_models(
                                     )
 ```
 
-The function returns a correlation matrix in the form of a `Pandas` dataframe whose rows and columns correspond to the names of the models in `model_names`. The cell elements are the correlation coefficients for each model combination. The dataframe can subsequenly be converted into a heatmap with `matplotlib` or `seaborn`. We will release a clear and concise documentary as soon as possible. Until then, we recommend to look at Section 3.2.3 in the [bioRxiv preprint](https://www.biorxiv.org/content/10.1101/2021.03.11.434979v1.full).
+The function returns a correlation matrix in the form of a `Pandas` dataframe whose rows and columns correspond to the names of the models in `model_names`. The cell elements are the correlation coefficients for each model combination. The dataframe can subsequently be converted into a heatmap with `matplotlib` or `seaborn`. We will release a clear and concise documentary as soon as possible. Until then, we recommend to look at Section 3.2.3 in the [bioRxiv preprint](https://www.biorxiv.org/content/10.1101/2021.03.11.434979v1.full).
 
 ## OpenAI's CLIP models
 
