@@ -1058,6 +1058,6 @@ def compare_models(
 
 
 def pickle_file_(file: dict, out_path: str, f_name: str) -> None:
-    """pickle file"""
+    """Pickle any file."""
     with open(os.path.join(out_path, f_name + '.p'), 'wb') as f:
         pickle.dump(scores, f)
