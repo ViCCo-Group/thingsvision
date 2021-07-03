@@ -14,11 +14,12 @@ requirements = [
                 'tqdm',
                 'regex',
                 'scipy',
+                'h5py',
                 ]
 
 setuptools.setup(
                 name="thingsvision",
-                version="0.9.3",
+                version="0.9.4",
                 author="Lukas Muttenthaler",
                 author_email="muttenthaler@cbs.mpg.de",
                 description="Extracting image features from state-of-the-art neural networks for Computer Vision made easy",
