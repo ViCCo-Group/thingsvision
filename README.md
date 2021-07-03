@@ -39,7 +39,7 @@ Replace `cudatoolkit=11.0` above with the appropriate CUDA version on your machi
 
 5. The script automatically extracts features for the specified `model` and `layer` and stores them together with the `targets` in `out_path` (see above).
 
-6. Since 4-way tensors cannot be easily saved to disk in `.txt` format, they must be sliced into different parts to be efficiently stored as a matrix. The helper function `tensor2slices` will slice any 4-way tensor (activations extraced from `features.##`) automatically for you, and will save it as a matrix in a file called `activations.txt`. To merge the slices back into the original shape (i.e., 4-way tensor) simply call `slices2tensor` which takes `out_path` and `file_name` (see above) as input arguments (e.g., `tensor = slices2tensor(PATH, file)`). Ignore this, if you want to save the feature matrices in `.npy` format.
+6. Since 4-way tensors cannot be easily saved to disk in `txt` format, they must be sliced into different parts to be efficiently stored as a matrix. The helper function `tensor2slices` will slice any 4-way tensor (activations extraced from `features.##`) automatically for you, and will save it as a matrix in a file called `activations.txt`. To merge the slices back into the original shape (i.e., 4-way tensor) simply call `slices2tensor` which takes `out_path` and `file_name` (see above) as input arguments (e.g., `tensor = slices2tensor(PATH, file)`). Ignore this, if you want to save the feature matrices in `npy` format.
 
 7. If you happen to extract hidden unit activations for many images, it is possible to run into `MemoryErrors`. To circumvent such problems, a helper function called `split_activations` will split the activation matrix into several batches, and stores them in separate files. For now, the split parameter is set to `10`. Hence, the function will split the activation matrix into `10` files. This parameter can, however, easily be modified in case you need more (or fewer) splits. To merge the separate activation batches back into a single activation matrix, just call `merge_activations` when loading the activations (e.g., `activations = merge_activations(PATH)`). 
 
@@ -92,7 +92,7 @@ AlexNet(
 dl = vision.load_dl(root='./images/', out_path=f'./{model_name}/{module_name}/features', batch_size=64, transforms=transforms)
 features, targets, probas = vision.extract_features(model, dl, module_name, batch_size=64, flatten_acts=True, device=device, return_probabilities=True)
 
-vision.save_features(features, f'./{model_name}/{module_name}/features', '.npy')
+vision.save_features(features, f'./{model_name}/{module_name}/features', 'npy')
 ```
 
 ### Example call for [CLIP](https://github.com/openai/CLIP):
@@ -112,8 +112,8 @@ features, targets = vision.extract_features(model, dl, module_name, batch_size=6
 
 features = vision.center_features(features)
 
-vision.save_features(features, f'./{model_name}/{module_name}/features', '.npy')
-vision.save_targets(targets, f'./{model_name}/{module_name}/targets', '.npy')
+vision.save_features(features, f'./{model_name}/{module_name}/features', 'npy')
+vision.save_targets(targets, f'./{model_name}/{module_name}/targets', 'npy')
 ```
 
 ### Example call for [CORnet](https://github.com/dicarlolab/CORnet)
@@ -217,7 +217,7 @@ features, targets = vision.extract_features(model, dl, module_name, batch_size=6
 features = vision.center_features(features)
 features = vision.normalize_features(features)
 
-vision.save_features(features, f'./{model_name}/{module_name}/features', '.npy')
+vision.save_features(features, f'./{model_name}/{module_name}/features', 'npy')
 ```
 
 ## ImageNet class predictions
