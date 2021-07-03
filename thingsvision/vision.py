@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import h5py
 import json
 import os
 import random
@@ -31,6 +32,8 @@ from thingsvision.dataset import ImageDataset
 from torch.utils.data import DataLoader, Subset
 from torchvision import transforms as T
 from typing import Tuple, List, Iterator, Dict, Any
+
+FILE_FORMATS = ['hdf5', 'npy', 'txt', 'mat']
 
 def load_dl(
              root: str,
@@ -437,10 +440,11 @@ def store_features(
     if not os.path.exists(PATH):
         print(f'...Output directory did not exist. Creating directories to save features.')
         os.makedirs(PATH)
-    if re.search(r'npy', file_format):
+
+    if file_format == 'npy':
         with open(pjoin(PATH, 'features.npy'), 'wb') as f:
             np.save(f, features)
-    elif re.search(r'mat', file_format):
+    elif file_format == 'mat':
         try:
             with open(pjoin(PATH, 'file_names.txt'), 'r') as f:
                 file_names = [rm_suffix(l.strip()) for l in f]
@@ -448,6 +452,10 @@ def store_features(
             scipy.io.savemat(pjoin(PATH, 'features.mat'), features)
         except FileNotFoundError:
             scipy.io.savemat(pjoin(PATH, 'features.mat'), {'features': features})
+    elif file_format == 'hdf5':
+        h5f = h5py.File(pjoin(PATH, 'features.h5'), 'w')
+        h5f.create_dataset('features', data=features)
+        h5f.close()
     else:
         np.savetxt(pjoin(PATH, 'features.txt'), features)
     print(f'...Features successfully saved to disk.\n')
@@ -493,41 +501,53 @@ def split_features(
                     n_splits: int,
 ) -> None:
     """Split feature matrix into <n_splits> subsamples to counteract MemoryErrors."""
-    if re.search(r'mat', file_format):
+    if file_format == 'mat':
         try:
             with open(pjoin(PATH, 'file_names.txt'), 'r') as f:
                 file_names = [rm_suffix(l.strip()) for l in f]
         except FileNotFoundError:
             file_names = None
     splits = np.linspace(0, len(features), n_splits, dtype=int)
+
+    if file_format == 'hdf5':
+        h5f = h5py.File(pjoin(PATH, 'features.h5'), 'w')
+
     for i in range(1, len(splits)):
         feature_split = features[splits[i-1]:splits[i]]
-        if re.search(r'npy', file_format):
+        if file_format == 'npy':
             with open(pjoin(PATH, f'features_{i:02d}.npy'), 'wb') as f:
                 np.save(f, feature_split)
-        elif re.search(r'mat', file_format):
+        elif file_format == 'mat':
             if file_names:
                 file_name_split = file_names[splits[i-1]:splits[i]]
                 features = {file_name_split[i]: feature for i, feature in enumerate(feature_split)}
                 scipy.io.savemat(pjoin(PATH, f'features_{i:02d}.mat'), features)
             else:
                 scipy.io.savemat(pjoin(PATH, f'features_{i:02d}.mat'), {'features': features})
+        elif file_format == 'hdf5':
+            h5f.create_dataset(f'features_{i:02d}', data=feature_split)
         else:
             np.savetxt(pjoin(PATH, f'features_{i:02d}.txt'), feature_split)
 
+    if file_format == 'hdf5':
+        h5f.close()
 
 def merge_features(PATH: str, file_format: str) -> np.ndarray:
-    feature_splits = np.array([split for split in os.listdir(PATH) if re.search(r'^feature', split) and split.endswith(file_format) and re.search(r'[0-9]+$', split.rstrip(file_format))])
-    enumerations = np.array([int(re.sub(r'\D', '', feature)) for feature in feature_splits])
-    feature_splits = feature_splits[np.argsort(enumerations)]
-    if file_format == '.txt':
-        features = np.vstack([np.loadtxt(pjoin(PATH, feature)) for feature in feature_splits])
-    elif file_format == '.mat':
-        features = np.vstack([scipy.io.loadmat(pjoin(PATH, feature))['features'] for feature in feature_splits])
-    elif file_format == '.npy':
-        features = np.vstack([np.load(pjoin(PATH, feature)) for feature in feature_splits])
+    if file_format == 'hdf5':
+        with h5py.File(pjoin(PATH, 'features.h5'), 'r') as f:
+            features = np.vstack([split[:] for split in f.values()])
     else:
-        raise Exception('\nCan only process .npy, .mat, or .txt files.\n')
+        feature_splits = np.array([split for split in os.listdir(PATH) if split.endswith(file_format) and re.search(r'^(?=^features)(?=.*[0-9]+$).*$', split.rstrip('.' + file_format))])
+        enumerations = np.array([int(re.sub(r'\D', '', feature)) for feature in feature_splits])
+        feature_splits = feature_splits[np.argsort(enumerations)]
+        if file_format == 'txt':
+            features = np.vstack([np.loadtxt(pjoin(PATH, feature)) for feature in feature_splits])
+        elif file_format == 'mat':
+            features = np.vstack([scipy.io.loadmat(pjoin(PATH, feature))['features'] for feature in feature_splits])
+        elif file_format == 'npy':
+            features = np.vstack([np.load(pjoin(PATH, feature)) for feature in feature_splits])
+        else:
+            raise Exception('\nCan only process hdf5, npy, mat, or txt files.\n')
     return features
 
 
@@ -619,12 +639,13 @@ def save_features(
                     file_format: str,
                     n_splits: int=10,
 ) -> None:
-    """Save feature matrix to disk."""
+    """Save feature matrix in desired format to disk."""
+    assert file_format in FILE_FORMATS, f'\nFile format must be one of {FILE_FORMATS}.\n'
     if not os.path.exists(out_path):
         print(f'\nOutput directory did not exist. Creating directories to save features...\n')
         os.makedirs(out_path)
     # save hidden unit actvations to disk (either as one single file or as several splits)
-    if len(features.shape) > 2 and file_format != '.npy':
+    if len(features.shape) > 2 and file_format == 'txt':
         print(f'\n...Cannot save 4-way tensor in a single {file_format} file.')
         print(f'...Now slicing tensor to store as a two-dimensional matrix.\n')
         tensor2slices(PATH=out_path, file_name='features.txt', features=features)
@@ -642,20 +663,25 @@ def save_features(
 
 def save_targets(
                     targets: np.ndarray,
-                    out_path: str,
+                    PATH: str,
                     file_format: str,
 ) -> None:
     """Save target vector to disk."""
-    if not os.path.exists(out_path):
+    if not os.path.exists(PATH):
         print(f'\nOutput directory did not exist. Creating directories to save targets...\n')
-        os.makedirs(out_path)
-    if re.search(r'npy', file_format):
-        with open(pjoin(out_path, 'targets.npy'), 'wb') as f:
+        os.makedirs(PATH)
+
+    if file_format == 'npy':
+        with open(pjoin(PATH, 'targets.npy'), 'wb') as f:
             np.save(f, targets)
-    elif re.search(r'mat', file_format):
-        scipy.io.savemat(pjoin(out_path, 'targets.mat'), {'targets': targets})
+    elif file_format == 'mat':
+        scipy.io.savemat(pjoin(PATH, 'targets.mat'), {'targets': targets})
+    elif file_format == 'hdf5':
+        h5f = h5py.File(pjoin(PATH, 'targets.h5'), 'w')
+        h5f.create_dataset('targets', data=targets)
+        h5f.close()
     else:
-        np.savetxt(pjoin(out_path, 'targets.txt'), targets)
+        np.savetxt(pjoin(PATH, 'targets.txt'), targets)
     print(f'...Targets successfully saved to disk.\n')
 
 # ########################################### #
