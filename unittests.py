@@ -11,13 +11,21 @@ import thingsvision.vision as vision
 from thingsvision.dataset import ImageDataset
 from torch.utils.data import DataLoader
 
+
 DEVICE = 'cpu'
-IN_PATH = './images92'
+IN_PATH = 'images92'
 OUT_PATH = './test'
 MODEL_NAMES = ['vgg16_bn', 'vgg19_bn']
 MODULE_NAMES = ['features.23', 'classifier.3']
 FILE_FORMATS = ['.npy', '.txt']
 BATCH_SIZE = 32
+
+
+if not os.path.isdir(os.path.join(IN_PATH, 'aardvark')):
+    raise RuntimeError(
+        "Download and unpack the THINGS concept and object images;\n"
+        "See README.md for details")
+
 
 class ModelLoadingTestCase(unittest.TestCase):
 
