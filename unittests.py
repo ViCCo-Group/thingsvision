@@ -38,6 +38,7 @@ class ModelLoadingTestCase(unittest.TestCase):
         self.assertTrue(hasattr(model, DEVICE))
         self.assertFalse(model.training)
 
+
 class ExtractionTestCase(unittest.TestCase):
 
     def test_extraction(self):
@@ -86,13 +87,12 @@ class ExtractionTestCase(unittest.TestCase):
         self.assertTrue(isinstance(features, np.ndarray))
         self.assertTrue(isinstance(targets, np.ndarray))
 
-class SlicingTestCase(unittest.TestCase):
-
-    def test_slicing(self):
+        # These tests depend on the output features above.
         features_npy = np.load(os.path.join(OUT_PATH, 'features.npy'))
         features_txt = vision.slices2tensor(OUT_PATH, 'features.txt')
 
         self.assertEqual(features_npy.shape, features_txt.shape)
+
 
 class ComparisonTestCase(unittest.TestCase):
 
@@ -111,6 +111,7 @@ class ComparisonTestCase(unittest.TestCase):
         )
         self.assertTrue(isinstance(corr_mat, pd.DataFrame))
         self.assertEqual(corr_mat.shape, (len(MODEL_NAMES), len(MODULE_NAMES)))
+
 
 if __name__ == '__main__':
     unittest.main()
