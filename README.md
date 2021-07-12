@@ -55,19 +55,22 @@ Replace `cudatoolkit=11.0` above with the appropriate CUDA version on your machi
 
 6. If you happen to extract hidden unit activations for many images, it is possible to run into `MemoryErrors`. To circumvent such problems, a helper function called `split_activations` will split the activation matrix into several batches, and stores them in separate files. For now, the split parameter is set to `10`. Hence, the function will split the activation matrix into `10` files. This parameter can, however, easily be modified in case you need more (or fewer) splits. To merge the separate activation batches back into a single activation matrix, just call `merge_activations` when loading the activations (e.g., `activations = merge_activations(PATH)`). 
 
-## Extract features at specific layer of a state-of-the-art `torchvision`, `CORnet` or `CLIP` model 
+## Extract features at specific layer of a state-of-the-art `torchvision`, `CORnet`, `VGG16` or `CLIP` model 
+The following examples will show how to load a model with PyTorch and Tensorflow and how to extract features.
 
-### Example call for AlexNet:
+
+### Example call for AlexNet with PyTorch:
 
 ```python
 import torch
-import thingsvision.vision as vision
+from thingsvision.model_class import Model
 
 model_name = 'alexnet'
+backend = 'pt'
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
-model, transforms = vision.load_model(model_name, pretrained=True, model_path=None, device=device)
-module_name = vision.show_model(model, model_name)
+model = Model(model_name, pretrained=True, model_path=None, device=device, backend=backend)
+module_name = model.show()
 
 AlexNet(
   (features): Sequential(
@@ -101,26 +104,27 @@ AlexNet(
 
 (e.g., "features.10")
 
-dl = vision.load_dl(root='./images/', out_path=f'./{model_name}/{module_name}/features', batch_size=64, transforms=transforms)
-features, targets, probas = vision.extract_features(model, dl, module_name, batch_size=64, flatten_acts=True, device=device, return_probabilities=True)
+dl = vision.load_dl(root='./images/', out_path=f'./{model_name}/{module_name}/features', batch_size=64, transforms=model.get_transformations(), backend=backend)
+features, targets, probas = model.extract_features(dl, module_name, batch_size=64, flatten_acts=True, device=device, return_probabilities=True)
 
 vision.save_features(features, f'./{model_name}/{module_name}/features', 'npy')
 ```
 
-### Example call for [CLIP](https://github.com/openai/CLIP):
+### Example call for [CLIP](https://github.com/openai/CLIP) with PyTorch:
 
 ```python
 import torch
-import thingsvision.vision as vision
+from thingsvision.model_class import Model
 
 model_name = 'clip-ViT'
 module_name = 'visual'
+backend = 'pt'
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-model, transforms = vision.load_model(model_name, pretrained=True, model_path=None, device=device)
-dl = vision.load_dl(root='./images/', out_path=f'./{model_name}/{module_name}/features', batch_size=64, transforms=transforms)
-features, targets = vision.extract_features(model, dl, module_name, batch_size=64, flatten_acts=False, device=device, clip=True, return_probabilities=False)
+model = Model(model_name, pretrained=True, model_path=None, device=device, backend=backend)
+dl = vision.load_dl(root='./images/', out_path=f'./{model_name}/{module_name}/features', batch_size=64, transforms=model.get_transformations(), backend=backend)
+features, targets = model.extract_features(dl, module_name, batch_size=64, flatten_acts=False, device=device, clip=True, return_probabilities=False)
 
 features = vision.center_features(features)
 
@@ -128,17 +132,17 @@ vision.save_features(features, f'./{model_name}/{module_name}/features', 'npy')
 vision.save_targets(targets, f'./{model_name}/{module_name}/targets', 'npy')
 ```
 
-### Example call for [CORnet](https://github.com/dicarlolab/CORnet)
+### Example call for [CORnet](https://github.com/dicarlolab/CORnet) with PyTorch:
 
 ```python
 import torch
-import thingsvision.vision as vision
+from thingsvision.model_class import Model
 
 model_name = 'cornet-s'
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-model, transforms = vision.load_model(model_name, pretrained=True, model_path=None, device=device)
-module_name = vision.show_model(model, model_name)
+model = Model(model_name, pretrained=True, model_path=None, device=device)
+module_name = model.show()
 
 Sequential(
   (V1): Sequential(
@@ -223,8 +227,8 @@ Sequential(
 
 (e.g., "decoder.flatten")
 
-dl = vision.load_dl(root='./images/', out_path=f'./{model_name}/{module_name}/features', batch_size=64, transforms=transforms)
-features, targets = vision.extract_features(model, dl, module_name, batch_size=64, flatten_acts=False, device=device, return_probabilities=False)
+dl = vision.load_dl(root='./images/', out_path=f'./{model_name}/{module_name}/features', batch_size=64, transforms=model.get_transformations(), backend=backend)
+features, targets = model.extract_features(dl, module_name, batch_size=64, flatten_acts=False, device=device, return_probabilities=False)
 
 features = vision.center_features(features)
 features = vision.normalize_features(features)
@@ -232,13 +236,34 @@ features = vision.normalize_features(features)
 vision.save_features(features, f'./{model_name}/{module_name}/features', 'npy')
 ```
 
+### Example call for VGG16 with Tensorflow:
+
+```python
+import tensorflow as tf 
+import thingsvision.vision as vision
+from thingsvision.model_class import Model
+
+model_name = 'VGG16'
+backend = 'tf'
+module_name = 'block1_conv1'
+
+device = 'cuda' if tf.test.is_gpu_available() else 'cpu'
+model = Model(model_name, pretrained=True, model_path=None, device=device, backend=backend)
+
+dl = vision.load_dl(root='./images/', out_path=f'./{model_name}/{module_name}/features', batch_size=64, transforms=model.get_transformations(), backend=backend)
+features, targets, probas = model.extract_features(dl, module_name, batch_size=64, flatten_acts=True, device=device, return_probabilities=True)
+
+vision.save_features(features, f'./{model_name}/{module_name}/features', 'npy')
+```
+
+
 ## ImageNet class predictions
 
 Would you like to know the probabilities corresponding to the `top k` predicted ImageNet classes for each of your images? Simply set the `return_probabilities` argument to `True` and use the `get_class_probabilities` helper (the function works for both `synset` and `class` files). Note that this is, unfortunately, not (yet) possible for `CLIP` models due to their multi-modality and different training objectives. You are required to use the same `out_path` throughout which is why `out_path` must correspond to the path that was used in `vision.load_dl`.
 
 ```python
 
-features, targets, probas = vision.extract_features(model, dl, module_name, batch_size, flatten_acts=False, device=device, return_probabilities=True)
+features, targets, probas = model.extract_features(dl, module_name, batch_size, flatten_acts=False, device=device, return_probabilities=True)
 class_probas = vision.get_class_probabilities(probas=probas, out_path=out_path, cls_file='./data/imagenet1000_classes.txt', top_k=5, save_as_json=True)
 ```
 
@@ -257,6 +282,7 @@ correlations = vision.compare_models(
                                      module_names=module_names,
                                      pretrained=True,
                                      batch_size=batch_size,
+                                     backend='pt',
                                      flatten_acts=True,
                                      clip=clip_list,
                                      save_features=True,

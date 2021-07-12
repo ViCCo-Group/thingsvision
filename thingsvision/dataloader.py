@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import tensorflow as tf
 import torch
 
 from typing import Iterator, Tuple
@@ -17,7 +18,10 @@ class DataLoader(object):
         self.dataset = dataset
         self.batch_size = batch_size
         self.backend = backend
-        self.n_batches = len(self.dataset) // self.batch_size
+        self.n_batches = 1
+        if len(self.dataset) > self.batch_size:
+            self.n_batches = len(self.dataset) // self.batch_size
+
 
     def __len__(self) -> int:
         return self.n_batches
@@ -33,6 +37,6 @@ class DataLoader(object):
                 X = torch.stack(X, dim=0)
                 y = torch.stack(y, dim=0)
             else:
-                # TODO: implement the same for TensorFlow
-                raise NotImplementedError
+                X = tf.stack(X, axis=0)
+                y = tf.stack(y, axis=0)
             yield (X, y)

@@ -3,10 +3,15 @@
 
 import os
 import re
+
 import torch
 
 import numpy as np
 import pandas as pd
+import tensorflow as tf
+from torchvision import transforms as T
+
+import thingsvision.vision as vision
 
 from collections import defaultdict
 from os.path import join as pjoin
@@ -41,8 +46,8 @@ class ImageDataset(object):
         the order in which image features are extracted can optionally
         be passed.
     transforms : Any
-        Composition of image transformations. Images must be transformed
-        into the right format for a PyTorch model.
+        Composition of image transformations. Must be either a PyTorch composition
+        or a Tensorflow Sequential model.
 
     Returns
     -------
@@ -73,6 +78,7 @@ class ImageDataset(object):
         self.things_behavior = things_behavior
         self.transforms = transforms
         self.file_names = file_names
+        self.backend = backend
 
         classes, idx_to_cls, cls_to_idx, class_folders = self.find_classes_()
         self.class_dataset = class_folders
@@ -153,13 +159,19 @@ class ImageDataset(object):
     def __getitem__(self, idx: int) -> Tuple[Any, Any]:
         img_path, target = self.samples[idx]
         img = Image.open(img_path).convert('RGB')
-        if self.transforms is not None:
-            img = self.transforms(img)
+        img, target = self.transform_img_target(img, target)
+            
+        return img, target
+
+    def transform_img_target(self, img, target):
+        if self.transforms:
             if self.backend == 'pt':
+                img = self.transforms(img)
                 target = torch.tensor([target])
-            else:
-                # TODO: implement the same for TensorFlow
-                raise NotImplementedError
+            elif self.backend == 'tf':
+                img = tf.keras.preprocessing.image.img_to_array(img)
+                img = self.transforms(img)
+                target = tf.convert_to_tensor(target)
         else:
             target = np.array([target])
         return img, target

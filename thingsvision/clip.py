@@ -73,17 +73,9 @@ def load(
     model = torch.jit.load(model_path, map_location=device if jit else "cpu").eval()
     n_px = model.input_resolution.item()
 
-    transform = Compose([
-        Resize(n_px, interpolation=Image.BICUBIC),
-        CenterCrop(n_px),
-        lambda image: image.convert("RGB"),
-        ToTensor(),
-        Normalize((0.48145466, 0.4578275, 0.40821073), (0.26862954, 0.26130258, 0.27577711)),
-    ])
-
     if not jit:
         model = build_model(model.state_dict(), pretrained).to(device)
-        return model, transform
+        return model, n_px
 
     # patch the device names
     device_holder = torch.jit.trace(lambda: torch.ones([]).to(torch.device(device)), example_inputs=[])
@@ -127,4 +119,4 @@ def load(
 
         model.float()
 
-    return model, transform
+    return model, n_px
