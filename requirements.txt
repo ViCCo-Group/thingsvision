@@ -9,3 +9,4 @@ numba==0.50.1
 matplotlib==3.2.2
 regex
 scipy
+h5py
