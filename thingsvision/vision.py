@@ -33,7 +33,7 @@ from torch.utils.data import DataLoader, Subset
 from torchvision import transforms as T
 from typing import Tuple, List, Iterator, Dict, Any
 
-FILE_FORMATS = ['hdf5', 'npy', 'txt', 'mat']
+FILE_FORMATS = ['hdf5', 'npy', 'mat', 'txt']
 
 def load_dl(
              root: str,
@@ -461,23 +461,6 @@ def store_features(
     print(f'...Features successfully saved to disk.\n')
 
 
-def tensor2slices(
-                    PATH: str,
-                    file_name: str,
-                    features: np.ndarray,
-) -> None:
-    """Slice four-dimensional tensor into two-dimensional matrices."""
-    with open(pjoin(PATH, file_name), 'w') as outfile:
-        outfile.write(f'# Array shape: {features.shape}\n')
-        for i in range(features.shape[0]):
-            for j in range(features.shape[1]):
-                # formatting string indicates that we are writing out
-                # the values in left-justified columns 7 characters in width
-                # with 5 decimal places
-                np.savetxt(outfile, features[i, j, :, :], fmt='%-7.5f')
-                outfile.write('# New slice\n')
-
-
 def get_shape(PATH: str, file: str) -> tuple:
     with open(pjoin(PATH, file)) as f:
         line = f.readline().strip()
@@ -485,14 +468,6 @@ def get_shape(PATH: str, file: str) -> tuple:
         line = line.split()
         shape = tuple(map(int, line))
     return shape
-
-
-def slices2tensor(PATH: str, file: str) -> np.ndarray:
-    slices = np.loadtxt(pjoin(PATH, file))
-    shape = get_shape(PATH, file)
-    tensor = slices.reshape(shape)
-    return tensor
-
 
 def split_features(
                     PATH: str,
@@ -646,10 +621,8 @@ def save_features(
         os.makedirs(out_path)
     # save hidden unit actvations to disk (either as one single file or as several splits)
     if len(features.shape) > 2 and file_format == 'txt':
-        print(f'\n...Cannot save 4-way tensor in a single {file_format} file.')
-        print(f'...Now slicing tensor to store as a two-dimensional matrix.\n')
-        tensor2slices(PATH=out_path, file_name='features.txt', features=features)
-        print(f'...Sliced tensor into separate parts, and saved resulting matrix as .txt file.\n')
+        print(f'\n...Cannot save 4-way tensor in a txt format.')
+        print(f'...Change format to one of {FILE_FORMATS[:-1]}.\n')
     else:
         try:
             store_features(PATH=out_path, features=features, file_format=file_format)
