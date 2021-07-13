@@ -192,7 +192,7 @@ def show_model(model, model_name: str) -> str:
 
 
 def get_module_names(model, module: str) -> list:
-    """Extract correct module names, iterating over multiple modules is desired."""
+    """Extract correct module names, if iterating over multiple modules is desired."""
     module_names, _ = zip(*model.named_modules())
     return list(filter(lambda n: re.search(f'{module}$', n), module_names))
 
@@ -461,14 +461,6 @@ def store_features(
     print(f'...Features successfully saved to disk.\n')
 
 
-def get_shape(PATH: str, file: str) -> tuple:
-    with open(pjoin(PATH, file)) as f:
-        line = f.readline().strip()
-        line = re.sub(r'\D', ' ', line)
-        line = line.split()
-        shape = tuple(map(int, line))
-    return shape
-
 def split_features(
                     PATH: str,
                     features: np.ndarray,
@@ -506,6 +498,7 @@ def split_features(
 
     if file_format == 'hdf5':
         h5f.close()
+
 
 def merge_features(PATH: str, file_format: str) -> np.ndarray:
     if file_format == 'hdf5':
@@ -803,48 +796,6 @@ def plot_rdm(
         plt.show()
     plt.close()
 
-# ############################## #
-# BOOTSTRAPPING HELPER FUNCTIONS #
-# ############################## #
-
-
-def compute_pval_(human_correlations: dict, model_i: str, model_j: str) -> float:
-    model_i_corrs = np.asarray(human_correlations[model_i])
-    model_j_corrs = np.asarray(human_correlations[model_j])
-    p_val = 1 - np.mean([model_i_corr > model_j_corr for model_i_corr, model_j_corr in zip(model_i_corrs, model_j_corrs)])
-    return p_val.round(3)
-
-
-def bootstrap_(
-               features_i: np.ndarray,
-               features_j: np.ndarray,
-               model_i: str,
-               model_j: str,
-               human_rdm: np.ndarray,
-               n_bootstraps: int=1000,
-               dissimilarity: str='correlation',
-               correlation: str='pearson',
-) -> Tuple[Dict[str, list], float]:
-    """Randomly sample with replacement (resampled dataset must be of equal size to the original, observed dataset)"""
-    human_correlations = defaultdict(list)
-    N = features_i.shape[0]
-    for _ in range(n_bootstraps):
-        resample_i = np.random.choice(np.arange(N), size=N, replace=True)
-        resample_j = np.random.choice(np.arange(N), size=N, replace=True)
-        rdm_i = compute_rdm(features_i[resample_i], dissimilarity)
-        rdm_j = compute_rdm(features_j[resample_j], dissimilarity)
-
-        human_rdm_resample_i = human_rdm[resample_i]
-        human_rdm_resample_i = human_rdm_resample_i[:, resample_i]
-        human_rdm_resample_j = human_rdm[resample_j]
-        human_rdm_resample_j = human_rdm_resample_j[:, resample_j]
-
-        human_corr_i = correlate_rdms(human_rdm_resample_i, rdm_i, correlation)
-        human_corr_j = correlate_rdms(human_rdm_resample_j, rdm_j, correlation)
-        human_correlations[model_i].append(human_corr_i)
-        human_correlations[model_j].append(human_corr_j)
-    return human_correlations
-
 
 def get_features(
                 root: str,
@@ -904,59 +855,6 @@ def get_features(
         features, _ = extract_features(model, dl, module_names[i], batch_size=batch_size, flatten_acts=flatten_acts, device=device, clip=clip[i])
         model_features[model_name][module_names[i]] = features
     return model_features
-
-
-def compare_models_to_humans(
-                            root: str,
-                            out_path: str,
-                            model_names: List[str],
-                            module_names: List[str],
-                            clip: List[bool],
-                            pretrained: bool,
-                            batch_size: int,
-                            flatten_acts: bool,
-                            human_rdm: np.ndarray,
-                            save_features: bool=True,
-                            n_bootstraps: int=1000,
-                            dissimilarity: str='correlation',
-                            correlation: str='pearson',
-) -> Dict[Tuple[str, str], Dict[Tuple[str, str], str]]:
-    # extract features for each model and its corresponding module
-    model_features = get_features(
-                                    root,
-                                    out_path,
-                                    model_names,
-                                    module_names,
-                                    pretrained,
-                                    batch_size,
-                                    flatten_acts,
-                                    clip,
-                                    )
-    # save model features to disc
-    if save_features:
-        pickle_file_(model_features, out_path, 'features')
-    # compare features of each model combination for N bootstraps
-    scores = defaultdict(lambda: defaultdict(dict))
-    model_combs = list(itertools.combinations(model_names, 2))
-    for (model_i, model_j) in model_combs:
-        module_i = module_names[model_names.index(model_i)]
-        module_j = module_names[model_names.index(model_j)]
-        features_i = model_features[model_i][module_i]
-        features_j = model_features[model_j][module_j]
-        human_correlations = bootstrap_(
-                                        features_i=features_i,
-                                        features_j=features_j,
-                                        model_i=model_i,
-                                        model_j=model_j,
-                                        human_rdm=human_rdm,
-                                        n_bootstraps=n_bootstraps,
-                                        dissimilarity=dissimilarity,
-                                        correlation=correlation,
-        )
-        mean_human_corrs = (np.mean(human_correlations[model_i]), np.mean(human_correlations[model_j]))
-        scores[(model_i, model_j)][(module_i, module_j)]['human_corrs'] = (human_correlations[model_i], human_correlations[model_j])
-        scores[(model_i, model_j)][(module_i, module_j)]['mean_human_corrs'] = mean_human_corrs
-    return scores
 
 
 def compare_models(

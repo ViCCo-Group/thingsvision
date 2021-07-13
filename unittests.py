@@ -3,6 +3,7 @@
 
 import imageio
 import os
+import re
 import skimage
 import shutil
 import unittest
@@ -14,25 +15,39 @@ import thingsvision.vision as vision
 from thingsvision.dataset import ImageDataset
 from torch.utils.data import DataLoader
 
-DEVICE = 'cpu'
+DATA_PATH = './data'
 TEST_PATH = './test_images'
 OUT_PATH = './test'
-MODEL_NAMES = ['vgg16_bn', 'vgg19_bn']
-MODULE_NAMES = ['features.23', 'classifier.3']
+
+MODEL_NAMES = ['vgg16_bn', 'vgg19_bn', 'cornet_r', 'cornet_rt', 'cornet_s', 'cornet_z', 'clip-ViT', 'clip-RN']
+MODULE_NAMES = ['features.23', 'classifier.3', 'decoder.flatten', 'decoder.flatten', 'decoder.flatten', 'decoder.flatten', 'visual', 'visual']
+CLIP = [True if re.search(r'^clip', model_name) else False for model_name in MODEL_NAMES]
+
 FILE_FORMATS = ['hdf5', 'npy', 'mat', 'txt']
+DISTANCES = ['correlation', 'cosine', 'euclidean', 'gaussian']
+
 BATCH_SIZE = 32
+NUM_OBJECTS = 1854
+DEVICE = 'cpu'
+
+if not os.path.isfile(os.path.join(DATA_PATH, 'item_names.tsv')):
+    raise RuntimeError(
+        "Download the THINGS item names <tsv> file to run test;\n"
+        "See README.md for details."
+    )
 
 class ModelLoadingTestCase(unittest.TestCase):
 
     def test_mode_and_device(self):
         """Tests whether model is on DEVICE and in evaluation (opposed to training) mode."""
-        model, _ = vision.load_model(
-                                     model_name=MODEL_NAMES[0],
-                                     pretrained=True,
-                                     device=DEVICE,
-                                     )
-        self.assertTrue(hasattr(model, DEVICE))
-        self.assertFalse(model.training)
+        for model_name in MODEL_NAMES:
+            model, _ = vision.load_model(
+                                         model_name=model_name,
+                                         pretrained=True,
+                                         device=DEVICE,
+                                         )
+            self.assertTrue(hasattr(model, DEVICE))
+            self.assertFalse(model.training)
 
 class ExtractionTestCase(unittest.TestCase):
 
@@ -59,6 +74,9 @@ class ExtractionTestCase(unittest.TestCase):
                         shuffle=False,
         )
 
+        self.assertEqual(len(dataset), len(dl)*BATCH_SIZE)
+
+        global features
         features, targets = vision.extract_features(
                                                     model=model,
                                                     data_loader=dl,
@@ -68,22 +86,59 @@ class ExtractionTestCase(unittest.TestCase):
                                                     device=DEVICE,
         )
 
-        for format in FILE_FORMATS:
-            # tests whether features can be saved in any of the formats
-            vision.save_features(
-                                features=features,
-                                out_path=OUT_PATH,
-                                file_format=format,
-            )
-        self.assertEqual(len(dataset), len(dl)*batch_size)
+        self.assertTrue(isinstance(features, np.ndarray))
+        self.assertTrue(isinstance(targets, np.ndarray))
         self.assertEqual(features.shape[0], len(dataset))
         self.assertEqual(len(targets), features.shape[0])
 
         if MODULE_NAMES[0].startswith('classifier'):
             self.assertEqual(features.shape[1], model.classifier[int(MODULE_NAMES[0][-1])].out_features)
 
-        self.assertTrue(isinstance(features, np.ndarray))
-        self.assertTrue(isinstance(targets, np.ndarray))
+
+    def test_postprocessing(self):
+        """Test different postprocessing methods (e.g., centering, normalization, compression)."""
+        flattened_features = features.reshape(BATCH_SIZE, -1)
+        centred_features = vision.center_features(flattened_features)
+        normalized_features = vision.normalize_features(flattened_features)
+        transformed_features = vision.compress_features(flattened_features, rnd_seed=42, retained_var=.9)
+
+        self.assertTrue(centred_features.mean(axis=0).sum() < 1e-5)
+        self.assertEqual(np.linalg.norm(normalized_features, axis=1).sum(), np.ones(features.shape[0]).sum())
+        self.assertTrue(transformed_features.shape[1] < flattened_features.shape[1])
+
+
+    def test_storing(self):
+        """Test storing possibilities."""
+        for format in FILE_FORMATS:
+            # tests whether features can be saved in any of the formats as four-dimensional tensor
+            vision.save_features(
+                                features=features,
+                                out_path=OUT_PATH,
+                                file_format=format,
+            )
+
+class RDMTestCase(unittest.TestCase):
+
+    def test_rdms(self):
+        """Test different distance metrics on which RDMs are based."""
+
+        features = np.load(os.path.join(OUT_PATH, 'features.npy'))
+        features = features.reshape(BATCH_SIZE, -1)
+
+        rdms = []
+        for distance in DISTANCES:
+            rdm = vision.compute_rdm(features, distance)
+            self.assertEqual(len(rdm.shape), 2)
+            self.assertEqual(features.shape[0], rdm.shape[0], rdm.shape[1])
+            vision.plot_rdm(OUT_PATH, features, distance)
+            rdms.append(rdm)
+
+
+        for rdm_i, rdm_j in zip(rdms[:-1], rdms[1:]):
+            corr = vision.correlate_rdms(rdm_i, rdm_j)
+            self.assertTrue(isinstance(corr, float))
+            self.assertTrue(corr > float(-1))
+            self.assertTrue(corr < float(1))
 
 
 class ComparisonTestCase(unittest.TestCase):
@@ -98,11 +153,18 @@ class ComparisonTestCase(unittest.TestCase):
                                         pretrained=True,
                                         batch_size=BATCH_SIZE,
                                         flatten_acts=True,
-                                        clip=[False, False],
+                                        clip=CLIP,
                                         save_features=False,
         )
         self.assertTrue(isinstance(corr_mat, pd.DataFrame))
         self.assertEqual(corr_mat.shape, (len(MODEL_NAMES), len(MODULE_NAMES)))
+
+class LoadItemsTestCase(unittest.TestCase):
+
+    def test_item_name_loading(self):
+        item_names = vision.load_item_names(DATA_PATH)
+        self.assertTrue(isinstance(item_names, np.ndarray))
+        self.assertEqual(len(item_names), NUM_OBJECTS)
 
 
 def create_test_images(n_samples: int) -> None:
