@@ -31,11 +31,16 @@ NUM_OBJECTS = 1854
 NUM_SAMPLES = int(BATCH_SIZE * 2) # we want to iterate over two batches to exhaustively test mini-batching
 DEVICE = 'cpu'
 
+
 if not os.path.isfile(os.path.join(DATA_PATH, 'item_names.tsv')):
-    raise RuntimeError(
-        "Download the THINGS item names <tsv> file to run test;\n"
-        "See README.md for details."
-    )
+    try:
+        os.system("curl -O https://raw.githubusercontent.com/ViCCo-Group/THINGSvision/master/get_files.sh")
+        os.system("bash get_files.sh")
+    except:
+        raise RuntimeError(
+            "Download the THINGS item names <tsv> file to run test;\n"
+            "See README.md for details."
+        )
 
 class ModelLoadingTestCase(unittest.TestCase):
 
