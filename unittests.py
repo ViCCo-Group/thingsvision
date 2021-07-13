@@ -75,6 +75,7 @@ class ExtractionTestCase(unittest.TestCase):
                                 out_path=OUT_PATH,
                                 file_format=format,
             )
+        self.assertEqual(len(dataset), len(dl)*batch_size)
         self.assertEqual(features.shape[0], len(dataset))
         self.assertEqual(len(targets), features.shape[0])
 
