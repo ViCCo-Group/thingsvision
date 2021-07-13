@@ -28,6 +28,7 @@ DISTANCES = ['correlation', 'cosine', 'euclidean', 'gaussian']
 
 BATCH_SIZE = 32
 NUM_OBJECTS = 1854
+NUM_SAMPLES = int(BATCH_SIZE * 2) # we want to iterate over two batches to exhaustively test mini-batching
 DEVICE = 'cpu'
 
 if not os.path.isfile(os.path.join(DATA_PATH, 'item_names.tsv')):
@@ -97,7 +98,7 @@ class ExtractionTestCase(unittest.TestCase):
 
     def test_postprocessing(self):
         """Test different postprocessing methods (e.g., centering, normalization, compression)."""
-        flattened_features = features.reshape(BATCH_SIZE, -1)
+        flattened_features = features.reshape(NUM_SAMPLES, -1)
         centred_features = vision.center_features(flattened_features)
         normalized_features = vision.normalize_features(flattened_features)
         transformed_features = vision.compress_features(flattened_features, rnd_seed=42, retained_var=.9)
@@ -123,7 +124,7 @@ class RDMTestCase(unittest.TestCase):
         """Test different distance metrics on which RDMs are based."""
 
         features = np.load(os.path.join(OUT_PATH, 'features.npy'))
-        features = features.reshape(BATCH_SIZE, -1)
+        features = features.reshape(NUM_SAMPLES, -1)
 
         rdms = []
         for distance in DISTANCES:
@@ -166,28 +167,46 @@ class LoadItemsTestCase(unittest.TestCase):
         self.assertTrue(isinstance(item_names, np.ndarray))
         self.assertEqual(len(item_names), NUM_OBJECTS)
 
+class FileNamesTestCase(unittest.TestCase):
+
+    def test_filenames(self):
+        file_names = open(os.path.join(OUT_PATH, 'file_names.txt'), 'r').read().split()
+        img_files = []
+        for root, _, files in os.walk(TEST_PATH):
+            for f in files:
+                if f.endswith('png'):
+                    img_files.append(os.path.join(root, f))
+        self.assertEqual(sorted(file_names), sorted(img_files))
+
 
 def create_test_images(n_samples: int) -> None:
-    """Create image dataset to be used for performing tests."""
-    if not os.path.exists(TEST_PATH):
-        os.mkdir(TEST_PATH)
+    """Create an artificial image dataset to be used for performing tests."""
     test_img_1 = skimage.data.hubble_deep_field()
     test_img_2 = skimage.data.coffee()
     test_imgs = list(map(lambda x: x / x.max(), [test_img_1, test_img_2]))
+
+    classes = ['hubble', 'coffee']
+    for cls in classes:
+        PATH = os.path.join(TEST_PATH, cls)
+        if not os.path.exists(PATH):
+            os.makedirs(PATH)
+
     for i in range(n_samples):
-        if (i + 1) % (n_samples // 2) == 0:
+        if i > (n_samples // 2):
             test_img = np.copy(test_imgs[0])
+            cls = classes[0]
         else:
             test_img = np.copy(test_imgs[1])
+            cls = classes[1]
         H, W, C = test_img.shape
         # add random Gaussian noise to test image
         noisy_img = test_img + np.random.randn(H, W, C)
         noisy_img = noisy_img.astype(np.uint8)
-        imageio.imsave(os.path.join(TEST_PATH, f'test_img_{i+1:03d}.png'), noisy_img)
+        imageio.imsave(os.path.join(TEST_PATH, cls, f'test_img_{i+1:03d}.png'), noisy_img)
     print('\n...Successfully created image dataset for testing.\n')
 
 
 if __name__ == '__main__':
-    create_test_images(BATCH_SIZE)
+    create_test_images(NUM_SAMPLES)
     unittest.main()
     shutil.rmtree(TEST_PATH)
