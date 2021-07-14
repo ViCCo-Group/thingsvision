@@ -108,7 +108,7 @@ class ExtractionTestCase(unittest.TestCase):
         normalized_features = vision.normalize_features(flattened_features)
         transformed_features = vision.compress_features(flattened_features, rnd_seed=42, retained_var=.9)
 
-        self.assertTrue(centred_features.mean(axis=0).sum() < 1e-5)
+        self.assertTrue(centred_features.mean(axis=0).sum() < 1e-4)
         self.assertEqual(np.linalg.norm(normalized_features, axis=1).sum(), np.ones(features.shape[0]).sum())
         self.assertTrue(transformed_features.shape[1] < flattened_features.shape[1])
 
