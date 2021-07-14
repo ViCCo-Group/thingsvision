@@ -14,6 +14,7 @@ requirements = [
                 'tqdm',
                 'regex',
                 'scikit-image',
+                'scikit-learn',
                 'scipy',
                 'h5py',
                 ]
