@@ -717,7 +717,7 @@ def compute_rdm(F: np.ndarray, method: str) -> np.ndarray:
         return rdm
     else:
         if method == 'correlation':
-            rsm =  correlation_matrix(F)
+            rsm = correlation_matrix(F)
         elif method == 'cosine':
             rsm = cosine_matrix(F)
         elif method == 'gaussian':
