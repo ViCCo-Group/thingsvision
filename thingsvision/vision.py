@@ -29,7 +29,7 @@ from scipy.stats import rankdata
 from scipy.spatial.distance import pdist
 from scipy.spatial.distance import squareform
 from thingsvision.dataset import ImageDataset
-from torch.utils.data import DataLoader
+from thingsvision.dataloader import DataLoader
 from torchvision import transforms as T
 from typing import Tuple, List, Iterator, Dict, Any
 
@@ -47,6 +47,7 @@ def load_dl(
     things_behavior: bool = None,
     add_ref_imgs: bool = None,
     file_names: List[str] = None,
+    backend: str = 'pt',
     transforms=None,
 ) -> Iterator:
     """Create a data loader for custom image dataset
@@ -100,8 +101,8 @@ def load_dl(
         file_names=file_names,
         transforms=transforms,
     )
-    print(f'...Transforming dataset into PyTorch DataLoader.\n')
-    dl = DataLoader(dataset, batch_size=batch_size, shuffle=False)
+    print(f'...Transforming dataset into {backend} DataLoader.\n')
+    dl = DataLoader(dataset, batch_size=batch_size, backend=backend)
     return dl
 
 

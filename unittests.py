@@ -34,6 +34,7 @@ NUM_OBJECTS = 1854
 # we want to iterate over two batches to exhaustively test mini-batching
 NUM_SAMPLES = int(BATCH_SIZE * 2)
 DEVICE = 'cpu'
+BACKEND = 'pt'
 
 
 if not os.path.isfile(os.path.join(DATA_PATH, 'item_names.tsv')):
@@ -84,7 +85,7 @@ class ExtractionTestCase(unittest.TestCase):
         dl = DataLoader(
             dataset,
             batch_size=BATCH_SIZE,
-            shuffle=False,
+            backend=BACKEND,
         )
 
         self.assertEqual(len(dataset), len(dl) * BATCH_SIZE)

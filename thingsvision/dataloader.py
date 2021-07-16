@@ -10,9 +10,11 @@ class DataLoader(object):
         self,
         dataset: Tuple,
         batch_size: int,
+        backend: str,
     ):
         self.dataset = dataset
         self.batch_size = batch_size
+        self.backend = backend
         self.n_batches = len(self.dataset) // self.batch_size
 
     def __len__(self) -> int:
@@ -22,6 +24,12 @@ class DataLoader(object):
         return self.get_batches(self.dataset)
 
     def get_batches(self, dataset: Tuple) -> Iterator:
-        for i in range(self.n_batches):
-            batch = dataset[i * self.batch_size: (i + 1) * self.batch_size]
-            yield batch
+        for k in range(self.n_batches):
+            X, y = zip(
+                *[dataset[i] for i in range(k * self.batch_size, (k + 1) * self.batch_size)])
+            if self.backend == 'pt':
+                X = torch.stack(X, dim=0)
+                y = torch.stack(y, dim=0)
+            else:
+                raise NotImplementedError
+            yield (X, y)
