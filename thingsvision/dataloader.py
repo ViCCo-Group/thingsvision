@@ -33,5 +33,6 @@ class DataLoader(object):
                 X = torch.stack(X, dim=0)
                 y = torch.stack(y, dim=0)
             else:
+                # TODO: implement the same for TensorFlow
                 raise NotImplementedError
             yield (X, y)
