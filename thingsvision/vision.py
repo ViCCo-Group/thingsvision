@@ -40,6 +40,7 @@ FILE_FORMATS = ['hdf5', 'npy', 'mat', 'txt']
 def load_dl(
     root: str,
     out_path: str,
+    backend: str,
     batch_size: int,
     imagenet_train: bool = None,
     imagenet_val: bool = None,
@@ -47,7 +48,6 @@ def load_dl(
     things_behavior: bool = None,
     add_ref_imgs: bool = None,
     file_names: List[str] = None,
-    backend: str = 'pt',
     transforms=None,
 ) -> Iterator:
     """Create a data loader for custom image dataset
@@ -93,6 +93,7 @@ def load_dl(
     dataset = ImageDataset(
         root=root,
         out_path=out_path,
+        backend=backend,
         imagenet_train=imagenet_train,
         imagenet_val=imagenet_val,
         things=things,
@@ -208,6 +209,7 @@ def extract_features_across_models_and_datasets(
     clip: List[bool],
     pretrained: bool,
     batch_size: int,
+    backend: str,
     flatten_acts: bool,
     f_format: str = '.txt',
 ) -> None:
@@ -218,7 +220,7 @@ def extract_features_across_models_and_datasets(
         for img_path in img_paths:
             PATH = os.path.join(out_path, img_path, model_name,
                                 module_names[i], 'features')
-            dl = load_dl(img_path, out_path=PATH,
+            dl = load_dl(img_path, backend=backend, out_path=PATH,
                          batch_size=batch_size, transforms=transforms)
             features, _ = extract_features(
                 model, dl, module_names[i], batch_size=batch_size, flatten_acts=flatten_acts, device=device, clip=clip[i])
@@ -233,6 +235,7 @@ def extract_features_across_models_datasets_and_modules(
     clip: List[str],
     pretrained: bool,
     batch_size: int,
+    backend: str,
     flatten_acts: bool,
     f_format: str = '.txt',
 ) -> None:
@@ -245,7 +248,7 @@ def extract_features_across_models_datasets_and_modules(
             for module_name in modules:
                 PATH = os.path.join(out_path, img_path,
                                     model_name, module_name, 'features')
-                dl = load_dl(img_path, out_path=PATH,
+                dl = load_dl(img_path, backend=backend, out_path=PATH,
                              batch_size=batch_size, transforms=transforms)
                 features, _ = extract_features(
                     model, dl, module_name, batch_size=batch_size, flatten_acts=flatten_acts, device=device, clip=clip[i])
@@ -851,6 +854,7 @@ def get_features(
     clip: List[bool],
     pretrained: bool,
     batch_size: int,
+    backend: str,
     flatten_acts: bool,
 ) -> Dict[str, Dict[str, np.ndarray]]:
     """Extract features for a list of neural network models and corresponding modules.
@@ -898,7 +902,7 @@ def get_features(
     for i, model_name in enumerate(model_names):
         model, transforms = load_model(
             model_name, pretrained=pretrained, model_path=None, device=device)
-        dl = load_dl(root, out_path=out_path,
+        dl = load_dl(root, backend=backend, out_path=out_path,
                      batch_size=batch_size, transforms=transforms)
         features, _ = extract_features(
             model, dl, module_names[i], batch_size=batch_size, flatten_acts=flatten_acts, device=device, clip=clip[i])
@@ -913,6 +917,7 @@ def compare_models(
     module_names: List[str],
     pretrained: bool,
     batch_size: int,
+    backend: str,
     flatten_acts: bool,
     clip: List[bool],
     save_features: bool = True,
@@ -980,6 +985,7 @@ def compare_models(
         clip=clip,
         pretrained=pretrained,
         batch_size=batch_size,
+        backend=backend,
         flatten_acts=flatten_acts,
     )
     # save model features to disc

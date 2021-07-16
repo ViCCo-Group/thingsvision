@@ -75,6 +75,7 @@ class ExtractionTestCase(unittest.TestCase):
         dataset = ImageDataset(
             root=TEST_PATH,
             out_path=OUT_PATH,
+            backend=BACKEND,
             transforms=transforms,
             imagenet_train=None,
             imagenet_val=None,
@@ -168,6 +169,7 @@ class ComparisonTestCase(unittest.TestCase):
             module_names=MODULE_NAMES,
             pretrained=True,
             batch_size=BATCH_SIZE,
+            backend=BACKEND,
             flatten_acts=True,
             clip=CLIP,
             save_features=False,

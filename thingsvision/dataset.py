@@ -56,6 +56,7 @@ class ImageDataset(object):
         self,
         root: str,
         out_path: str,
+        backend: str,
         imagenet_train: bool,
         imagenet_val: bool,
         things: bool,
@@ -65,6 +66,7 @@ class ImageDataset(object):
         transforms=None,
     ):
         self.root = root
+        self.backend = backend
         self.imagenet_train = imagenet_train
         self.imagenet_val = imagenet_val
         self.things = things
@@ -153,7 +155,11 @@ class ImageDataset(object):
         img = Image.open(img_path).convert('RGB')
         if self.transforms is not None:
             img = self.transforms(img)
-            target = torch.tensor([target])
+            if self.backend == 'pt':
+                target = torch.tensor([target])
+            else:
+                # TODO: implement the same for TensorFlow
+                raise NotImplementedError
         else:
             target = np.array([target])
         return img, target
