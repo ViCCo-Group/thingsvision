@@ -13,7 +13,7 @@ import pandas as pd
 import thingsvision.vision as vision
 
 from thingsvision.dataset import ImageDataset
-from torch.utils.data import DataLoader
+from thingsvision.dataloader import DataLoader
 
 DATA_PATH = './data'
 TEST_PATH = './test_images'
