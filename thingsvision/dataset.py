@@ -12,8 +12,7 @@ from collections import defaultdict
 from os.path import join as pjoin
 
 from PIL import Image
-from torchvision import transforms as T
-from typing import Tuple, List, Dict, Iterator, Any
+from typing import Tuple, List, Dict, Any
 
 
 class ImageDataset(object):

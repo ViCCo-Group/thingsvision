@@ -4,7 +4,7 @@
 import h5py
 import json
 import os
-import random
+import pickle
 import re
 import scipy
 import scipy.io
@@ -23,13 +23,13 @@ import torch.nn.functional as F
 import torchvision.models as models
 
 from collections import defaultdict
-from numba import njit, jit, prange
+from numba import njit, prange
 from os.path import join as pjoin
 from scipy.stats import rankdata
 from scipy.spatial.distance import pdist
 from scipy.spatial.distance import squareform
 from thingsvision.dataset import ImageDataset
-from torch.utils.data import DataLoader, Subset
+from torch.utils.data import DataLoader
 from torchvision import transforms as T
 from typing import Tuple, List, Iterator, Dict, Any
 
@@ -1006,4 +1006,4 @@ def compare_models(
 def pickle_file_(file: dict, out_path: str, f_name: str) -> None:
     """Pickle any file."""
     with open(os.path.join(out_path, f_name + '.p'), 'wb') as f:
-        pickle.dump(scores, f)
+        pickle.dump(file, f)
