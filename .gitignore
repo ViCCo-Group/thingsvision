@@ -1,2 +1,9 @@
 *.pyc
-*.DS_STORE
+*.DS_Store
+*.zip
+*.txt
+*.csv
+*.tsv
+*.tar
+*.jpg
+*.png
