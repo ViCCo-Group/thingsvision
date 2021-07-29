@@ -2,19 +2,21 @@ name: Example workflow for Codecov
 on: [push, pull_request]
 jobs:
   run:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
     env:
-      OS: ubuntu-latest
+      OS: ${{ matrix.os }}
       PYTHON: '3.8'
+
     steps:
-    - uses: checkout@v2
-      with:
-        fetch-depth: ‘2’
-        
+    - uses: actions/checkout@master
     - name: Setup Python
       uses: actions/setup-python@master
       with:
         python-version: 3.8
+        
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
