@@ -1,3 +1,5 @@
+![tests](https://github.com/ViCCo-Group/THINGSvision/actions/workflows/python-package.yml/badge.svg)
+
 ## Model collection
 
 Features can be extracted for all models in [torchvision](https://pytorch.org/vision/0.8/models.html), each of the [CORnet](https://github.com/dicarlolab/CORnet) versions and both [CLIP](https://github.com/openai/CLIP) variants (`clip-ViT` and `clip-RN`). For the correct abbreviations of [torchvision](https://pytorch.org/vision/0.8/models.html) models have a look [here](https://github.com/pytorch/vision/tree/master/torchvision/models). For the correct abbreviations of [CORnet](https://github.com/dicarlolab/CORnet) models look [here](https://github.com/dicarlolab/CORnet/tree/master/cornet). To separate the string `cornet` from its variant (e.g., `s`, `z`) use a hyphen instead of an underscore (e.g., `cornet-s`, `cornet-z`).<br>
