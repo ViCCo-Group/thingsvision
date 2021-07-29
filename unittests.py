@@ -29,7 +29,7 @@ CLIP = [True if re.search(r'^clip', model_name)
 FILE_FORMATS = ['hdf5', 'npy', 'mat', 'txt']
 DISTANCES = ['correlation', 'cosine', 'euclidean', 'gaussian']
 
-BATCH_SIZE = 32
+BATCH_SIZE = 16
 NUM_OBJECTS = 1854
 # we want to iterate over two batches to exhaustively test mini-batching
 NUM_SAMPLES = int(BATCH_SIZE * 2)
