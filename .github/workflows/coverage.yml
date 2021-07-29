@@ -22,7 +22,7 @@ jobs:
     - name: Generate coverage report
       run: |
         pip install coverage
-        coverage run -m unittests.py
+        coverage run unittests.py
         coverage report
         coverage html
     - name: Upload coverage to Codecov
