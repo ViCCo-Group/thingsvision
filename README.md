@@ -1,4 +1,6 @@
 ![tests](https://github.com/ViCCo-Group/THINGSvision/actions/workflows/python-package.yml/badge.svg)
+![package publishing](https://github.com/ViCCo-Group/THINGSvision/actions/workflows/python-publish.yml/badge.svg)
+
 
 ## Model collection
 
