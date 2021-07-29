@@ -1,4 +1,4 @@
-![tests](https://github.com/ViCCo-Group/THINGSvision/actions/workflows/python-package.yml/badge.svg)
+[![Run unittests](https://github.com/ViCCo-Group/THINGSvision/actions/workflows/python-package.yml/badge.svg)](https://github.com/ViCCo-Group/THINGSvision/actions/workflows/python-package.yml)
 [![Upload Python Package](https://github.com/ViCCo-Group/THINGSvision/actions/workflows/python-publish.yml/badge.svg)](https://github.com/ViCCo-Group/THINGSvision/actions/workflows/python-publish.yml)
 
 ## Model collection
