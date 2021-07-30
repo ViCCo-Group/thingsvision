@@ -25,7 +25,7 @@ jobs:
       run: |
         pip install coverage
         coverage run unittests.py
-        coverage html
+        coverage xml
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v2
       with:
@@ -33,6 +33,6 @@ jobs:
         env_vars: OS,PYTHON
         fail_ci_if_error: true
         flags: unittests
-        files: ./htmlcov/index.html
+        files: ./coverage.xml
         name: codecov-umbrella
         verbose: true
