@@ -28,8 +28,9 @@ from os.path import join as pjoin
 from scipy.stats import rankdata
 from scipy.spatial.distance import pdist
 from scipy.spatial.distance import squareform
+from thingsvision.model_class import Model
 from thingsvision.dataset import ImageDataset
-from torch.utils.data import DataLoader
+from thingsvision.dataloader import DataLoader
 from torchvision import transforms as T
 from typing import Tuple, List, Iterator, Dict, Any
 
@@ -37,9 +38,11 @@ from typing import Tuple, List, Iterator, Dict, Any
 FILE_FORMATS = ['hdf5', 'npy', 'mat', 'txt']
 
 
+
 def load_dl(
     root: str,
     out_path: str,
+    backend: str,
     batch_size: int,
     imagenet_train: bool = None,
     imagenet_val: bool = None,
@@ -76,8 +79,8 @@ def load_dl(
         the order in which image features are extracted can optionally
         be passed.
     transforms : Any
-        Composition of image transformations. Images must be transformed
-        into the right format for a PyTorch model.
+        Composition of image transformations. Must be either a PyTorch composition
+        or a Tensorflow Sequential model.
 
     Returns
     -------
@@ -92,6 +95,7 @@ def load_dl(
     dataset = ImageDataset(
         root=root,
         out_path=out_path,
+        backend=backend,
         imagenet_train=imagenet_train,
         imagenet_val=imagenet_val,
         things=things,
@@ -100,97 +104,9 @@ def load_dl(
         file_names=file_names,
         transforms=transforms,
     )
-    print(f'...Transforming dataset into PyTorch DataLoader.\n')
-    dl = DataLoader(dataset, batch_size=batch_size, shuffle=False)
+    print(f'...Transforming dataset into {backend} DataLoader.\n')
+    dl = DataLoader(dataset, batch_size=batch_size, backend=backend)
     return dl
-
-
-def load_model(
-    model_name: str,
-    pretrained: bool,
-    device: str,
-    model_path: str = None,
-) -> Tuple[Any, Any]:
-    """Load a pretrained *torchvision* or CLIP model into memory.
-
-    Parameters
-    ----------
-    Model_name : str
-        Model name. Name of model for which features should
-        subsequently be extracted.
-    pretrained : bool
-        Whether to load a model with pretrained or
-        randomly initialized weights into memory.
-    device : str
-        Device. Whether model weights should be moved
-        to CUDA or left on the CPU.
-    model_path : str (optional)
-        path/to/weights. If pretrained is set to False,
-        model weights can be loaded from a path on the
-        user's machine. This is useful when operating
-        on a server without network access, or when
-        features should be extracted for a model that
-        was fine-tuned (or trained) on a custom image
-        dataset.
-
-    Returns
-    -------
-    output : Tuple[model, transforms]
-        Returns the (pretrained or randomly initialized)
-        model and the corresponding image transformations.
-    """
-    if re.search(r'^clip', model_name):
-        if re.search(r'ViT$', model_name):
-            model, transforms = clip.load(
-                "ViT-B/32",
-                device=device,
-                model_path=model_path,
-                pretrained=pretrained,
-                jit=False,
-            )
-        else:
-            model, transforms = clip.load(
-                "RN50",
-                device=device,
-                model_path=model_path,
-                pretrained=pretrained,
-                jit=False,
-            )
-    else:
-        device = torch.device(device)
-        if re.search(r'^cornet', model_name):
-            try:
-                model = getattr(cornet, f'cornet_{model_name[-1]}')
-            except:
-                model = getattr(cornet, f'cornet_{model_name[-2:]}')
-            model = model(pretrained=pretrained, map_location=device)
-            model = model.module    # remove DataParallel
-        else:
-            model = getattr(models, model_name)
-            model = model(pretrained=pretrained)
-        model = model.to(device)
-        transforms = compose_transforms()
-    if model_path:
-        state_dict = torch.load(model_path, map_location=device)
-        model.load_state_dict(state_dict)
-    model.eval()
-    return model, transforms
-
-
-def show_model(model, model_name: str) -> str:
-    """Show architecture of model to select a layer."""
-    if re.search(r'^clip', model_name):
-        for l, (n, p) in enumerate(model.named_modules()):
-            if l > 1:
-                if re.search(r'^visual', n):
-                    print(n)
-        print('visual')
-    else:
-        print(model)
-    print(f'\nEnter module name for which you would like to extract features:\n')
-    module_name = str(input())
-    print()
-    return module_name
 
 
 def get_module_names(model, module: str) -> list:
@@ -207,19 +123,20 @@ def extract_features_across_models_and_datasets(
     clip: List[bool],
     pretrained: bool,
     batch_size: int,
+    backend: str,
     flatten_acts: bool,
-    f_format: str = '.txt',
+    f_format: str = '.txt'
 ) -> None:
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     for i, model_name in enumerate(model_names):
-        model, transforms = load_model(
-            model_name, pretrained=pretrained, model_path=None, device=device)
+        model = Model(model_name, pretrained=pretrained, model_path=None, device=device)
+        transforms = model.get_transformations()
         for img_path in img_paths:
             PATH = os.path.join(out_path, img_path, model_name,
                                 module_names[i], 'features')
-            dl = load_dl(img_path, out_path=PATH,
+            dl = load_dl(img_path, backend=backend, out_path=PATH,
                          batch_size=batch_size, transforms=transforms)
-            features, _ = extract_features(
+            features, _ = model.extract_features(
                 model, dl, module_names[i], batch_size=batch_size, flatten_acts=flatten_acts, device=device, clip=clip[i])
             save_features(features, out_path, f_format)
 
@@ -232,40 +149,24 @@ def extract_features_across_models_datasets_and_modules(
     clip: List[str],
     pretrained: bool,
     batch_size: int,
+    backend: str,
     flatten_acts: bool,
-    f_format: str = '.txt',
+    f_format: str = '.txt'
 ) -> None:
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     for i, model_name in enumerate(model_names):
-        model, transforms = load_model(
-            model_name, pretrained=pretrained, model_path=None, device=device)
+        model = Model(model_name, pretrained=pretrained, model_path=None, device=device)
+        transforms = model.get_transformations()
         modules = get_module_names(model, module_names[i])
         for img_path in img_paths:
             for module_name in modules:
                 PATH = os.path.join(out_path, img_path,
                                     model_name, module_name, 'features')
-                dl = load_dl(img_path, out_path=PATH,
+                dl = load_dl(img_path, backend=backend, out_path=PATH,
                              batch_size=batch_size, transforms=transforms)
-                features, _ = extract_features(
+                features, _ = model.extract_features(
                     model, dl, module_name, batch_size=batch_size, flatten_acts=flatten_acts, device=device, clip=clip[i])
                 save_features(features, PATH, f_format)
-
-
-def get_activation(name):
-    """Store hidden unit activations at each layer of model."""
-    def hook(model, input, output):
-        try:
-            activations[name] = output.detach()
-        except AttributeError:
-            activations[name] = output
-    return hook
-
-
-def register_hook(model):
-    """Register a forward hook to store activations."""
-    for n, m in model.named_modules():
-        m.register_forward_hook(get_activation(n))
-    return model
 
 
 def center_features(X: np.ndarray) -> np.ndarray:
@@ -288,37 +189,6 @@ def normalize_features(X: np.ndarray) -> np.ndarray:
             f'\nMake sure features are represented through a two-dimensional array\n')
 
 
-def enumerate_layers(model, feature_extractor) -> List[int]:
-    layers = []
-    k = 0
-    for n, m in model.named_modules():
-        if re.search(r'\d+$', n):
-            if isinstance(m, feature_extractor):
-                layers.append(k)
-            k += 1
-    return layers
-
-
-def ensemble_featmaps(
-    activations: dict,
-    layers: list,
-    pooling: str = 'max',
-    alpha: float = 3.,
-    beta: float = 5.,
-) -> torch.Tensor:
-    """Concatenate globally (max or average) pooled feature maps."""
-    acts = [activations[''.join(('features.', str(l)))] for l in layers]
-    func = torch.max if pooling == 'max' else torch.mean
-    pooled_acts = [torch.tensor([list(map(func, featmaps))
-                                for featmaps in acts_i]) for acts_i in acts]
-    # upweight second-to-last conv layer by 5.
-    pooled_acts[-2] = pooled_acts[-2] * alpha
-    # upweight last conv layer by 10.
-    pooled_acts[-1] = pooled_acts[-1] * beta
-    stacked_acts = torch.cat(pooled_acts, dim=1)
-    return stacked_acts
-
-
 def compress_features(X: np.ndarray, rnd_seed: int, retained_var: float = .9) -> np.ndarray:
     """Compress feature matrix with Principal Components Analysis (PCA)."""
     from sklearn.decomposition import PCA
@@ -329,119 +199,6 @@ def compress_features(X: np.ndarray, rnd_seed: int, retained_var: float = .9) ->
     transformed_feats = pca.fit_transform(X)
     return transformed_feats
 
-
-def extract_features(
-    model: Any,
-    data_loader: Iterator,
-    module_name: str,
-    batch_size: int,
-    flatten_acts: bool,
-    device: str,
-    clip: bool = False,
-    return_probabilities: bool = False,
-) -> Tuple[np.ndarray, np.ndarray]:
-    """Extract hidden unit activations (at specified layer) for every image in the database.
-
-    Parameters
-    ----------
-    model : Any
-        Neural network model. The previously loaded
-        neural network model for which image features
-        should be extraced in a batch-wise manner.
-    data_loader : Iterator
-        Mini-batches. Iterator with equally sized
-        mini-batches, where each element is a
-        subsample of the full image dataset.
-    module_name : str
-        Layer name. Name of neural network layer for
-        which features should be extraced.
-    flatten_acts : bool
-        Whether activation tensor (e.g., activations
-        from an early layer of the neural network model)
-        should be transformed into a vector.
-    device : str
-        Device. Whether feature extraction should
-        be executed on CUDA or CPU.
-    clip : bool (optional)
-        Whether neural network model is a CNN-based
-        torchvision or CLIP-based model. Since CLIP
-        has a different training objective, feature
-        extraction must be performed differently.
-    return_probabilities : bool (optional)
-        Whether class probabilities (softmax predictions)
-        should be returned in addition to the feature matrix
-        and the target vector.
-
-    Returns
-    -------
-    output : Tuple[np.ndarray, np.ndarray] OR Tuple[np.ndarray, np.ndarray, np.ndarray]
-        Returns the feature matrix and the target vector OR in addition to the feature
-        matrix and the target vector, the class probabilities.
-    """
-    if re.search(r'ensemble$', module_name):
-        ensembles = ['conv_ensemble', 'maxpool_ensemble']
-        assert module_name in ensembles, f'\nIf aggregating filters across layers and subsequently concatenating features, module name must be one of {ensembles}\n'
-        if re.search(r'^conv', module_name):
-            feature_extractor = nn.Conv2d
-        else:
-            feature_extractor = nn.MaxPool2d
-
-    device = torch.device(device)
-    # initialise dictionary to store hidden unit activations on the fly
-    global activations
-    activations = {}
-    # register forward hook to store activations
-    model = register_hook(model)
-    features, targets = [], []
-
-    if return_probabilities:
-        assert not clip, '\nCannot extract activations for CLIP and return class predictions simultaneously. This feature will be implemented in a future version.\n'
-        probabilities = []
-
-    with torch.no_grad():
-        for i, batch in enumerate(data_loader):
-            batch = (t.to(device) for t in batch)
-            X, y = batch
-            if clip:
-                img_features = model.encode_image(X)
-                if module_name == 'visual':
-                    assert torch.unique(activations[module_name] == img_features).item(
-                    ), '\nImage features should represent activations in last encoder layer.\n'
-            else:
-                out = model(X)
-                if return_probabilities:
-                    probas = F.softmax(out, dim=1)
-                    probabilities.append(probas)
-
-            if re.search(r'ensemble$', module_name):
-                layers = enumerate_layers(model, feature_extractor)
-                act = ensemble_featmaps(activations, layers, 'max')
-            else:
-                act = activations[module_name]
-                if flatten_acts:
-                    if clip:
-                        if re.search(r'attn$', module_name):
-                            act = act[0]
-                        else:
-                            if act.size(0) != X.shape[0] and len(act.shape) == 3:
-                                act = act.permute(1, 0, 2)
-                    act = act.view(act.size(0), -1)
-            features.append(act.cpu())
-            targets.extend(y.squeeze(-1).cpu())
-
-    # stack each mini-batch of hidden activations to obtain an N x F matrix, and flatten targets to yield vector
-    features = np.vstack(features)
-    targets = np.asarray(targets).ravel()
-    print(
-        f'...Features successfully extracted for all {len(features)} images in the database.')
-    if return_probabilities:
-        probabilities = np.vstack(probabilities)
-        assert len(features) == len(targets) == len(
-            probabilities), '\nFeatures, targets, and probabilities must correspond to the same number of images.\n'
-        return features, targets, probabilities
-    assert len(features) == len(
-        targets), '\nFeatures and targets must correspond to the same number of images.\n'
-    return features, targets
 
 # ################################################################# #
 # HELPER FUNCTIONS FOR SAVING, MERGING AND SLICING FEATURE MATRICES #
@@ -850,6 +607,7 @@ def get_features(
     clip: List[bool],
     pretrained: bool,
     batch_size: int,
+    backend: str,
     flatten_acts: bool,
 ) -> Dict[str, Dict[str, np.ndarray]]:
     """Extract features for a list of neural network models and corresponding modules.
@@ -895,12 +653,13 @@ def get_features(
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     model_features = defaultdict(dict)
     for i, model_name in enumerate(model_names):
-        model, transforms = load_model(
+        model = Model(
             model_name, pretrained=pretrained, model_path=None, device=device)
-        dl = load_dl(root, out_path=out_path,
+        transforms = model.get_transformations()
+        dl = load_dl(root, backend=backend, out_path=out_path,
                      batch_size=batch_size, transforms=transforms)
-        features, _ = extract_features(
-            model, dl, module_names[i], batch_size=batch_size, flatten_acts=flatten_acts, device=device, clip=clip[i])
+        features, _ = model.extract_features(
+            dl, module_names[i], batch_size=batch_size, flatten_acts=flatten_acts, device=device, clip=clip[i])
         model_features[model_name][module_names[i]] = features
     return model_features
 
@@ -912,6 +671,7 @@ def compare_models(
     module_names: List[str],
     pretrained: bool,
     batch_size: int,
+    backend: str,
     flatten_acts: bool,
     clip: List[bool],
     save_features: bool = True,
@@ -979,6 +739,7 @@ def compare_models(
         clip=clip,
         pretrained=pretrained,
         batch_size=batch_size,
+        backend=backend,
         flatten_acts=flatten_acts,
     )
     # save model features to disc
