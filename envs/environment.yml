@@ -1,0 +1,25 @@
+name: thingsvision
+channels:
+ - defaults
+ - conda-forge
+ - pytorch
+dependencies:
+ - python=3.8
+ - numpy=1.19.*
+ - ftfy=5.8
+ - pandas=1.0.*
+ - scikit-image=0.18.*
+ - scikit-learn=0.24.*
+ - pytorch=1.7.*
+ - torchvision=0.8.*
+ - tqdm=4.47.*
+ - numba=0.53.*
+ - matplotlib=3.2.*
+ - regex
+ - scipy
+ - h5py
+ - pip
+ - pip:
+   - tensorflow==2.5.0 
+   - codecov
+   - pep8
