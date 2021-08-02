@@ -6,21 +6,22 @@ import os
 import re
 import skimage
 import shutil
-from typing import Tuple, List, Dict, Iterator, Any
 import unittest
 
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense
 import numpy as np
-from numpy.testing import assert_allclose
 import pandas as pd
 import torch
 import tensorflow as tf
-
+import torch.nn as nn
 import thingsvision.vision as vision
+
 from thingsvision.model_class import Model
 from thingsvision.dataset import ImageDataset
 from thingsvision.dataloader import DataLoader
+
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+from typing import Tuple, List, Any
 
 DATA_PATH = './data'
 TEST_PATH = './test_images'
@@ -31,7 +32,7 @@ PT_MODEL_AND_MODULE_NAMES = {
     'vgg19_bn': ['features.23', 'classifier.3'],
     'cornet_r': ['decoder.flatten'],
     'cornet_rt': ['decoder.flatten'],
-    'cornet_s': ['decoder.flatten'], 
+    'cornet_s': ['decoder.flatten'],
     'cornet_z': ['decoder.flatten'],
     'clip-ViT': ['visual'],
     'clip-RN': ['visual']
@@ -52,11 +53,51 @@ BATCH_SIZE = 16
 NUM_OBJECTS = 1854
 # we want to iterate over two batches to exhaustively test mini-batching
 NUM_SAMPLES = int(BATCH_SIZE * 2)
-DEVICE = 'cpu'
+DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 BACKENDS = ['pt', 'tf']
 
-class SimpleDataset():
-    def __init__(self, values, backend):
+if not os.path.isfile(os.path.join(DATA_PATH, 'item_names.tsv')):
+    try:
+        os.system(
+            "curl -O https://raw.githubusercontent.com/ViCCo-Group/THINGSvision/master/get_files.sh")
+        os.system("bash get_files.sh")
+    except:
+        raise RuntimeError(
+            "Download the THINGS item names <tsv> file to run test;\n"
+            "See README.md for details."
+        )
+
+tf_model = Sequential()
+tf_model.add(Dense(1, input_dim=1, activation='relu',
+             use_bias=False, name='relu'))
+weights = np.array([[[1]]])
+tf_model.get_layer('relu').set_weights(weights)
+
+
+class NN(nn.Module):
+
+    def __init__(self, in_size: int, out_size: int):
+        super(NN, self).__init__()
+        self.linear = nn.Linear(in_size, out_size, bias=False)
+        self.relu = nn.ReLU()
+        # exchange weight value with 1.
+        self.linear.weight = nn.Parameter(torch.tensor([1.]))
+
+    def forward(self, x):
+        print('input %s' % x)
+        print('weight %s' % self.linear.weight)
+        x = self.linear(x)
+        act = self.relu(x)
+        print('act %s' % act)
+        return act
+
+
+pt_model = NN(1, 1)
+
+
+class SimpleDataset(object):
+
+    def __init__(self, values: List[int], backend: str):
         self.values = values
         self.backend = backend
 
@@ -70,30 +111,12 @@ class SimpleDataset():
         elif self.backend == 'tf':
             value = tf.convert_to_tensor([float(value)])
             target = tf.convert_to_tensor([target])
+
         return value, target
 
     def __len__(self) -> int:
-            return len(self.values)
+        return len(self.values)
 
-if not os.path.isfile(os.path.join(DATA_PATH, 'item_names.tsv')):
-    try:
-        os.system(
-            "curl -O https://raw.githubusercontent.com/ViCCo-Group/THINGSvision/master/get_files.sh")
-        os.system("bash get_files.sh")
-    except:
-        raise RuntimeError(
-            "Download the THINGS item names <tsv> file to run test;\n"
-            "See README.md for details."
-        )
-
-
-class ModelLoadingTestCase(unittest.TestCase):
-
-    def test_mode_and_device(self):
-        model_name = 'vgg16_bn'
-        model, dataset, dl = create_model_and_dl(model_name, 'pt')
-        self.assertTrue(hasattr(model.model, DEVICE))
-        self.assertFalse(model.model.training)
 
 def iterate_through_all_model_combinations():
     for backend in BACKENDS:
@@ -107,32 +130,43 @@ def iterate_through_all_model_combinations():
             model, dataset, dl = create_model_and_dl(model_name, backend)
             yield model, dataset, dl, MODEL_AND_MODULE_NAMES[model_name], model_name
 
+
 def create_model_and_dl(model_name, backend):
     """Iterate through all backends and models and create model, dataset and data loader."""
     model = Model(
-                model_name=model_name,
-                pretrained=True,
-                device=DEVICE,
-                backend=backend
+        model_name=model_name,
+        pretrained=True,
+        device=DEVICE,
+        backend=backend
     )
-    
+
     dataset = ImageDataset(
-                root=TEST_PATH,
-                out_path=OUT_PATH,
-                backend=backend,
-                imagenet_train=None,
-                imagenet_val=None,
-                things=None,
-                things_behavior=None,
-                add_ref_imgs=None,
-                transforms=model.get_transformations()
+        root=TEST_PATH,
+        out_path=OUT_PATH,
+        backend=backend,
+        imagenet_train=None,
+        imagenet_val=None,
+        things=None,
+        things_behavior=None,
+        add_ref_imgs=None,
+        transforms=model.get_transformations()
     )
     dl = DataLoader(
-            dataset,
-            batch_size=BATCH_SIZE,
-            backend=backend,
+        dataset,
+        batch_size=BATCH_SIZE,
+        backend=backend,
     )
     return model, dataset, dl
+
+
+class ModelLoadingTestCase(unittest.TestCase):
+
+    def test_mode_and_device(self):
+        model_name = 'vgg16_bn'
+        model, dataset, dl = create_model_and_dl(model_name, 'pt')
+        self.assertTrue(hasattr(model.model, DEVICE))
+        self.assertFalse(model.model.training)
+
 
 class ExtractionTestCase(unittest.TestCase):
 
@@ -160,30 +194,7 @@ class ExtractionTestCase(unittest.TestCase):
 
                 if module_name.startswith('classifier'):
                     self.assertEqual(features.shape[1],
-                                    model.model.classifier[int(module_name[-1])].out_features)
-
-    def test_extraction_custom_model(self):
-        layer_name = 'relu'
-        values = [2, -10]
-
-        backend = 'tf'
-        tf_dataset = SimpleDataset(values, backend)
-
-        tf_dl = DataLoader(
-                    tf_dataset,
-                    batch_size=1,
-                    backend=backend,
-        )
-
-        tf_model = Sequential()
-        tf_model.add(Dense(1, input_dim=1, activation='relu', use_bias=False, name='relu'))
-        weights = np.array([[[1]]])
-        tf_model.get_layer('relu').set_weights(weights)
-        model = Model('VGG16', pretrained=False, device='cpu', backend=backend)
-        model.model = tf_model
-        tf_features, _ = model.extract_features(tf_dl, layer_name, batch_size=BATCH_SIZE, flatten_acts=False, device=DEVICE)
-        expected_features = np.array([[2], [0]])
-        assert_allclose(tf_features, expected_features)
+                                     model.model.classifier[int(module_name[-1])].out_features)
 
     def test_postprocessing(self):
         """Test different postprocessing methods (e.g., centering, normalization, compression)."""
@@ -229,61 +240,39 @@ class ExtractionTestCase(unittest.TestCase):
                 file_format=format,
             )
 
-    def test_same_extraction_tf_torch(self):
+    def test_custom_torch_vs_tf_extraction(self):
         layer_name = 'relu'
         values = [2, -10]
-
         backend = 'tf'
         tf_dataset = SimpleDataset(values, backend)
-
         tf_dl = DataLoader(
-                    tf_dataset,
-                    batch_size=1,
-                    backend=backend,
+            tf_dataset,
+            batch_size=1,
+            backend=backend,
         )
 
-        tf_model = Sequential()
-        tf_model.add(Dense(1, input_dim=1, activation='relu', use_bias=False, name='relu'))
-        weights = np.array([[[1]]])
-        tf_model.get_layer('relu').set_weights(weights)
-        model = Model('VGG16', pretrained=False, device='cpu', backend=backend)
+        model = Model('VGG16', pretrained=False,
+                      device=DEVICE, backend=backend)
         model.model = tf_model
-        tf_features, tf_targets = model.extract_features(tf_dl, layer_name, batch_size=BATCH_SIZE, flatten_acts=False, device=DEVICE)
+        tf_features, _ = model.extract_features(
+            tf_dl, layer_name, batch_size=BATCH_SIZE, flatten_acts=False, device=DEVICE)
 
         backend = 'pt'
         pt_dataset = SimpleDataset(values, backend)
-
         pt_dl = DataLoader(
-                    pt_dataset,
-                    batch_size=1,
-                    backend=backend,
+            pt_dataset,
+            batch_size=1,
+            backend=backend,
         )
-
-        class NeuralNetwork(torch.nn.Module):
-                def __init__(self):
-                    super(NeuralNetwork, self).__init__()
-                    self.linear = torch.nn.Linear(1,1, bias=False)
-                    self.relu = torch.nn.ReLU()
-                    
-
-                def forward(self, x):
-                    print('input %s' % x)
-                    with torch.no_grad():
-                        self.linear.weight = torch.nn.Parameter(torch.tensor([1.]))
-                    print('weight %s' % self.linear.weight)
-
-                    x = self.linear(x)
-                    act = self.relu(x)
-                    print('act %s' % act)
-                    return act
-
-        pt_model = NeuralNetwork()
-            
-        model = Model('vgg16', pretrained=False, device='cpu', backend=backend)
+        model = Model('vgg16', pretrained=False,
+                      device=DEVICE, backend=backend)
         model.model = pt_model
-        pt_features, pt_target = model.extract_features(pt_dl, layer_name, batch_size=BATCH_SIZE, flatten_acts=False, device=DEVICE)
-        assert_allclose(tf_features, pt_features)
+        pt_features, _ = model.extract_features(
+            pt_dl, layer_name, batch_size=BATCH_SIZE, flatten_acts=False, device=DEVICE)
+        np.testing.assert_allclose(tf_features, pt_features)
 
+        expected_features = np.array([[2], [0]])
+        np.testing.assert_allclose(pt_features, expected_features)
 
 
 class RDMTestCase(unittest.TestCase):
@@ -293,7 +282,7 @@ class RDMTestCase(unittest.TestCase):
 
         features = np.load(os.path.join(OUT_PATH, 'features.npy'))
         features = features.reshape(NUM_SAMPLES, -1)
-  
+
         rdms = []
         for distance in DISTANCES:
             rdm = vision.compute_rdm(features, distance)
@@ -328,7 +317,8 @@ class ComparisonTestCase(unittest.TestCase):
             save_features=False,
         )
         self.assertTrue(isinstance(corr_mat, pd.DataFrame))
-        self.assertEqual(corr_mat.shape, (len(compare_model_names), len(compare_module_names)))
+        self.assertEqual(corr_mat.shape, (len(
+            compare_model_names), len(compare_module_names)))
 
 
 class LoadItemsTestCase(unittest.TestCase):
@@ -342,11 +332,7 @@ class LoadItemsTestCase(unittest.TestCase):
 class FileNamesTestCase(unittest.TestCase):
 
     def test_filenames(self):
-        model_name = 'vgg16_bn'
-        model, dataset, dl = create_model_and_dl(model_name, 'pt')
-        module_name = PT_MODEL_AND_MODULE_NAMES[model_name][0]
-        file_names = open(os.path.join(
-            OUT_PATH, 'file_names.txt'), 'r').read().split()
+        file_names = open(os.path.join(OUT_PATH, 'file_names.txt'), 'r').read().split()
         img_files = []
         for root, _, files in os.walk(TEST_PATH):
             for f in files:
