@@ -6,6 +6,7 @@ omit =
 	*/usr/local/lib*
 	./thingsvision/clip.py
 	./thingsvision/dataset.py
+	./thingsvision/tests*
 
 [report]
 omit =
@@ -13,3 +14,4 @@ omit =
 	*/usr/local/lib*
 	./thingsvision/clip.py
 	./thingsvision/dataset.py
+	./thingsvision/tests*
