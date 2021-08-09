@@ -1,3 +1,15 @@
 [run]
 branch = True
 source = thingsvision
+omit = 
+	*/__init__.py
+	*/usr/local/lib*
+	./thingsvision/clip.py
+	./thingsvision/dataset.py
+
+[report]
+omit =
+	*/__init__.py
+	*/usr/local/lib*
+	./thingsvision/clip.py
+	./thingsvision/dataset.py
