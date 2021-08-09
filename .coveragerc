@@ -4,14 +4,14 @@ source = thingsvision
 omit = 
 	*/__init__.py
 	*/usr/local/lib*
+	./thingsvision/tests/*
 	./thingsvision/clip.py
 	./thingsvision/dataset.py
-	./thingsvision/tests*
 
 [report]
 omit =
 	*/__init__.py
 	*/usr/local/lib*
+	./thingsvision/tests/*
 	./thingsvision/clip.py
 	./thingsvision/dataset.py
-	./thingsvision/tests*
