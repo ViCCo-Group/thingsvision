@@ -13,4 +13,3 @@ omit =
 	*/usr/local/lib*
 	./thingsvision/tests/*
 	./thingsvision/clip.py
-	./thingsvision/dataset.py
