@@ -1,5 +1,9 @@
 name: Code Coverage
-on: [push, pull_request]
+on: 
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
 jobs:
   run:
     runs-on: ${{ matrix.os }}
@@ -24,7 +28,7 @@ jobs:
     - name: Generate coverage report
       run: |
         pip install coverage
-        coverage run unittests.py
+        coverage run -m unittest discover thingsvision/tests
         coverage xml
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v2
