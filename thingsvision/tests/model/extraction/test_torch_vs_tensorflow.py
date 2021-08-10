@@ -1,6 +1,6 @@
 import unittest
 
-import helper
+import thingsvision.tests.helper as helper 
 from thingsvision.model_class import Model
 from thingsvision.dataloader import DataLoader
 
@@ -26,7 +26,7 @@ class ExtractionPTvsTFTestCase(unittest.TestCase):
                       device=helper.DEVICE, backend=backend)
         model.model = helper.tf_model
         tf_features, _ = model.extract_features(
-            tf_dl, layer_name, batch_size=helper.BATCH_SIZE, flatten_acts=False, device=helper.DEVICE)
+            tf_dl, layer_name, batch_size=helper.BATCH_SIZE, flatten_acts=False)
 
         backend = 'pt'
         pt_dataset = helper.SimpleDataset(values, backend)
@@ -39,7 +39,7 @@ class ExtractionPTvsTFTestCase(unittest.TestCase):
                       device=helper.DEVICE, backend=backend)
         model.model = helper.pt_model
         pt_features, _ = model.extract_features(
-            pt_dl, layer_name, batch_size=helper.BATCH_SIZE, flatten_acts=False, device=helper.DEVICE)
+            pt_dl, layer_name, batch_size=helper.BATCH_SIZE, flatten_acts=False)
         np.testing.assert_allclose(tf_features, pt_features)
 
         expected_features = np.array([[2], [0]])

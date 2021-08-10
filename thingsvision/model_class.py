@@ -124,7 +124,6 @@ class Model():
             module_name: str,
             batch_size: int,
             flatten_acts: bool,
-            device: str,
             clip: bool = False,
             return_probabilities: bool = False,
         ) -> Tuple[np.ndarray, np.ndarray]:
@@ -143,9 +142,6 @@ class Model():
                 Whether activation tensor (e.g., activations
                 from an early layer of the neural network model)
                 should be transformed into a vector.
-            device : str
-                Device. Whether feature extraction should
-                be executed on CUDA or CPU.
             clip : bool (optional)
                 Whether neural network model is a CNN-based
                 torchvision or CLIP-based model. Since CLIP
