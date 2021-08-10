@@ -63,6 +63,8 @@ The following examples will show how to load a model with PyTorch and Tensorflow
 
 ```python
 import torch
+import thingsvision.vision as vision
+
 from thingsvision.model_class import Model
 
 model_name = 'alexnet'
@@ -114,6 +116,8 @@ vision.save_features(features, f'./{model_name}/{module_name}/features', 'npy')
 
 ```python
 import torch
+import thingsvision.vision as vision
+
 from thingsvision.model_class import Model
 
 model_name = 'clip-ViT'
@@ -136,6 +140,8 @@ vision.save_targets(targets, f'./{model_name}/{module_name}/targets', 'npy')
 
 ```python
 import torch
+import thingsvision.vision as vision
+
 from thingsvision.model_class import Model
 
 model_name = 'cornet-s'
