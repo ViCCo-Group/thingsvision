@@ -1,4 +1,4 @@
-[![Unittests](https://github.com/ViCCo-Group/THINGSvision/actions/workflows/python-package.yml/badge.svg)](https://github.com/ViCCo-Group/THINGSvision/actions/workflows/python-package.yml)
+[![Unittests](https://github.com/ViCCo-Group/THINGSvision/actions/workflows/tests.yml/badge.svg)](https://github.com/ViCCo-Group/THINGSvision/actions/workflows/python-package.yml)
 [![Code Coverage](https://codecov.io/gh/ViCCo-Group/THINGSvision/branch/master/graph/badge.svg)](https://github.com/ViCCo-Group/THINGSvision/actions/workflows/coverage.yml)
 [![Upload Python Package](https://github.com/ViCCo-Group/THINGSvision/actions/workflows/python-publish.yml/badge.svg)](https://github.com/ViCCo-Group/THINGSvision/actions/workflows/python-publish.yml)
 
