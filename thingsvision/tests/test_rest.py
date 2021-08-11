@@ -2,7 +2,7 @@ import os
 import unittest
 
 import thingsvision.vision as vision 
-import helper 
+import thingsvision.tests.helper as helper 
 
 import numpy as np
 import pandas as pd 
@@ -19,8 +19,7 @@ class RDMTestCase(unittest.TestCase):
             data_loader=dl,
             module_name=module_name,
             batch_size=helper.BATCH_SIZE,
-            flatten_acts=False,
-            device=helper.DEVICE,
+            flatten_acts=False
         )
         for format in helper.FILE_FORMATS:
             # tests whether features can be saved in any of the formats as four-dimensional tensor
@@ -71,7 +70,7 @@ class ComparisonTestCase(unittest.TestCase):
             batch_size=helper.BATCH_SIZE,
             backend=backend,
             flatten_acts=True,
-            clip=helper.CLIP,
+            clip=[False, False],
             save_features=False,
         )
         self.assertTrue(isinstance(corr_mat, pd.DataFrame))

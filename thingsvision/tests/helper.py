@@ -41,9 +41,6 @@ TF_MODEL_AND_MODULES_NAMES = {
 
 BACKENDS = ['tf', 'pt']
 
-CLIP = [True if re.search(r'^clip', model_name)
-        else False for model_name in PT_MODEL_AND_MODULE_NAMES]
-
 FILE_FORMATS = ['hdf5', 'npy', 'mat', 'txt']
 DISTANCES = ['correlation', 'cosine', 'euclidean', 'gaussian']
 
@@ -76,7 +73,7 @@ class NN(nn.Module):
         x = self.linear(x)
         act = self.relu(x)
         print('act %s' % act)
-        return act
+        return torch.tensor([act.numpy()])
 
 
 pt_model = NN(1, 1)

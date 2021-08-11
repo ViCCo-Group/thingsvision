@@ -111,7 +111,9 @@ def load_dl(
 
 def get_module_names(model, module: str) -> list:
     """Extract correct module names, if iterating over multiple modules is desired."""
-    module_names, _ = zip(*model.named_modules())
+    if model.backend != 'pt':
+        raise Exception('Regex on module names is only supported on PyTorch.')
+    module_names, _ = zip(*model.model.named_modules())
     return list(filter(lambda n: re.search(f'{module}$', n), module_names))
 
 
@@ -125,7 +127,7 @@ def extract_features_across_models_and_datasets(
     batch_size: int,
     backend: str,
     flatten_acts: bool,
-    f_format: str = '.txt'
+    f_format: str = 'txt'
 ) -> None:
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     for i, model_name in enumerate(model_names):
@@ -136,8 +138,7 @@ def extract_features_across_models_and_datasets(
                                 module_names[i], 'features')
             dl = load_dl(img_path, backend=backend, out_path=PATH,
                          batch_size=batch_size, transforms=transforms)
-            features, _ = model.extract_features(
-                model, dl, module_names[i], batch_size=batch_size, flatten_acts=flatten_acts, device=device, clip=clip[i])
+            features, _ = model.extract_features(dl, module_names[i], batch_size=batch_size, flatten_acts=flatten_acts, clip=clip[i])
             save_features(features, out_path, f_format)
 
 
@@ -151,7 +152,7 @@ def extract_features_across_models_datasets_and_modules(
     batch_size: int,
     backend: str,
     flatten_acts: bool,
-    f_format: str = '.txt'
+    f_format: str = 'txt'
 ) -> None:
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     for i, model_name in enumerate(model_names):
@@ -164,8 +165,7 @@ def extract_features_across_models_datasets_and_modules(
                                     model_name, module_name, 'features')
                 dl = load_dl(img_path, backend=backend, out_path=PATH,
                              batch_size=batch_size, transforms=transforms)
-                features, _ = model.extract_features(
-                    model, dl, module_name, batch_size=batch_size, flatten_acts=flatten_acts, device=device, clip=clip[i])
+                features, _ = model.extract_features(dl, module_name, batch_size=batch_size, flatten_acts=flatten_acts, clip=clip[i])
                 save_features(features, PATH, f_format)
 
 
@@ -255,7 +255,6 @@ def split_features(
         except FileNotFoundError:
             file_names = None
     splits = np.linspace(0, len(features), n_splits, dtype=int)
-
     if file_format == 'hdf5':
         h5f = h5py.File(pjoin(PATH, 'features.h5'), 'w')
 
@@ -267,10 +266,10 @@ def split_features(
         elif file_format == 'mat':
             if file_names:
                 file_name_split = file_names[splits[i - 1]:splits[i]]
-                features = {
+                new_features = {
                     file_name_split[i]: feature for i, feature in enumerate(feature_split)}
                 scipy.io.savemat(
-                    pjoin(PATH, f'features_{i:02d}.mat'), features)
+                    pjoin(PATH, f'features_{i:02d}.mat'), new_features)
             else:
                 scipy.io.savemat(pjoin(PATH, f'features_{i:02d}.mat'), {
                                  'features': features})
@@ -659,7 +658,7 @@ def get_features(
         dl = load_dl(root, backend=backend, out_path=out_path,
                      batch_size=batch_size, transforms=transforms)
         features, _ = model.extract_features(
-            dl, module_names[i], batch_size=batch_size, flatten_acts=flatten_acts, device=device, clip=clip[i])
+            dl, module_names[i], batch_size=batch_size, flatten_acts=flatten_acts, clip=clip[i])
         model_features[model_name][module_names[i]] = features
     return model_features
 
