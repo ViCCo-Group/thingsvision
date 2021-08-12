@@ -4,7 +4,7 @@
 
 ## Model collection
 
-Features can be extracted for all models in [torchvision](https://pytorch.org/vision/0.8/models.html), each of the [CORnet](https://github.com/dicarlolab/CORnet) versions and both [CLIP](https://github.com/openai/CLIP) variants (`clip-ViT` and `clip-RN`). For the correct abbreviations of [torchvision](https://pytorch.org/vision/0.8/models.html) models have a look [here](https://github.com/pytorch/vision/tree/master/torchvision/models). For the correct abbreviations of [CORnet](https://github.com/dicarlolab/CORnet) models look [here](https://github.com/dicarlolab/CORnet/tree/master/cornet). To separate the string `cornet` from its variant (e.g., `s`, `z`) use a hyphen instead of an underscore (e.g., `cornet-s`, `cornet-z`).<br>
+Features can be extracted for all models in [torchvision](https://pytorch.org/vision/0.8/models.html), [TensorFlow](https://www.tensorflow.org/api_docs/python/tf/keras/applications), each of the [CORnet](https://github.com/dicarlolab/CORnet) versions and both [CLIP](https://github.com/openai/CLIP) variants (`clip-ViT` and `clip-RN`). For the correct abbreviations of [torchvision](https://pytorch.org/vision/0.8/models.html) models have a look [here](https://github.com/pytorch/vision/tree/master/torchvision/models). For the correct abbreviations of [CORnet](https://github.com/dicarlolab/CORnet) models look [here](https://github.com/dicarlolab/CORnet/tree/master/cornet). To separate the string `cornet` from its variant (e.g., `s`, `z`) use a hyphen instead of an underscore (e.g., `cornet-s`, `cornet-z`).<br>
 
 Examples:  `alexnet`, `resnet50`, `resnet101`, `vgg13`, `vgg13_bn`, `vgg16`, `vgg16_bn`, `vgg19`, `vgg19_bn`, `cornet-s`, `clip-ViT`
 
@@ -47,7 +47,7 @@ Replace `cudatoolkit=11.0` above with the appropriate CUDA version on your machi
     for fn in object_images_*.zip; do unzip -P the_password $fn; done
     ```
 
-3. Features can be extracted at every layer for all `torchvision`, `CORnet` and `CLIP` models.
+3. Features can be extracted at every layer for all `torchvision`, `TensorFlow`, `CORnet` and `CLIP` models.
 
 4. If you happen to be interested in an ensemble of `feature maps`, as introduced in this recent [COLING 2020 paper](https://www.aclweb.org/anthology/2020.coling-main.173/), you can simply extract an ensemble of `conv` or `max-pool` layers. The ensemble can additionally be concatenated with the activations of the penultimate layer, and subsequently transformed into a lower-dimensional space with `PCA` to reduce noise and only keep those dimensions that account for most of the variance. 
 
@@ -55,8 +55,8 @@ Replace `cudatoolkit=11.0` above with the appropriate CUDA version on your machi
 
 6. If you happen to extract hidden unit activations for many images, it is possible to run into `MemoryErrors`. To circumvent such problems, a helper function called `split_activations` will split the activation matrix into several batches, and stores them in separate files. For now, the split parameter is set to `10`. Hence, the function will split the activation matrix into `10` files. This parameter can, however, easily be modified in case you need more (or fewer) splits. To merge the separate activation batches back into a single activation matrix, just call `merge_activations` when loading the activations (e.g., `activations = merge_activations(PATH)`). 
 
-## Extract features at specific layer of a state-of-the-art `torchvision`, `CORnet`, `VGG16` or `CLIP` model 
-The following examples will show how to load a model with PyTorch and Tensorflow and how to extract features.
+## Extract features at specific layer of a state-of-the-art `torchvision`, `TensorFlow`, `CORnet`, or `CLIP` model 
+The following examples demonstrate how to load a model with PyTorch or TensorFlow into memory, and how to subsequently extract features.
 
 
 ### Example call for AlexNet with PyTorch:
@@ -242,7 +242,7 @@ features = vision.normalize_features(features)
 vision.save_features(features, f'./{model_name}/{module_name}/features', 'npy')
 ```
 
-### Example call for VGG16 with Tensorflow:
+### Example call for VGG16 with TensorFlow:
 
 ```python
 import tensorflow as tf 
