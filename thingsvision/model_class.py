@@ -83,12 +83,19 @@ class Model():
                         self.model = getattr(cornet, f'cornet_{self.model_name[-2:]}')
                     self.model = self.model(pretrained=self.pretrained, map_location=device)
                     self.model = self.model.module    # remove DataParallel
+                elif self.model_name == 'vgg16_bn_ecoset':
+                    self.model = torchvision_models.vgg16_bn(pretrained=False)
+                    self.model.classifier[6] = nn.Linear(4096, 565, bias=True)
+                    self.model_path = 'https://osf.io/fe7s5/download'
                 else:
                     self.model = getattr(torchvision_models, self.model_name)
                     self.model = self.model(pretrained=self.pretrained)
                 self.model = self.model.to(device)
             if self.model_path:
-                state_dict = torch.load(self.model_path, map_location=device)
+                try:
+                    state_dict = torch.load(self.model_path, map_location=device)
+                except FileNotFoundError:
+                    state_dict = torch.hub.load_state_dict_from_url(self.model_path, map_location=device)
                 self.model.load_state_dict(state_dict)
             self.model.eval()
         elif self.backend == 'tf':
