@@ -314,13 +314,13 @@ If you use this GitHub repository (or any modules associated with it), we would 
 ```latex
 @article{Muttenthaler_2021,
 	author = {Muttenthaler, Lukas and Hebart, Martin N.},
-	title = {THINGSvision: a Python toolbox for streamlining the extraction of activations from deep neural networks},
-	elocation-id = {2021.03.11.434979},
+	title = {THINGSvision: A Python Toolbox for Streamlining the Extraction of Activations From Deep Neural Networks},
+	journal ={Frontiers in Neuroinformatics},
+	volume = {15},
+	pages = {45},
 	year = {2021},
-	doi = {10.1101/2021.03.11.434979},
-	publisher = {Cold Spring Harbor Laboratory},
-	URL = {https://www.biorxiv.org/content/early/2021/03/12/2021.03.11.434979},
-	eprint = {https://www.biorxiv.org/content/early/2021/03/12/2021.03.11.434979.full.pdf},
-	journal = {bioRxiv}
+	url = {https://www.frontiersin.org/article/10.3389/fninf.2021.679838},
+	doi = {10.3389/fninf.2021.679838},
+	issn = {1662-5196},
 }
 ```
