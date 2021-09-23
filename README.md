@@ -10,7 +10,7 @@ Examples:  `alexnet`, `resnet50`, `resnet101`, `vgg13`, `vgg13_bn`, `vgg16`, `vg
 
 ## Environment Setup
 
-We recommend to create a new `conda environment` with Python version 3.7 or 3.8 (no tests for 3.9 yet). Check out the `environment.yml` file in `envs`, if you want to create a `conda environment` via `yml`. Note that [PyTorch 1.7.x](https://pytorch.org/) requires CUDA 10.2 or above, if you want to extract network activations on a GPU. However, the code runs already pretty fast on a strong CPU (Intel i7 or i9). Activate the environment and run the following `pip` command in your terminal. 
+We recommend to create a new `conda environment` with Python version 3.7 or 3.8 (no tests for 3.9 yet) before using `thingsvision`. Check out the `environment.yml` file in `envs`, if you want to create a `conda environment` via `yml`. Note that [PyTorch 1.7.x](https://pytorch.org/) requires CUDA 10.2 or above, if you want to extract network activations on a GPU. However, the code runs already pretty fast on a strong CPU (Intel i7 or i9). Activate the environment and run the following `pip` command in your terminal. 
 
 ``` bash
 $ pip install thingsvision
