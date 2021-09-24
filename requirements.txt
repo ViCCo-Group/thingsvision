@@ -11,4 +11,4 @@ matplotlib==3.2.2
 regex
 scipy
 h5py
-tensorflow==2.5.0
+tensorflow==2.5.1
