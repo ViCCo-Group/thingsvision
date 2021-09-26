@@ -20,6 +20,6 @@ dependencies:
  - h5py
  - pip
  - pip:
-   - tensorflow==2.5.0 
+   - tensorflow==2.5.1 
    - codecov
    - pep8
