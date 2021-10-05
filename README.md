@@ -234,7 +234,7 @@ Sequential(
 (e.g., "decoder.flatten")
 
 dl = vision.load_dl(root='./images/', out_path=f'./{model_name}/{module_name}/features', batch_size=64, transforms=model.get_transformations(), backend=backend)
-features, targets = model.extract_features(data_loader=dl, module_name=module_name, batch_size=64, flatten_acts=False, clip=False return_probabilities=False)
+features, targets = model.extract_features(data_loader=dl, module_name=module_name, batch_size=64, flatten_acts=False, clip=False, return_probabilities=False)
 
 features = vision.center_features(features)
 features = vision.normalize_features(features)
@@ -257,7 +257,7 @@ device = 'cuda' if tf.test.is_gpu_available() else 'cpu'
 model = Model(model_name, pretrained=True, model_path=None, device=device, backend=backend)
 
 dl = vision.load_dl(root='./images/', out_path=f'./{model_name}/{module_name}/features', batch_size=64, transforms=model.get_transformations(), backend=backend)
-features, targets, probas = model.extract_features(data_loader=dl, module_name=module_name, batch_size=64, flatten_acts=True, clip=False return_probabilities=True)
+features, targets, probas = model.extract_features(data_loader=dl, module_name=module_name, batch_size=64, flatten_acts=True, clip=False, return_probabilities=True)
 
 vision.save_features(features, f'./{model_name}/{module_name}/features', 'npy')
 ```
