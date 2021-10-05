@@ -22,7 +22,7 @@ class DataLoader(object):
         self.n_batches = 1
 
         if len(self.dataset) > self.batch_size:
-            self.n_batches = math.ceil(len(self.dataset) / batch_size)
+            self.n_batches = math.ceil(len(self.dataset) / self.batch_size)
 
         self.remainder = len(self.dataset) % self.batch_size
 
@@ -34,7 +34,7 @@ class DataLoader(object):
 
     def get_batches(self, dataset: Tuple) -> Iterator:
         for k in range(self.n_batches):
-            if self.remainder != 0 and k == int(self.n_batches - 1):
+            if (self.remainder != 0 and k == int(self.n_batches - 1)):
                 subset = range(k * self.batch_size, k *
                                self.batch_size + self.remainder)
             else:
