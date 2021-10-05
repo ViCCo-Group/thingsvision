@@ -3,6 +3,7 @@
 
 import tensorflow as tf
 import torch
+import math
 
 from typing import Iterator, Tuple
 
@@ -19,9 +20,11 @@ class DataLoader(object):
         self.batch_size = batch_size
         self.backend = backend
         self.n_batches = 1
-        if len(self.dataset) > self.batch_size:
-            self.n_batches = len(self.dataset) // self.batch_size
 
+        if len(self.dataset) > self.batch_size:
+            self.n_batches = math.ceil(len(self.dataset) / batch_size)
+
+        self.remainder = len(self.dataset) % self.batch_size
 
     def __len__(self) -> int:
         return self.n_batches
@@ -31,8 +34,13 @@ class DataLoader(object):
 
     def get_batches(self, dataset: Tuple) -> Iterator:
         for k in range(self.n_batches):
+            if self.remainder != 0 and k == int(self.n_batches - 1):
+                subset = range(k * self.batch_size, k *
+                               self.batch_size + self.remainder)
+            else:
+                subset = range(k * self.batch_size, (k + 1) * self.batch_size)
             X, y = zip(
-                *[dataset[i] for i in range(k * self.batch_size, (k + 1) * self.batch_size)])
+                *[dataset[i] for i in subset])
             if self.backend == 'pt':
                 X = torch.stack(X, dim=0)
                 y = torch.stack(y, dim=0)
