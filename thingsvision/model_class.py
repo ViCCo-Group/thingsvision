@@ -225,9 +225,10 @@ class Model():
                 features.append(activations)
                 targets.extend(y.numpy())
                 if return_probabilities:
-                    probas = tf.nn.softmax(activations, axis=1)
+                    out = self.model.predict(X)
+                    probas = tf.nn.softmax(out, axis=1)
                     probabilities.append(probas)
-
+        
         # stack each mini-batch of hidden activations to obtain an N x F matrix, and flatten targets to yield vector
         features = np.vstack(features)
         targets = np.asarray(targets).ravel()

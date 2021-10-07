@@ -1,6 +1,6 @@
 import unittest
 
-import thingsvision.tests.helper as helper 
+import tests.helper as helper 
 from thingsvision.model_class import Model
 from thingsvision.dataloader import DataLoader
 
@@ -42,5 +42,5 @@ class ExtractionPTvsTFTestCase(unittest.TestCase):
             pt_dl, layer_name, batch_size=helper.BATCH_SIZE, flatten_acts=False)
         np.testing.assert_allclose(tf_features, pt_features)
 
-        expected_features = np.array([[2], [0]])
+        expected_features = np.array([[2, 2], [0, 0]])
         np.testing.assert_allclose(pt_features, expected_features)
