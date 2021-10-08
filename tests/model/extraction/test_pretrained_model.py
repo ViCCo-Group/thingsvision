@@ -2,7 +2,7 @@ import os
 import re
 import unittest
 
-import thingsvision.tests.helper as helper 
+import tests.helper as helper 
 import thingsvision.vision as vision
 from thingsvision.dataloader import DataLoader
 from thingsvision.model_class import Model

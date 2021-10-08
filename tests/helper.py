@@ -53,9 +53,9 @@ DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 
 tf_model = Sequential()
-tf_model.add(Dense(1, input_dim=1, activation='relu',
+tf_model.add(Dense(2, input_dim=1, activation='relu',
              use_bias=False, name='relu'))
-weights = np.array([[[1]]])
+weights = np.array([[[1,1]]])
 tf_model.get_layer('relu').set_weights(weights)
 
 
@@ -66,18 +66,15 @@ class NN(nn.Module):
         self.linear = nn.Linear(in_size, out_size, bias=False)
         self.relu = nn.ReLU()
         # exchange weight value with 1.
-        self.linear.weight = nn.Parameter(torch.tensor([1.]))
+        self.linear.weight = nn.Parameter(torch.tensor([[1.], [1.]]))
 
     def forward(self, x):
-        print('input %s' % x)
-        print('weight %s' % self.linear.weight)
         x = self.linear(x)
         act = self.relu(x)
-        print('act %s' % act)
-        return torch.tensor([act.numpy()])
+        return act
 
 
-pt_model = NN(1, 1)
+pt_model = NN(1, 2)
 
 
 class SimpleDataset(object):

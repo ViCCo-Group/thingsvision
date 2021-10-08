@@ -2,7 +2,7 @@ import os
 import shutil
 import unittest
 
-import thingsvision.tests.helper as helper
+import tests.helper as helper
 import thingsvision.vision as vision
 import numpy as np 
 

@@ -1,6 +1,6 @@
 import unittest
 
-import thingsvision.tests.helper as helper 
+import tests.helper as helper 
 
 import numpy as np 
 import tensorflow as tf 

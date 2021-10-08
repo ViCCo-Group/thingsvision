@@ -1,19 +1,18 @@
 import re
 import unittest
-
-import thingsvision.tests.helper as helper 
+from tests import helper  
 from thingsvision.dataloader import DataLoader
 from thingsvision.model_class import Model
 
 import numpy as np 
 
-class ExtractionTestCase(unittest.TestCase):
+class ExtractionCustomModelTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
         helper.create_test_images()
         
-    def test_custom_model(self):
+    def test_extract_features(self):
         layer_name = 'relu'
         values = [2, -10]
         backends = [['pt', helper.pt_model, 'vgg16'], ['tf', helper.tf_model, 'VGG16']]
@@ -29,7 +28,7 @@ class ExtractionTestCase(unittest.TestCase):
                         device=helper.DEVICE, backend=backend)
 
             model.model = custom_model
-            expected_features = np.array([[2], [0]])
+            expected_features = np.array([[2, 2], [0, 0]])
             expected_targets = np.array([0, 0])
 
             features, targets = model.extract_features(dl, 
@@ -41,7 +40,7 @@ class ExtractionTestCase(unittest.TestCase):
             np.testing.assert_allclose(targets, expected_targets)
 
 
-            expected_probs = np.array([[1], [1]])
+            expected_probs = np.array([[0.5, 0.5], [0.5, 0.5]])
             features, targets, probs = model.extract_features(dl, 
                                                             layer_name, 
                                                             batch_size=batch_size, 
@@ -51,7 +50,28 @@ class ExtractionTestCase(unittest.TestCase):
             np.testing.assert_allclose(targets, expected_targets)
             np.testing.assert_allclose(probs, expected_probs)
 
+    def test_extraction_batches(self):
+        values = [1] * 10
+        backend = 'pt'
+        dataset = helper.SimpleDataset(values, backend)
+        model = Model('vgg16', pretrained=False, device=helper.DEVICE, backend=backend)
+        model.model = helper.pt_model
 
-    
+        # no batch remainders -> 5 batches with 2 examples
+        # batch remainders -> 3 batches with 3 examples and 1 batch with 1 remainder
 
-    
+        for batch_size in [2, 3]:
+            dl = DataLoader(
+                    dataset,
+                    batch_size=batch_size,
+                    backend=backend,
+            )
+            features, targets = model.extract_features(dl, 
+                                                    'relu', 
+                                                    batch_size=batch_size, 
+                                                    flatten_acts=False, 
+                                                    return_probabilities=False)
+            self.assertEqual(features.shape[0], len(dataset))
+            self.assertEqual(targets.shape[0], len(dataset))
+       
+        
