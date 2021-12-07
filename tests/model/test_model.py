@@ -24,7 +24,7 @@ class ModelLoadingTestCase(unittest.TestCase):
         transforms = model.get_transformations()
         self.assertTrue(isinstance(transforms, T.Compose))
 
-        with self.assertRaisesRegex(Exception, "You need to use Tensorflow 'tf' as backend if you want to use the CLIP model."):
+        with self.assertRaisesRegex(Exception, "You need to use PyTorch 'pt' as backend if you want to use the CLIP model."):
             model.backend = 'tf'
             transforms = model.get_transformations()
 
