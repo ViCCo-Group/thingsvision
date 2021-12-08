@@ -294,33 +294,44 @@ class Model():
         return self.model
 
 
-    def get_transformations(self, resize_dim: int = 256, crop_dim: int = 224):
+    def get_transformations(self, resize_dim: int = 256, crop_dim: int = 224, apply_center_crop: bool = True):
         if re.search(r'^clip', self.model_name):
             if self.backend != 'pt':
-                raise Exception("You need to use Tensorflow 'tf' as backend if you want to use the CLIP model.")
+                raise Exception("You need to use PyTorch 'pt' as backend if you want to use the CLIP model.")
 
-            composition = T.Compose([
-                T.Resize(self.clip_n_px, interpolation=Image.BICUBIC),
-                T.CenterCrop(self.clip_n_px),
-                lambda image: image.convert("RGB"),
-                T.ToTensor(),
-                T.Normalize((0.48145466, 0.4578275, 0.40821073), (0.26862954, 0.26130258, 0.27577711)),
-            ])
+            composes = [
+                T.Resize(self.clip_n_px, interpolation=Image.BICUBIC)
+            ]
+
+            if apply_center_crop:
+                composes.append(T.CenterCrop(self.clip_n_px))
+
+            composes += [lambda image: image.convert("RGB"),
+                         T.ToTensor(),
+                         T.Normalize((0.48145466, 0.4578275, 0.40821073), (0.26862954, 0.26130258, 0.27577711))]
+
+            composition = T.Compose(composes)
             return composition
             
         mean = [0.485, 0.456, 0.406]
         std = [0.229, 0.224, 0.225]
         if self.backend == 'pt':
             normalize = T.Normalize(mean=mean, std=std)
-            composition = T.Compose([T.Resize(resize_dim), T.CenterCrop(crop_dim), T.ToTensor(), normalize])
+            composes = [T.Resize(resize_dim)]
+            if apply_center_crop:
+                composes.append(T.CenterCrop(crop_dim))
+            composes += [T.ToTensor(), normalize]
+            composition = T.Compose(composes)
             return composition
         elif self.backend == 'tf':
             resize_dim = crop_dim
-            resize_crop_and_normalize = tf.keras.Sequential([
-                layers.experimental.preprocessing.Resizing(resize_dim, resize_dim),
-                #layers.experimental.preprocessing.CenterCrop(crop_dim, crop_dim)
-                layers.experimental.preprocessing.Normalization(mean=mean, variance=[std_ * std_ for std_ in std])
-            ])
+            composes = [layers.experimental.preprocessing.Resizing(resize_dim, resize_dim)]
+
+            if apply_center_crop:
+                pass
+                #composes.append(layers.experimental.preprocessing.CenterCrop(crop_dim, crop_dim))
+            composes += [layers.experimental.preprocessing.Normalization(mean=mean, variance=[std_ * std_ for std_ in std])]
+            resize_crop_and_normalize = tf.keras.Sequential(composes)
             return resize_crop_and_normalize
 
 
