@@ -262,6 +262,13 @@ features, targets, probas = model.extract_features(data_loader=dl, module_name=m
 vision.save_features(features, f'./{model_name}/{module_name}/features', 'npy')
 ```
 
+### Optional Center Cropping
+Center cropping is used by default but can be deactivated by turning off the `apply_center_crop` argument of the `get_transformations` method.
+```python
+apply_center_crop = False
+dl = vision.load_dl(root='./images/', out_path=f'./{model_name}/{module_name}/features', batch_size=64, transforms=model.get_transformations(apply_center_crop=apply_center_crop), backend=backend)
+```
+
 
 ## ImageNet class predictions
 
