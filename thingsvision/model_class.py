@@ -13,6 +13,7 @@ from tensorflow.keras import layers
 
 import thingsvision.cornet as cornet
 import thingsvision.clip as clip
+import thingsvision.custom_models as custom_models
 
 import torch
 import torch.nn as nn
@@ -83,10 +84,8 @@ class Model():
                         self.model = getattr(cornet, f'cornet_{self.model_name[-2:]}')
                     self.model = self.model(pretrained=self.pretrained, map_location=device)
                     self.model = self.model.module    # remove DataParallel
-                elif self.model_name == 'vgg16_bn_ecoset':
-                    self.model = torchvision_models.vgg16_bn(pretrained=False)
-                    self.model.classifier[6] = nn.Linear(4096, 565, bias=True)
-                    self.model_path = 'https://osf.io/fe7s5/download'
+                elif hasattr(custom_models, self.model_name):
+                    self.model = getattr(custom_models, self.model_name)(self.device, self.backend).create_model()
                 else:
                     self.model = getattr(torchvision_models, self.model_name)
                     self.model = self.model(pretrained=self.pretrained)
@@ -99,15 +98,18 @@ class Model():
                 self.model.load_state_dict(state_dict)
             self.model.eval()
         elif self.backend == 'tf':
-            model = getattr(tensorflow_models, self.model_name)
-            if self.pretrained:
-                weights = 'imagenet'
-            elif self.model_path:
-                weights = self.model_path
+            if hasattr(custom_models, self.model_name):
+                self.model = getattr(custom_models, self.model_name)(self.device, self.backend).create_model()
             else:
-                weights = None
-            
-            self.model = model(weights=weights)
+                model = getattr(tensorflow_models, self.model_name)
+                if self.pretrained:
+                    weights = 'imagenet'
+                elif self.model_path:
+                    weights = self.model_path
+                else:
+                    weights = None
+                
+                self.model = model(weights=weights)
     
 
     def show(self) -> str:

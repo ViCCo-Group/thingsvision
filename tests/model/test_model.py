@@ -5,6 +5,7 @@ import tests.helper as helper
 import numpy as np 
 import tensorflow as tf 
 from torchvision import transforms as T
+from thingsvision.model_class import Model 
 
 class ModelLoadingTestCase(unittest.TestCase):
 
@@ -38,4 +39,13 @@ class ModelLoadingTestCase(unittest.TestCase):
         model, dataset, dl = helper.create_model_and_dl(model_name, 'tf')
         transforms = model.get_transformations()
         self.assertTrue(isinstance(transforms, tf.keras.Sequential))
+
+    def test_load_custom_user_model(self):
+        model_name = 'VGG16_ecoset'
+        model = Model(model_name, True, 'cpu')
+        self.assertTrue(model.__class__.__name__, 'vgg')
+
+        model_name = 'Resnet50_ecoset'
+        model = Model(model_name, True, 'cpu')
+        self.assertTrue(model.__class__.__name__, 'resnet')
 

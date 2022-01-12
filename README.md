@@ -269,6 +269,15 @@ apply_center_crop = False
 dl = vision.load_dl(root='./images/', out_path=f'./{model_name}/{module_name}/features', batch_size=64, transforms=model.get_transformations(apply_center_crop=apply_center_crop), backend=backend)
 ```
 
+## Extract features from custom models
+If you want to use a custom model from the `custom_models` directory, you need to use the class name e.g. `VGG16_ecoset` as model name. The script will use the PyTorch or Tensorflow implementation depending on the `backend` value.
+
+```python
+from thingsvision.model_class import Model
+model_name = 'VGG16_ecoset
+model = Model(model_name, pretrained=True, model_path=None, device=device, backend=backend)
+```
+
 
 ## ImageNet class predictions
 
@@ -313,6 +322,29 @@ The function returns a correlation matrix in the form of a `Pandas` dataframe wh
 [[Blog]](https://openai.com/blog/clip/) [[Paper]](https://cdn.openai.com/papers/Learning_Transferable_Visual_Models_From_Natural_Language_Supervision.pdf) [[Model Card]](model-card.md) [[Colab]](https://colab.research.google.com/github/openai/clip/blob/master/Interacting_with_CLIP.ipynb)
 
 CLIP (Contrastive Language-Image Pre-Training) is a neural network trained on a variety of (image, text) pairs. It can be instructed in natural language to predict the most relevant text snippet, given an image, without directly optimizing for the task, similarly to the zero-shot capabilities of GPT-2 and 3. We found CLIP matches the performance of the original ResNet50 on ImageNet “zero-shot” without using any of the original 1.28M labeled examples, overcoming several major challenges in computer vision.
+
+## Add custom models
+If you want to use your own model and/or want to make it public, you just need to implement a class inheriting from the `custom_models/custom.py:Custom` class and implement the `create_model` method.
+There you can build/download the model and weights. The constructors expects a device and a backend.
+Afterwards you can put the file in the `custom_models` directory and create a Pull Request to include the model in the repository.
+
+```python
+from thingsvision.custom_models.custom import Custom
+import torchvision.models as torchvision_models
+import torch
+
+class VGG16_ecoset(Custom):
+    def __init__(self, device, backend) -> None:
+        super().__init__(device, backend)
+
+    def create_model(self):
+        if self.backend == 'pt':
+            model = torchvision_models.vgg16_bn(pretrained=False, num_classes=565)
+            path_to_weights = 'https://osf.io/fe7s5/download'
+            state_dict = torch.hub.load_state_dict_from_url(path_to_weights, map_location=self.device)
+            model.load_state_dict(state_dict)
+            return model
+```
 
 ## Citation
 
