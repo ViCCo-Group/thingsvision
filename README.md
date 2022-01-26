@@ -35,8 +35,9 @@ $ conda install --yes -c pytorch pytorch=1.7.1 torchvision cudatoolkit=11.0
 Replace `cudatoolkit=11.0` above with the appropriate CUDA version on your machine (e.g., 10.2) or `cpuonly` when installing on a machine without a GPU.
 
 ## Google Colab
-You can alternatively use Google Colab to use Thingsvision immediately by uploading your data into Google Drive.
-You can find the PyTorch example notebook [here](https://colab.research.google.com/github/ViCCo-Group/THINGSvision/pytorch.ipynb) and the Tensorflow example [here](https://colab.research.google.com/github/ViCCo-Group/THINGSvision/tensorflow.ipynb).
+
+Alternatively, you can use Google Colab to play aroung with `thingsvision` by simply uploading your image data to Google Drive.
+You can find the notebook using `PyTorch` [here](https://colab.research.google.com/github/ViCCo-Group/THINGSvision/pytorch.ipynb) and the `TensorFlow` example [here](https://colab.research.google.com/github/ViCCo-Group/THINGSvision/tensorflow.ipynb).
 
 ## IMPORTANT NOTES:
 
