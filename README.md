@@ -1,6 +1,8 @@
 [![Unittests](https://github.com/ViCCo-Group/THINGSvision/actions/workflows/tests.yml/badge.svg)](https://github.com/ViCCo-Group/THINGSvision/actions/workflows/python-package.yml)
 [![Code Coverage](https://codecov.io/gh/ViCCo-Group/THINGSvision/branch/master/graph/badge.svg)](https://github.com/ViCCo-Group/THINGSvision/actions/workflows/coverage.yml)
 [![Upload Python Package](https://github.com/ViCCo-Group/THINGSvision/actions/workflows/python-publish.yml/badge.svg)](https://github.com/ViCCo-Group/THINGSvision/actions/workflows/python-publish.yml)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ViCCo-Group/THINGSvision/pytorch.ipynb)
+
 
 ## Model collection
 
@@ -31,6 +33,10 @@ $ conda install --yes -c pytorch pytorch=1.7.1 torchvision cudatoolkit=11.0
 ```
 
 Replace `cudatoolkit=11.0` above with the appropriate CUDA version on your machine (e.g., 10.2) or `cpuonly` when installing on a machine without a GPU.
+
+## Google Colab
+You can alternatively use Google Colab to use Thingsvision immediately by uploading your data into Google Drive.
+You can find the PyTorch example notebook [here](https://colab.research.google.com/github/ViCCo-Group/THINGSvision/pytorch.ipynb) and the Tensorflow example [here](https://colab.research.google.com/github/ViCCo-Group/THINGSvision/tensorflow.ipynb).
 
 ## IMPORTANT NOTES:
 
