@@ -36,7 +36,7 @@ Replace `cudatoolkit=11.0` above with the appropriate CUDA version on your machi
 
 ## Google Colab
 
-Alternatively, you can use Google Colab to play aroung with `thingsvision` by simply uploading your image data to Google Drive.
+Alternatively, you can use Google Colab to play around with `thingsvision` by simply uploading your image data to Google Drive.
 You can find the notebook using `PyTorch` [here](https://colab.research.google.com/github/ViCCo-Group/THINGSvision/pytorch.ipynb) and the `TensorFlow` example [here](https://colab.research.google.com/github/ViCCo-Group/THINGSvision/tensorflow.ipynb).
 
 ## IMPORTANT NOTES:
