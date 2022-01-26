@@ -331,10 +331,11 @@ The function returns a correlation matrix in the form of a `Pandas` dataframe wh
 
 CLIP (Contrastive Language-Image Pre-Training) is a neural network trained on a variety of (image, text) pairs. It can be instructed in natural language to predict the most relevant text snippet, given an image, without directly optimizing for the task, similarly to the zero-shot capabilities of GPT-2 and 3. We found CLIP matches the performance of the original ResNet50 on ImageNet “zero-shot” without using any of the original 1.28M labeled examples, overcoming several major challenges in computer vision.
 
-## Add custom models
+## Adding custom models
+
 If you want to use your own model and/or want to make it public, you just need to implement a class inheriting from the `custom_models/custom.py:Custom` class and implement the `create_model` method.
-There you can build/download the model and weights. The constructors expects a device and a backend.
-Afterwards you can put the file in the `custom_models` directory and create a Pull Request to include the model in the repository.
+There you can build/download the model and its weights. The constructors expects a `device` (str) and a `backend` (str).
+Afterwards you can put the file in the `custom_models` directory and create a pull request to include the model in the official GitHub repository.
 
 ```python
 from thingsvision.custom_models.custom import Custom
