@@ -1,7 +1,8 @@
 [![Unittests](https://github.com/ViCCo-Group/THINGSvision/actions/workflows/tests.yml/badge.svg)](https://github.com/ViCCo-Group/THINGSvision/actions/workflows/python-package.yml)
 [![Code Coverage](https://codecov.io/gh/ViCCo-Group/THINGSvision/branch/master/graph/badge.svg)](https://github.com/ViCCo-Group/THINGSvision/actions/workflows/coverage.yml)
 [![Upload Python Package](https://github.com/ViCCo-Group/THINGSvision/actions/workflows/python-publish.yml/badge.svg)](https://github.com/ViCCo-Group/THINGSvision/actions/workflows/python-publish.yml)
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ViCCo-Group/THINGSvision/pytorch.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ViCCo-Group/THINGSvision/blob/master/doc/pytorch.ipynb)
+
 
 
 ## Model collection
@@ -37,11 +38,11 @@ Replace `cudatoolkit=11.0` above with the appropriate CUDA version on your machi
 ## Google Colab
 
 Alternatively, you can use Google Colab to play around with `thingsvision` by uploading your image data to Google Drive.
-You can find the jupyter notebook using `PyTorch` [here](https://colab.research.google.com/github/ViCCo-Group/THINGSvision/pytorch.ipynb) and the `TensorFlow` example [here](https://colab.research.google.com/github/ViCCo-Group/THINGSvision/tensorflow.ipynb).
+You can find the jupyter notebook using `PyTorch` [here](https://colab.research.google.com/github/ViCCo-Group/THINGSvision/blob/master/doc/pytorch.ipynb) and the `TensorFlow` example [here](https://colab.research.google.com/github/ViCCo-Group/THINGSvision/blob/master/doc/tensorflow.ipynb).
 
 ## IMPORTANT NOTES:
 
-1. Image data will automatically be converted into a ready-to-use dataset class, and subsequently wrapped with a `PyTorch` mini-batch dataloader to make neural activation extraction more efficient.
+1. Image data will automatically be converted into a ready-to-use dataset class, and subsequently wrapped with a `PyTorch` mini-batch dataloader to make neural activation extraction more efficient.https://colab.research.google.com/github/ViCCo-Group/THINGSvision/blob/master/doc/pytorch.ipynb
 
 2. If you happen to use the [THINGS image database](https://osf.io/jum2f/), make sure to correctly `unzip` all zip files (sorted from A-Z), and have all `object` directories stored in the parent directory `./images/` (e.g., `./images/object_xy/`) as well as the `things_concepts.tsv` file stored in the `./data/` folder. `bash get_files.sh` does the latter for you. Images, however, must be downloaded from the [THINGS database](https://osf.io/jum2f/) `Main` subfolder.  **The download is around 5GB**.
 
