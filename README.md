@@ -288,7 +288,7 @@ model = Model(model_name, pretrained=True, model_path=None, device=device, backe
 
 ## Representational Similarity Analysis (RSA) 
 
-Comparison between representational (dis-)similarity matrices corresponding to model features and human representations respectively.
+Comparison between representational (dis-)similarity matrices corresponding to model features and human representations (e.g., fMRI recordings) respectively.
 
 ```python
 rdm_dnn = vision.compute_rdm(features, method='correlation')
@@ -301,11 +301,9 @@ Would you like to know the probabilities corresponding to the `top k` predicted 
 
 ```python
 features, targets, probas = model.extract_features(data_loader=dl, module_name=module_name, batch_size=batch_size, flatten_acts=False, clip=False, return_probabilities=True)
-
 # return top k class probabilities and save dict as json file
 class_probas = vision.get_class_probabilities(probas=probas, out_path=out_path, cls_file='./data/imagenet1000_classes.txt', top_k=5, save_as_json=True)
-
-# save features
+# save features to disk
 vision.save_features(features, f'./{model_name}/{module_name}/features', 'npy')
 ```
 
