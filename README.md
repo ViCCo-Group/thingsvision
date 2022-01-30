@@ -282,7 +282,7 @@ If you want to use a custom model from the `custom_models` directory, you need t
 
 ```python
 from thingsvision.model_class import Model
-model_name = 'VGG16_ecoset
+model_name = 'VGG16_ecoset'
 model = Model(model_name, pretrained=True, model_path=None, device=device, backend=backend)
 ```
 
