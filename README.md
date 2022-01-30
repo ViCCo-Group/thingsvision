@@ -297,7 +297,7 @@ corr_coeff = vision.correlate_rdms(rdm_dnn, rdm_human, correlation='pearson')
 
 ## ImageNet class predictions
 
-Would you like to know the probabilities corresponding to the `top k` predicted ImageNet classes for each of your images? Simply set the `return_probabilities` argument to `True` and use the `get_class_probabilities` helper (the function works for both `synset` and `class` files). Note that this is, unfortunately, not (yet) possible for `CLIP` models due to their multi-modality and different training objectives. You are required to use the same `out_path` throughout which is why `out_path` must correspond to the path that was used in `vision.load_dl`. Save the ImageNet class file (e.g., `imagenet1000_classes.txt`) in your cwd in a subfolder called `data`.
+Would you like to know the probabilities corresponding to the `top k` predicted ImageNet classes for each of your images? Simply set the `return_probabilities` argument to `True` and use the `get_class_probabilities` helper (the function works for both `synset` and `class` files). Note that this is, unfortunately, not (yet) possible for `CLIP` models due to their multi-modality and different training objectives. You are required to use the same `out_path` throughout which is why `out_path` must correspond to the path that was used in `vision.load_dl`. Save the ImageNet class file (e.g., `imagenet1000_classes.txt`) in your cwd in a subfolder called `data`. You can find the class file [here](https://github.com/ViCCo-Group/THINGSvision/tree/master/thingsvision/data).
 
 ```python
 features, targets, probas = model.extract_features(data_loader=dl, module_name=module_name, batch_size=batch_size, flatten_acts=False, clip=False, return_probabilities=True)
