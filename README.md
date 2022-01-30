@@ -57,13 +57,14 @@ You can find the jupyter notebook using `PyTorch` [here](https://colab.research.
 
 3. Features can be extracted at every layer for all `torchvision`, `TensorFlow`, `CORnet` and `CLIP` models.
 
-4. If you happen to be interested in an ensemble of `feature maps`, as introduced in this recent [COLING 2020 paper](https://www.aclweb.org/anthology/2020.coling-main.173/), you can simply extract an ensemble of `conv` or `max-pool` layers. The ensemble can additionally be concatenated with the activations of the penultimate layer, and subsequently mapped into a lower-dimensional space with `PCA` to reduce noise, and only keep those dimensions that account for most of the variance in the data. 
+4. If you are interested in an ensemble of `feature maps`, as introduced in this recent [COLING 2020 paper](https://www.aclweb.org/anthology/2020.coling-main.173/), you can simply extract an ensemble of `conv` or `max-pool` layers. The ensemble can additionally be concatenated with the activations of the penultimate layer, and subsequently be mapped into a lower-dimensional space with `PCA` to reduce noise, and only keep those dimensions that account for most of the variance in the data. 
 
-5. The script automatically extracts features for the specified `model` and `layer` and stores them together with the `targets` in `out_path` (see above).
+5. The script automatically extracts features for the specified `model` and `layer`.
 
 6. If you happen to extract hidden unit activations for many images, it is possible to run into `MemoryErrors`. To circumvent such problems, a helper function called `split_activations` will split the activation matrix into several batches, and stores them in separate files. For now, the split parameter is set to `10`. Hence, the function will split the activation matrix into `10` files. This parameter can, however, easily be modified in case you need more (or fewer) splits. To merge the separate activation batches back into a single activation matrix, just call `merge_activations` when loading the activations (e.g., `activations = merge_activations(PATH)`). 
 
 ## Extract features at specific layer of a state-of-the-art `torchvision`, `TensorFlow`, `CORnet`, or `CLIP` model 
+
 The following examples demonstrate how to load a model with PyTorch or TensorFlow into memory, and how to subsequently extract features.
 
 
