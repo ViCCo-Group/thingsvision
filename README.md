@@ -21,7 +21,7 @@ $ pip install --upgrade thingsvision
 
 You have to download files from the parent repository (i.e., this repo), if you want to extract network activations for [THINGS](https://osf.io/jum2f/). Simply download the shell script `get_files.sh` from this repo and execute it as follows (the shell script will do file downloading and moving for you):
 
-``` bash
+```bash
 $ wget https://raw.githubusercontent.com/ViCCo-Group/THINGSvision/master/get_files.sh (Linux)
 $ curl -O https://raw.githubusercontent.com/ViCCo-Group/THINGSvision/master/get_files.sh (macOS)
 $ bash get_files.sh
@@ -271,13 +271,16 @@ vision.save_features(features, f'./{model_name}/{module_name}/features', 'npy')
 ```
 
 ### Optional Center Cropping
+
 Center cropping is used by default but can be deactivated by turning off the `apply_center_crop` argument of the `get_transformations` method.
+
 ```python
 apply_center_crop = False
 dl = vision.load_dl(root='./images/', out_path=f'./{model_name}/{module_name}/features', batch_size=64, transforms=model.get_transformations(apply_center_crop=apply_center_crop), backend=backend)
 ```
 
 ## Extract features from custom models
+
 If you want to use a custom model from the `custom_models` directory, you need to use the class name e.g. `VGG16_ecoset` as model name. The script will use the PyTorch or Tensorflow implementation depending on the `backend` value.
 
 ```python
@@ -297,7 +300,7 @@ corr_coeff = vision.correlate_rdms(rdm_dnn, rdm_human, correlation='pearson')
 
 ## ImageNet class predictions
 
-Would you like to know the probabilities corresponding to the `top k` predicted ImageNet classes for each of your images? Simply set the `return_probabilities` argument to `True` and use the `get_class_probabilities` helper (the function works for both `synset` and `class` files). Note that this is, unfortunately, not (yet) possible for `CLIP` models due to their multi-modality and different training objectives. You are required to use the same `out_path` throughout which is why `out_path` must correspond to the path that was used in `vision.load_dl`. Save the ImageNet class file (e.g., `imagenet1000_classes.txt`) in your cwd in a subfolder called `data`. You can find the class file [here](https://github.com/ViCCo-Group/THINGSvision/tree/master/thingsvision/data).
+Would you like to know the probabilities corresponding to the `top k` predicted ImageNet classes for each of your images? Simply set the `return_probabilities` argument to `True` and use the `get_class_probabilities` helper (the function works for both `synset` and `class` files). Note that this is, unfortunately, not (yet) possible for `CLIP` models due to their multi-modality and different training objectives. You are required to use the same `out_path` throughout which is why `out_path` must correspond to the path that was used in `vision.load_dl`. Save the ImageNet class file (e.g., `imagenet1000_classes.txt`) in your cwd in a subfolder called `data`. You can download the class file [here](https://github.com/ViCCo-Group/THINGSvision/tree/master/thingsvision/data).
 
 ```python
 features, targets, probas = model.extract_features(data_loader=dl, module_name=module_name, batch_size=batch_size, flatten_acts=False, clip=False, return_probabilities=True)
