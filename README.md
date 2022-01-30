@@ -57,7 +57,7 @@ You can find the jupyter notebook using `PyTorch` [here](https://colab.research.
 
 3. Features can be extracted at every layer for all `torchvision`, `TensorFlow`, `CORnet` and `CLIP` models.
 
-4. If you happen to be interested in an ensemble of `feature maps`, as introduced in this recent [COLING 2020 paper](https://www.aclweb.org/anthology/2020.coling-main.173/), you can simply extract an ensemble of `conv` or `max-pool` layers. The ensemble can additionally be concatenated with the activations of the penultimate layer, and subsequently transformed into a lower-dimensional space with `PCA` to reduce noise and only keep those dimensions that account for most of the variance. 
+4. If you happen to be interested in an ensemble of `feature maps`, as introduced in this recent [COLING 2020 paper](https://www.aclweb.org/anthology/2020.coling-main.173/), you can simply extract an ensemble of `conv` or `max-pool` layers. The ensemble can additionally be concatenated with the activations of the penultimate layer, and subsequently mapped into a lower-dimensional space with `PCA` to reduce noise, and only keep those dimensions that account for most of the variance in the data. 
 
 5. The script automatically extracts features for the specified `model` and `layer` and stores them together with the `targets` in `out_path` (see above).
 
