@@ -19,11 +19,7 @@ class DataLoader(object):
         self.dataset = dataset
         self.batch_size = batch_size
         self.backend = backend
-        self.n_batches = 1
-
-        if len(self.dataset) > self.batch_size:
-            self.n_batches = math.ceil(len(self.dataset) / self.batch_size)
-
+        self.n_batches = math.ceil(len(self.dataset) / self.batch_size)
         self.remainder = len(self.dataset) % self.batch_size
 
     def __len__(self) -> int:
