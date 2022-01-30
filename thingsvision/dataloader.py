@@ -28,6 +28,15 @@ class DataLoader(object):
     def __iter__(self) -> Iterator:
         return self.get_batches(self.dataset)
 
+    def stack_samples(self, X, y) -> Tuple:
+        if self.backend == 'pt':
+            X = torch.stack(X, dim=0)
+            y = torch.stack(y, dim=0)
+        else:
+            X = tf.stack(X, axis=0)
+            y = tf.stack(y, axis=0)
+        return (X, y)
+
     def get_batches(self, dataset: Tuple) -> Iterator:
         for k in range(self.n_batches):
             if (self.remainder != 0 and k == int(self.n_batches - 1)):
@@ -37,10 +46,5 @@ class DataLoader(object):
                 subset = range(k * self.batch_size, (k + 1) * self.batch_size)
             X, y = zip(
                 *[dataset[i] for i in subset])
-            if self.backend == 'pt':
-                X = torch.stack(X, dim=0)
-                y = torch.stack(y, dim=0)
-            else:
-                X = tf.stack(X, axis=0)
-                y = tf.stack(y, axis=0)
-            yield (X, y)
+            batch = self.stack_samples(X, y)
+            yield batch
