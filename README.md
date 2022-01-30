@@ -286,6 +286,14 @@ model_name = 'VGG16_ecoset'
 model = Model(model_name, pretrained=True, model_path=None, device=device, backend=backend)
 ```
 
+## Representational Similarity Analysis (RSA) 
+
+Comparison between representational (dis-)similarity matrices corresponding to model features and human representations respectively.
+
+```
+rdm_dnn = vision.compute_rdm(features, method='correlation')
+corr_coeff = vision.correlate_rdms(rdm_dnn, rdm_human, correlation='pearson')
+```
 
 ## ImageNet class predictions
 
