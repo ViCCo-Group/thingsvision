@@ -65,7 +65,8 @@ You can find the jupyter notebook using `PyTorch` [here](https://colab.research.
 
 ## Extract features at specific layer of a state-of-the-art `torchvision`, `TensorFlow`, `CORnet`, or `CLIP` model 
 
-The following examples demonstrate how to load a model with PyTorch or TensorFlow into memory, and how to subsequently extract features.
+The following examples demonstrate how to load a model with PyTorch or TensorFlow into memory, and how to subsequently extract features. 
+Please keep in mind, that the model names as well as the layer names depend on the backend. If you use PyTorch, you will need to use these [model names](https://pytorch.org/vision/stable/models.html). If you use Tensorflow, you will need to use these [model names](https://keras.io/api/applications/). You can find the layer names by using `model.show()`. 
 
 
 ### Example call for AlexNet with PyTorch:
