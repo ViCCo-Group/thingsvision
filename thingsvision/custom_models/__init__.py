@@ -1,2 +1,2 @@
 from thingsvision.custom_models.resnet50_ecoset import Resnet50_ecoset
-from thingsvision.custom_models.vgg16_ecoset import VGG16_ecoset
+from thingsvision.custom_models.vgg16bn_ecoset import VGG16bn_ecoset

@@ -41,7 +41,7 @@ class ModelLoadingTestCase(unittest.TestCase):
         self.assertTrue(isinstance(transforms, tf.keras.Sequential))
 
     def test_load_custom_user_model(self):
-        model_name = 'VGG16_ecoset'
+        model_name = 'VGG16bn_ecoset'
         model = Model(model_name, True, 'cpu')
         self.assertTrue(model.__class__.__name__, 'vgg')
 
