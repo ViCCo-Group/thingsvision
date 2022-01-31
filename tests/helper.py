@@ -32,7 +32,7 @@ PT_MODEL_AND_MODULE_NAMES = {
     'cornet_z': ['decoder.flatten'],
     'clip-ViT': ['visual'],
     'clip-RN': ['visual'],
-    'VGG16_ecoset': ['classifier.3']
+    'VGG16bn_ecoset': ['classifier.3']
 }
 
 TF_MODEL_AND_MODULES_NAMES = {
