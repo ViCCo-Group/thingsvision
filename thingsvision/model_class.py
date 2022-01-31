@@ -114,14 +114,17 @@ class Model():
 
     def show(self) -> str:
         """Show architecture of model to select a layer."""
-        if re.search(r'^clip', self.model_name):
-            for l, (n, p) in enumerate(self.model.named_modules()):
-                if l > 1:
-                    if re.search(r'^visual', n):
-                        print(n)
-            print('visual')
+        if self.backend == 'pt':
+            if re.search(r'^clip', self.model_name):
+                for l, (n, p) in enumerate(self.model.named_modules()):
+                    if l > 1:
+                        if re.search(r'^visual', n):
+                            print(n)
+                print('visual')
+            else:
+                print(self.model)
         else:
-            print(self.model)
+            print(self.model.summary())
         print(f'\nEnter module name for which you would like to extract features:\n')
         module_name = str(input())
         print()
