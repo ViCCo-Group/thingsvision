@@ -140,8 +140,7 @@ class Model():
     ) -> tuple:
         """Feature extraction helper function for TensorFlow models."""
         # TODO: add flatten activations if-statement
-        features = []
-        targets = []
+        features, targets = [], []
         if return_probabilities:
             probabilities = []
         for batch in data_loader:
@@ -186,15 +185,13 @@ class Model():
                 feature_extractor = nn.Conv2d
             else:
                 feature_extractor = nn.MaxPool2d
-
         device = torch.device(self.device)
         # initialise dictionary to store hidden unit activations per mini-batch
         global activations
         activations = {}
         # register forward hook to store activations
         model = self.register_hook()
-        features = []
-        targets = []
+        features, targets = [], []
         if return_probabilities:
             probabilities = []
         with torch.no_grad():
