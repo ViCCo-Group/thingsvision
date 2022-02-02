@@ -131,14 +131,30 @@ def extract_features_across_models_and_datasets(
 ) -> None:
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     for i, model_name in enumerate(model_names):
-        model = Model(model_name, pretrained=pretrained, model_path=None, device=device)
+        model = Model(
+            model_name=model_name,
+            pretrained=pretrained,
+            device=device,
+            model_path=None,
+            backend=backend,
+            )
         transforms = model.get_transformations()
         for img_path in img_paths:
             PATH = os.path.join(out_path, img_path, model_name,
                                 module_names[i], 'features')
-            dl = load_dl(img_path, backend=backend, out_path=PATH,
-                         batch_size=batch_size, transforms=transforms)
-            features, _ = model.extract_features(dl, module_names[i], batch_size=batch_size, flatten_acts=flatten_acts, clip=clip[i])
+            dl = load_dl(
+                root=img_path,
+                out_path=out_path,
+                backend=backend,
+                batch_size=batch_size,
+                transforms=transforms,
+                )
+            features, _ = model.extract_features(
+                data_loader=dl,
+                module_name=module_names[i],
+                flatten_acts=flatten_acts,
+                clip=clip[i],
+                )
             save_features(features, out_path, f_format)
 
 
@@ -156,16 +172,32 @@ def extract_features_across_models_datasets_and_modules(
 ) -> None:
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     for i, model_name in enumerate(model_names):
-        model = Model(model_name, pretrained=pretrained, model_path=None, device=device)
+        model = Model(
+            model_name=model_name,
+            pretrained=pretrained,
+            device=device,
+            model_path=None,
+            backend=backend,
+            )
         transforms = model.get_transformations()
         modules = get_module_names(model, module_names[i])
         for img_path in img_paths:
             for module_name in modules:
                 PATH = os.path.join(out_path, img_path,
                                     model_name, module_name, 'features')
-                dl = load_dl(img_path, backend=backend, out_path=PATH,
-                             batch_size=batch_size, transforms=transforms)
-                features, _ = model.extract_features(dl, module_name, batch_size=batch_size, flatten_acts=flatten_acts, clip=clip[i])
+                dl = load_dl(
+                    root=img_path,
+                    out_path=out_path,
+                    backend=backend,
+                    batch_size=batch_size,
+                    transforms=transforms,
+                    )
+                features, _ = model.extract_features(
+                    data_loader=dl,
+                    module_name=module_names[i],
+                    flatten_acts=flatten_acts,
+                    clip=clip[i],
+                    )
                 save_features(features, PATH, f_format)
 
 
@@ -653,12 +685,26 @@ def get_features(
     model_features = defaultdict(dict)
     for i, model_name in enumerate(model_names):
         model = Model(
-            model_name, pretrained=pretrained, model_path=None, device=device)
+            model_name=model_name,
+            pretrained=pretrained,
+            device=device,
+            model_path=None,
+            backend=backend,
+            )
         transforms = model.get_transformations()
-        dl = load_dl(root, backend=backend, out_path=out_path,
-                     batch_size=batch_size, transforms=transforms)
+        dl = load_dl(
+                    root=root,
+                    out_path=out_path,
+                    backend=backend,
+                    batch_size=batch_size,
+                    transforms=transforms,
+                    )
         features, _ = model.extract_features(
-            dl, module_names[i], batch_size=batch_size, flatten_acts=flatten_acts, clip=clip[i])
+            data_loader=dl,
+            module_name=module_names[i],
+            flatten_acts=flatten_acts,
+            clip=clip[i],
+            )
         model_features[model_name][module_names[i]] = features
     return model_features
 

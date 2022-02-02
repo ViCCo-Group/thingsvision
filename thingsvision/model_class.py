@@ -231,7 +231,6 @@ class Model():
             self,
             data_loader: Iterator,
             module_name: str,
-            batch_size: int,
             flatten_acts: bool,
             clip: bool = False,
             return_probabilities: bool = False,
