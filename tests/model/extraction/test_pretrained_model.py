@@ -26,7 +26,6 @@ class ExtractionPretrainedTestCase(unittest.TestCase):
                 features, targets = model.extract_features(
                         data_loader=dl,
                         module_name=module_name,
-                        batch_size=helper.BATCH_SIZE,
                         flatten_acts=False,
                         clip=clip,
                         return_probabilities=False
@@ -45,7 +44,6 @@ class ExtractionPretrainedTestCase(unittest.TestCase):
                     features, targets, probs = model.extract_features(
                         data_loader=dl,
                         module_name=module_name,
-                        batch_size=helper.BATCH_SIZE,
                         flatten_acts=False,
                         clip=clip,
                         return_probabilities=True

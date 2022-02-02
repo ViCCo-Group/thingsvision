@@ -17,25 +17,23 @@ class FeaturesTestCase(unittest.TestCase):
         
     def get_2D_features(self):
         model_name = 'vgg16_bn'
-        model, dataset, dl = helper.create_model_and_dl(model_name, 'pt')
+        model, _, dl = helper.create_model_and_dl(model_name, 'pt')
         module_name ='classifier.3'
         features, _ = model.extract_features(
             data_loader=dl,
             module_name=module_name,
-            batch_size=helper.BATCH_SIZE,
-            flatten_acts=False
+            flatten_acts=False,
         )
         return features
  
     def get_4D_features(self):
         model_name = 'vgg16_bn'
-        model, dataset, dl = helper.create_model_and_dl(model_name, 'pt')
+        model, _, dl = helper.create_model_and_dl(model_name, 'pt')
         module_name ='features.23'
         features, _ = model.extract_features(
             data_loader=dl,
             module_name=module_name,
-            batch_size=helper.BATCH_SIZE,
-            flatten_acts=False
+            flatten_acts=False,
         )
         return features
 

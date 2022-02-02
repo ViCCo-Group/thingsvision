@@ -13,12 +13,11 @@ class RDMTestCase(unittest.TestCase):
     def setUpClass(cls):
         helper.create_test_images()
         model_name = 'vgg16_bn'
-        model, dataset, dl = helper.create_model_and_dl(model_name, 'pt')
+        model, _, dl = helper.create_model_and_dl(model_name, 'pt')
         module_name = helper.PT_MODEL_AND_MODULE_NAMES[model_name][0]
         features, _ = model.extract_features(
             data_loader=dl,
             module_name=module_name,
-            batch_size=helper.BATCH_SIZE,
             flatten_acts=False
         )
         for format in helper.FILE_FORMATS:

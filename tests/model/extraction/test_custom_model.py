@@ -31,21 +31,21 @@ class ExtractionCustomModelTestCase(unittest.TestCase):
             expected_features = np.array([[2, 2], [0, 0]])
             expected_targets = np.array([0, 0])
 
-            features, targets = model.extract_features(dl, 
-                                                    layer_name, 
-                                                    batch_size=batch_size, 
-                                                    flatten_acts=False, 
-                                                    return_probabilities=False)
+            features, targets = model.extract_features(
+                data_loader=dl, 
+                module_name=layer_name, 
+                flatten_acts=False, 
+                return_probabilities=False)
             np.testing.assert_allclose(features, expected_features)
             np.testing.assert_allclose(targets, expected_targets)
 
 
             expected_probs = np.array([[0.5, 0.5], [0.5, 0.5]])
-            features, targets, probs = model.extract_features(dl, 
-                                                            layer_name, 
-                                                            batch_size=batch_size, 
-                                                            flatten_acts=False, 
-                                                            return_probabilities=True)
+            features, targets, probs = model.extract_features(
+                data_loader=dl, 
+                module_name=layer_name,
+                flatten_acts=False,
+                return_probabilities=True)
             np.testing.assert_allclose(features, expected_features)
             np.testing.assert_allclose(targets, expected_targets)
             np.testing.assert_allclose(probs, expected_probs)
@@ -66,11 +66,11 @@ class ExtractionCustomModelTestCase(unittest.TestCase):
                     batch_size=batch_size,
                     backend=backend,
             )
-            features, targets = model.extract_features(dl, 
-                                                    'relu', 
-                                                    batch_size=batch_size, 
-                                                    flatten_acts=False, 
-                                                    return_probabilities=False)
+            features, targets = model.extract_features(
+                data_loader=dl, 
+                module_name='relu',
+                flatten_acts=False, 
+                return_probabilities=False)
             self.assertEqual(features.shape[0], len(dataset))
             self.assertEqual(targets.shape[0], len(dataset))
        

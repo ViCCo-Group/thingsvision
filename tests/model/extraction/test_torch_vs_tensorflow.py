@@ -26,7 +26,10 @@ class ExtractionPTvsTFTestCase(unittest.TestCase):
                       device=helper.DEVICE, backend=backend)
         model.model = helper.tf_model
         tf_features, _ = model.extract_features(
-            tf_dl, layer_name, batch_size=helper.BATCH_SIZE, flatten_acts=False)
+            data_loader=tf_dl,
+            module_name=layer_name,
+            flatten_acts=False,
+            )
 
         backend = 'pt'
         pt_dataset = helper.SimpleDataset(values, backend)
@@ -39,7 +42,10 @@ class ExtractionPTvsTFTestCase(unittest.TestCase):
                       device=helper.DEVICE, backend=backend)
         model.model = helper.pt_model
         pt_features, _ = model.extract_features(
-            pt_dl, layer_name, batch_size=helper.BATCH_SIZE, flatten_acts=False)
+            data_loader=pt_dl,
+            module_name=layer_name,
+            flatten_acts=False,
+            )
         np.testing.assert_allclose(tf_features, pt_features)
 
         expected_features = np.array([[2, 2], [0, 0]])
