@@ -111,10 +111,11 @@ def load_dl(
 
 def get_module_names(model, module: str) -> list:
     """Extract correct module names, if iterating over multiple modules is desired."""
-    if model.backend != 'pt':
-        raise Exception('Regex on module names is only supported on PyTorch.')
-    module_names, _ = zip(*model.model.named_modules())
-    return list(filter(lambda n: re.search(f'{module}$', n), module_names))
+    if model.backend == 'pt':
+        module_names, _ = zip(*model.model.named_modules())
+    else:
+        module_names = list(map(lambda m: m.name, model.model.layers))    
+    return list(filter(lambda n: re.search(f'{module}', n), module_names))
 
 
 def extract_features_across_models_and_datasets(
@@ -155,7 +156,7 @@ def extract_features_across_models_and_datasets(
                 flatten_acts=flatten_acts,
                 clip=clip[i],
                 )
-            save_features(features, out_path, f_format)
+            save_features(features, PATH, f_format)
 
 
 def extract_features_across_models_datasets_and_modules(
