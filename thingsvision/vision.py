@@ -194,7 +194,7 @@ def extract_features_across_models_datasets_and_modules(
                     )
                 features, _ = model.extract_features(
                     data_loader=dl,
-                    module_name=module_names[i],
+                    module_name=module_name,
                     flatten_acts=flatten_acts,
                     clip=clip[i],
                     )
