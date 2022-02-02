@@ -168,6 +168,7 @@ class Model():
             probabilities = np.vstack(probabilities)
             return features, targets, probabilities
 <<<<<<< HEAD
+<<<<<<< HEAD
         return features, targets
 
     
@@ -235,6 +236,9 @@ class Model():
 =======
         return features, targets 
 >>>>>>> 304c194... adding feature extraction across layers
+=======
+        return features, targets 
+>>>>>>> 1b62cb3... adding feature extraction across layers
 
     def extract_features(
             self,
