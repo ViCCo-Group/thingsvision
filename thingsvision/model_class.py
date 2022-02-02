@@ -139,7 +139,7 @@ class Model():
         return_probabilities: bool=False,
     ) -> tuple:
         """Feature extraction helper function for TensorFlow models."""
-        # TODO: add flatten activations possibility to this function
+        # TODO: add flatten activations if-statement
         features = []
         targets = []
         if return_probabilities:
@@ -152,6 +152,10 @@ class Model():
                 outputs=layer_out,
             )
             activations = activation_model.predict(X)
+            # TODO: add flatten activations
+            # probably something along the lines of the below
+            # if flatten_acts:
+            #    activations = np.reshape(activations.shape[0], -1)
             features.append(activations)
             targets.extend(y.numpy())
             if return_probabilities:
