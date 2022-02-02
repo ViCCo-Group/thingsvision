@@ -79,6 +79,7 @@ from thingsvision.model_class import Model
 
 model_name = 'alexnet'
 backend = 'pt'
+batch_size = 64
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 model = Model(model_name, pretrained=True, model_path=None, device=device, backend=backend)
@@ -116,8 +117,20 @@ AlexNet(
 
 (e.g., "features.10")
 
-dl = vision.load_dl(root='./images/', out_path=f'./{model_name}/{module_name}/features', batch_size=64, transforms=model.get_transformations(), backend=backend)
-features, targets, probas = model.extract_features(data_loader=dl, module_name=module_name, batch_size=64, flatten_acts=True, clip=False, return_probabilities=True)
+dl = vision.load_dl(
+	root='./images/',
+	out_path=f'./{model_name}/{module_name}/features',
+	batch_size=batch_size,
+	transforms=model.get_transformations(),
+	backend=backend,
+	)
+features, targets, probas = model.extract_features(
+				data_loader=dl,
+				module_name=module_name,
+				flatten_acts=True,
+				clip=False,
+				return_probabilities=True,
+				)
 
 vision.save_features(features, f'./{model_name}/{module_name}/features', 'npy')
 ```
@@ -133,13 +146,24 @@ from thingsvision.model_class import Model
 model_name = 'clip-ViT'
 module_name = 'visual'
 backend = 'pt'
+batch_size = 64
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 model = Model(model_name, pretrained=True, model_path=None, device=device, backend=backend)
-dl = vision.load_dl(root='./images/', out_path=f'./{model_name}/{module_name}/features', batch_size=64, transforms=model.get_transformations(), backend=backend)
-features, targets = model.extract_features(data_loader=dl, module_name=module_name, batch_size=64, flatten_acts=False, clip=True, return_probabilities=False)
-
+dl = vision.load_dl(
+	root='./images/',
+	out_path=f'./{model_name}/{module_name}/features',
+	batch_size=batch_size,
+	transforms=model.get_transformations(),
+	backend=backend,
+	)
+features, targets = model.extract_features(
+			data_loader=dl,
+			module_name=module_name,
+			flatten_acts=False,
+			clip=True,
+			)
 features = vision.center_features(features)
 
 vision.save_features(features, f'./{model_name}/{module_name}/features', 'npy')
@@ -156,6 +180,7 @@ from thingsvision.model_class import Model
 
 model_name = 'cornet-s'
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
+batch_size = 64
 
 model = Model(model_name, pretrained=True, model_path=None, device=device)
 module_name = model.show()
@@ -243,8 +268,19 @@ Sequential(
 
 (e.g., "decoder.flatten")
 
-dl = vision.load_dl(root='./images/', out_path=f'./{model_name}/{module_name}/features', batch_size=64, transforms=model.get_transformations(), backend=backend)
-features, targets = model.extract_features(data_loader=dl, module_name=module_name, batch_size=64, flatten_acts=False, clip=False, return_probabilities=False)
+dl = vision.load_dl(
+	root='./images/',
+	out_path=f'./{model_name}/{module_name}/features',
+	batch_size=batch_size,
+	transforms=model.get_transformations(),
+	backend=backend,
+	)
+features, targets = model.extract_features(
+			data_loader=dl,
+			module_name=module_name,
+			flatten_acts=False,
+			clip=False,
+			)
 
 features = vision.center_features(features)
 features = vision.normalize_features(features)
@@ -262,12 +298,25 @@ from thingsvision.model_class import Model
 model_name = 'VGG16'
 backend = 'tf'
 module_name = 'block1_conv1'
+batch_size = 64
 
 device = 'cuda' if tf.test.is_gpu_available() else 'cpu'
 model = Model(model_name, pretrained=True, model_path=None, device=device, backend=backend)
 
-dl = vision.load_dl(root='./images/', out_path=f'./{model_name}/{module_name}/features', batch_size=64, transforms=model.get_transformations(), backend=backend)
-features, targets, probas = model.extract_features(data_loader=dl, module_name=module_name, batch_size=64, flatten_acts=True, clip=False, return_probabilities=True)
+dl = vision.load_dl(
+	root='./images/',
+	out_path=f'./{model_name}/{module_name}/features',
+	batch_size=batch_size,
+	transforms=model.get_transformations(),
+	backend=backend,
+	)
+features, targets, probas = model.extract_features(
+				data_loader=dl,
+				module_name=module_name,
+				flatten_acts=True,
+				clip=False,
+				return_probabilities=True,
+				)
 
 vision.save_features(features, f'./{model_name}/{module_name}/features', 'npy')
 ```
@@ -278,7 +327,13 @@ Center cropping is used by default but can be deactivated by turning off the `ap
 
 ```python
 apply_center_crop = False
-dl = vision.load_dl(root='./images/', out_path=f'./{model_name}/{module_name}/features', batch_size=64, transforms=model.get_transformations(apply_center_crop=apply_center_crop), backend=backend)
+dl = vision.load_dl(
+		root='./images/',
+		out_path=f'./{model_name}/{module_name}/features',
+		batch_size=batch_size,
+		transforms=model.get_transformations(apply_center_crop=apply_center_crop),
+		backend=backend,
+		)
 ```
 
 ## Extract features from custom models
@@ -305,7 +360,13 @@ corr_coeff = vision.correlate_rdms(rdm_dnn, rdm_human, correlation='pearson')
 Would you like to know the probabilities corresponding to the `top k` predicted ImageNet classes for each of your images? Simply set the `return_probabilities` argument to `True` and use the `get_class_probabilities` helper (the function works for both `synset` and `class` files). Note that this is, unfortunately, not (yet) possible for `CLIP` models due to their multi-modality and different training objectives. You are required to use the same `out_path` throughout which is why `out_path` must correspond to the path that was used in `vision.load_dl`. Save the ImageNet class file (e.g., `imagenet1000_classes.txt`) in your cwd in a subfolder called `data`. You can download the class file [here](https://github.com/ViCCo-Group/THINGSvision/tree/master/thingsvision/data).
 
 ```python
-features, targets, probas = model.extract_features(data_loader=dl, module_name=module_name, batch_size=batch_size, flatten_acts=False, clip=False, return_probabilities=True)
+features, targets, probas = model.extract_features(
+				data_loader=dl,
+				module_name=module_name,
+				flatten_acts=False,
+				clip=False,
+				return_probabilities=True,
+				)
 # return top k class probabilities and save dict as json file
 class_probas = vision.get_class_probabilities(probas=probas, out_path=out_path, cls_file='./data/imagenet1000_classes.txt', top_k=5, save_as_json=True)
 # save features to disk
