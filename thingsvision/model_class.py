@@ -130,6 +130,105 @@ class Model():
         print()
         return module_name
 
+
+    def tf_extraction(
+        self,
+        data_loader: Iterator,
+        module_name: str,
+        flatten_acts: bool,
+        return_probabilities: bool=False,
+    ) -> tuple:
+        """Feature extraction helper function for TensorFlow models."""
+        # TODO: add flatten activations possibility to this function
+        features = []
+        targets = []
+        if return_probabilities:
+            probabilities = []
+        for batch in data_loader:
+            X, y = batch
+            layer_out = [self.model.get_layer(module_name).output]
+            activation_model = keras.models.Model(
+                inputs=self.model.input,
+                outputs=layer_out,
+            )
+            activations = activation_model.predict(X)
+            features.append(activations)
+            targets.extend(y.numpy())
+            if return_probabilities:
+                out = self.model.predict(X)
+                probas = tf.nn.softmax(out, axis=1)
+                probabilities.append(probas)
+        features = np.vstack(features)
+        targets = np.asarray(targets).ravel()
+        if return_probabilities:
+            probabilities = np.vstack(probabilities)
+            return features, targets, probabilities
+        return features, targets
+
+    
+    def pt_extraction(
+            self,
+            data_loader: Iterator,
+            module_name: str,
+            flatten_acts: bool,
+            clip: bool=False,
+            return_probabilities: bool=False,
+        ) -> tuple:
+        """Feature extraction helper function for PyTorch models."""
+        if re.search(r'ensemble$', module_name):
+            ensembles = ['conv_ensemble', 'maxpool_ensemble']
+            assert module_name in ensembles, f'\nIf aggregating filters across layers and subsequently concatenating features, module name must be one of {ensembles}\n'
+            if re.search(r'^conv', module_name):
+                feature_extractor = nn.Conv2d
+            else:
+                feature_extractor = nn.MaxPool2d
+
+        device = torch.device(self.device)
+        # initialise dictionary to store hidden unit activations per mini-batch
+        global activations
+        activations = {}
+        # register forward hook to store activations
+        model = self.register_hook()
+        features = []
+        targets = []
+        if return_probabilities:
+            probabilities = []
+        with torch.no_grad():
+            for batch in data_loader:
+                X, y = (t.to(device) for t in batch)
+                if clip:
+                    img_features = model.encode_image(X)
+                    if module_name == 'visual':
+                        assert torch.unique(activations[module_name] == img_features).item(
+                        ), '\nImage features should represent activations in last encoder layer.\n'
+                else:
+                    out = model(X)
+                    if return_probabilities:
+                        probas = F.softmax(out, dim=1)
+                        probabilities.append(probas)
+                if re.compile(r'ensemble$').search(module_name):
+                    layers = self.enumerate_layers(feature_extractor)
+                    act = self.ensemble_featmaps(activations, layers, 'max')
+                else:
+                    act = activations[module_name]
+                    if flatten_acts:
+                        if clip:
+                            if re.compile(r'attn$').search(module_name):
+                                act = act[0]
+                            else:
+                                if act.size(0) != X.shape[0] and len(act.shape) == 3:
+                                    act = act.permute(1, 0, 2)
+                        act = act.view(act.size(0), -1)
+                features.append(act.cpu())
+                targets.extend(y.squeeze(-1).cpu())
+        features = np.vstack(features)
+        targets = np.asarray(targets).ravel()
+        if return_probabilities:
+            probabilities = np.vstack(probabilities)
+            return features, targets, probabilities
+        return features, targets
+
+
     def extract_features(
             self,
             data_loader: Iterator,
@@ -159,6 +258,7 @@ class Model():
                 torchvision or CLIP-based model. Since CLIP
                 has a different training objective, feature
                 extraction must be performed differently.
+                For PyTorch only.
             return_probabilities : bool (optional)
                 Whether class probabilities (softmax predictions)
                 should be returned in addition to the feature matrix
@@ -170,80 +270,44 @@ class Model():
                 Returns the feature matrix and the target vector OR in addition to the feature
                 matrix and the target vector, the class probabilities.
         """
-        features, targets = [], []
-        if return_probabilities:
-            assert not clip, '\nCannot extract activations for CLIP and return class predictions simultaneously. This feature will be implemented in a future version.\n'
-            probabilities = []
-
         if self.backend == 'pt':
-            if re.search(r'ensemble$', module_name):
-                ensembles = ['conv_ensemble', 'maxpool_ensemble']
-                assert module_name in ensembles, f'\nIf aggregating filters across layers and subsequently concatenating features, module name must be one of {ensembles}\n'
-                if re.search(r'^conv', module_name):
-                    feature_extractor = nn.Conv2d
-                else:
-                    feature_extractor = nn.MaxPool2d
-
-            device = torch.device(self.device)
-            # initialise dictionary to store hidden unit activations on the fly
-            global activations
-            activations = {}
-            # register forward hook to store activations
-            model = self.register_hook()
-
-            with torch.no_grad():
-                for i, batch in enumerate(data_loader):
-                    batch = (t.to(device) for t in batch)
-                    X, y = batch
-                    if clip:
-                        img_features = model.encode_image(X)
-                        if module_name == 'visual':
-                            assert torch.unique(activations[module_name] == img_features).item(
-                            ), '\nImage features should represent activations in last encoder layer.\n'
-                    else:
-                        out = model(X)
-                        if return_probabilities:
-                            probas = F.softmax(out, dim=1)
-                            probabilities.append(probas)
-
-                    if re.search(r'ensemble$', module_name):
-                        layers = self.enumerate_layers(feature_extractor)
-                        act = self.nsemble_featmaps(activations, layers, 'max')
-                    else:
-                        act = activations[module_name]
-                        if flatten_acts:
-                            if clip:
-                                if re.search(r'attn$', module_name):
-                                    act = act[0]
-                                else:
-                                    if act.size(0) != X.shape[0] and len(act.shape) == 3:
-                                        act = act.permute(1, 0, 2)
-                            act = act.view(act.size(0), -1)
-                    features.append(act.cpu())
-                    targets.extend(y.squeeze(-1).cpu()) 
-        elif self.backend == 'tf':
-            for i, batch in enumerate(data_loader):
-                X, y = batch
-                layer_outputs = [self.model.get_layer(module_name).output]
-                activation_model = keras.models.Model(inputs=self.model.input, outputs=layer_outputs)
-                activations = activation_model.predict(X)
-                features.append(activations)
-                targets.extend(y.numpy())
-                if return_probabilities:
-                    out = self.model.predict(X)
-                    probas = tf.nn.softmax(out, axis=1)
-                    probabilities.append(probas)
-        
-        # stack each mini-batch of hidden activations to obtain an N x F matrix, and flatten targets to yield vector
-        features = np.vstack(features)
-        targets = np.asarray(targets).ravel()
-
+            if return_probabilities:
+                assert not clip, '\nCannot extract features for CLIP and return class predictions simultaneously. We will add this possibility in a future version.\n'
+                features, targets, probabilities = self.pt_extraction(
+                    data_loader=data_loader,
+                    module_name=module_name,
+                    flatten_acts=flatten_acts,
+                    clip=clip,
+                    return_probabilities=True,
+                )
+            else:
+                features, targets = self.pt_extraction(
+                    data_loader=data_loader,
+                    module_name=module_name,
+                    flatten_acts=flatten_acts,
+                    clip=clip, 
+                )
+        else:
+            if return_probabilities:
+                features, targets, probabilities = self.tf_extraction(
+                    data_loader=data_loader,
+                    module_name=module_name,
+                    flatten_acts=flatten_acts,
+                    return_probabilities=True,
+                )
+            else:
+                features, targets = self.tf_extraction(
+                    data_loader=data_loader,
+                    module_name=module_name,
+                    flatten_acts=flatten_acts,
+                )        
         if return_probabilities:
-            probabilities = np.vstack(probabilities)
-            assert len(features) == len(targets) == len(
+            assert features.shape[0] == len(targets) == len(
                     probabilities), '\nFeatures, targets, and probabilities must correspond to the same number of images.\n'
+            print(f'...Features successfully extracted for all {len(features)} images in the database.')
+            print(f'...Features shape: {features.shape}')
             return features, targets, probabilities
-        assert len(features) == len(
+        assert features.shape[0] == len(
                 targets), '\nFeatures and targets must correspond to the same number of images.\n'
         print(f'...Features successfully extracted for all {len(features)} images in the database.')
         print(f'...Features shape: {features.shape}')
