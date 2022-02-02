@@ -62,7 +62,17 @@ class ExtractionPretrainedTestCase(unittest.TestCase):
         model_names = ['vgg16_bn', 'vgg19_bn']
         module_names = ['features.23', 'features.23']
         img_paths = [helper.TEST_PATH, helper.TEST_PATH]
-        vision.extract_features_across_models_and_datasets(helper.OUT_PATH, model_names, img_paths, module_names, [False, False], False, 1, backend, False)
+        vision.extract_features_across_models_and_datasets(
+            out_path=helper.OUT_PATH,
+            model_names=model_names,
+            img_paths=img_paths,
+            module_names=module_names,
+            clip=[False, False],
+            pretrained=True,
+            batch_size=1,
+            backend=backend,
+            flatten_acts=False,
+            )
         path1 = os.path.join(helper.OUT_PATH, helper.TEST_PATH, model_names[0],
                                 module_names[0], 'features')
         self.assertTrue(os.path.exists(path1))
@@ -75,7 +85,40 @@ class ExtractionPretrainedTestCase(unittest.TestCase):
         model_names = ['vgg16_bn', 'alexnet']
         module_names = ['features.22', 'features.1']
         img_paths = [helper.TEST_PATH, helper.TEST_PATH]
-        vision.extract_features_across_models_datasets_and_modules(helper.OUT_PATH, model_names, img_paths, module_names, [False, False], False, 1, backend, False)
+        vision.extract_features_across_models_datasets_and_modules(
+            out_path=helper.OUT_PATH,
+            model_names=model_names,
+            img_paths=img_paths,
+            module_names=module_names,
+            clip=[False, False],
+            pretrained=False,
+            batch_size=1,
+            backend=backend, 
+            flatten_acts=True,
+            )
+        path1 = os.path.join(helper.OUT_PATH, helper.TEST_PATH, model_names[0],
+                                module_names[0], 'features')
+        self.assertTrue(os.path.exists(path1))
+        path2 = os.path.join(helper.OUT_PATH, helper.TEST_PATH, model_names[1],
+                                module_names[1], 'features')
+        self.assertTrue(os.path.exists(path2))
+
+    def test_extraction_across_models_and_modules(self):
+        backend = 'tf'
+        model_names = ['VGG16', 'VGG19']
+        module_names = ['block1_conv1', 'fc1']
+        img_paths = [helper.TEST_PATH, helper.TEST_PATH]
+        vision.extract_features_across_models_datasets_and_modules(
+            out_path=helper.OUT_PATH,
+            model_names=model_names,
+            img_paths=img_paths,
+            module_names=module_names,
+            clip=[False, False],
+            pretrained=False,
+            batch_size=1,
+            backend=backend, 
+            flatten_acts=True,
+            )
         path1 = os.path.join(helper.OUT_PATH, helper.TEST_PATH, model_names[0],
                                 module_names[0], 'features')
         self.assertTrue(os.path.exists(path1))
