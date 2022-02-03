@@ -10,7 +10,7 @@ class Alexnet_ecoset(Custom):
     def create_model(self):
         if self.backend == 'pt':
             model = torchvision_models.alexnet(pretrained=False, num_classes=565)
-            path_to_weights = 'https://osf.io/myp2d/download'
-            state_dict = torch.hub.load_state_dict_from_url(path_to_weights, map_location=self.device)
+            path_to_weights = 'https://osf.io/xtdf4/download'
+            state_dict = torch.hub.load_state_dict_from_url(path_to_weights, map_location=self.device, file_name='Alexnet_ecoset')
             model.load_state_dict(state_dict)
             return model

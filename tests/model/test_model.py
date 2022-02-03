@@ -49,3 +49,7 @@ class ModelLoadingTestCase(unittest.TestCase):
         model = Model(model_name, True, 'cpu')
         self.assertTrue(model.__class__.__name__, 'resnet')
 
+        model_name = 'Alexnet_ecoset'
+        model = Model(model_name, True, 'cpu')
+        self.assertTrue(model.__class__.__name__, 'alexnet')
+
