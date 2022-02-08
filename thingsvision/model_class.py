@@ -344,12 +344,13 @@ class Model():
 
     
     def get_activation(self, name):
-        """Store hidden unit activations at each layer of model."""
+        """Store copy of hidden unit activations at each layer of model."""
         def hook(model, input, output):
+            # store copy of tensor rather than tensor itself
             try:
-                activations[name] = output.detach()
+                activations[name] = output.clone().detach()
             except AttributeError:
-                activations[name] = output
+                activations[name] = output.clone()
         return hook
 
 
