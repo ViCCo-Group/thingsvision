@@ -212,7 +212,8 @@ class Model():
                     if flatten_acts:
                         if clip:
                             if re.compile(r'attn$').search(module_name):
-                                act = act[0]
+                                if isinstance(act, tuple):
+                                    act = act[0]
                             else:
                                 if act.size(0) != X.shape[0] and len(act.shape) == 3:
                                     act = act.permute(1, 0, 2)
@@ -347,10 +348,14 @@ class Model():
         """Store copy of hidden unit activations at each layer of model."""
         def hook(model, input, output):
             # store copy of tensor rather than tensor itself
+            if isinstance(output, tuple):
+                act = output[0]
+            else:
+                act = output
             try:
-                activations[name] = output.clone().detach()
+                activations[name] = act.clone().detach()
             except AttributeError:
-                activations[name] = output.clone()
+                activations[name] = act.clone()
         return hook
 
 
