@@ -25,11 +25,12 @@ class ExtractionPretrainedTestCase(unittest.TestCase):
             for module_name in module_names:
                 features, targets = model.extract_features(
                         data_loader=dl,
-                        module_name=module_name,
+                        module_names=[module_name],
                         flatten_acts=False,
                         clip=clip,
                         return_probabilities=False
                 )
+                features = features[module_name]
 
                 self.assertTrue(isinstance(features, np.ndarray))
                 self.assertTrue(isinstance(targets, np.ndarray))
@@ -43,11 +44,12 @@ class ExtractionPretrainedTestCase(unittest.TestCase):
                 if not clip:
                     features, targets, probs = model.extract_features(
                         data_loader=dl,
-                        module_name=module_name,
+                        module_names=[module_name],
                         flatten_acts=False,
                         clip=clip,
                         return_probabilities=True
                     )
+                    features = features[module_name]
 
                     self.assertTrue(isinstance(features, np.ndarray))
                     self.assertTrue(isinstance(targets, np.ndarray))

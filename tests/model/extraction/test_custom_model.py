@@ -33,20 +33,20 @@ class ExtractionCustomModelTestCase(unittest.TestCase):
 
             features, targets = model.extract_features(
                 data_loader=dl, 
-                module_name=layer_name, 
+                module_names=[layer_name], 
                 flatten_acts=False, 
                 return_probabilities=False)
-            np.testing.assert_allclose(features, expected_features)
+            np.testing.assert_allclose(features[layer_name], expected_features)
             np.testing.assert_allclose(targets, expected_targets)
 
 
             expected_probs = np.array([[0.5, 0.5], [0.5, 0.5]])
             features, targets, probs = model.extract_features(
                 data_loader=dl, 
-                module_name=layer_name,
+                module_names=[layer_name],
                 flatten_acts=False,
                 return_probabilities=True)
-            np.testing.assert_allclose(features, expected_features)
+            np.testing.assert_allclose(features[layer_name], expected_features)
             np.testing.assert_allclose(targets, expected_targets)
             np.testing.assert_allclose(probs, expected_probs)
 
@@ -68,10 +68,10 @@ class ExtractionCustomModelTestCase(unittest.TestCase):
             )
             features, targets = model.extract_features(
                 data_loader=dl, 
-                module_name='relu',
+                module_names=['relu'],
                 flatten_acts=False, 
                 return_probabilities=False)
-            self.assertEqual(features.shape[0], len(dataset))
+            self.assertEqual(features['relu'].shape[0], len(dataset))
             self.assertEqual(targets.shape[0], len(dataset))
        
         

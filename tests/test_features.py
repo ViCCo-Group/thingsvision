@@ -1,3 +1,4 @@
+from operator import mod
 import os
 import shutil
 import unittest
@@ -21,10 +22,10 @@ class FeaturesTestCase(unittest.TestCase):
         module_name ='classifier.3'
         features, _ = model.extract_features(
             data_loader=dl,
-            module_name=module_name,
+            module_names=[module_name],
             flatten_acts=False,
         )
-        return features
+        return features[module_name]
  
     def get_4D_features(self):
         model_name = 'vgg16_bn'
@@ -32,10 +33,10 @@ class FeaturesTestCase(unittest.TestCase):
         module_name ='features.23'
         features, _ = model.extract_features(
             data_loader=dl,
-            module_name=module_name,
+            module_names=[module_name],
             flatten_acts=False,
         )
-        return features
+        return features[module_name]
 
     def test_postprocessing(self):
         """Test different postprocessing methods (e.g., centering, normalization, compression)."""

@@ -17,13 +17,13 @@ class RDMTestCase(unittest.TestCase):
         module_name = helper.PT_MODEL_AND_MODULE_NAMES[model_name][0]
         features, _ = model.extract_features(
             data_loader=dl,
-            module_name=module_name,
+            module_names=[module_name],
             flatten_acts=False
         )
         for format in helper.FILE_FORMATS:
             # tests whether features can be saved in any of the formats as four-dimensional tensor
             vision.save_features(
-                features=features,
+                features=features[module_name],
                 out_path=helper.OUT_PATH,
                 file_format=format,
             )

@@ -152,11 +152,11 @@ def extract_features_across_models_and_datasets(
                 )
             features, _ = model.extract_features(
                 data_loader=dl,
-                module_name=module_names[i],
+                module_names=[module_names[i]],
                 flatten_acts=flatten_acts,
                 clip=clip[i],
                 )
-            save_features(features, PATH, f_format)
+            save_features(features[module_names[i]], PATH, f_format)
 
 
 def extract_features_across_models_datasets_and_modules(
@@ -182,24 +182,27 @@ def extract_features_across_models_datasets_and_modules(
             )
         transforms = model.get_transformations()
         modules = get_module_names(model, module_names[i])
+        print(model_name)
+        print(modules)
         for img_path in img_paths:
-            for module_name in modules:
-                PATH = os.path.join(out_path, img_path,
-                                    model_name, module_name, 'features')
-                dl = load_dl(
+            dl = load_dl(
                     root=img_path,
                     out_path=out_path,
                     backend=backend,
                     batch_size=batch_size,
                     transforms=transforms,
-                    )
-                features, _ = model.extract_features(
+                )
+            features, _ = model.extract_features(
                     data_loader=dl,
-                    module_name=module_name,
+                    module_names=modules,
                     flatten_acts=flatten_acts,
                     clip=clip[i],
-                    )
-                save_features(features, PATH, f_format)
+                )
+
+            for module in modules:
+                PATH = os.path.join(out_path, img_path,
+                                    model_name, module, 'features')
+                save_features(features[module], PATH, f_format)
 
 
 def center_features(X: np.ndarray) -> np.ndarray:
@@ -702,11 +705,11 @@ def get_features(
                     )
         features, _ = model.extract_features(
             data_loader=dl,
-            module_name=module_names[i],
+            module_names=[module_names[i]],
             flatten_acts=flatten_acts,
             clip=clip[i],
             )
-        model_features[model_name][module_names[i]] = features
+        model_features[model_name] = features
     return model_features
 
 

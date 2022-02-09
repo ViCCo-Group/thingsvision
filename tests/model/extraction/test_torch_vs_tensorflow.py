@@ -27,7 +27,7 @@ class ExtractionPTvsTFTestCase(unittest.TestCase):
         model.model = helper.tf_model
         tf_features, _ = model.extract_features(
             data_loader=tf_dl,
-            module_name=layer_name,
+            module_names=[layer_name],
             flatten_acts=False,
             )
 
@@ -43,10 +43,11 @@ class ExtractionPTvsTFTestCase(unittest.TestCase):
         model.model = helper.pt_model
         pt_features, _ = model.extract_features(
             data_loader=pt_dl,
-            module_name=layer_name,
+            module_names=[layer_name],
             flatten_acts=False,
             )
-        np.testing.assert_allclose(tf_features, pt_features)
+
+        np.testing.assert_allclose(tf_features['relu'], pt_features['relu'])
 
         expected_features = np.array([[2, 2], [0, 0]])
-        np.testing.assert_allclose(pt_features, expected_features)
+        np.testing.assert_allclose(pt_features['relu'], expected_features)
