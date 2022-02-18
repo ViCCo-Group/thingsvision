@@ -2,6 +2,7 @@
 [![Code Coverage](https://codecov.io/gh/ViCCo-Group/THINGSvision/branch/master/graph/badge.svg)](https://github.com/ViCCo-Group/THINGSvision/actions/workflows/coverage.yml)
 [![Upload Python Package](https://github.com/ViCCo-Group/THINGSvision/actions/workflows/python-publish.yml/badge.svg)](https://github.com/ViCCo-Group/THINGSvision/actions/workflows/python-publish.yml)
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ViCCo-Group/THINGSvision/blob/master/doc/pytorch.ipynb)
+![Python version](https://img.shields.io/badge/python-3.7%20%7C%203.8-blue.svg)
 
 
 
