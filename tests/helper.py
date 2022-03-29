@@ -57,6 +57,10 @@ tf_model.add(Dense(2, input_dim=1, activation='relu',
              use_bias=False, name='relu'))
 weights = np.array([[[1,1]]])
 tf_model.get_layer('relu').set_weights(weights)
+tf_model.add(Dense(2, input_dim=2, activation='relu',
+             use_bias=False, name='relu2'))
+weights = np.array([[[1,1], [1,1]]])
+tf_model.get_layer('relu2').set_weights(weights)
 
 
 class NN(nn.Module):
@@ -65,13 +69,20 @@ class NN(nn.Module):
         super(NN, self).__init__()
         self.linear = nn.Linear(in_size, out_size, bias=False)
         self.relu = nn.ReLU()
+        self.linear2 = nn.Linear(out_size, 1, bias=False)
         # exchange weight value with 1.
         self.linear.weight = nn.Parameter(torch.tensor([[1.], [1.]]))
+        self.linear2.weight = nn.Parameter(torch.tensor([[1., 1.], [1., 1.]]))
+        self.relu2 = nn.ReLU()
 
     def forward(self, x):
         x = self.linear(x)
         act = self.relu(x)
-        return act
+        print(act)
+        y = self.linear2(act)
+        act = self.relu2(y)
+        print(y)
+        return y
 
 
 pt_model = NN(1, 2)

@@ -12,41 +12,56 @@ class ExtractionPTvsTFTestCase(unittest.TestCase):
         helper.create_test_images()
         
     def test_custom_torch_vs_tf_extraction(self):
-        layer_name = 'relu'
         values = [2, -10]
-        backend = 'tf'
-        tf_dataset = helper.SimpleDataset(values, backend)
+
+        tf_backend = 'tf'
+        tf_dataset = helper.SimpleDataset(values, tf_backend)
         tf_dl = DataLoader(
             tf_dataset,
             batch_size=1,
-            backend=backend,
+            backend=tf_backend,
         )
+        tf_model = Model('VGG16', pretrained=False,
+                      device=helper.DEVICE, backend=tf_backend)
+        tf_model.model = helper.tf_model
 
-        model = Model('VGG16', pretrained=False,
-                      device=helper.DEVICE, backend=backend)
-        model.model = helper.tf_model
-        tf_features, _ = model.extract_features(
+        torch_backend = 'pt'
+        pt_dataset = helper.SimpleDataset(values, torch_backend)
+        pt_dl = DataLoader(
+            pt_dataset,
+            batch_size=1,
+            backend=torch_backend,
+        )
+        pt_model = Model('vgg16', pretrained=False,
+                      device=helper.DEVICE, backend=torch_backend)
+        pt_model.model = helper.pt_model
+
+        layer_name = 'relu'
+        tf_features, _ = tf_model.extract_features(
             data_loader=tf_dl,
             module_name=layer_name,
             flatten_acts=False,
             )
-
-        backend = 'pt'
-        pt_dataset = helper.SimpleDataset(values, backend)
-        pt_dl = DataLoader(
-            pt_dataset,
-            batch_size=1,
-            backend=backend,
-        )
-        model = Model('vgg16', pretrained=False,
-                      device=helper.DEVICE, backend=backend)
-        model.model = helper.pt_model
-        pt_features, _ = model.extract_features(
+        pt_features, _ = pt_model.extract_features(
             data_loader=pt_dl,
             module_name=layer_name,
             flatten_acts=False,
             )
-        np.testing.assert_allclose(tf_features, pt_features)
-
         expected_features = np.array([[2, 2], [0, 0]])
         np.testing.assert_allclose(pt_features, expected_features)
+        np.testing.assert_allclose(tf_features, expected_features)
+
+        layer_name = 'relu2'
+        tf_features, _ = tf_model.extract_features(
+            data_loader=tf_dl,
+            module_name=layer_name,
+            flatten_acts=False,
+            )
+        pt_features, _ = pt_model.extract_features(
+            data_loader=pt_dl,
+            module_name=layer_name,
+            flatten_acts=False,
+            )
+        expected_features = np.array([[4, 4], [0, 0]])
+        np.testing.assert_allclose(pt_features, expected_features)
+        np.testing.assert_allclose(tf_features, expected_features)
