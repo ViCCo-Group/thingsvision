@@ -218,8 +218,8 @@ class Model():
                                 if act.size(0) != X.shape[0] and len(act.shape) == 3:
                                     act = act.permute(1, 0, 2)
                         act = act.view(act.size(0), -1)
-                features.append(act.cpu())
-                targets.extend(y.squeeze(-1).cpu())
+                features.append(act.cpu().numpy())
+                targets.extend(y.squeeze(-1).cpu().numpy())
         features = np.vstack(features)
         targets = np.asarray(targets).ravel()
         if return_probabilities:
