@@ -172,6 +172,238 @@ vision.save_features(features, f'./{model_name}/{module_name}/features', 'npy')
 vision.save_targets(targets, f'./{model_name}/{module_name}/targets', 'npy')
 ```
 
+### Example call for [ViT](https://arxiv.org/pdf/2010.11929.pdf) with PyTorch:
+
+```python
+import torch
+import thingsvision.vision as vision
+
+from thingsvision.model_class import Model
+
+model_name = 'vit_b_16'
+backend = 'pt'
+batch_size = 64
+
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+model = Model(model_name, pretrained=True, model_path=None, device=device, backend=backend)
+module_name = model.show()
+
+VisionTransformer(
+  (conv_proj): Conv2d(3, 768, kernel_size=(16, 16), stride=(16, 16))
+  (encoder): Encoder(
+    (dropout): Dropout(p=0.0, inplace=False)
+    (layers): Sequential(
+      (encoder_layer_0): EncoderBlock(
+        (ln_1): LayerNorm((768,), eps=1e-06, elementwise_affine=True)
+        (self_attention): MultiheadAttention(
+          (out_proj): NonDynamicallyQuantizableLinear(in_features=768, out_features=768, bias=True)
+        )
+        (dropout): Dropout(p=0.0, inplace=False)
+        (ln_2): LayerNorm((768,), eps=1e-06, elementwise_affine=True)
+        (mlp): MLPBlock(
+          (linear_1): Linear(in_features=768, out_features=3072, bias=True)
+          (act): GELU()
+          (dropout_1): Dropout(p=0.0, inplace=False)
+          (linear_2): Linear(in_features=3072, out_features=768, bias=True)
+          (dropout_2): Dropout(p=0.0, inplace=False)
+        )
+      )
+      (encoder_layer_1): EncoderBlock(
+        (ln_1): LayerNorm((768,), eps=1e-06, elementwise_affine=True)
+        (self_attention): MultiheadAttention(
+          (out_proj): NonDynamicallyQuantizableLinear(in_features=768, out_features=768, bias=True)
+        )
+        (dropout): Dropout(p=0.0, inplace=False)
+        (ln_2): LayerNorm((768,), eps=1e-06, elementwise_affine=True)
+        (mlp): MLPBlock(
+          (linear_1): Linear(in_features=768, out_features=3072, bias=True)
+          (act): GELU()
+          (dropout_1): Dropout(p=0.0, inplace=False)
+          (linear_2): Linear(in_features=3072, out_features=768, bias=True)
+          (dropout_2): Dropout(p=0.0, inplace=False)
+        )
+      )
+      (encoder_layer_2): EncoderBlock(
+        (ln_1): LayerNorm((768,), eps=1e-06, elementwise_affine=True)
+        (self_attention): MultiheadAttention(
+          (out_proj): NonDynamicallyQuantizableLinear(in_features=768, out_features=768, bias=True)
+        )
+        (dropout): Dropout(p=0.0, inplace=False)
+        (ln_2): LayerNorm((768,), eps=1e-06, elementwise_affine=True)
+        (mlp): MLPBlock(
+          (linear_1): Linear(in_features=768, out_features=3072, bias=True)
+          (act): GELU()
+          (dropout_1): Dropout(p=0.0, inplace=False)
+          (linear_2): Linear(in_features=3072, out_features=768, bias=True)
+          (dropout_2): Dropout(p=0.0, inplace=False)
+        )
+      )
+      (encoder_layer_3): EncoderBlock(
+        (ln_1): LayerNorm((768,), eps=1e-06, elementwise_affine=True)
+        (self_attention): MultiheadAttention(
+          (out_proj): NonDynamicallyQuantizableLinear(in_features=768, out_features=768, bias=True)
+        )
+        (dropout): Dropout(p=0.0, inplace=False)
+        (ln_2): LayerNorm((768,), eps=1e-06, elementwise_affine=True)
+        (mlp): MLPBlock(
+          (linear_1): Linear(in_features=768, out_features=3072, bias=True)
+          (act): GELU()
+          (dropout_1): Dropout(p=0.0, inplace=False)
+          (linear_2): Linear(in_features=3072, out_features=768, bias=True)
+          (dropout_2): Dropout(p=0.0, inplace=False)
+        )
+      )
+      (encoder_layer_4): EncoderBlock(
+        (ln_1): LayerNorm((768,), eps=1e-06, elementwise_affine=True)
+        (self_attention): MultiheadAttention(
+          (out_proj): NonDynamicallyQuantizableLinear(in_features=768, out_features=768, bias=True)
+        )
+        (dropout): Dropout(p=0.0, inplace=False)
+        (ln_2): LayerNorm((768,), eps=1e-06, elementwise_affine=True)
+        (mlp): MLPBlock(
+          (linear_1): Linear(in_features=768, out_features=3072, bias=True)
+          (act): GELU()
+          (dropout_1): Dropout(p=0.0, inplace=False)
+          (linear_2): Linear(in_features=3072, out_features=768, bias=True)
+          (dropout_2): Dropout(p=0.0, inplace=False)
+        )
+      )
+      (encoder_layer_5): EncoderBlock(
+        (ln_1): LayerNorm((768,), eps=1e-06, elementwise_affine=True)
+        (self_attention): MultiheadAttention(
+          (out_proj): NonDynamicallyQuantizableLinear(in_features=768, out_features=768, bias=True)
+        )
+        (dropout): Dropout(p=0.0, inplace=False)
+        (ln_2): LayerNorm((768,), eps=1e-06, elementwise_affine=True)
+        (mlp): MLPBlock(
+          (linear_1): Linear(in_features=768, out_features=3072, bias=True)
+          (act): GELU()
+          (dropout_1): Dropout(p=0.0, inplace=False)
+          (linear_2): Linear(in_features=3072, out_features=768, bias=True)
+          (dropout_2): Dropout(p=0.0, inplace=False)
+        )
+      )
+      (encoder_layer_6): EncoderBlock(
+        (ln_1): LayerNorm((768,), eps=1e-06, elementwise_affine=True)
+        (self_attention): MultiheadAttention(
+          (out_proj): NonDynamicallyQuantizableLinear(in_features=768, out_features=768, bias=True)
+        )
+        (dropout): Dropout(p=0.0, inplace=False)
+        (ln_2): LayerNorm((768,), eps=1e-06, elementwise_affine=True)
+        (mlp): MLPBlock(
+          (linear_1): Linear(in_features=768, out_features=3072, bias=True)
+          (act): GELU()
+          (dropout_1): Dropout(p=0.0, inplace=False)
+          (linear_2): Linear(in_features=3072, out_features=768, bias=True)
+          (dropout_2): Dropout(p=0.0, inplace=False)
+        )
+      )
+      (encoder_layer_7): EncoderBlock(
+        (ln_1): LayerNorm((768,), eps=1e-06, elementwise_affine=True)
+        (self_attention): MultiheadAttention(
+          (out_proj): NonDynamicallyQuantizableLinear(in_features=768, out_features=768, bias=True)
+        )
+        (dropout): Dropout(p=0.0, inplace=False)
+        (ln_2): LayerNorm((768,), eps=1e-06, elementwise_affine=True)
+        (mlp): MLPBlock(
+          (linear_1): Linear(in_features=768, out_features=3072, bias=True)
+          (act): GELU()
+          (dropout_1): Dropout(p=0.0, inplace=False)
+          (linear_2): Linear(in_features=3072, out_features=768, bias=True)
+          (dropout_2): Dropout(p=0.0, inplace=False)
+        )
+      )
+      (encoder_layer_8): EncoderBlock(
+        (ln_1): LayerNorm((768,), eps=1e-06, elementwise_affine=True)
+        (self_attention): MultiheadAttention(
+          (out_proj): NonDynamicallyQuantizableLinear(in_features=768, out_features=768, bias=True)
+        )
+        (dropout): Dropout(p=0.0, inplace=False)
+        (ln_2): LayerNorm((768,), eps=1e-06, elementwise_affine=True)
+        (mlp): MLPBlock(
+          (linear_1): Linear(in_features=768, out_features=3072, bias=True)
+          (act): GELU()
+          (dropout_1): Dropout(p=0.0, inplace=False)
+          (linear_2): Linear(in_features=3072, out_features=768, bias=True)
+          (dropout_2): Dropout(p=0.0, inplace=False)
+        )
+      )
+      (encoder_layer_9): EncoderBlock(
+        (ln_1): LayerNorm((768,), eps=1e-06, elementwise_affine=True)
+        (self_attention): MultiheadAttention(
+          (out_proj): NonDynamicallyQuantizableLinear(in_features=768, out_features=768, bias=True)
+        )
+        (dropout): Dropout(p=0.0, inplace=False)
+        (ln_2): LayerNorm((768,), eps=1e-06, elementwise_affine=True)
+        (mlp): MLPBlock(
+          (linear_1): Linear(in_features=768, out_features=3072, bias=True)
+          (act): GELU()
+          (dropout_1): Dropout(p=0.0, inplace=False)
+          (linear_2): Linear(in_features=3072, out_features=768, bias=True)
+          (dropout_2): Dropout(p=0.0, inplace=False)
+        )
+      )
+      (encoder_layer_10): EncoderBlock(
+        (ln_1): LayerNorm((768,), eps=1e-06, elementwise_affine=True)
+        (self_attention): MultiheadAttention(
+          (out_proj): NonDynamicallyQuantizableLinear(in_features=768, out_features=768, bias=True)
+        )
+        (dropout): Dropout(p=0.0, inplace=False)
+        (ln_2): LayerNorm((768,), eps=1e-06, elementwise_affine=True)
+        (mlp): MLPBlock(
+          (linear_1): Linear(in_features=768, out_features=3072, bias=True)
+          (act): GELU()
+          (dropout_1): Dropout(p=0.0, inplace=False)
+          (linear_2): Linear(in_features=3072, out_features=768, bias=True)
+          (dropout_2): Dropout(p=0.0, inplace=False)
+        )
+      )
+      (encoder_layer_11): EncoderBlock(
+        (ln_1): LayerNorm((768,), eps=1e-06, elementwise_affine=True)
+        (self_attention): MultiheadAttention(
+          (out_proj): NonDynamicallyQuantizableLinear(in_features=768, out_features=768, bias=True)
+        )
+        (dropout): Dropout(p=0.0, inplace=False)
+        (ln_2): LayerNorm((768,), eps=1e-06, elementwise_affine=True)
+        (mlp): MLPBlock(
+          (linear_1): Linear(in_features=768, out_features=3072, bias=True)
+          (act): GELU()
+          (dropout_1): Dropout(p=0.0, inplace=False)
+          (linear_2): Linear(in_features=3072, out_features=768, bias=True)
+          (dropout_2): Dropout(p=0.0, inplace=False)
+        )
+      )
+    )
+    (ln): LayerNorm((768,), eps=1e-06, elementwise_affine=True)
+  )
+  (heads): Sequential(
+    (head): Linear(in_features=768, out_features=1000, bias=True)
+  )
+)
+
+#Enter part of the model for which you would like to extract features:
+
+(e.g., "encoder.layers.encoder_layer_11.mlp.linear_2")
+
+dl = vision.load_dl(
+	root='./images/',
+	out_path=f'./{model_name}/{module_name}/features',
+	batch_size=batch_size,
+	transforms=model.get_transformations(),
+	backend=backend,
+	)
+	
+features, targets, probas = model.extract_features(
+                data_loader=dl,
+                module_name=module_name,
+                flatten_acts=False,
+                clip=False,
+                return_probabilities=True,
+)
+
+vision.save_features(features, f'./{model_name}/{module_name}/features', 'npy')
+vision.save_targets(targets, f'./{model_name}/{module_name}/targets', 'npy')
+
 ### Example call for [CORnet](https://github.com/dicarlolab/CORnet) with PyTorch:
 
 ```python
