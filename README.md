@@ -403,6 +403,7 @@ features, targets, probas = model.extract_features(
 
 vision.save_features(features, f'./{model_name}/{module_name}/features', 'npy')
 vision.save_targets(targets, f'./{model_name}/{module_name}/targets', 'npy')
+```
 
 ### Example call for [CORnet](https://github.com/dicarlolab/CORnet) with PyTorch:
 
