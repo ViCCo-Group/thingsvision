@@ -11,11 +11,11 @@
 
 Features can be extracted for all models in [torchvision](https://pytorch.org/vision/0.8/models.html), [TensorFlow](https://www.tensorflow.org/api_docs/python/tf/keras/applications), each of the [CORnet](https://github.com/dicarlolab/CORnet) versions and both [CLIP](https://github.com/openai/CLIP) variants (`clip-ViT` and `clip-RN`). For the correct abbreviations of [torchvision](https://pytorch.org/vision/0.8/models.html) models have a look [here](https://github.com/pytorch/vision/tree/master/torchvision/models). For the correct abbreviations of [CORnet](https://github.com/dicarlolab/CORnet) models look [here](https://github.com/dicarlolab/CORnet/tree/master/cornet). To separate the string `cornet` from its variant (e.g., `s`, `z`) use a hyphen instead of an underscore (e.g., `cornet-s`, `cornet-z`).<br>
 
-Examples:  `alexnet`, `resnet50`, `resnet101`, `vgg13`, `vgg13_bn`, `vgg16`, `vgg16_bn`, `vgg19`, `vgg19_bn`, `cornet-s`, `clip-ViT`
+Examples:  `alexnet`, `resnet18`, `resnet50`, `resnet101`, `vit_b_16`, `vgg13`, `vgg13_bn`, `vgg16`, `vgg16_bn`, `vgg19`, `vgg19_bn`, `cornet-s`, `clip-ViT`
 
 ## Environment Setup
 
-We recommend to create a new `conda environment` with Python version 3.7 or 3.8 (no tests for 3.9 yet) before using `thingsvision`. Check out the `environment.yml` file in `envs`, if you want to create a `conda environment` via `yml`. Note that [PyTorch 1.7.x](https://pytorch.org/) requires CUDA >= 10.2, if you want to extract network activations on a GPU. However, the code runs already pretty fast on a strong CPU (Intel i7 or i9). Activate the `environment` and run the following `pip` command in your terminal. 
+We recommend to create a new `conda environment` with Python version 3.7 or 3.8 (no tests for 3.9 yet) before using `thingsvision`. Check out the `environment.yml` file in `envs`, if you want to create a `conda environment` via `yml`. Activate the `environment` and run the following `pip` command in your terminal. 
 
 ```bash
 $ pip install --upgrade thingsvision
@@ -32,10 +32,8 @@ $ bash get_files.sh
 Execute the following lines to have the latest `PyTorch` and `CUDA` versions available (not necessary, but perhaps desirable):
 
 ```bash
-$ conda install --yes -c pytorch pytorch=1.7.1 torchvision cudatoolkit=11.0
+$ conda install pytorch torchvision torchaudio -c pytorch
 ```
-
-Replace `cudatoolkit=11.0` above with the appropriate CUDA version on your machine (e.g., 10.2) or `cpuonly` when installing on a machine without a GPU.
 
 ## Google Colab
 
