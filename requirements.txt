@@ -1,8 +1,8 @@
 ftfy==5.8
-numpy==1.19.2
+numpy==1.22.4
 pandas==1.0.5
-scikit-image==0.19.3
-scikit-learn==1.0.1
+scikit-image==0.19.*
+scikit-learn==1.0.*
 torch==1.11.*
 torchvision==0.12.*
 tqdm==4.64.0
