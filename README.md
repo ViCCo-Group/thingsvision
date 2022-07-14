@@ -1,6 +1,6 @@
 [![Unittests](https://github.com/ViCCo-Group/THINGSvision/actions/workflows/tests.yml/badge.svg)](https://github.com/ViCCo-Group/THINGSvision/actions/workflows/python-package.yml)
 [![Upload Python Package](https://github.com/ViCCo-Group/THINGSvision/actions/workflows/python-publish.yml/badge.svg)](https://github.com/ViCCo-Group/THINGSvision/actions/workflows/python-publish.yml)
-![Python version](https://img.shields.io/badge/python-3.7%20%7C%203.8-blue.svg)
+![Python version](https://img.shields.io/badge/python-3.7%20%7C%203.8%20%7C%203.9-blue.svg)
 [![Code Coverage](https://codecov.io/gh/ViCCo-Group/THINGSvision/branch/master/graph/badge.svg)](https://github.com/ViCCo-Group/THINGSvision/actions/workflows/coverage.yml)
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ViCCo-Group/THINGSvision/blob/master/doc/pytorch.ipynb)
 
