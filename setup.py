@@ -4,25 +4,25 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 requirements = [
-                'matplotlib',
-                'numba',
+                'matplotlib==3.5.2',
+                'numba==0.55.2',
                 'ftfy',
-                'numpy',
-                'pandas',
-                'tensorflow',
-                'torch',
-                'torchvision',
-                'tqdm',
+                'numpy==1.22.4',
+                'pandas==1.4.2',
+                'tensorflow==2.9.1',
+                'torch==1.11.0',
+                'torchvision==0.12.0',
+                'tqdm==4.64.0',
                 'regex',
-                'scikit-image',
-                'scikit-learn',
-                'scipy',
-                'h5py',
+                'scikit-image==0.19.3',
+                'scikit-learn==1.1.1',
+                'scipy==1.8.1',
+                'h5py==3.7.0',
                 ]
 
 setuptools.setup(
                 name="thingsvision",
-                version="1.4.4",
+                version="1.4.5",
                 author="Lukas Muttenthaler",
                 author_email="muttenthaler@cbs.mpg.de",
                 description="Extracting image features from state-of-the-art neural networks for Computer Vision made easy",
