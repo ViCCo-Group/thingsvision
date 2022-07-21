@@ -12,3 +12,4 @@ regex
 scipy
 h5py
 tensorflow==2.9.1
+timm==0.6.5

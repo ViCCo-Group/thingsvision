@@ -14,7 +14,7 @@ class RDMTestCase(unittest.TestCase):
         helper.create_test_images()
         model_name = 'vgg16_bn'
         model, _, dl = helper.create_model_and_dl(model_name, 'pt')
-        module_name = helper.PT_MODEL_AND_MODULE_NAMES[model_name][0]
+        module_name = helper.PT_MODEL_AND_MODULE_NAMES[model_name]['modules'][0]
         features, _ = model.extract_features(
             data_loader=dl,
             module_name=module_name,

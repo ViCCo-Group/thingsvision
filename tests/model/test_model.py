@@ -42,14 +42,20 @@ class ModelLoadingTestCase(unittest.TestCase):
 
     def test_load_custom_user_model(self):
         model_name = 'VGG16bn_ecoset'
-        model = Model(model_name, True, 'cpu')
-        self.assertTrue(model.__class__.__name__, 'vgg')
+        model = Model(model_name, False, 'cpu')
+        self.assertEqual(model.model.__class__.__name__, 'VGG')
 
         model_name = 'Resnet50_ecoset'
-        model = Model(model_name, True, 'cpu')
-        self.assertTrue(model.__class__.__name__, 'resnet')
+        model = Model(model_name, False, 'cpu')
+        self.assertEqual(model.model.__class__.__name__, 'ResNet')
 
         model_name = 'Alexnet_ecoset'
-        model = Model(model_name, True, 'cpu')
-        self.assertTrue(model.__class__.__name__, 'alexnet')
+        model = Model(model_name, False, 'cpu')
+        print(model.__class__.__name__)
+        self.assertEqual(model.model.__class__.__name__, 'AlexNet')
+
+    def test_load_timm_models(self):
+        model_name = 'mixnet_l'
+        model = Model(model_name, False, 'cpu')
+        self.assertEqual(model.model.__class__.__name__, 'EfficientNet')
 

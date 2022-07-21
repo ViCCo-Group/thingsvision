@@ -24,20 +24,69 @@ TEST_PATH = './test_images'
 OUT_PATH = './test'
 
 PT_MODEL_AND_MODULE_NAMES = {
-    'vgg16_bn': ['features.23', 'classifier.3'],
-    'vgg19_bn': ['features.23', 'classifier.3'],
-    'cornet_r': ['decoder.flatten'],
-    'cornet_rt': ['decoder.flatten'],
-    'cornet_s': ['decoder.flatten'],
-    'cornet_z': ['decoder.flatten'],
-    'clip-ViT': ['visual'],
-    'clip-RN': ['visual'],
-    'VGG16bn_ecoset': ['classifier.3']
+    # Torchvision models
+    'vgg16_bn': {
+        'modules': ['features.23', 'classifier.3'],
+        'pretrained': True
+    },
+    'vgg19_bn': {
+        'modules': ['features.23', 'classifier.3'],
+        'pretrained': False
+    },
+
+    # Hardcoded models
+    'cornet_r': {
+        'modules': ['decoder.flatten'],
+        'pretrained': True
+    },
+    'cornet_rt': {
+        'modules': ['decoder.flatten'],
+        'pretrained': False
+    },
+    'cornet_s': {
+        'modules': ['decoder.flatten'],
+        'pretrained': False
+    },
+    'cornet_z': {
+        'modules': ['decoder.flatten'],
+        'pretrained': False
+    },
+    'clip-ViT': {
+        'modules': ['visual'],
+        'pretrained': True
+    },
+    'clip-RN': {
+        'modules': ['visual'],
+        'pretrained': False
+    },
+
+    # Custom models
+    'VGG16bn_ecoset': {
+        'modules': ['classifier.3'],
+        'pretrained': True
+    },
+
+    # Timm models
+    'mixnet_l': {
+        'modules': ['conv_head'],
+        'pretrained': True
+    },
+    'gluon_inception_v3': {
+        'modules': ['Mixed_6d'],
+        'pretrained': False
+    }
 }
 
 TF_MODEL_AND_MODULES_NAMES = {
-    'VGG16': ['block1_conv1', 'flatten'],
-    'VGG19': ['block1_conv1', 'flatten']
+    # Keras models
+    'VGG16': {
+        'modules': ['block1_conv1', 'flatten'],
+        'pretrained': True
+    },
+    'VGG19': {
+        'modules': ['block1_conv1', 'flatten'],
+        'pretrained': False
+    }
 }
 
 BACKENDS = ['tf', 'pt']
@@ -119,15 +168,18 @@ def iterate_through_all_model_combinations():
             MODEL_AND_MODULE_NAMES = TF_MODEL_AND_MODULES_NAMES
 
         for model_name in MODEL_AND_MODULE_NAMES:
-            model, dataset, dl = create_model_and_dl(model_name, backend)
-            yield model, dataset, dl, MODEL_AND_MODULE_NAMES[model_name], model_name
+            pretrained = MODEL_AND_MODULE_NAMES[model_name]['pretrained']
+            model, dataset, dl = create_model_and_dl(model_name, backend, pretrained)
+
+            modules =  MODEL_AND_MODULE_NAMES[model_name]['modules']
+            yield model, dataset, dl, modules, model_name
 
 
-def create_model_and_dl(model_name, backend):
+def create_model_and_dl(model_name, backend, pretrained=False):
     """Iterate through all backends and models and create model, dataset and data loader."""
     model = Model(
         model_name=model_name,
-        pretrained=True,
+        pretrained=pretrained,
         device=DEVICE,
         backend=backend
     )
