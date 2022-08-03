@@ -15,6 +15,7 @@ import thingsvision.cornet as cornet
 import thingsvision.clip as clip
 import thingsvision.custom_models as custom_models
 
+import timm
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -86,10 +87,14 @@ class Model():
                     self.model = self.model.module    # remove DataParallel
                 elif hasattr(custom_models, self.model_name):
                     self.model = getattr(custom_models, self.model_name)(self.device, self.backend).create_model()
-                else:
+                elif hasattr(torchvision_models, self.model_name):
                     self.model = getattr(torchvision_models, self.model_name)
                     self.model = self.model(pretrained=self.pretrained)
+                elif self.model_name in timm.list_models():
+                    self.model = timm.create_model(self.model_name, self.pretrained)
+
                 self.model = self.model.to(device)
+            
             if self.model_path:
                 try:
                     state_dict = torch.load(self.model_path, map_location=device)
