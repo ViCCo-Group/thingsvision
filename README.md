@@ -9,7 +9,7 @@
 
 ## Model collection
 
-Features can be extracted for all models in [torchvision](https://pytorch.org/vision/0.8/models.html), all models in [Keras](https://www.tensorflow.org/api_docs/python/tf/keras/applications), all models in [timm](https://github.com/rwightman/pytorch-image-models), custom models trained on Ecoset, each of the [CORnet](https://github.com/dicarlolab/CORnet) versions and both [CLIP](https://github.com/openai/CLIP) variants (`clip-ViT` and `clip-RN`). Note, that the respective model name must be used. For example, if you want to use the VGG16 model from torchvision, you will have to use `vgg16` and if you want to use the VGG16 model from Keras, you will have to use the model name `VGG16`.<br>
+Features can be extracted for all models in [torchvision](https://pytorch.org/vision/0.8/models.html), all models in [Keras](https://www.tensorflow.org/api_docs/python/tf/keras/applications), all models in [timm](https://github.com/rwightman/pytorch-image-models), custom models trained on Ecoset, each of the [CORnet](https://github.com/dicarlolab/CORnet) versions and both [CLIP](https://github.com/openai/CLIP) variants (`clip-ViT` and `clip-RN`). Note, that the respective model name must be used. For example, if you want to use the VGG16 model from torchvision, you will have to use `vgg16` and if you want to use the VGG16 model from Keras, you will have to use the model name `VGG16`. You can further specify the model source by setting the `source` parameter.<br>
 For the correct abbreviations of [torchvision](https://pytorch.org/vision/0.8/models.html) models have a look [here](https://github.com/pytorch/vision/tree/master/torchvision/models). For the correct abbreviations of [CORnet](https://github.com/dicarlolab/CORnet) models look [here](https://github.com/dicarlolab/CORnet/tree/master/cornet). To separate the string `cornet` from its variant (e.g., `s`, `z`) use a hyphen instead of an underscore (e.g., `cornet-s`, `cornet-z`).<br>
 
 Examples:  `alexnet`, `resnet18`, `resnet50`, `resnet101`, `vit_b_16`, `vit_b_32`, `vgg13`, `vgg13_bn`, `vgg16`, `vgg16_bn`, `vgg19`, `vgg19_bn`, `cornet-s`, `clip-ViT`
@@ -64,7 +64,7 @@ You can find the jupyter notebook using `PyTorch` [here](https://colab.research.
 
 6. If you happen to extract hidden unit activations for many images, it is possible to run into `MemoryErrors`. To circumvent such problems, a helper function called `split_activations` will split the activation matrix into several batches, and stores them in separate files. For now, the split parameter is set to `10`. Hence, the function will split the activation matrix into `10` files. This parameter can, however, easily be modified in case you need more (or fewer) splits. To merge the separate activation batches back into a single activation matrix, just call `merge_activations` when loading the activations (e.g., `activations = merge_activations(PATH)`). 
 
-## Extract features at specific layer of a state-of-the-art `torchvision`, `TensorFlow`, `CORnet`, or `CLIP` model 
+## Extract features at specific layer of a state-of-the-art `torchvision`, `TensorFlow`, `CORnet`, or `CLIP`, `Timm` model 
 
 The following examples demonstrate how to load a model with PyTorch or TensorFlow into memory, and how to subsequently extract features. 
 Please keep in mind, that the model names as well as the layer names depend on the backend. If you use PyTorch, you will need to use these [model names](https://pytorch.org/vision/stable/models.html). If you use Tensorflow, you will need to use these [model names](https://keras.io/api/applications/). You can find the layer names by using `model.show()`. 
@@ -79,11 +79,11 @@ import thingsvision.vision as vision
 from thingsvision.model_class import Model
 
 model_name = 'alexnet'
-backend = 'pt'
+source = 'torchvision'
 batch_size = 64
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
-model = Model(model_name, pretrained=True, model_path=None, device=device, backend=backend)
+model = Model(model_name, pretrained=True, model_path=None, device=device, source=source)
 module_name = model.show()
 
 AlexNet(
@@ -123,7 +123,7 @@ dl = vision.load_dl(
 	out_path=f'./{model_name}/{module_name}/features',
 	batch_size=batch_size,
 	transforms=model.get_transformations(),
-	backend=backend,
+	backend=model.backend,
 	)
 features, targets, probas = model.extract_features(
 				data_loader=dl,
@@ -146,18 +146,17 @@ from thingsvision.model_class import Model
 
 model_name = 'clip-ViT'
 module_name = 'visual'
-backend = 'pt'
 batch_size = 64
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-model = Model(model_name, pretrained=True, model_path=None, device=device, backend=backend)
+model = Model(model_name, pretrained=True, model_path=None, device=device)
 dl = vision.load_dl(
 	root='./images/',
 	out_path=f'./{model_name}/{module_name}/features',
 	batch_size=batch_size,
 	transforms=model.get_transformations(),
-	backend=backend,
+	backend=model.backend,
 	)
 features, targets = model.extract_features(
 			data_loader=dl,
@@ -180,11 +179,10 @@ import thingsvision.vision as vision
 from thingsvision.model_class import Model
 
 model_name = 'vit_b_16'
-backend = 'pt'
 batch_size = 64
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
-model = Model(model_name, pretrained=True, model_path=None, device=device, backend=backend)
+model = Model(model_name, pretrained=True, model_path=None, device=device)
 module_name = model.show()
 
 VisionTransformer(
@@ -389,7 +387,7 @@ dl = vision.load_dl(
 	out_path=f'./{model_name}/{module_name}/features',
 	batch_size=batch_size,
 	transforms=model.get_transformations(),
-	backend=backend,
+	backend=model.backend,
 	)
 	
 features, targets, probas = model.extract_features(
@@ -507,7 +505,7 @@ dl = vision.load_dl(
 	out_path=f'./{model_name}/{module_name}/features',
 	batch_size=batch_size,
 	transforms=model.get_transformations(),
-	backend=backend,
+	backend=model.backend,
 	)
 features, targets = model.extract_features(
 			data_loader=dl,
@@ -530,19 +528,18 @@ import thingsvision.vision as vision
 from thingsvision.model_class import Model
 
 model_name = 'VGG16'
-backend = 'tf'
 module_name = 'block1_conv1'
 batch_size = 64
 
 device = 'cuda' if tf.test.is_gpu_available() else 'cpu'
-model = Model(model_name, pretrained=True, model_path=None, device=device, backend=backend)
+model = Model(model_name, pretrained=True, model_path=None, device=device)
 
 dl = vision.load_dl(
 	root='./images/',
 	out_path=f'./{model_name}/{module_name}/features',
 	batch_size=batch_size,
 	transforms=model.get_transformations(),
-	backend=backend,
+	backend=model.backend,
 	)
 features, targets, probas = model.extract_features(
 				data_loader=dl,
@@ -566,18 +563,18 @@ dl = vision.load_dl(
 		out_path=f'./{model_name}/{module_name}/features',
 		batch_size=batch_size,
 		transforms=model.get_transformations(apply_center_crop=apply_center_crop),
-		backend=backend,
+		backend=model.backend,
 		)
 ```
 
 ## Extract features from custom models
 
-If you want to use a custom model from the `custom_models` directory, you need to use the class name e.g. `VGG16_ecoset` as model name. The script will use the PyTorch or Tensorflow implementation depending on the `backend` value.
+If you want to use a custom model from the `custom_models` directory, you need to use the class name e.g. `VGG16_ecoset` as model name. 
 
 ```python
 from thingsvision.model_class import Model
 model_name = 'VGG16_ecoset'
-model = Model(model_name, pretrained=True, model_path=None, device=device, backend=backend)
+model = Model(model_name, pretrained=True, model_path=None, device=device)
 ```
 
 ## Representational Similarity Analysis (RSA) 
@@ -622,7 +619,6 @@ correlations = vision.compare_models(
                                      module_names=module_names,
                                      pretrained=True,
                                      batch_size=batch_size,
-                                     backend='pt',
                                      flatten_acts=True,
                                      clip=clip_list,
                                      save_features=True,
@@ -644,7 +640,7 @@ CLIP (Contrastive Language-Image Pre-Training) is a neural network trained on a 
 ## Adding custom models
 
 If you want to use your own model and/or want to make it public, you just need to implement a class inheriting from the `custom_models/custom.py:Custom` class and implement the `create_model` method.
-There you can build/download the model and its weights. The constructors expects a `device` (str) and a `backend` (str).
+There you can build/download the model and its weights. The constructors expects a `device` (str).
 Afterwards you can put the file in the `custom_models` directory and create a pull request to include the model in the official GitHub repository.
 
 ```python
@@ -653,16 +649,15 @@ import torchvision.models as torchvision_models
 import torch
 
 class VGG16_ecoset(Custom):
-    def __init__(self, device, backend) -> None:
-        super().__init__(device, backend)
+    def __init__(self, device) -> None:
+        super().__init__(device)
 
     def create_model(self):
-        if self.backend == 'pt':
-            model = torchvision_models.vgg16_bn(pretrained=False, num_classes=565)
-            path_to_weights = 'https://osf.io/fe7s5/download'
-            state_dict = torch.hub.load_state_dict_from_url(path_to_weights, map_location=self.device)
-            model.load_state_dict(state_dict)
-            return model
+          model = torchvision_models.vgg16_bn(pretrained=False, num_classes=565)
+          path_to_weights = 'https://osf.io/fe7s5/download'
+          state_dict = torch.hub.load_state_dict_from_url(path_to_weights, map_location=self.device)
+          model.load_state_dict(state_dict)
+          return model
 ```
 
 ## Citation

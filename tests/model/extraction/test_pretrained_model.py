@@ -56,7 +56,6 @@ class ExtractionPretrainedTestCase(unittest.TestCase):
                     self.assertEqual(len(probs), amount_objects)
 
     def test_extraction_across_models(self):
-        backend = 'pt'
         model_names = ['vgg16_bn', 'vgg19_bn']
         module_names = ['features.23', 'features.23']
         img_paths = [helper.TEST_PATH, helper.TEST_PATH]
@@ -68,7 +67,6 @@ class ExtractionPretrainedTestCase(unittest.TestCase):
             clip=[False, False],
             pretrained=True,
             batch_size=1,
-            backend=backend,
             flatten_acts=False,
             )
         path1 = os.path.join(helper.OUT_PATH, helper.TEST_PATH, model_names[0],
@@ -79,7 +77,6 @@ class ExtractionPretrainedTestCase(unittest.TestCase):
         self.assertTrue(os.path.exists(path2))
 
     def test_extraction_across_models_and_modules(self):
-        backend = 'pt'
         model_names = ['vgg16_bn', 'alexnet']
         module_names = ['features.22', 'features.1']
         img_paths = [helper.TEST_PATH, helper.TEST_PATH]
@@ -91,7 +88,6 @@ class ExtractionPretrainedTestCase(unittest.TestCase):
             clip=[False, False],
             pretrained=False,
             batch_size=1,
-            backend=backend, 
             flatten_acts=True,
             )
         path1 = os.path.join(helper.OUT_PATH, helper.TEST_PATH, model_names[0],
@@ -102,7 +98,6 @@ class ExtractionPretrainedTestCase(unittest.TestCase):
         self.assertTrue(os.path.exists(path2))
 
     def test_extraction_across_models_and_modules(self):
-        backend = 'tf'
         model_names = ['VGG16', 'VGG19']
         module_names = ['block1_conv1', 'fc1']
         img_paths = [helper.TEST_PATH, helper.TEST_PATH]
@@ -114,7 +109,6 @@ class ExtractionPretrainedTestCase(unittest.TestCase):
             clip=[False, False],
             pretrained=False,
             batch_size=1,
-            backend=backend, 
             flatten_acts=True,
             )
         path1 = os.path.join(helper.OUT_PATH, helper.TEST_PATH, model_names[0],

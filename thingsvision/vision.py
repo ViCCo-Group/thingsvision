@@ -126,7 +126,6 @@ def extract_features_across_models_and_datasets(
     clip: List[bool],
     pretrained: bool,
     batch_size: int,
-    backend: str,
     flatten_acts: bool,
     f_format: str = 'txt'
 ) -> None:
@@ -136,8 +135,7 @@ def extract_features_across_models_and_datasets(
             model_name=model_name,
             pretrained=pretrained,
             device=device,
-            model_path=None,
-            backend=backend,
+            model_path=None
             )
         transforms = model.get_transformations()
         for img_path in img_paths:
@@ -146,7 +144,7 @@ def extract_features_across_models_and_datasets(
             dl = load_dl(
                 root=img_path,
                 out_path=out_path,
-                backend=backend,
+                backend=model.backend,
                 batch_size=batch_size,
                 transforms=transforms,
                 )
@@ -167,7 +165,6 @@ def extract_features_across_models_datasets_and_modules(
     clip: List[str],
     pretrained: bool,
     batch_size: int,
-    backend: str,
     flatten_acts: bool,
     f_format: str = 'txt'
 ) -> None:
@@ -177,8 +174,7 @@ def extract_features_across_models_datasets_and_modules(
             model_name=model_name,
             pretrained=pretrained,
             device=device,
-            model_path=None,
-            backend=backend,
+            model_path=None
             )
         transforms = model.get_transformations()
         modules = get_module_names(model, module_names[i])
@@ -189,7 +185,7 @@ def extract_features_across_models_datasets_and_modules(
                 dl = load_dl(
                     root=img_path,
                     out_path=out_path,
-                    backend=backend,
+                    backend=model.backend,
                     batch_size=batch_size,
                     transforms=transforms,
                     )
@@ -639,7 +635,6 @@ def get_features(
     clip: List[bool],
     pretrained: bool,
     batch_size: int,
-    backend: str,
     flatten_acts: bool,
 ) -> Dict[str, Dict[str, np.ndarray]]:
     """Extract features for a list of neural network models and corresponding modules.
@@ -689,14 +684,13 @@ def get_features(
             model_name=model_name,
             pretrained=pretrained,
             device=device,
-            model_path=None,
-            backend=backend,
+            model_path=None
             )
         transforms = model.get_transformations()
         dl = load_dl(
                     root=root,
                     out_path=out_path,
-                    backend=backend,
+                    backend=model.backend,
                     batch_size=batch_size,
                     transforms=transforms,
                     )
@@ -717,7 +711,6 @@ def compare_models(
     module_names: List[str],
     pretrained: bool,
     batch_size: int,
-    backend: str,
     flatten_acts: bool,
     clip: List[bool],
     save_features: bool = True,
@@ -785,7 +778,6 @@ def compare_models(
         clip=clip,
         pretrained=pretrained,
         batch_size=batch_size,
-        backend=backend,
         flatten_acts=flatten_acts,
     )
     # save model features to disc
