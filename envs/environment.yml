@@ -21,6 +21,6 @@ dependencies:
  - pip
  - pip:
    - tensorflow==2.9.1
-   - timm=0.6.5 
+   - timm==0.6.5 
    - codecov
    - pep8
