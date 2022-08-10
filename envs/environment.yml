@@ -5,21 +5,22 @@ channels:
  - pytorch
 dependencies:
  - python=3.8
- - numpy=1.19.*
+ - numpy=1.21.6
  - ftfy=5.8
- - pandas=1.0.*
- - scikit-image=0.18.*
- - scikit-learn=0.24.*
- - pytorch=1.7.*
- - torchvision=0.8.*
- - tqdm=4.47.*
- - numba=0.53.*
- - matplotlib=3.2.*
+ - pandas=1.0.5
+ - scikit-image=0.19.*
+ - scikit-learn=1.0.*
+ - pytorch=1.11.*
+ - torchvision=0.12.*
+ - tqdm=4.64.0
+ - numba=0.55.2
+ - matplotlib=3.5.2
  - regex
  - scipy
  - h5py
  - pip
  - pip:
-   - tensorflow==2.5.1 
+   - tensorflow==2.9.1
+   - timm=0.6.5 
    - codecov
    - pep8
