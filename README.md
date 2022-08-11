@@ -1,10 +1,23 @@
-[![Unittests](https://github.com/ViCCo-Group/THINGSvision/actions/workflows/tests.yml/badge.svg)](https://github.com/ViCCo-Group/THINGSvision/actions/workflows/python-package.yml)
-[![Upload Python Package](https://github.com/ViCCo-Group/THINGSvision/actions/workflows/python-publish.yml/badge.svg)](https://github.com/ViCCo-Group/THINGSvision/actions/workflows/python-publish.yml)
-![Python version](https://img.shields.io/badge/python-3.7%20%7C%203.8%20%7C%203.9-blue.svg)
-[![Code Coverage](https://codecov.io/gh/ViCCo-Group/THINGSvision/branch/master/graph/badge.svg)](https://github.com/ViCCo-Group/THINGSvision/actions/workflows/coverage.yml)
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ViCCo-Group/THINGSvision/blob/master/doc/pytorch.ipynb)
-
-
+<div align="center">
+    <a href="https://github.com/ViCCo-Group/THINGSvision/actions/workflows/tests.yml" rel="nofollow">
+        <img src="https://github.com/ViCCo-Group/THINGSvision/actions/workflows/tests.yml/badge.svg" alt="Tests" />
+    </a>
+    <a href="https://github.com/ViCCo-Group/THINGSvision/actions/workflows/coverage.yml" rel="nofollow">
+        <img src="https://codecov.io/gh/ViCCo-Group/THINGSvision/branch/master/graph/badge.svg" alt="Code Coverage" />
+    </a>
+    <a href="https://pypi.org/project/thingsvision/" rel="nofollow">
+        <img src="https://img.shields.io/pypi/v/thingsvision" alt="PyPI" />
+    </a>
+    <a href="https://www.python.org/" rel="nofollow">
+        <img src="https://img.shields.io/badge/python-3.7%20%7C%203.8%20%7C%203.9-blue.svg" alt="Python version" />
+    </a>
+    <a href="https://github.com/ViCCo-Group/THINGSvision/blob/master/LICENSE" rel="nofollow">
+        <img src="https://img.shields.io/pypi/l/thingsvision alt="License" />
+    </a>
+    <a href="https://colab.research.google.com/github/ViCCo-Group/THINGSvision/blob/master/doc/pytorch.ipynb" rel="nofollow">
+        <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab" />
+    </a>
+</div>
 
 
 ## Model collection
