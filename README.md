@@ -12,7 +12,7 @@
         <img src="https://img.shields.io/badge/python-3.7%20%7C%203.8%20%7C%203.9-blue.svg" alt="Python version" />
     </a>
     <a href="https://github.com/ViCCo-Group/THINGSvision/blob/master/LICENSE" rel="nofollow">
-        <img src="https://img.shields.io/pypi/l/thingsvision alt="License" />
+        <img src="https://img.shields.io/pypi/l/thingsvision" alt="License" />
     </a>
     <a href="https://colab.research.google.com/github/ViCCo-Group/THINGSvision/blob/master/doc/pytorch.ipynb" rel="nofollow">
         <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab" />
