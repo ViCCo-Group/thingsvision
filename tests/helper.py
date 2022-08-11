@@ -23,9 +23,9 @@ DATA_PATH = './data'
 TEST_PATH = './test_images'
 OUT_PATH = './test'
 
-PT_MODEL_AND_MODULE_NAMES = {
+MODEL_AND_MODULE_NAMES = {
     # Torchvision models
-    'vgg16_bn': {
+    'vgg16': {
         'modules': ['features.23', 'classifier.3'],
         'pretrained': True
     },
@@ -74,10 +74,8 @@ PT_MODEL_AND_MODULE_NAMES = {
     'gluon_inception_v3': {
         'modules': ['Mixed_6d'],
         'pretrained': False
-    }
-}
+    },
 
-TF_MODEL_AND_MODULES_NAMES = {
     # Keras models
     'VGG16': {
         'modules': ['block1_conv1', 'flatten'],
@@ -89,7 +87,6 @@ TF_MODEL_AND_MODULES_NAMES = {
     }
 }
 
-BACKENDS = ['tf', 'pt']
 
 FILE_FORMATS = ['hdf5', 'npy', 'mat', 'txt']
 DISTANCES = ['correlation', 'cosine', 'euclidean', 'gaussian']
@@ -160,34 +157,26 @@ class SimpleDataset(object):
         return len(self.values)
 
 def iterate_through_all_model_combinations():
-    for backend in BACKENDS:
-        MODEL_AND_MODULE_NAMES = None
-        if backend == 'pt':
-            MODEL_AND_MODULE_NAMES = PT_MODEL_AND_MODULE_NAMES
-        elif backend == 'tf':
-            MODEL_AND_MODULE_NAMES = TF_MODEL_AND_MODULES_NAMES
+    for model_name in MODEL_AND_MODULE_NAMES:
+        pretrained = MODEL_AND_MODULE_NAMES[model_name]['pretrained']
+        model, dataset, dl = create_model_and_dl(model_name, pretrained)
 
-        for model_name in MODEL_AND_MODULE_NAMES:
-            pretrained = MODEL_AND_MODULE_NAMES[model_name]['pretrained']
-            model, dataset, dl = create_model_and_dl(model_name, backend, pretrained)
-
-            modules =  MODEL_AND_MODULE_NAMES[model_name]['modules']
-            yield model, dataset, dl, modules, model_name
+        modules =  MODEL_AND_MODULE_NAMES[model_name]['modules']
+        yield model, dataset, dl, modules, model_name
 
 
-def create_model_and_dl(model_name, backend, pretrained=False):
-    """Iterate through all backends and models and create model, dataset and data loader."""
+def create_model_and_dl(model_name, pretrained=False):
+    """Iterate through models and create model, dataset and data loader."""
     model = Model(
         model_name=model_name,
         pretrained=pretrained,
-        device=DEVICE,
-        backend=backend
+        device=DEVICE
     )
 
     dataset = ImageDataset(
         root=TEST_PATH,
         out_path=OUT_PATH,
-        backend=backend,
+        backend=model.backend,
         imagenet_train=None,
         imagenet_val=None,
         things=None,
@@ -198,7 +187,7 @@ def create_model_and_dl(model_name, backend, pretrained=False):
     dl = DataLoader(
         dataset,
         batch_size=BATCH_SIZE,
-        backend=backend,
+        backend=model.backend,
     )
     return model, dataset, dl
 

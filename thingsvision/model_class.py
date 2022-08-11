@@ -28,7 +28,7 @@ class Model():
                  pretrained: bool,
                  device: str,
                  model_path: str=None,
-                 backend: str='pt'):
+                 source: str=None):
         """
         Parameters
         ----------
@@ -49,52 +49,117 @@ class Model():
             features should be extracted for a model that
             was fine-tuned (or trained) on a custom image
             dataset.
-        backend : str (optional)
-            Deep learning framework that should be used.
-            'pt' for PyTorch and 'tf' for Tensorflow
+        source: str (optional)
+            Source of model and weights. If not set, all 
+            models sources are searched for the model name 
+            until the first occurence.
         """
 
         self.model_name = model_name
-        self.backend = backend
         self.pretrained = pretrained
         self.device = device
         self.model_path = model_path
+        self.source = source
         self.load_model()
 
 
-    def load_model(self) -> Tuple[Any, Any]:
-        """Load a pretrained *torchvision* or CLIP model into memory."""
-        if self.backend == 'pt':
-            if re.search(r'^clip', self.model_name):
-                clip_model_name = "RN50"
-                if re.search(r'ViT$', self.model_name):
-                    clip_model_name = "ViT-B/32"
-                self.model, self.clip_n_px = clip.load(
-                                                    clip_model_name,
-                                                    device=self.device,
-                                                    model_path=self.model_path,
-                                                    pretrained=self.pretrained,
-                                                    jit=False,
-                                            )
-            else:
-                device = torch.device(self.device)
-                if re.search(r'^cornet', self.model_name):
-                    try:
-                        self.model = getattr(cornet, f'cornet_{self.model_name[-1]}')
-                    except:
-                        self.model = getattr(cornet, f'cornet_{self.model_name[-2:]}')
-                    self.model = self.model(pretrained=self.pretrained, map_location=device)
-                    self.model = self.model.module    # remove DataParallel
-                elif hasattr(custom_models, self.model_name):
-                    self.model = getattr(custom_models, self.model_name)(self.device, self.backend).create_model()
-                elif hasattr(torchvision_models, self.model_name):
-                    self.model = getattr(torchvision_models, self.model_name)
-                    self.model = self.model(pretrained=self.pretrained)
-                elif self.model_name in timm.list_models():
-                    self.model = timm.create_model(self.model_name, self.pretrained)
-
-                self.model = self.model.to(device)
+    def get_model_from_torchvision(self):
+        backend = 'pt'
+        if hasattr(torchvision_models, self.model_name):
+            model = getattr(torchvision_models, self.model_name)
+            model = model(pretrained=self.pretrained)
+            return model, backend 
             
+    def get_model_from_timm(self):
+        backend = 'pt'
+        if self.model_name in timm.list_models():
+            model = timm.create_model(self.model_name, self.pretrained)
+            return model, backend
+
+    def get_model_from_custom_models(self):
+        if re.search(r'^clip', self.model_name):
+            clip_model_name = "RN50"
+            if re.search(r'ViT$', self.model_name):
+                clip_model_name = "ViT-B/32"
+            model, self.clip_n_px = clip.load(
+                                            clip_model_name,
+                                            device=self.device,
+                                            model_path=self.model_path,
+                                            pretrained=self.pretrained,
+                                            jit=False,
+                                        )
+            backend = 'pt'
+            return model, backend
+
+        if re.search(r'^cornet', self.model_name):
+            try:
+                model = getattr(cornet, f'cornet_{self.model_name[-1]}')
+            except:
+                model = getattr(cornet, f'cornet_{self.model_name[-2:]}')
+            model = model(pretrained=self.pretrained, map_location=torch.device(self.device))
+            model = model.module    # remove DataParallel
+            backend = 'pt'
+            return model, backend
+
+        if hasattr(custom_models, self.model_name):
+            custom_model = getattr(custom_models, self.model_name)
+            custom_model = custom_model(self.device)
+            model = custom_model.create_model()
+            backend = custom_model.get_backend()
+            return model, backend 
+
+    def get_model_from_keras(self):
+        backend = 'tf'
+        if hasattr(tensorflow_models, self.model_name):
+            model = getattr(tensorflow_models, self.model_name)
+            if self.pretrained:
+                weights = 'imagenet'
+            elif self.model_path:
+                weights = self.model_path
+            else:
+                weights = None
+            model = model(weights=weights)
+            return model, backend
+
+    def load_model_from_source(self):
+        model = None
+        backend = None
+        if self.source == 'timm':
+            model, backend = self.get_model_from_timm()
+        elif self.source == 'keras':
+            model, backend = self.get_model_from_keras()
+        elif self.source == 'torchvision':
+            model, backend = self.get_model_from_torchvision()
+        elif self.source == 'custom':
+            model, backend = self.get_model_from_custom_models()
+
+        if not model:
+            raise Exception(f'Model {self.model_name} not found in {self.source}')
+        else:
+            self.model = model
+            self.backend = backend
+
+    def load_model(self) -> Tuple[Any, Any]:
+        """Load a pretrained model into memory."""
+        if self.source:
+            self.load_model_from_source()
+        elif not self.source:
+            for model_loader in [self.get_model_from_torchvision, 
+                                self.get_model_from_timm,
+                                self.get_model_from_keras,
+                                self.get_model_from_custom_models]:
+                result = model_loader()
+                if result:
+                    found_model, backend = result
+                    self.model = found_model
+                    self.backend = backend
+                    break
+            
+            if not self.model:
+                raise Exception(f'Model {self.model_name} not found in all sources')
+
+        if self.backend == 'pt':
+            device = torch.device(self.device)
             if self.model_path:
                 try:
                     state_dict = torch.load(self.model_path, map_location=device)
@@ -102,20 +167,7 @@ class Model():
                     state_dict = torch.hub.load_state_dict_from_url(self.model_path, map_location=device)
                 self.model.load_state_dict(state_dict)
             self.model.eval()
-        elif self.backend == 'tf':
-            if hasattr(custom_models, self.model_name):
-                self.model = getattr(custom_models, self.model_name)(self.device, self.backend).create_model()
-            else:
-                model = getattr(tensorflow_models, self.model_name)
-                if self.pretrained:
-                    weights = 'imagenet'
-                elif self.model_path:
-                    weights = self.model_path
-                else:
-                    weights = None
-                
-                self.model = model(weights=weights)
-    
+            self.model = self.model.to(device) 
 
     def show(self) -> str:
         """Show architecture of model to select a layer."""

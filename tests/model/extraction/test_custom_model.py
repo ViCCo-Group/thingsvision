@@ -18,16 +18,18 @@ class ExtractionCustomModelTestCase(unittest.TestCase):
         backends = [['pt', helper.pt_model, 'vgg16'], ['tf', helper.tf_model, 'VGG16']]
         batch_size = 1
         for backend, custom_model, vgg_model in backends:
+            model = Model(vgg_model, pretrained=False,
+                        device=helper.DEVICE)
+            model.backend = backend
+            model.model = custom_model
+
             dataset = helper.SimpleDataset(values, backend)
             dl = DataLoader(
                 dataset,
                 batch_size=batch_size,
                 backend=backend,
             )
-            model = Model(vgg_model, pretrained=False,
-                        device=helper.DEVICE, backend=backend)
-
-            model.model = custom_model
+            
             expected_features = np.array([[2, 2], [0, 0]])
             expected_targets = np.array([0, 0])
 
@@ -54,7 +56,8 @@ class ExtractionCustomModelTestCase(unittest.TestCase):
         values = [1] * 10
         backend = 'pt'
         dataset = helper.SimpleDataset(values, backend)
-        model = Model('vgg16', pretrained=False, device=helper.DEVICE, backend=backend)
+        model = Model('vgg16', pretrained=False, device=helper.DEVICE)
+        model.backend = backend
         model.model = helper.pt_model
 
         # no batch remainders -> 5 batches with 2 examples

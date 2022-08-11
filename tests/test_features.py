@@ -17,7 +17,7 @@ class FeaturesTestCase(unittest.TestCase):
         
     def get_2D_features(self):
         model_name = 'vgg16_bn'
-        model, _, dl = helper.create_model_and_dl(model_name, 'pt')
+        model, _, dl = helper.create_model_and_dl(model_name)
         module_name ='classifier.3'
         features, _ = model.extract_features(
             data_loader=dl,

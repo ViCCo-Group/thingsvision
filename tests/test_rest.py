@@ -12,9 +12,9 @@ class RDMTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         helper.create_test_images()
-        model_name = 'vgg16_bn'
-        model, _, dl = helper.create_model_and_dl(model_name, 'pt')
-        module_name = helper.PT_MODEL_AND_MODULE_NAMES[model_name]['modules'][0]
+        model_name = 'vgg16'
+        model, _, dl = helper.create_model_and_dl(model_name)
+        module_name = helper.MODEL_AND_MODULE_NAMES[model_name]['modules'][0]
         features, _ = model.extract_features(
             data_loader=dl,
             module_name=module_name,
@@ -57,7 +57,6 @@ class ComparisonTestCase(unittest.TestCase):
         helper.create_test_images()
 
     def test_comparison(self):
-        backend = 'pt'
         compare_model_names = ['vgg16_bn', 'vgg19_bn']
         compare_module_names = ['features.23', 'classifier.3']
         corr_mat = vision.compare_models(
@@ -67,7 +66,6 @@ class ComparisonTestCase(unittest.TestCase):
             module_names=compare_module_names,
             pretrained=True,
             batch_size=helper.BATCH_SIZE,
-            backend=backend,
             flatten_acts=True,
             clip=[False, False],
             save_features=False,

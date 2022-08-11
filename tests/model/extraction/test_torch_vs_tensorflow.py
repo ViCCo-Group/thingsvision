@@ -22,8 +22,9 @@ class ExtractionPTvsTFTestCase(unittest.TestCase):
             backend=tf_backend,
         )
         tf_model = Model('VGG16', pretrained=False,
-                      device=helper.DEVICE, backend=tf_backend)
+                      device=helper.DEVICE)
         tf_model.model = helper.tf_model
+        tf_model.backend = tf_backend
 
         torch_backend = 'pt'
         pt_dataset = helper.SimpleDataset(values, torch_backend)
@@ -33,8 +34,9 @@ class ExtractionPTvsTFTestCase(unittest.TestCase):
             backend=torch_backend,
         )
         pt_model = Model('vgg16', pretrained=False,
-                      device=helper.DEVICE, backend=torch_backend)
+                      device=helper.DEVICE)
         pt_model.model = helper.pt_model
+        pt_model.backend = torch_backend
 
         layer_name = 'relu'
         tf_features, _ = tf_model.extract_features(
