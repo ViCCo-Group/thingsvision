@@ -9,9 +9,6 @@ import torch
 import numpy as np
 import pandas as pd
 import tensorflow as tf
-from torchvision import transforms as T
-
-import thingsvision.vision as vision
 
 from collections import defaultdict
 from os.path import join as pjoin
@@ -144,7 +141,7 @@ class ImageDataset(object):
             if self.things_behavior:
                 # sort objects according to item names in THINGS database
                 classes = [''.join((name, '.jpg'))
-                           for name in vision.load_item_names()]
+                           for name in load_item_names()]
             else:
                 if self.file_names:
                     classes = list(filter(parse_img_name, self.file_names))
@@ -344,3 +341,6 @@ def get_ref_img(
         img_name = ref_img.rstrip(suffix)
         if re.search(f'^{img_name}', first_img):
             return os.path.join(folder, ref_img)
+
+def load_item_names(folder: str = './data') -> np.ndarray:
+    return pd.read_csv(pjoin(folder, 'item_names.tsv'), encoding='utf-8', sep='\t').uniqueID.values 
