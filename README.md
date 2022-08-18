@@ -164,7 +164,6 @@ module_name = 'visual'
 batch_size = 64
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
-
 model = Model(model_name, pretrained=True, model_path=None, device=device)
 dl = vision.load_dl(
 	root='./images/',
@@ -194,10 +193,11 @@ import thingsvision.vision as vision
 from thingsvision.model_class import Model
 
 model_name = 'vit_b_16'
+source = 'torchvision'
 batch_size = 64
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
-model = Model(model_name, pretrained=True, model_path=None, device=device)
+model = Model(model_name, pretrained=True, model_path=None, device=device, source=source)
 module_name = model.show()
 
 VisionTransformer(
