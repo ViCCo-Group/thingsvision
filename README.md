@@ -71,13 +71,11 @@ You can find the jupyter notebook using `PyTorch` [here](https://colab.research.
     for fn in object_images_*.zip; do unzip -P the_password $fn; done
     ```
 
-3. Features can be extracted at every layer for all `torchvision`, `TensorFlow`, `CORnet` and `CLIP` models.
+3. Features can be extracted at every layer for all `timm`, `torchvision`, `TensorFlow`, `CORnet` and `CLIP` models.
 
-4. If you are interested in an ensemble of `feature maps`, as introduced in this recent [COLING 2020 paper](https://www.aclweb.org/anthology/2020.coling-main.173/), you can simply extract an ensemble of `conv` or `max-pool` layers. The ensemble can additionally be concatenated with the activations of the penultimate layer, and subsequently be mapped into a lower-dimensional space with `PCA` to reduce noise, and only keep those dimensions that account for most of the variance in the data. 
+4. The script automatically extracts features for the specified `model` and `module`.
 
-5. The script automatically extracts features for the specified `model` and `layer`.
-
-6. If you happen to extract hidden unit activations for many images, it is possible to run into `MemoryErrors`. To circumvent such problems, a helper function called `split_activations` will split the activation matrix into several batches, and stores them in separate files. For now, the split parameter is set to `10`. Hence, the function will split the activation matrix into `10` files. This parameter can, however, easily be modified in case you need more (or fewer) splits. To merge the separate activation batches back into a single activation matrix, just call `merge_activations` when loading the activations (e.g., `activations = merge_activations(PATH)`). 
+5. If you happen to extract hidden unit activations for many images, it is possible to run into `MemoryErrors`. To circumvent such problems, a helper function called `split_activations` will split the activation matrix into several batches, and stores them in separate files. For now, the split parameter is set to `10`. Hence, the function will split the activation matrix into `10` files. This parameter can, however, easily be modified in case you need more (or fewer) splits. To merge the separate activation batches back into a single activation matrix, just call `merge_activations` when loading the activations (e.g., `activations = merge_activations(PATH)`). 
 
 ## Extract features at specific layer of a state-of-the-art `torchvision`, `TensorFlow`, `CORnet`, or `CLIP`, `Timm` model 
 
@@ -161,10 +159,11 @@ from thingsvision.model_class import Model
 
 model_name = 'clip-ViT'
 module_name = 'visual'
+source = 'custom'
 batch_size = 64
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
-model = Model(model_name, pretrained=True, model_path=None, device=device)
+model = Model(model_name, pretrained=True, model_path=None, device=device, source=source)
 dl = vision.load_dl(
 	root='./images/',
 	out_path=f'./{model_name}/{module_name}/features',
@@ -426,10 +425,11 @@ import thingsvision.vision as vision
 from thingsvision.model_class import Model
 
 model_name = 'cornet-s'
+source = 'custom'
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 batch_size = 64
 
-model = Model(model_name, pretrained=True, model_path=None, device=device)
+model = Model(model_name, pretrained=True, model_path=None, device=device, source=source)
 module_name = model.show()
 
 Sequential(
@@ -544,10 +544,11 @@ from thingsvision.model_class import Model
 
 model_name = 'VGG16'
 module_name = 'block1_conv1'
+source = 'keras'
 batch_size = 64
 
 device = 'cuda' if tf.test.is_gpu_available() else 'cpu'
-model = Model(model_name, pretrained=True, model_path=None, device=device)
+model = Model(model_name, pretrained=True, model_path=None, device=device, source=source)
 
 dl = vision.load_dl(
 	root='./images/',

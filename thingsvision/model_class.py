@@ -63,24 +63,25 @@ class Model():
         self.load_model()
 
 
-    def get_model_from_torchvision(self):
+    def get_model_from_torchvision(self) -> Tuple[Any, str]:
         backend = 'pt'
         if hasattr(torchvision_models, self.model_name):
             model = getattr(torchvision_models, self.model_name)
             model = model(pretrained=self.pretrained)
             return model, backend 
             
-    def get_model_from_timm(self):
+    def get_model_from_timm(self) -> Tuple[Any, str]:
         backend = 'pt'
         if self.model_name in timm.list_models():
             model = timm.create_model(self.model_name, self.pretrained)
             return model, backend
 
-    def get_model_from_custom_models(self):
-        if re.search(r'^clip', self.model_name):
-            clip_model_name = "RN50"
-            if re.search(r'ViT$', self.model_name):
+    def get_model_from_custom_models(self) -> Tuple[Any, str]:
+        if self.model_name.startswith('clip'):
+            if self.model_name.endswith('ViT'):
                 clip_model_name = "ViT-B/32"
+            else:
+                clip_model_name = "RN50"
             model, self.clip_n_px = clip.load(
                                             clip_model_name,
                                             device=self.device,
@@ -91,10 +92,10 @@ class Model():
             backend = 'pt'
             return model, backend
 
-        if re.search(r'^cornet', self.model_name):
+        if self.model_name.startswith('cornet'):
             try:
                 model = getattr(cornet, f'cornet_{self.model_name[-1]}')
-            except:
+            except AttributeError:
                 model = getattr(cornet, f'cornet_{self.model_name[-2:]}')
             model = model(pretrained=self.pretrained, map_location=torch.device(self.device))
             model = model.module    # remove DataParallel
@@ -108,7 +109,7 @@ class Model():
             backend = custom_model.get_backend()
             return model, backend 
 
-    def get_model_from_keras(self):
+    def get_model_from_keras(self) -> Tuple[Any, str]:
         backend = 'tf'
         if hasattr(tensorflow_models, self.model_name):
             model = getattr(tensorflow_models, self.model_name)
@@ -121,7 +122,7 @@ class Model():
             model = model(weights=weights)
             return model, backend
 
-    def load_model_from_source(self):
+    def load_model_from_source(self) -> None:
         model = None
         backend = None
         if self.source == 'timm':
@@ -132,18 +133,20 @@ class Model():
             model, backend = self.get_model_from_torchvision()
         elif self.source == 'custom':
             model, backend = self.get_model_from_custom_models()
+        else:
+            raise ValueError(f'\nCannot load models from {self.source}.\nUse a different source.\n')
 
-        if not model:
-            raise Exception(f'Model {self.model_name} not found in {self.source}')
+        if isinstance(model, type(None)):
+            raise ValueError(f'\nCould not find {self.model_name} in {self.source}.\nCheck whether model name is correctly spelled or use a different model.\n')
         else:
             self.model = model
             self.backend = backend
 
-    def load_model(self) -> Tuple[Any, Any]:
+    def load_model(self) -> None:
         """Load a pretrained model into memory."""
         if self.source:
             self.load_model_from_source()
-        elif not self.source:
+        else:
             for model_loader in [self.get_model_from_torchvision, 
                                 self.get_model_from_timm,
                                 self.get_model_from_keras,
@@ -167,7 +170,7 @@ class Model():
                     state_dict = torch.hub.load_state_dict_from_url(self.model_path, map_location=device)
                 self.model.load_state_dict(state_dict)
             self.model.eval()
-            self.model = self.model.to(device) 
+            self.model = self.model.to(device)
 
     def show(self) -> str:
         """Show architecture of model to select a layer."""
@@ -223,6 +226,7 @@ class Model():
         return features, targets
 
     
+    @torch.no_grad()
     def pt_extraction(
             self,
             data_loader: Iterator,
@@ -232,13 +236,6 @@ class Model():
             return_probabilities: bool=False,
         ) -> tuple:
         """Feature extraction helper function for PyTorch models."""
-        if re.search(r'ensemble$', module_name):
-            ensembles = ['conv_ensemble', 'maxpool_ensemble']
-            assert module_name in ensembles, f'\nIf aggregating filters across layers and subsequently concatenating features, module name must be one of {ensembles}\n'
-            if re.search(r'^conv', module_name):
-                feature_extractor = nn.Conv2d
-            else:
-                feature_extractor = nn.MaxPool2d
         device = torch.device(self.device)
         # initialise dictionary to store hidden unit activations per mini-batch
         global activations
@@ -248,35 +245,30 @@ class Model():
         features, targets = [], []
         if return_probabilities:
             probabilities = []
-        with torch.no_grad():
-            for batch in data_loader:
-                X, y = (t.to(device) for t in batch)
+        for batch in data_loader:
+            X, y = (t.to(device) for t in batch)
+            if clip:
+                img_features = model.encode_image(X)
+                if module_name == 'visual':
+                    assert torch.unique(activations[module_name] == img_features).item(
+                    ), '\nImage features should represent activations in last encoder layer.\n'
+            else:
+                out = model(X)
+                if return_probabilities:
+                    probas = F.softmax(out, dim=1)
+                    probabilities.append(probas)
+            act = activations[module_name]
+            if flatten_acts:
                 if clip:
-                    img_features = model.encode_image(X)
-                    if module_name == 'visual':
-                        assert torch.unique(activations[module_name] == img_features).item(
-                        ), '\nImage features should represent activations in last encoder layer.\n'
-                else:
-                    out = model(X)
-                    if return_probabilities:
-                        probas = F.softmax(out, dim=1)
-                        probabilities.append(probas)
-                if re.compile(r'ensemble$').search(module_name):
-                    layers = self.enumerate_layers(feature_extractor)
-                    act = self.ensemble_featmaps(activations, layers, 'max')
-                else:
-                    act = activations[module_name]
-                    if flatten_acts:
-                        if clip:
-                            if re.compile(r'attn$').search(module_name):
-                                if isinstance(act, tuple):
-                                    act = act[0]
-                            else:
-                                if act.size(0) != X.shape[0] and len(act.shape) == 3:
-                                    act = act.permute(1, 0, 2)
-                        act = act.view(act.size(0), -1)
-                features.append(act.cpu().numpy())
-                targets.extend(y.squeeze(-1).cpu().numpy())
+                    if re.compile(r'attn$').search(module_name):
+                        if isinstance(act, tuple):
+                            act = act[0]
+                    else:
+                        if act.size(0) != X.shape[0] and len(act.shape) == 3:
+                            act = act.permute(1, 0, 2)
+                act = act.view(act.size(0), -1)
+            features.append(act.cpu().numpy())
+            targets.extend(y.squeeze(-1).cpu().numpy())
         features = np.vstack(features)
         targets = np.asarray(targets).ravel()
         if return_probabilities:
@@ -369,38 +361,6 @@ class Model():
         return features, targets
 
 
-    def enumerate_layers(self, feature_extractor) -> List[int]:
-        layers = []
-        k = 0
-        for n, m in self.model.named_modules():
-            if re.search(r'\d+$', n):
-                if isinstance(m, feature_extractor):
-                    layers.append(k)
-                k += 1
-        return layers
-
-
-    def ensemble_featmaps(
-        self,
-        activations: dict,
-        layers: list,
-        pooling: str = 'max',
-        alpha: float = 3.,
-        beta: float = 5.,
-    ) -> torch.Tensor:
-        """Concatenate globally (max or average) pooled feature maps."""
-        acts = [activations[''.join(('features.', str(l)))] for l in layers]
-        func = torch.max if pooling == 'max' else torch.mean
-        pooled_acts = [torch.tensor([list(map(func, featmaps))
-                                    for featmaps in acts_i]) for acts_i in acts]
-        # upweight second-to-last conv layer by 5.
-        pooled_acts[-2] = pooled_acts[-2] * alpha
-        # upweight last conv layer by 10.
-        pooled_acts[-1] = pooled_acts[-1] * beta
-        stacked_acts = torch.cat(pooled_acts, dim=1)
-        return stacked_acts
-
-    
     def get_activation(self, name):
         """Store copy of hidden unit activations at each layer of model."""
         def hook(model, input, output):
