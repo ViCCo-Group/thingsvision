@@ -58,7 +58,7 @@ You can find the jupyter notebook using `PyTorch` [here](https://colab.research.
 
 ## IMPORTANT NOTES:
 
-1. Image data will automatically be converted into a ready-to-use dataset class, and subsequently wrapped with a `PyTorch` mini-batch dataloader to make neural activation extraction more efficient.
+1. There exist four different sources from which neural network models and their (pretrained) weights can be downloaded. You can define the source of a model with the `source` argument. Possible sources are [`torchvision`](https://pytorch.org/vision/stable/models.html), [`keras`](https://keras.io/api/applications/), [`timm`](https://github.com/rwightman/pytorch-image-models), and `custom`. 
 
 2. If you happen to use the [THINGS image database](https://osf.io/jum2f/), make sure to correctly `unzip` all zip files (sorted from A-Z), and have all `object` directories stored in the parent directory `./images/` (e.g., `./images/object_xy/`) as well as the `things_concepts.tsv` file stored in the `./data/` folder. `bash get_files.sh` does the latter for you. Images, however, must be downloaded from the [THINGS database](https://osf.io/jum2f/) `Main` subfolder.  **The download is around 5GB**.
 
@@ -544,7 +544,7 @@ from thingsvision.model_class import Model
 
 model_name = 'VGG16'
 module_name = 'block1_conv1'
-source = 'keras'
+source = 'keras' # TensorFlow backend
 batch_size = 64
 
 device = 'cuda' if tf.test.is_gpu_available() else 'cpu'
