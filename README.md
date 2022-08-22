@@ -51,12 +51,6 @@ $ curl -O https://raw.githubusercontent.com/ViCCo-Group/THINGSvision/master/get_
 $ bash get_files.sh
 ```
 
-Execute the following lines to have the latest `PyTorch` and `CUDA` versions available (not necessary, but perhaps desirable):
-
-```bash
-$ conda install pytorch torchvision torchaudio -c pytorch
-```
-
 ## Google Colab
 
 Alternatively, you can use Google Colab to play around with `thingsvision` by uploading your image data to Google Drive.
@@ -144,7 +138,7 @@ dataset = ImageDataset(
         root=root,
         out_path='path/to/features',
         backend=extractor.backend,
-        transforms=extractor.get_transformations(),,
+        transforms=extractor.get_transformations(),
         class_names=class_names,
         file_names=file_names,
 )
@@ -539,7 +533,7 @@ dataset = ImageDataset(
         root=root,
         out_path='path/to/features',
         backend=extractor.backend,
-        transforms=extractor.get_transformations(),,
+        transforms=extractor.get_transformations(),
         class_names=class_names,
         file_names=file_names,
 )
