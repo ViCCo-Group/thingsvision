@@ -1,107 +1,104 @@
-import os 
+import os
 import unittest
 
-import thingsvision.vision as vision 
-import tests.helper as helper 
-
 import numpy as np
-import pandas as pd 
+from thingsvision.core.rsa import compute_rdm, correlate_rdms, plot_rdm
+from thingsvision.core.cka import CKA
+from thingsvision.utils.storing import save_features
 
-class RDMTestCase(unittest.TestCase):
+import tests.helper as helper
 
+
+class RSATestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         helper.create_test_images()
-        model_name = 'vgg16'
-        model, _, dl = helper.create_model_and_dl(model_name)
-        module_name = helper.MODEL_AND_MODULE_NAMES[model_name]['modules'][0]
-        features, _ = model.extract_features(
-            data_loader=dl,
-            module_name=module_name,
-            flatten_acts=False
+        model_name = "vgg16"
+        extractor, _, batches = helper.create_extractor_and_dataloader(
+            model_name, pretrained=False, source="torchvision"
+        )
+        module_name = helper.MODEL_AND_MODULE_NAMES[model_name]["modules"][0]
+        features = extractor.extract_features(
+            batches=batches, module_name=module_name, flatten_acts=False
         )
         for format in helper.FILE_FORMATS:
             # tests whether features can be saved in any of the formats as four-dimensional tensor
-            vision.save_features(
+            save_features(
                 features=features,
                 out_path=helper.OUT_PATH,
                 file_format=format,
             )
 
-
     def test_rdms(self):
-        """Test different distance metrics on which RDMs are based."""
+        """Test different distance metrics for RDM computation."""
 
-        features = np.load(os.path.join(helper.OUT_PATH, 'features.npy'))
+        features = np.load(os.path.join(helper.OUT_PATH, "features.npy"))
         features = features.reshape(helper.NUM_SAMPLES, -1)
 
         rdms = []
         for distance in helper.DISTANCES:
-            rdm = vision.compute_rdm(features, distance)
+            rdm = compute_rdm(features, distance)
             self.assertEqual(len(rdm.shape), 2)
             self.assertEqual(features.shape[0], rdm.shape[0], rdm.shape[1])
-            vision.plot_rdm(helper.OUT_PATH, features, distance)
+            plot_rdm(helper.OUT_PATH, features, distance)
             rdms.append(rdm)
 
         for rdm_i, rdm_j in zip(rdms[:-1], rdms[1:]):
-            corr = vision.correlate_rdms(rdm_i, rdm_j)
+            corr = correlate_rdms(rdm_i, rdm_j)
             self.assertTrue(isinstance(corr, float))
             self.assertTrue(corr > float(-1))
             self.assertTrue(corr < float(1))
 
 
-class ComparisonTestCase(unittest.TestCase):
+
+class CKATestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
         helper.create_test_images()
 
-    def test_comparison(self):
-        compare_model_names = ['vgg16_bn', 'vgg19_bn']
-        compare_module_names = ['features.23', 'classifier.3']
-        corr_mat = vision.compare_models(
-            root=helper.TEST_PATH,
-            out_path=helper.OUT_PATH,
-            model_names=compare_model_names,
-            module_names=compare_module_names,
-            pretrained=True,
-            batch_size=helper.BATCH_SIZE,
-            flatten_acts=True,
-            clip=[False, False],
-            save_features=False,
+    def test_cka(self):
+        """Test CKA for two different models."""
+        model_name_i = "vgg16"
+        extractor, _, batches = helper.create_extractor_and_dataloader(
+            model_name_i, pretrained=False, source="torchvision"
         )
-        self.assertTrue(isinstance(corr_mat, pd.DataFrame))
-        self.assertEqual(corr_mat.shape, (len(
-            compare_model_names), len(compare_module_names)))
-
-
-class LoadItemsTestCase(unittest.TestCase):
-
-    @classmethod
-    def setUpClass(cls):
-        helper.download_item_names()
-
-    def test_item_name_loading(self):
-        item_names = vision.load_item_names(helper.DATA_PATH)
-        self.assertTrue(isinstance(item_names, np.ndarray))
-        self.assertEqual(len(item_names), helper.NUM_OBJECTS)
+        module_name_i = helper.MODEL_AND_MODULE_NAMES[model_name_i]["modules"][1]
+        features_i = extractor.extract_features(
+            batches=batches, module_name=module_name_i, flatten_acts=False
+        )
+        model_name_j = "vgg19_bn"
+        extractor, _, batches = helper.create_extractor_and_dataloader(
+            model_name_j, pretrained=False, source="torchvision"
+        )
+        module_name = helper.MODEL_AND_MODULE_NAMES[model_name_j]["modules"][1]
+        features_j = extractor.extract_features(
+            batches=batches, module_name=module_name, flatten_acts=False
+        )
+        self.assertEqual(features_i.shape, features_j.shape)
+        m = features_i.shape[0]
+        for kernel in ['linear', 'rbf']:
+            cka = CKA(m=m, kernel=kernel, sigma=0.5 if kernel == 'rbf' else None)
+            rho = cka.compare(features_i, features_j)
+            self.assertTrue(isinstance(rho, float))
+            self.assertTrue(rho > float(-1) and rho < float(1))
 
 
 class FileNamesTestCase(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         helper.create_test_images()
 
     def test_filenames(self):
         import os
-        print(os.getcwd())
-        file_names = open(os.path.join(helper.OUT_PATH, 'file_names.txt'), 'r').read().split()
+
+        # print(os.getcwd())
+        file_names = (
+            open(os.path.join(helper.OUT_PATH, "file_names.txt"), "r").read().split()
+        )
         img_files = []
         for root, _, files in os.walk(helper.TEST_PATH):
             for f in files:
-                if f.endswith('png'):
+                if f.endswith("png"):
                     img_files.append(os.path.join(root, f))
         self.assertEqual(sorted(file_names), sorted(img_files))
-
-

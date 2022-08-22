@@ -4,14 +4,14 @@
 import torch
 import torch.utils.model_zoo
 
-from thingsvision.cornet.cornet_z import CORnet_Z
-from thingsvision.cornet.cornet_z import HASH as HASH_Z
-from thingsvision.cornet.cornet_r import CORnet_R
-from thingsvision.cornet.cornet_r import HASH as HASH_R
-from thingsvision.cornet.cornet_rt import CORnet_RT
-from thingsvision.cornet.cornet_rt import HASH as HASH_RT
-from thingsvision.cornet.cornet_s import CORnet_S
-from thingsvision.cornet.cornet_s import HASH as HASH_S
+from .cornet_z import CORnet_Z
+from .cornet_z import HASH as HASH_Z
+from .cornet_r import CORnet_R
+from .cornet_r import HASH as HASH_R
+from .cornet_rt import CORnet_RT
+from .cornet_rt import HASH as HASH_RT
+from .cornet_s import CORnet_S
+from .cornet_s import HASH as HASH_S
 
 
 def get_model(model_letter, pretrained=False, map_location=None, **kwargs):

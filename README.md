@@ -14,6 +14,9 @@
     <a href="https://github.com/ViCCo-Group/THINGSvision/blob/master/LICENSE" rel="nofollow">
         <img src="https://img.shields.io/pypi/l/thingsvision" alt="License" />
     </a>
+    <a href="https://github.com/psf/black" rel="nofollow">
+        <img src="https://img.shields.io/badge/code%20style-black-000000.svg" alt="Code style: black" />
+    </a>
     <a href="https://colab.research.google.com/github/ViCCo-Group/THINGSvision/blob/master/doc/pytorch.ipynb" rel="nofollow">
         <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab" />
     </a>
@@ -22,7 +25,10 @@
 
 ## Model collection
 
-Features can be extracted for all models in [torchvision](https://pytorch.org/vision/0.8/models.html), all models in [Keras](https://www.tensorflow.org/api_docs/python/tf/keras/applications), all models in [timm](https://github.com/rwightman/pytorch-image-models), custom models trained on Ecoset, each of the [CORnet](https://github.com/dicarlolab/CORnet) versions and both [CLIP](https://github.com/openai/CLIP) variants (`clip-ViT` and `clip-RN`). Note, that the respective model name must be used. For example, if you want to use the VGG16 model from torchvision, you will have to use `vgg16` and if you want to use the VGG16 model from Keras, you will have to use the model name `VGG16`. You can further specify the model source by setting the `source` parameter (e.g., `timm`, `torchvision`).<br>
+Features can be extracted for all models in [torchvision](https://pytorch.org/vision/0.8/models.html), [Keras](https://www.tensorflow.org/api_docs/python/tf/keras/applications), [timm](https://github.com/rwightman/pytorch-image-models), custom models trained on [Ecoset](https://www.pnas.org/doi/10.1073/pnas.2011417118), each of the many [CORnet](https://github.com/dicarlolab/CORnet) versions and both [CLIP](https://github.com/openai/CLIP) variants (`clip-ViT` and `clip-RN`).<br> 
+
+
+Note, that you have to use the respective model name (str). For example, if you want to use the VGG16 model from torchvision, you will have to use `vgg16` and if you want to use the VGG16 model from Keras, you will have to use the model name `VGG16`. You can further specify the model source by setting the `source` parameter (e.g., `timm`, `torchvision`).<br>
 
 
 For the correct abbreviations of [torchvision](https://pytorch.org/vision/0.8/models.html) models have a look [here](https://github.com/pytorch/vision/tree/master/torchvision/models). For the correct abbreviations of [CORnet](https://github.com/dicarlolab/CORnet) models look [here](https://github.com/dicarlolab/CORnet/tree/master/cornet). To separate the string `cornet` from its variant (e.g., `s`, `z`) use a hyphen instead of an underscore (e.g., `cornet-s`, `cornet-z`).<br>
@@ -79,25 +85,28 @@ You can find the jupyter notebook using `PyTorch` [here](https://colab.research.
 
 ## Extract features at specific layer of a state-of-the-art `torchvision`, `TensorFlow`, `CORnet`, or `CLIP`, `Timm` model 
 
-The following examples demonstrate how to load a model with PyTorch or TensorFlow into memory, and how to subsequently extract features. 
-Please keep in mind, that the model names as well as the layer names depend on the backend. If you use PyTorch, you will need to use these [model names](https://pytorch.org/vision/stable/models.html). If you use Tensorflow, you will need to use these [model names](https://keras.io/api/applications/). You can find the layer names by using `model.show()`. 
+The following examples demonstrate how to load a model with PyTorch or TensorFlow and how to subsequently extract features. 
+Please keep in mind that the model names as well as the layer names depend on the backend you want to use. If you use PyTorch, you will need to use these [model names](https://pytorch.org/vision/stable/models.html). If you use Tensorflow, you will need to use these [model names](https://keras.io/api/applications/). You can find the layer names by using `extractor.show()`. 
 
 
 ### Example call for AlexNet with PyTorch:
 
 ```python
 import torch
-import thingsvision.vision as vision
+from thingsvision import Extractor
+from thingsvision.utils.storing import save_features
+from thingsvision.utils.data import ImageDataset, DataLoader
 
-from thingsvision.model_class import Model
-
+root='path/to/root/img/directory' # (e.g., './images/)
 model_name = 'alexnet'
 source = 'torchvision'
 batch_size = 64
+class_names = None  # optional list of class names for class dataset
+file_names = None # optional list of file names according to which features should be sorted
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
-model = Model(model_name, pretrained=True, model_path=None, device=device, source=source)
-module_name = model.show()
+extractor = Extractor(model_name, pretrained=True, model_path=None, device=device, source=source)
+module_name = extractor.show()
 
 AlexNet(
   (features): Sequential(
@@ -131,73 +140,82 @@ AlexNet(
 
 (e.g., "features.10")
 
-dl = vision.load_dl(
-	root='./images/',
-	out_path=f'./{model_name}/{module_name}/features',
-	batch_size=batch_size,
-	transforms=model.get_transformations(),
-	backend=model.backend,
-	)
-features, targets, probas = model.extract_features(
-				data_loader=dl,
+dataset = ImageDataset(
+        root=root,
+        out_path='path/to/features',
+        backend=extractor.backend,
+        transforms=extractor.get_transformations(),,
+        class_names=class_names,
+        file_names=file_names,
+)
+batches = DataLoader(dataset=dataset, batch_size=batch_size, backend=extractor.backend)
+features = extractor.extract_features(
+				batches=batches,
 				module_name=module_name,
 				flatten_acts=True,
 				clip=False,
-				return_probabilities=True,
-				)
-
-vision.save_features(features, f'./{model_name}/{module_name}/features', 'npy')
+)
+save_features(features, out_path='path/to/features', file_format='npy')
 ```
 
 ### Example call for [CLIP](https://github.com/openai/CLIP) with PyTorch:
 
 ```python
 import torch
-import thingsvision.vision as vision
+from thingsvision import Extractor
+from thingsvision.utils.storing import save_features
+from thingsvision.utils.data import ImageDataset, DataLoader
+from thingsvision.core.extraction import center_features
 
-from thingsvision.model_class import Model
-
+root='path/to/root/img/directory' # (e.g., './images/)
 model_name = 'clip-ViT'
 module_name = 'visual'
 source = 'custom'
 batch_size = 64
+class_names = None  # optional list of class names for class dataset
+file_names = None # optional list of file names according to which features should be sorted
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
-model = Model(model_name, pretrained=True, model_path=None, device=device, source=source)
-dl = vision.load_dl(
-	root='./images/',
-	out_path=f'./{model_name}/{module_name}/features',
-	batch_size=batch_size,
-	transforms=model.get_transformations(),
-	backend=model.backend,
-	)
-features, targets = model.extract_features(
-			data_loader=dl,
-			module_name=module_name,
-			flatten_acts=False,
-			clip=True,
-			)
-features = vision.center_features(features)
-
-vision.save_features(features, f'./{model_name}/{module_name}/features', 'npy')
-vision.save_targets(targets, f'./{model_name}/{module_name}/targets', 'npy')
+# initialize extractor module
+extractor = Extractor(model_name, pretrained=True, model_path=None, device=device, source=source)
+dataset = ImageDataset(
+        root=root,
+        out_path='path/to/features',
+        backend=extractor.backend,
+        transforms=extractor.get_transformations(),
+        class_names=class_names,
+        file_names=file_names,
+)
+batches = DataLoader(dataset=dataset, batch_size=batch_size, backend=extractor.backend)
+features = extractor.extract_features(
+				batches=batches,
+				module_name=module_name,
+				flatten_acts=False,
+				clip=True,
+)
+features = center_features(features)
+save_features(features, out_path='path/to/features', file_format='npy')
 ```
 
 ### Example call for [ViT](https://arxiv.org/pdf/2010.11929.pdf) with PyTorch:
 
 ```python
 import torch
-import thingsvision.vision as vision
+from thingsvision import Extractor
+from thingsvision.utils.storing import save_features
+from thingsvision.utils.data import ImageDataset, DataLoader
 
-from thingsvision.model_class import Model
-
+root='path/to/root/img/directory' # (e.g., './images/)
 model_name = 'vit_b_16'
 source = 'torchvision'
 batch_size = 64
+class_names = None  # optional list of class names for class dataset
+file_names = None # optional list of file names according to which features should be sorted
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
-model = Model(model_name, pretrained=True, model_path=None, device=device, source=source)
-module_name = model.show()
+# initialize extractor module
+extractor = Extractor(model_name, pretrained=True, model_path=None, device=device, source=source)
+module_name = extractor.show()
 
 VisionTransformer(
   (conv_proj): Conv2d(3, 768, kernel_size=(16, 16), stride=(16, 16))
@@ -396,41 +414,43 @@ VisionTransformer(
 
 (e.g., "encoder.layers.encoder_layer_11.mlp.linear_2")
 
-dl = vision.load_dl(
-	root='./images/',
-	out_path=f'./{model_name}/{module_name}/features',
-	batch_size=batch_size,
-	transforms=model.get_transformations(),
-	backend=model.backend,
-	)
-	
-features, targets, probas = model.extract_features(
-                data_loader=dl,
-                module_name=module_name,
-                flatten_acts=False,
-                clip=False,
-                return_probabilities=True,
+dataset = ImageDataset(
+        root=root,
+        out_path='path/to/features',
+        backend=extractor.backend,
+        transforms=extractor.get_transformations(),
+        class_names=class_names,
+        file_names=file_names,
 )
-
-vision.save_features(features, f'./{model_name}/{module_name}/features', 'npy')
-vision.save_targets(targets, f'./{model_name}/{module_name}/targets', 'npy')
+batches = DataLoader(dataset=dataset, batch_size=batch_size, backend=extractor.backend)
+features = extractor.extract_features(
+				batches=batches,
+				module_name=module_name,
+				flatten_acts=False,
+				clip=False,
+)
+save_features(features, out_path='path/to/features', file_format='npy')
 ```
 
 ### Example call for [CORnet](https://github.com/dicarlolab/CORnet) with PyTorch:
 
 ```python
 import torch
-import thingsvision.vision as vision
+from thingsvision import Extractor
+from thingsvision.utils.storing import save_features
+from thingsvision.utils.data import ImageDataset, DataLoader
 
-from thingsvision.model_class import Model
-
+root='path/to/root/img/directory' # (e.g., './images/)
 model_name = 'cornet-s'
 source = 'custom'
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
 batch_size = 64
+class_names = None  # optional list of class names for class dataset
+file_names = None # optional list of file names according to which features should be sorted
 
-model = Model(model_name, pretrained=True, model_path=None, device=device, source=source)
-module_name = model.show()
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+# initialize extractor module
+extractor = Extractor(model_name, pretrained=True, model_path=None, device=device, source=source)
+module_name = extractor.show()
 
 Sequential(
   (V1): Sequential(
@@ -515,57 +535,59 @@ Sequential(
 
 (e.g., "decoder.flatten")
 
-dl = vision.load_dl(
-	root='./images/',
-	out_path=f'./{model_name}/{module_name}/features',
-	batch_size=batch_size,
-	transforms=model.get_transformations(),
-	backend=model.backend,
-	)
-features, targets = model.extract_features(
-			data_loader=dl,
-			module_name=module_name,
-			flatten_acts=False,
-			clip=False,
-			)
-
-features = vision.center_features(features)
-features = vision.normalize_features(features)
-
-vision.save_features(features, f'./{model_name}/{module_name}/features', 'npy')
+dataset = ImageDataset(
+        root=root,
+        out_path='path/to/features',
+        backend=extractor.backend,
+        transforms=extractor.get_transformations(),,
+        class_names=class_names,
+        file_names=file_names,
+)
+batches = DataLoader(dataset=dataset, batch_size=batch_size, backend=extractor.backend)
+features = extractor.extract_features(
+				batches=batches,
+				module_name=module_name,
+				flatten_acts=False,
+				clip=False,
+)
+save_features(features, out_path='path/to/features', file_format='npy')
 ```
 
 ### Example call for VGG16 with TensorFlow:
 
 ```python
-import tensorflow as tf 
-import thingsvision.vision as vision
-from thingsvision.model_class import Model
+import torch
+from thingsvision import Extractor
+from thingsvision.utils.storing import save_features
+from thingsvision.utils.data import ImageDataset, DataLoader
 
+root='path/to/root/img/directory' # (e.g., './images/)
 model_name = 'VGG16'
 module_name = 'block1_conv1'
 source = 'keras' # TensorFlow backend
 batch_size = 64
+class_names = None  # optional list of class names for class dataset
+file_names = None # optional list of file names according to which features should be sorted
 
-device = 'cuda' if tf.test.is_gpu_available() else 'cpu'
-model = Model(model_name, pretrained=True, model_path=None, device=device, source=source)
-
-dl = vision.load_dl(
-	root='./images/',
-	out_path=f'./{model_name}/{module_name}/features',
-	batch_size=batch_size,
-	transforms=model.get_transformations(),
-	backend=model.backend,
-	)
-features, targets, probas = model.extract_features(
-				data_loader=dl,
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+# initialize extractor module
+extractor = Extractor(model_name, pretrained=True, model_path=None, device=device, source=source)
+dataset = ImageDataset(
+        root=root,
+        out_path='path/to/features',
+        backend=extractor.backend,
+        transforms=extractor.get_transformations(),
+        class_names=class_names,
+        file_names=file_names,
+)
+batches = DataLoader(dataset=dataset, batch_size=batch_size, backend=extractor.backend)
+features = extractor.extract_features(
+				batches=batches,
 				module_name=module_name,
-				flatten_acts=True,
+				flatten_acts=False,
 				clip=False,
-				return_probabilities=True,
-				)
-
-vision.save_features(features, f'./{model_name}/{module_name}/features', 'npy')
+)
+save_features(features, out_path='path/to/features', file_format='npy')
 ```
 
 ### Optional Center Cropping
@@ -573,77 +595,50 @@ vision.save_features(features, f'./{model_name}/{module_name}/features', 'npy')
 Center cropping is used by default but can be deactivated by turning off the `apply_center_crop` argument of the `get_transformations` method.
 
 ```python
+root = 'path/to/images'
 apply_center_crop = False
-dl = vision.load_dl(
-		root='./images/',
-		out_path=f'./{model_name}/{module_name}/features',
-		batch_size=batch_size,
-		transforms=model.get_transformations(apply_center_crop=apply_center_crop),
-		backend=model.backend,
-		)
+dataset = ImageDataset(
+        root=root,
+        out_path='path/to/features',
+        backend=extractor.backend,
+        transforms=model.get_transformations(apply_center_crop=apply_center_crop),
+        class_names=class_names,
+        file_names=file_names,
+)
 ```
 
 ## Extract features from custom models
 
-If you want to use a custom model from the `custom_models` directory, you need to use the class name e.g. `VGG16_ecoset` as model name. 
+If you want to use a custom model from the `custom_models` directory, you need to use their class name (e.g., `VGG16_ecoset`) as the model name. 
 
 ```python
-from thingsvision.model_class import Model
+from thingsvision import Extractor
 model_name = 'VGG16_ecoset'
-model = Model(model_name, pretrained=True, model_path=None, device=device)
+source = 'custom'
+extractor = Extractor(model_name, pretrained=True, model_path=None, device=device, custom=custom)
 ```
 
 ## Representational Similarity Analysis (RSA) 
 
-Comparison between representational (dis-)similarity matrices corresponding to model features and human representations (e.g., fMRI recordings) respectively.
+Compare representational (dis-)similarity matrices (RDMs) corresponding to model features and human representations (e.g., fMRI recordings).
 
 ```python
-rdm_dnn = vision.compute_rdm(features, method='correlation')
-corr_coeff = vision.correlate_rdms(rdm_dnn, rdm_human, correlation='pearson')
+from thingsvision.core.rsa import compute_rdm, correlate_rdms
+rdm_dnn = compute_rdm(features, method='correlation')
+corr_coeff = correlate_rdms(rdm_dnn, rdm_human, correlation='pearson')
 ```
 
-## ImageNet class predictions
+## Centered Kernel Alignment (CKA)
 
-Would you like to know the probabilities corresponding to the `top k` predicted ImageNet classes for each of your images? Simply set the `return_probabilities` argument to `True` and use the `get_class_probabilities` helper (the function works for both `synset` and `class` files). Note that this is, unfortunately, not (yet) possible for `CLIP` models due to their multi-modality and different training objectives. You are required to use the same `out_path` throughout which is why `out_path` must correspond to the path that was used in `vision.load_dl`. Save the ImageNet class file (e.g., `imagenet1000_classes.txt`) in your cwd in a subfolder called `data`. You can download the class file [here](https://github.com/ViCCo-Group/THINGSvision/tree/master/thingsvision/data).
+Perform CKA to compare image features of two different model architectures for the same layer, or two different layers of the same architecture.
 
 ```python
-features, targets, probas = model.extract_features(
-				data_loader=dl,
-				module_name=module_name,
-				flatten_acts=False,
-				clip=False,
-				return_probabilities=True,
-				)
-# return top k class probabilities and save dict as json file
-class_probas = vision.get_class_probabilities(probas=probas, out_path=out_path, cls_file='./data/imagenet1000_classes.txt', top_k=5, save_as_json=True)
-# save features to disk
-vision.save_features(features, f'./{model_name}/{module_name}/features', 'npy')
+from thingsvision.core.cka import CKA
+m = # number of images (e.g., features_i.shape[0])
+kernel = 'linear'
+cka = CKA(m=m, kernel=kernel)
+rho = cka.compare(X=features_i, X=features_j)
 ```
-
-## Model comparison
-
-To compare object representations extracted from specifid models and layers against each other, for a `List[str]` of models and layers a user can perform the following operation,
-
-
-```python
-clip_list = [n.startswith('clip') for n in model_names]
-
-correlations = vision.compare_models(
-                                     root=root,
-                                     out_path=out_path,
-                                     model_names=model_names,
-                                     module_names=module_names,
-                                     pretrained=True,
-                                     batch_size=batch_size,
-                                     flatten_acts=True,
-                                     clip=clip_list,
-                                     save_features=True,
-                                     dissimilarity='correlation',
-                                     correlation='pearson',
-                                    )
-```
-
-The function returns a correlation matrix in the form of a `Pandas` dataframe whose rows and columns correspond to the names of the models in `model_names`. The cell elements are the correlation coefficients for each model combination. The dataframe can subsequently be converted into a heatmap with `matplotlib` or `seaborn`. We will release a clear and concise documentary as soon as possible. Until then, we recommend to look at Section 3.2.3 in the [bioRxiv preprint](https://www.biorxiv.org/content/10.1101/2021.03.11.434979v1.full).
 
 ## OpenAI's CLIP models
 
