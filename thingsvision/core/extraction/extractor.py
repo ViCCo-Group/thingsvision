@@ -333,7 +333,7 @@ class Extractor:
                     "You need to use PyTorch as backend if you want to use a CLIP model."
                 )
 
-            composes = [T.Resize(self.clip_n_px, interpolation=Image.BICUBIC)]
+            composes = [T.Resize(self.clip_n_px, interpolation=T.InterpolationMode.BICUBIC)]
 
             if apply_center_crop:
                 composes.append(T.CenterCrop(self.clip_n_px))
