@@ -12,6 +12,7 @@ from PIL import Image
 from tensorflow import keras
 from tensorflow.keras import layers
 from torchvision import transforms as T
+from tqdm import tqdm
 
 import thingsvision.custom_models as custom_models
 import thingsvision.custom_models.clip as clip
@@ -196,7 +197,7 @@ class Extractor:
     ) -> Array:
         """Main feature extraction function for TensorFlow/Keras models."""
         features = []
-        for img in batches:
+        for img in tqdm(batches, desc="Batch"):
             layer_out = [self.model.get_layer(module_name).output]
             activation_model = keras.models.Model(
                 inputs=self.model.input,
@@ -225,7 +226,7 @@ class Extractor:
         # register a forward hook to store features
         model = self.register_hook()
         features = []
-        for img in batches:
+        for img in tqdm(batches, desc="Batch"):
             img = img.to(device)
             if clip:
                 img_features = model.encode_image(img)
