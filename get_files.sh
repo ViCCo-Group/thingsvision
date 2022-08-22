@@ -2,8 +2,8 @@
 
 URLS=(
 	#"https://raw.githubusercontent.com/ViCCo-Group/THINGSvision/master/thingsvision/bpe_simple_vocab_16e6.txt.gz"
-	"https://raw.githubusercontent.com/ViCCo-Group/THINGSvision/master/thingsvision/data/item_names.tsv"
-	"https://raw.githubusercontent.com/ViCCo-Group/THINGSvision/master/thingsvision/data/things_concepts.tsv"
+	"https://raw.githubusercontent.com/ViCCo-Group/THINGSvision/master/thingsvision/data/files/item_names.tsv"
+	"https://raw.githubusercontent.com/ViCCo-Group/THINGSvision/master/thingsvision/data/files/things_concepts.tsv"
 )
 
 FILES=(
