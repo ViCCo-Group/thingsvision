@@ -37,7 +37,7 @@ PyTorch examples:  `alexnet`, `resnet18`, `resnet50`, `resnet101`, `vit_b_16`, `
 
 ## Environment Setup
 
-We recommend to create a new `conda environment` with Python version 3.7 or 3.8 (no tests for 3.9 yet) before using `thingsvision`. Check out the `environment.yml` file in `envs`, if you want to create a `conda environment` via `yml`. Activate the `environment` and run the following `pip` command in your terminal.
+We recommend to create a new `conda environment` with Python version 3.7, 3.8, or 3.9 before using `thingsvision`. Check out the `environment.yml` file in `envs`, if you want to create a `conda environment` via `yml`. Activate the `environment` and run the following `pip` command in your terminal.
 
 ```bash
 $ pip install --upgrade thingsvision
