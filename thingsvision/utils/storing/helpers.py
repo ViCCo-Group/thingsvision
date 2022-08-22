@@ -8,11 +8,11 @@ import scipy
 Array = np.ndarray
 
 FILE_FORMATS = ["hdf5", "npy", "mat", "txt"]
-EXTENSTIONS = r"(.eps|.jpg|.jpeg|.png|.PNG|.tif|.tiff)$"
+EXTENSIONS = r"(.eps|.jpg|.jpeg|.png|.PNG|.tif|.tiff)$"
 
 
 def rm_suffix(img_name: str) -> str:
-    return re.sub(EXTENSTIONS, "", img_name)
+    return re.sub(EXTENSIONS, "", img_name)
 
 
 def store_features(
