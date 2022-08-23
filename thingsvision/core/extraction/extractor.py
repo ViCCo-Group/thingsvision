@@ -302,7 +302,7 @@ class Extractor:
         print(f"...Features shape: {features.shape}")
         return features
 
-    def get_activation(self, name):
+    def get_activation(self, name: str) -> Any:
         """Store copy of hidden unit activations at each layer of model."""
 
         def hook(model, input, output):
@@ -318,7 +318,7 @@ class Extractor:
 
         return hook
 
-    def register_hook(self):
+    def register_hook(self) -> Any:
         """Register a forward hook to store activations."""
         for n, m in self.model.named_modules():
             m.register_forward_hook(self.get_activation(n))
@@ -326,7 +326,7 @@ class Extractor:
 
     def get_transformations(
         self, resize_dim: int = 256, crop_dim: int = 224, apply_center_crop: bool = True
-    ):
+    ) -> Any:
         if self.model_name.startswith("clip"):
             if self.backend != "pt":
                 raise Exception(
@@ -348,32 +348,32 @@ class Extractor:
             ]
 
             composition = T.Compose(composes)
-            return composition
+        else:
+            mean = [0.485, 0.456, 0.406]
+            std = [0.229, 0.224, 0.225]
+            if self.backend == "pt":
+                normalize = T.Normalize(mean=mean, std=std)
+                composes = [T.Resize(resize_dim)]
+                if apply_center_crop:
+                    composes.append(T.CenterCrop(crop_dim))
+                composes += [T.ToTensor(), normalize]
+                composition = T.Compose(composes)
 
-        mean = [0.485, 0.456, 0.406]
-        std = [0.229, 0.224, 0.225]
-        if self.backend == "pt":
-            normalize = T.Normalize(mean=mean, std=std)
-            composes = [T.Resize(resize_dim)]
-            if apply_center_crop:
-                composes.append(T.CenterCrop(crop_dim))
-            composes += [T.ToTensor(), normalize]
-            composition = T.Compose(composes)
-            return composition
-
-        elif self.backend == "tf":
-            resize_dim = crop_dim
-            composes = [
-                layers.experimental.preprocessing.Resizing(resize_dim, resize_dim)
-            ]
-
-            if apply_center_crop:
-                pass
-                # composes.append(layers.experimental.preprocessing.CenterCrop(crop_dim, crop_dim))
-            composes += [
-                layers.experimental.preprocessing.Normalization(
-                    mean=mean, variance=[std_ * std_ for std_ in std]
-                )
-            ]
-            resize_crop_and_normalize = tf.keras.Sequential(composes)
-            return resize_crop_and_normalize
+            elif self.backend == "tf":
+                resize_dim = crop_dim
+                composes = [
+                    layers.experimental.preprocessing.Resizing(resize_dim, resize_dim)
+                ]
+                if apply_center_crop:
+                    pass
+                    # TODO: fix center crop issue with Keras
+                    # composes.append(layers.experimental.preprocessing.CenterCrop(crop_dim, crop_dim))
+                composes += [
+                    layers.experimental.preprocessing.Normalization(
+                        mean=mean, variance=[std_ * std_ for std_ in std]
+                    )
+                ]
+                composition = tf.keras.Sequential(composes)
+            else:
+                raise ValueError('\nBackend cannot be identified.\nChange backend to PyTorch or TensorFlow.\n')
+        return composition
