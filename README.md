@@ -28,7 +28,7 @@
 Features can be extracted for all models in [torchvision](https://pytorch.org/vision/0.8/models.html), [Keras](https://www.tensorflow.org/api_docs/python/tf/keras/applications), [timm](https://github.com/rwightman/pytorch-image-models), custom models trained on [Ecoset](https://www.pnas.org/doi/10.1073/pnas.2011417118), each of the many [CORnet](https://github.com/dicarlolab/CORnet) versions and both [CLIP](https://github.com/openai/CLIP) variants (`clip-ViT` and `clip-RN`).<br> 
 
 
-Note, that you have to use the respective model name (str). For example, if you want to use the VGG16 model from torchvision, you will have to use `vgg16` and if you want to use the VGG16 model from Keras, you will have to use the model name `VGG16`. You can further specify the model source by setting the `source` parameter (e.g., `timm`, `torchvision`).<br>
+Note that you have to use the respective model name (`str`). For example, if you want to use VGG16 from torchvision, use `vgg16` as the model name and if you want to use VGG16 from TensorFlow/Keras, use the model name `VGG16`. You can further specify the model source by setting the `source` parameter (e.g., `timm`, `torchvision`, `keras`).<br>
 
 
 For the correct abbreviations of [torchvision](https://pytorch.org/vision/0.8/models.html) models have a look [here](https://github.com/pytorch/vision/tree/master/torchvision/models). For the correct abbreviations of [CORnet](https://github.com/dicarlolab/CORnet) models look [here](https://github.com/dicarlolab/CORnet/tree/master/cornet). To separate the string `cornet` from its variant (e.g., `s`, `z`) use a hyphen instead of an underscore (e.g., `cornet-s`, `cornet-z`).<br>
@@ -43,7 +43,7 @@ We recommend to create a new `conda environment` with Python version 3.7, 3.8, o
 $ pip install --upgrade thingsvision
 ```
 
-You have to download files from the parent repository (i.e., this repo), if you want to extract network activations for [THINGS](https://osf.io/jum2f/). Simply download the shell script `get_files.sh` from this repo and execute it as follows (the shell script will automatically do file downloading and moving for you):
+You have to download files from the parent folder of this repository, if you want to extract network activations for [THINGS](https://osf.io/jum2f/). Simply download the shell script `get_files.sh` from this repo and execute it as follows (the shell script will automatically do file downloading and moving for you):
 
 ```bash
 $ wget https://raw.githubusercontent.com/ViCCo-Group/THINGSvision/master/get_files.sh (Linux)
@@ -79,8 +79,8 @@ You can find the jupyter notebook using `PyTorch` [here](https://colab.research.
 
 ## Extract features at specific layer of a state-of-the-art `torchvision`, `TensorFlow`, `CORnet`, or `CLIP`, `Timm` model 
 
-The following examples demonstrate how to load a model with PyTorch or TensorFlow and how to subsequently extract features. 
-Please keep in mind that the model names as well as the layer names depend on the backend you want to use. If you use PyTorch, you will need to use these [model names](https://pytorch.org/vision/stable/models.html). If you use Tensorflow, you will need to use these [model names](https://keras.io/api/applications/). You can find the layer names by using `extractor.show()`. 
+The following examples demonstrate how to load a model with PyTorch or TensorFlow/Keras and how to subsequently extract features. 
+Please keep in mind that the model names as well as the layer names depend on the backend you want to use. If you use PyTorch, you will need to use these [model names](https://pytorch.org/vision/stable/models.html). If you use Tensorflow, you will need to use these [model names](https://keras.io/api/applications/). You can find the layer names by using `extractor.show()`.
 
 
 ### Example call for AlexNet with PyTorch:
@@ -631,7 +631,7 @@ from thingsvision.core.cka import CKA
 m = # number of images (e.g., features_i.shape[0])
 kernel = 'linear'
 cka = CKA(m=m, kernel=kernel)
-rho = cka.compare(X=features_i, X=features_j)
+rho = cka.compare(X=features_i, Y=features_j)
 ```
 
 ## OpenAI's CLIP models
