@@ -71,13 +71,13 @@ You can find the jupyter notebook using `PyTorch` [here](https://colab.research.
     for fn in object_images_*.zip; do unzip -P the_password $fn; done
     ```
 
-3. Features can be extracted at every layer for all `timm`, `torchvision`, `TensorFlow`, `CORnet` and `CLIP` models.
+3. Features can be extracted for every layer for all `timm`, `torchvision`, `TensorFlow`, `CORnet` and `CLIP` models.
 
 4. The script automatically extracts features for the specified `model` and `module`.
 
 5. If you happen to extract hidden unit activations for many images, it is possible to run into `MemoryErrors`. To circumvent such problems, a helper function called `split_activations` will split the activation matrix into several batches, and stores them in separate files. For now, the split parameter is set to `10`. Hence, the function will split the activation matrix into `10` files. This parameter can, however, easily be modified in case you need more (or fewer) splits. To merge the separate activation batches back into a single activation matrix, just call `merge_activations` when loading the activations (e.g., `activations = merge_activations(PATH)`). 
 
-## Extract features at specific layer of a state-of-the-art `torchvision`, `TensorFlow`, `CORnet`, or `CLIP`, `Timm` model 
+## Extract features for a specific layer of a state-of-the-art `torchvision`, `timm`, `TensorFlow`, `CORnet`, or `CLIP` model
 
 The following examples demonstrate how to load a model with PyTorch or TensorFlow/Keras and how to subsequently extract features. 
 Please keep in mind that the model names as well as the layer names depend on the backend you want to use. If you use PyTorch, you will need to use these [model names](https://pytorch.org/vision/stable/models.html). If you use Tensorflow, you will need to use these [model names](https://keras.io/api/applications/). You can find the layer names by using `extractor.show()`.
