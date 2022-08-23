@@ -1,15 +1,19 @@
-from thingsvision.custom_models.custom import Custom
-import torchvision.models as torchvision_models
 import torch
+import torchvision.models as torchvision_models
+
+from .custom import Custom
+
 
 class VGG16bn_ecoset(Custom):
     def __init__(self, device) -> None:
         super().__init__(device)
-        self.backend = 'pt'
+        self.backend = "pt"
 
     def create_model(self):
         model = torchvision_models.vgg16_bn(pretrained=False, num_classes=565)
-        path_to_weights = 'https://osf.io/fe7s5/download'
-        state_dict = torch.hub.load_state_dict_from_url(path_to_weights, map_location=self.device, file_name='VGG16bn_ecoset')
-        model.load_state_dict(state_dict)  
+        path_to_weights = "https://osf.io/fe7s5/download"
+        state_dict = torch.hub.load_state_dict_from_url(
+            path_to_weights, map_location=self.device, file_name="VGG16bn_ecoset"
+        )
+        model.load_state_dict(state_dict)
         return model
