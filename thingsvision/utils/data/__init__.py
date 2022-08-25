@@ -19,11 +19,11 @@ def load_batches(
     Parameters
     ----------
     root : str
-        Root directory. Directory from where to load image files.
+        Root directory. Directory from where to load the image files.
     out_path : str
         Directory where the order of the image features should be stored.
     backend: str
-        Backend of a neural network model. Must be PyTorch ('pt') or TensorFlow/Keras ('tf).
+        Backend of a neural network model. Must be PyTorch ('pt') or TensorFlow/Keras ('tf').
     batch_size : int
         Number of samples (i.e., images) per mini-batch.
     class_names : List[str] (optional)
@@ -34,8 +34,8 @@ def load_batches(
         the order in which image features are extracted can optionally
         be passed.
     transforms : Any
-        Composition of image transformations. Must be either a PyTorch composition
-        or a Tensorflow Sequential model.
+        Composition of image transformations. Transformations are determined by a model and its backend.
+        Must be either a PyTorch composition or a Tensorflow Sequential model.
 
     Returns
     -------
