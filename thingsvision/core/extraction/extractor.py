@@ -76,7 +76,7 @@ class Extractor:
                 f"\nCould not find {self.model_name} in timm library.\nChoose a different model.\n"
             )
 
-    def get_model_from_custom_models(self) -> None:
+    def get_model_from_custom(self) -> None:
         """Load a pretrained custom neural network model (e.g., clip, cornet)."""
         if self.model_name.startswith("clip"):
             backend = "pt"
@@ -132,17 +132,11 @@ class Extractor:
 
     def load_model_from_source(self) -> None:
         """Load a (pretrained) neural network model from <source>."""
-        if self.source == "timm":
-            self.get_model_from_timm()
-        elif self.source == "keras":
-            self.get_model_from_keras()
-        elif self.source == "torchvision":
-            self.get_model_from_torchvision()
-        elif self.source == "custom":
-            self.get_model_from_custom_models()
-        else:
+        try:
+            getattr(self, f"get_model_from_{self.source}")()
+        except AttributeError:
             raise ValueError(
-                f"\nCannot load models from {self.source}.\nUse a different source for loading pretrained models.\n"
+                f"\nCannot load models from {self.source}.\nUse a different source for loading a pretrained model.\n"
             )
         if isinstance(self.model, type(None)):
             raise ValueError(
@@ -321,14 +315,16 @@ class Extractor:
     def get_transformations(
         self, resize_dim: int = 256, crop_dim: int = 224, apply_center_crop: bool = True
     ) -> Any:
-        """Load image transformations for a specific model. Transformations depend on the backend."""
+        """Load image transformations for a specific model. Image transformations depend on the backend."""
         if self.model_name.startswith("clip"):
             if self.backend != "pt":
                 raise Exception(
                     "You need to use PyTorch as backend if you want to use a CLIP model."
                 )
 
-            composes = [T.Resize(self.clip_n_px, interpolation=T.InterpolationMode.BICUBIC)]
+            composes = [
+                T.Resize(self.clip_n_px, interpolation=T.InterpolationMode.BICUBIC)
+            ]
 
             if apply_center_crop:
                 composes.append(T.CenterCrop(self.clip_n_px))
@@ -370,13 +366,7 @@ class Extractor:
                 ]
                 composition = tf.keras.Sequential(composes)
             else:
-                raise ValueError('\nCannot identify backend.\nChange backend to PyTorch or TensorFlow.\n')
+                raise ValueError(
+                    "\nCannot identify backend.\nChange backend to PyTorch or TensorFlow.\n"
+                )
         return composition
-
-        @property
-        def backend(self):
-            return self.backend
-
-        @property
-        def model(self):
-            return self.model
