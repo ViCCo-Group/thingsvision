@@ -12,14 +12,16 @@ from .helpers import make_class_dataset, make_instance_dataset, parse_img_name
 
 @dataclass
 class ImageDataset:
-    """Generic image dataset class
+    """Generic image dataset class for PyTorch and TensorFlow
 
     Params
     ----------
     root : str
-        Root directory. Directory from where to load images.
+        Root directory. Directory from where to load image files.
     out_path : str
-        PATH where order of images features should be stored.
+        Directory where the order of the image features should be stored.
+    backend: str
+        Backend of a neural network model. Must be PyTorch ('pt') or TensorFlow/Keras ('tf).
     class_names : List[str] (optional)
         Explicit list of class names.
         Used to control the order of the classes (otherwise alphanumerical order is used).
@@ -63,7 +65,7 @@ class ImageDataset:
                     class_names=self.class_names,
                 )
         else:
-            assert not (isinstance(self.class_names, list) and isinstance(self.file_names, list)), '\nFor an instance dataset, only use the file_names argument and leave class_names empty.\n'
+            assert not (isinstance(self.class_names, list) and isinstance(self.file_names, list)), '\nFor an instance dataset, only use the <file_names> argument and leave <class_names> argument empty.\n'
             self.samples = make_instance_dataset(
                 root=self.root, out_path=self.out_path, image_names=self.file_names
             )
@@ -75,7 +77,7 @@ class ImageDataset:
             if self.class_names:
                 setattr(self, "classes", self.class_names)
             elif self.file_names:
-                _ = self._get_classes(self.file_names)
+                _ = self._get_classes()
             else:
                 setattr(self, "classes", children)
             self.idx_to_cls = dict(enumerate(self.classes))
@@ -91,10 +93,10 @@ class ImageDataset:
                     ]
                 )
 
-    def _get_classes(self, file_names: List[str]) -> Dict[str, list]:
+    def _get_classes(self) -> Dict[str, list]:
         cls_to_files = defaultdict(list)
         classes = []
-        for file in file_names:
+        for file in self.file_names:
             if re.search(r"\\", file):
                 cls, f_name = file.split("\\")
             elif re.search(r"(/|//)", file):
@@ -119,6 +121,8 @@ class ImageDataset:
         elif self.backend == "tf":
             img = tf.keras.preprocessing.image.img_to_array(img)
             img = self.transforms(img)
+        else:
+            raise ValueError('\nImage transformations only implemented for PyTorch or TensorFlow/Keras models.\n')
         return img
 
     def __len__(self) -> int:
@@ -127,3 +131,7 @@ class ImageDataset:
     @property
     def images(self):
         return self.samples
+
+    @property
+    def classes(self):
+        return self.classes

@@ -33,18 +33,15 @@ class Extractor:
     Parameters
     ----------
     model_name : str
-        Model name. Name of model for which features should
-        subsequently be extracted.
+        Model name. Name of model for which features should be extracted.
     pretrained : bool
         Whether to load a model with pretrained or
-        randomly initialized weights into memory.
+        randomly initialized weights.
     device : str
         Device. Whether model weights should be moved
-        to CUDA or left on the CPU.
-    source: str (optional)
-        Source of the model and weights. If not set, all 
-        models sources are searched for the model name 
-        until the first occurence.
+        to CUDA or stay on the CPU.
+    source: str
+        Source of the model and its weights.
     model_path : str (optional)
         path/to/weights. If pretrained is set to False,
         model weights can be loaded from a path on the
@@ -56,34 +53,31 @@ class Extractor:
     """
 
     def __post_init__(self) -> None:
-        # load model into memory
         self.load_model()
 
     def get_model_from_torchvision(self) -> Tuple[Any, str]:
-        """Load a neural network model from <torchvision>."""
-        backend = "pt"
+        """Load a (pretrained) neural network model from <torchvision>."""
+        self.backend = "pt"
         if hasattr(torchvision_models, self.model_name):
             model = getattr(torchvision_models, self.model_name)
-            model = model(pretrained=self.pretrained)
+            self.model = model(pretrained=self.pretrained)
         else:
             raise ValueError(
                 f"\nCould not find {self.model_name} in torchvision library.\nChoose a different model.\n"
             )
-        return model, backend
 
-    def get_model_from_timm(self) -> Tuple[Any, str]:
-        """Load a neural network model from <timm>."""
-        backend = "pt"
+    def get_model_from_timm(self) -> None:
+        """Load a (pretrained) neural network model from <timm>."""
+        self.backend = "pt"
         if self.model_name in timm.list_models():
-            model = timm.create_model(self.model_name, self.pretrained)
+            self.model = timm.create_model(self.model_name, self.pretrained)
         else:
             raise ValueError(
                 f"\nCould not find {self.model_name} in timm library.\nChoose a different model.\n"
             )
-        return model, backend
 
-    def get_model_from_custom_models(self) -> Tuple[Any, str]:
-        """Load a custom neural network model (e.g., clip, cornet)."""
+    def get_model_from_custom_models(self) -> None:
+        """Load a pretrained custom neural network model (e.g., clip, cornet)."""
         if self.model_name.startswith("clip"):
             backend = "pt"
             if self.model_name.endswith("ViT"):
@@ -116,10 +110,12 @@ class Extractor:
             raise ValueError(
                 f"\nCould not find {self.model_name} among custom models.\nChoose a different model.\n"
             )
-        return model, backend
+        self.model = model
+        self.backend = backend
 
-    def get_model_from_keras(self) -> Tuple[Any, str]:
-        backend = "tf"
+    def get_model_from_keras(self) -> None:
+        """Load a (pretrained) neural network model from TensorFlow/Keras."""
+        self.backend = "tf"
         if hasattr(tensorflow_models, self.model_name):
             model = getattr(tensorflow_models, self.model_name)
             if self.pretrained:
@@ -128,35 +124,33 @@ class Extractor:
                 weights = self.model_path
             else:
                 weights = None
-            model = model(weights=weights)
+            self.model = model(weights=weights)
         else:
             raise ValueError(
                 f"\nCould not find {self.model_name} among TensorFlow models.\n"
             )
-        return model, backend
 
     def load_model_from_source(self) -> None:
+        """Load a (pretrained) neural network model from <source>."""
         if self.source == "timm":
-            model, backend = self.get_model_from_timm()
+            self.get_model_from_timm()
         elif self.source == "keras":
-            model, backend = self.get_model_from_keras()
+            self.get_model_from_keras()
         elif self.source == "torchvision":
-            model, backend = self.get_model_from_torchvision()
+            self.get_model_from_torchvision()
         elif self.source == "custom":
-            model, backend = self.get_model_from_custom_models()
+            self.get_model_from_custom_models()
         else:
             raise ValueError(
                 f"\nCannot load models from {self.source}.\nUse a different source for loading pretrained models.\n"
             )
-        if isinstance(model, type(None)):
+        if isinstance(self.model, type(None)):
             raise ValueError(
                 f"\nCould not find {self.model_name} in {self.source}.\nCheck whether model name is correctly spelled or use a different model.\n"
             )
-        self.model = model
-        self.backend = backend
 
     def load_model(self) -> None:
-        """Load a pretrained model from <source> into memory and move to device."""
+        """Load a pretrained model from <source> into memory and move model to current device."""
         self.load_model_from_source()
         if self.backend == "pt":
             device = torch.device(self.device)
@@ -172,7 +166,7 @@ class Extractor:
             self.model = self.model.to(device)
 
     def show(self) -> str:
-        """Show architecture of model to select a module."""
+        """Show architecture of model to select a specific module."""
         if self.backend == "pt":
             if re.search(r"^clip", self.model_name):
                 for l, (n, p) in enumerate(self.model.named_modules()):
@@ -327,6 +321,7 @@ class Extractor:
     def get_transformations(
         self, resize_dim: int = 256, crop_dim: int = 224, apply_center_crop: bool = True
     ) -> Any:
+        """Load image transformations for a specific model. Transformations depend on the backend."""
         if self.model_name.startswith("clip"):
             if self.backend != "pt":
                 raise Exception(
@@ -375,5 +370,13 @@ class Extractor:
                 ]
                 composition = tf.keras.Sequential(composes)
             else:
-                raise ValueError('\nBackend cannot be identified.\nChange backend to PyTorch or TensorFlow.\n')
+                raise ValueError('\nCannot identify backend.\nChange backend to PyTorch or TensorFlow.\n')
         return composition
+
+        @property
+        def backend(self):
+            return self.backend
+
+        @property
+        def model(self):
+            return self.model

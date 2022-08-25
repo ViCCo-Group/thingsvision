@@ -7,10 +7,12 @@ EXTENSIONS = r"(.eps|.jpg|.JPG|.jpeg|.JPEG|.png|.PNG|.tif|.tiff)$"
 
 
 def parse_img_name(img_name: str) -> bool:
+    """Check whether image file has allowed extension."""
     return re.search(EXTENSIONS, img_name)
 
 
 def rm_suffix(img_name: str) -> str:
+    """Remove suffix from image file."""
     return re.sub(EXTENSIONS, "", img_name)
 
 
@@ -19,7 +21,7 @@ def make_instance_dataset(
     out_path: str,
     image_names: List[str],
 ) -> List[str]:
-    """Creates a custom <instance> image dataset of image and class label pairs."""
+    """Creates a custom <instance> image dataset of images and writes its order to file."""
     instances = []
     with open(os.path.join(out_path, "file_names.txt"), "w") as f:
         for image_name in image_names:
@@ -39,18 +41,18 @@ def make_class_dataset(
 
     Parameters
     ----------
-        in_path : str
-            Parent directory. Directory from where to load images.
-        out_path : str
-            path/to/filenames.
-        cls_to_idx : Dict[str, int]
-            Dictionary of class to numeric label mapping.
-        class_names: List[str]
-            List of class names according to which samples are sorted.
-        cls_to_files : Dict[str, List[str]] (optional)
-            Dictionary that maps each class to a list of file names.
-            For each class, the list of file names determines
-            the order in which image features are extracted.
+    in_path : str
+        Root directory. Directory from where to load the image files.
+    out_path : str
+        path/to/filenames.
+    cls_to_idx : Dict[str, int]
+        Dictionary of class to numeric label mapping.
+    class_names: List[str]
+        List of class names according to which samples are sorted.
+    cls_to_files : Dict[str, List[str]] (optional)
+        Dictionary that maps each class to a list of file names.
+        For each class, the list of file names determines
+        the order in which image features are extracted.
 
     Returns
     -------

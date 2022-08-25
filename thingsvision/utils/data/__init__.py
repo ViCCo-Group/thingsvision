@@ -1,11 +1,11 @@
 import os
 from typing import Iterator, List
 
-from .dataloader import DataLoader
+from .data_loader import DataLoader
 from .dataset import ImageDataset
 
 
-def load_dl(
+def load_batches(
     root: str,
     out_path: str,
     backend: str,
@@ -14,15 +14,17 @@ def load_dl(
     file_names: List[str] = None,
     transforms=None,
 ) -> Iterator:
-    """Create a data loader for custom image dataset
+    """Create a data loader that yields mini-batches of size <batch_size>
 
     Parameters
     ----------
     root : str
-        Root directory. Directory where images are stored.
+        Root directory. Directory from where to load image files.
     out_path : str
-        PATH where order of images features should be stored.
-    batch_size : int (optional)
+        Directory where the order of the image features should be stored.
+    backend: str
+        Backend of a neural network model. Must be PyTorch ('pt') or TensorFlow/Keras ('tf).
+    batch_size : int
         Number of samples (i.e., images) per mini-batch.
     class_names : List[str] (optional)
         Explicit list of class names.
@@ -38,12 +40,14 @@ def load_dl(
     Returns
     -------
     output : Iterator
-        Returns an iterator of image mini-batches.
+        Returns an iterator of mini-batches.
         Each mini-batch consists of <batch_size> samples.
+        The order is determined by <file_names>, <class_names> or is alphanumeric.
     """
     print("\n...Creating dataset.")
     if not os.path.exists(out_path):
         os.makedirs(out_path)
+        print("...Output directory does not exist.")
         print("...Creating output directory.")
     dataset = ImageDataset(
         root=root,
@@ -53,6 +57,6 @@ def load_dl(
         file_names=file_names,
         transforms=transforms,
     )
-    print(f"...Transforming dataset into {backend} DataLoader.\n")
+    print(f"...Transforming dataset into a {backend} DataLoader.\n")
     batches = DataLoader(dataset=dataset, batch_size=batch_size, backend=backend)
     return batches

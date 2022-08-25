@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 import math
 from dataclasses import dataclass
 from typing import Any, Iterator, Tuple
@@ -11,7 +8,23 @@ import torch
 
 @dataclass
 class DataLoader:
-    dataset: Tuple
+    """
+    Parameters
+    ----------
+    dataset : Tuple[Any]
+        Generic image dataset class for PyTorch and TensorFlow
+    batch_size : int
+        Number of samples (i.e., images) per mini-batch.
+    backend: str
+        Backend of a neural network model. Must be PyTorch ('pt') or TensorFlow/Keras ('tf).
+    Returns
+    -------
+    output : Iterator
+        Returns an iterator of mini-batches.
+        Each mini-batch consists of <batch_size> examples.
+        The order is determined by the dataset.
+    """
+    dataset: Tuple[Any]
     batch_size: int
     backend: str
 
@@ -23,7 +36,7 @@ class DataLoader:
         return self.n_batches
 
     def __iter__(self) -> Iterator:
-        return self.get_batches(self.dataset)
+        return iter(self.get_batches(self.dataset))
 
     def stack_samples(self, images: Any) -> Tuple:
         batch = (
@@ -35,7 +48,7 @@ class DataLoader:
 
     def get_batches(self, dataset: Tuple) -> Iterator:
         for k in range(self.n_batches):
-            if self.remainder != 0 and k == int(self.n_batches - 1):
+            if self.remainder and k == int(self.n_batches - 1):
                 subset = range(
                     k * self.batch_size, k * self.batch_size + self.remainder
                 )
