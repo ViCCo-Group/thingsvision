@@ -16,7 +16,7 @@ class DataLoader:
     batch_size : int
         Number of samples (i.e., images) per mini-batch.
     backend: str
-        Backend of a neural network model. Must be PyTorch ('pt') or TensorFlow/Keras ('tf).
+        Backend of a neural network model. Must be PyTorch ('pt') or TensorFlow/Keras ('tf').
     Returns
     -------
     output : Iterator
