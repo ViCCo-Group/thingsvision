@@ -46,8 +46,7 @@ class RSATestCase(unittest.TestCase):
         for rdm_i, rdm_j in zip(rdms[:-1], rdms[1:]):
             corr = correlate_rdms(rdm_i, rdm_j)
             self.assertTrue(isinstance(corr, float))
-            self.assertTrue(corr > float(-1))
-            self.assertTrue(corr < float(1))
+            self.assertTrue(corr > float(-1) and corr < float(1))
 
 
 

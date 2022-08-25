@@ -131,7 +131,3 @@ class ImageDataset:
     @property
     def images(self):
         return self.samples
-
-    @property
-    def classes(self):
-        return self.classes
