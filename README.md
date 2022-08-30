@@ -80,7 +80,7 @@ You can find the jupyter notebook using `PyTorch` [here](https://colab.research.
 ## Extract features for a specific layer of a state-of-the-art `torchvision`, `timm`, `TensorFlow`, `CORnet`, or `CLIP` model
 
 The following examples demonstrate how to load a model with PyTorch or TensorFlow/Keras and how to subsequently extract features. 
-Please keep in mind that the model names as well as the layer names depend on the backend you want to use. If you use PyTorch, you will need to use these [model names](https://pytorch.org/vision/stable/models.html). If you use Tensorflow, you will need to use these [model names](https://keras.io/api/applications/). You can find the layer names by using `extractor.show()`.
+Please keep in mind that the model names as well as the layer names depend on the backend you want to use. If you use PyTorch, you will need to use these [model names](https://pytorch.org/vision/stable/models.html). If you use Tensorflow, you will need to use these [model names](https://keras.io/api/applications/). You can find the layer names by using `extractor.show_model()`.
 
 
 ### Example call for AlexNet with PyTorch:
@@ -100,7 +100,7 @@ file_names = None # optional list of file names according to which features shou
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 extractor = Extractor(model_name, pretrained=True, model_path=None, device=device, source=source)
-module_name = extractor.show()
+module_name = extractor.show_model()
 
 AlexNet(
   (features): Sequential(
@@ -209,7 +209,7 @@ file_names = None # optional list of file names according to which features shou
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 # initialize extractor module
 extractor = Extractor(model_name, pretrained=True, model_path=None, device=device, source=source)
-module_name = extractor.show()
+module_name = extractor.show_model()
 
 VisionTransformer(
   (conv_proj): Conv2d(3, 768, kernel_size=(16, 16), stride=(16, 16))
@@ -444,7 +444,7 @@ file_names = None # optional list of file names according to which features shou
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 # initialize extractor module
 extractor = Extractor(model_name, pretrained=True, model_path=None, device=device, source=source)
-module_name = extractor.show()
+module_name = extractor.show_model()
 
 Sequential(
   (V1): Sequential(

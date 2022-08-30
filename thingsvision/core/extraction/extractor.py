@@ -7,6 +7,7 @@ import tensorflow as tf
 import tensorflow.keras.applications as tensorflow_models
 import timm
 import torch
+import warnings
 import torchvision.models as torchvision_models
 from PIL import Image
 from tensorflow import keras
@@ -160,6 +161,10 @@ class Extractor:
             self.model = self.model.to(device)
 
     def show(self) -> str:
+        warnings.warn('\nThe .show() method is deprecated and will be removed in future versions. Use .show_model() instead.\n')
+        return self.show_model()
+
+    def show_model(self) -> str:
         """Show architecture of model to select a specific module."""
         if self.backend == "pt":
             if re.search(r"^clip", self.model_name):
