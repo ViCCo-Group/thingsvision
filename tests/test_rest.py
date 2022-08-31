@@ -8,7 +8,6 @@ from thingsvision.utils.storing import save_features
 
 import tests.helper as helper
 
-
 class RSATestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -89,12 +88,8 @@ class FileNamesTestCase(unittest.TestCase):
         helper.create_test_images()
 
     def test_filenames(self):
-        import os
-
-        # print(os.getcwd())
-        file_names = (
-            open(os.path.join(helper.OUT_PATH, "file_names.txt"), "r").read().split()
-        )
+        with open(os.path.join(helper.OUT_PATH, "file_names.txt"), "r") as f:
+            file_names = f.read().split()
         img_files = []
         for root, _, files in os.walk(helper.TEST_PATH):
             for f in files:
