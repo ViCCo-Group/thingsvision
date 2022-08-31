@@ -1,4 +1,5 @@
 import re
+import warnings
 from dataclasses import dataclass
 from typing import Any, Iterator, Tuple
 
@@ -7,9 +8,8 @@ import tensorflow as tf
 import tensorflow.keras.applications as tensorflow_models
 import timm
 import torch
-import warnings
+import torchvision
 import torchvision.models as torchvision_models
-from PIL import Image
 from tensorflow import keras
 from tensorflow.keras import layers
 from torchvision import transforms as T
@@ -56,12 +56,30 @@ class Extractor:
     def __post_init__(self) -> None:
         self.load_model()
 
+    @staticmethod
+    def get_weights(model_name: str, suffix: str = "_weights") -> Any:
+        weights_name = None
+        for m in dir(torchvision.models):
+            if m.lower() == model_name + suffix:
+                weights_name = m
+                break
+        if not weights_name:
+            raise ValueError(
+                f"\nCould not find pretrained weights for {model_name} in <torchvision>. Choose a different model or change the source.\n"
+            )
+        weights = getattr(torchvision.models, f"{weights_name}").DEFAULT
+        return weights
+
     def get_model_from_torchvision(self) -> Tuple[Any, str]:
         """Load a (pretrained) neural network model from <torchvision>."""
         self.backend = "pt"
         if hasattr(torchvision_models, self.model_name):
             model = getattr(torchvision_models, self.model_name)
-            self.model = model(pretrained=self.pretrained)
+            if self.pretrained:
+                self.weights = self.get_weights(self.model_name)
+            else:
+                self.weights = None
+            self.model = model(weights=self.weights)
         else:
             raise ValueError(
                 f"\nCould not find {self.model_name} in torchvision library.\nChoose a different model.\n"
@@ -161,7 +179,9 @@ class Extractor:
             self.model = self.model.to(device)
 
     def show(self) -> str:
-        warnings.warn('\nThe .show() method is deprecated and will be removed in future versions. Use .show_model() instead.\n')
+        warnings.warn(
+            "\nThe .show() method is deprecated and will be removed in future versions. Use .show_model() instead.\n"
+        )
         return self.show_model()
 
     def show_model(self) -> str:
@@ -348,12 +368,15 @@ class Extractor:
             mean = [0.485, 0.456, 0.406]
             std = [0.229, 0.224, 0.225]
             if self.backend == "pt":
-                normalize = T.Normalize(mean=mean, std=std)
-                composes = [T.Resize(resize_dim)]
-                if apply_center_crop:
-                    composes.append(T.CenterCrop(crop_dim))
-                composes += [T.ToTensor(), normalize]
-                composition = T.Compose(composes)
+                if hasattr(self, "weights") and self.weights:
+                    composition = self.weights.transforms()
+                else:
+                    normalize = T.Normalize(mean=mean, std=std)
+                    composes = [T.Resize(resize_dim)]
+                    if apply_center_crop:
+                        composes.append(T.CenterCrop(crop_dim))
+                    composes += [T.ToTensor(), normalize]
+                    composition = T.Compose(composes)
 
             elif self.backend == "tf":
                 resize_dim = crop_dim
@@ -362,7 +385,7 @@ class Extractor:
                 ]
                 if apply_center_crop:
                     pass
-                    # TODO: fix center crop issue with Keras
+                    # TODO: fix center crop problem with Keras
                     # composes.append(layers.experimental.preprocessing.CenterCrop(crop_dim, crop_dim))
                 composes += [
                     layers.experimental.preprocessing.Normalization(

@@ -5,18 +5,18 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 requirements = [
                 'matplotlib==3.5.2',
-                'numba==0.55.2',
+                'numba==0.56.*',
                 'ftfy',
-                'numpy==1.22.4',
+                'numpy==1.22.*',
                 'pandas==1.4.2',
                 'tensorflow==2.9.1',
-                'torch==1.11.0',
-                'torchvision==0.12.0',
+                'torch==1.12.*',
+                'torchvision==0.13.*',
                 'tqdm==4.64.0',
                 'timm==0.6.5', 
 		'regex',
                 'scikit-image==0.19.3',
-                'scikit-learn==1.1.1',
+                'scikit-learn==1.1.*',
                 'scipy==1.8.1',
                 'h5py==3.7.0',
                 ]

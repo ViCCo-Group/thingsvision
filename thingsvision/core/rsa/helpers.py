@@ -11,9 +11,9 @@ from scipy.stats import rankdata
 Array = np.ndarray
 
 
-@njit(parallel=True, fastmath=True)
+@njit(parallel=True)
 def squared_dists(X: Array) -> Array:
-    """Compute squared l2-distances between feature representations in parallel."""
+    """Compute squared l2-distances between two feature representations in parallel."""
     N = X.shape[0]
     D = np.zeros((N, N))
     for i in prange(N):
@@ -23,7 +23,7 @@ def squared_dists(X: Array) -> Array:
 
 
 def gaussian_kernel(X: Array) -> Array:
-    """Compute dissimilarity matrix based on a Gaussian kernel."""
+    """Compute dissimilarity matrix based on the RBF kernel."""
     D = squared_dists(X)
     return np.exp(-D / np.mean(D))
 
@@ -55,9 +55,9 @@ def compute_rdm(X: Array, method: str) -> Array:
     Parameters
     ----------
     X : ndarray
-        Input array. Feature matrix of size n x m,
+        Input array. Feature matrix of size n x p,
         where n corresponds to the number of observations
-        and m is the number of latent dimensions.
+        and p is the feature dimensionaltiy.
     method : str
         Distance metric (e.g., correlation, cosine).
 
