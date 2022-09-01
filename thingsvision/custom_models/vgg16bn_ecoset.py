@@ -1,6 +1,7 @@
 import torch
-import torchvision.models as torchvision_models
+import torchvision.models as models
 
+from typing import Any
 from .custom import Custom
 
 
@@ -9,8 +10,8 @@ class VGG16bn_ecoset(Custom):
         super().__init__(device)
         self.backend = "pt"
 
-    def create_model(self):
-        model = torchvision_models.vgg16_bn(pretrained=False, num_classes=565)
+    def create_model(self) -> Any:
+        model = models.vgg16_bn(weights=None, num_classes=565)
         path_to_weights = "https://osf.io/fe7s5/download"
         state_dict = torch.hub.load_state_dict_from_url(
             path_to_weights, map_location=self.device, file_name="VGG16bn_ecoset"
