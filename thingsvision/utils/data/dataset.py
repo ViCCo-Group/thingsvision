@@ -3,6 +3,7 @@ import re
 from collections import defaultdict
 from dataclasses import dataclass
 from typing import Any, Dict, List
+import h5py
 
 import tensorflow as tf
 from PIL import Image
@@ -65,7 +66,9 @@ class ImageDataset:
                     class_names=self.class_names,
                 )
         else:
-            assert not (isinstance(self.class_names, list) and isinstance(self.file_names, list)), '\nFor an instance dataset, only use the <file_names> argument and leave <class_names> argument empty.\n'
+            assert not (
+                isinstance(self.class_names, list) and isinstance(self.file_names, list)
+            ), "\nFor an instance dataset, only use the <file_names> argument and leave <class_names> argument empty.\n"
             self.samples = make_instance_dataset(
                 root=self.root, out_path=self.out_path, image_names=self.file_names
             )
@@ -122,11 +125,85 @@ class ImageDataset:
             img = tf.keras.preprocessing.image.img_to_array(img)
             img = self.transforms(img)
         else:
-            raise ValueError('\nImage transformations only implemented for PyTorch or TensorFlow/Keras models.\n')
+            raise ValueError(
+                "\nImage transformations only implemented for PyTorch or TensorFlow/Keras models.\n"
+            )
         return img
 
     def __len__(self) -> int:
         return len(self.samples)
+
+    @property
+    def images(self):
+        return self.samples
+
+
+@dataclass
+class HDF5Dataset:
+    """Generic HDF5 dataset class for PyTorch and TensorFlow
+
+    Params
+    ----------
+    hdf5_fp : str
+        Path to the HDF5 file. Must contain images in the <img_ds_key> dataset.
+    img_ds_key : str
+        Key to the HDF5 dataset containing the images.
+    backend: str
+        Backend of a neural network model. Must be PyTorch ('pt') or TensorFlow/Keras ('tf).
+    transforms : Any
+        Composition of image transformations. Must be either a PyTorch composition
+        or a Tensorflow Sequential model.
+
+    Returns
+    -------
+    output : Dataset[Any]
+        Returns a generic image dataset of image instances
+        (i.e., image in matrix format)
+
+    Example for NSD dataset
+    -------
+    >>> from thingsvision.utils.data import HDF5Dataset
+
+    >>> dataset = HDF5Dataset(
+    >>>     hdf5_fp="<path_to_nsd>/nsddata_stimuli/stimuli/nsd_stimuli.hdf5",
+    >>>     img_key="imgBrick",
+    >>>     transforms=extractor.get_transformations(),
+    >>>     backend=extractor.backend
+    >>> )
+    """
+
+    hdf5_fp: str
+    img_ds_key: str
+    backend: str
+    transforms: Any = None
+
+    def __post_init__(self) -> None:
+        self._load_hdf5()
+
+    def _load_hdf5(self) -> None:
+        self.samples = h5py.File(self.hdf5_fp, "r")
+        self.n_samples = self.samples[self.img_ds_key].shape[0]
+
+    def __getitem__(self, idx: int) -> Any:
+        img_np = self.samples[self.img_ds_key][idx]
+        img = Image.fromarray(img_np).convert("RGB")
+        img = self._transform_image(img)
+        return img
+
+    def _transform_image(self, img: Any) -> Any:
+        if self.backend == "pt":
+            img = self.transforms(img)
+        elif self.backend == "tf":
+            img = tf.keras.preprocessing.image.img_to_array(img)
+            img = self.transforms(img)
+        else:
+            raise ValueError(
+                "\nImage transformations only implemented for PyTorch or TensorFlow/Keras models.\n"
+            )
+        return img
+
+    def __len__(self) -> int:
+        return self.n_samples
 
     @property
     def images(self):
