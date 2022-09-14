@@ -153,6 +153,8 @@ class HDF5Dataset:
     transforms : Any
         Composition of image transformations. Must be either a PyTorch composition
         or a Tensorflow Sequential model.
+    img_idxs : List[int] (optional)
+        Only extract features for images with the given indices from the HDF5 file.
 
     Returns
     -------
@@ -163,12 +165,16 @@ class HDF5Dataset:
     Example for NSD dataset
     -------
     >>> from thingsvision.utils.data import HDF5Dataset
-
+    >>>
+    >>> # get indices of all 10000 images shown to first subject
+    >>> img_idxs = experiment['subjectim'][:, experiment['masterordering'][0] - 1][0]
+    >>>
     >>> dataset = HDF5Dataset(
     >>>     hdf5_fp="<path_to_nsd>/nsddata_stimuli/stimuli/nsd_stimuli.hdf5",
     >>>     img_key="imgBrick",
     >>>     transforms=extractor.get_transformations(),
-    >>>     backend=extractor.backend
+    >>>     backend=extractor.backend,
+    >>>     img_idxs=img_idxs
     >>> )
     """
 
@@ -176,15 +182,22 @@ class HDF5Dataset:
     img_ds_key: str
     backend: str
     transforms: Any = None
+    img_idxs: List[int] = None
 
     def __post_init__(self) -> None:
         self._load_hdf5()
 
     def _load_hdf5(self) -> None:
         self.samples = h5py.File(self.hdf5_fp, "r")
-        self.n_samples = self.samples[self.img_ds_key].shape[0]
+        self.n_samples = (
+            self.samples[self.img_ds_key].shape[0]
+            if self.img_idxs is None
+            else len(self.img_idxs)
+        )
 
     def __getitem__(self, idx: int) -> Any:
+        if self.img_idxs is not None:
+            idx = self.img_idxs[idx]
         img_np = self.samples[self.img_ds_key][idx]
         img = Image.fromarray(img_np).convert("RGB")
         img = self._transform_image(img)
