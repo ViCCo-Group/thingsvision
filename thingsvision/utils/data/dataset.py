@@ -167,7 +167,9 @@ class HDF5Dataset:
     >>> from thingsvision.utils.data import HDF5Dataset
     >>>
     >>> # get indices of all 10000 images shown to first subject
-    >>> img_idxs = experiment['subjectim'][:, experiment['masterordering'][0] - 1][0]
+    >>> img_idxs = np.unique(
+    >>>     experiment['subjectim'][:, experiment['masterordering'][0] - 1][0]
+    >>> )
     >>>
     >>> dataset = HDF5Dataset(
     >>>     hdf5_fp="<path_to_nsd>/nsddata_stimuli/stimuli/nsd_stimuli.hdf5",
