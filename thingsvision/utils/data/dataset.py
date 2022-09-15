@@ -153,7 +153,7 @@ class HDF5Dataset:
     transforms : Any
         Composition of image transformations. Must be either a PyTorch composition
         or a Tensorflow Sequential model.
-    img_idxs : List[int] (optional)
+    img_indices : List[int] (optional)
         Only extract features for images with the given indices from the HDF5 file.
 
     Returns
