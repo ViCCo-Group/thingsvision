@@ -167,7 +167,7 @@ class HDF5Dataset:
     >>> from thingsvision.utils.data import HDF5Dataset
     >>>
     >>> # get indices of all 10000 images shown to first subject
-    >>> img_idxs = np.unique(
+    >>> img_indices = np.unique(
     >>>     experiment['subjectim'][:, experiment['masterordering'][0] - 1][0]
     >>> )
     >>>
@@ -176,7 +176,7 @@ class HDF5Dataset:
     >>>     img_key="imgBrick",
     >>>     transforms=extractor.get_transformations(),
     >>>     backend=extractor.backend,
-    >>>     img_idxs=img_idxs
+    >>>     img_indices=img_indices
     >>> )
     """
 
@@ -184,7 +184,7 @@ class HDF5Dataset:
     img_ds_key: str
     backend: str
     transforms: Any = None
-    img_idxs: List[int] = None
+    img_indices: List[int] = None
 
     def __post_init__(self) -> None:
         self._load_hdf5()
@@ -193,13 +193,13 @@ class HDF5Dataset:
         self.samples = h5py.File(self.hdf5_fp, "r")
         self.n_samples = (
             self.samples[self.img_ds_key].shape[0]
-            if self.img_idxs is None
-            else len(self.img_idxs)
+            if self.img_indices is None
+            else len(self.img_indices)
         )
 
     def __getitem__(self, idx: int) -> Any:
-        if self.img_idxs is not None:
-            idx = self.img_idxs[idx]
+        if self.img_indices is not None:
+            idx = self.img_indices[idx]
         img_np = self.samples[self.img_ds_key][idx]
         img = Image.fromarray(img_np).convert("RGB")
         img = self._transform_image(img)
