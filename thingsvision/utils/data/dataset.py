@@ -173,7 +173,7 @@ class HDF5Dataset:
     >>>
     >>> dataset = HDF5Dataset(
     >>>     hdf5_fp="<path_to_nsd>/nsddata_stimuli/stimuli/nsd_stimuli.hdf5",
-    >>>     img_key="imgBrick",
+    >>>     img_ds_key="imgBrick",
     >>>     transforms=extractor.get_transformations(),
     >>>     backend=extractor.backend,
     >>>     img_indices=img_indices
