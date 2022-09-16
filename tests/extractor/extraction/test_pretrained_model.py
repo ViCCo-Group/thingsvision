@@ -20,8 +20,8 @@ class ExtractionPretrainedTestCase(unittest.TestCase):
             batches,
             module_names,
             model_name,
+            clip
         ) in helper.iterate_through_all_model_combinations():
-            clip = re.search(r"^clip", model_name)
             self.assertEqual(len(dataset), len(batches) * helper.BATCH_SIZE)
             num_objects = len(dataset)
 
