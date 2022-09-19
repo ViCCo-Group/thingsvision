@@ -2,7 +2,7 @@ import os
 from typing import Iterator, List
 
 from .data_loader import DataLoader
-from .dataset import ImageDataset
+from .dataset import ImageDataset, HDF5Dataset
 
 
 def load_batches(
