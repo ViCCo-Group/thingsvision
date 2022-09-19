@@ -82,7 +82,6 @@ You can find the jupyter notebook using `PyTorch` [here](https://colab.research.
 The following examples demonstrate how to load a model with PyTorch or TensorFlow/Keras and how to subsequently extract features. 
 Please keep in mind that the model names as well as the layer names depend on the backend you want to use. If you use PyTorch, you will need to use these [model names](https://pytorch.org/vision/stable/models.html). If you use Tensorflow, you will need to use these [model names](https://keras.io/api/applications/). You can find the layer names by using `extractor.show_model()`.
 
-
 ### Example call for AlexNet with PyTorch:
 
 ```python
@@ -663,6 +662,31 @@ class VGG16_ecoset(Custom):
           state_dict = torch.hub.load_state_dict_from_url(path_to_weights, map_location=self.device)
           model.load_state_dict(state_dict)
           return model
+```
+
+## Using HDF5 datasets (e.g. NSD stimuli)
+
+You can also extract features for images stored in HDF5 dataset. For this you can simply replace `ImageDataset` with `HDF5Dataset`, providing the path to the HDF5 file as `hdf5_fp` and the name of the dataset containing the images as `img_ds_key`. 
+
+Optionally, you can specify which images to extract features for by providing a list of indices as `img_indices`, otherwise
+features for all images will be extracted. 
+
+The following examples shows how to extract features for images of the NSD stimuli dataset shown to subject 1:
+```python
+from thingsvision.utils.data import HDF5Dataset
+
+# get indices of all 10000 images shown to first subject
+img_indices = np.unique(
+    experiment['subjectim'][:, experiment['masterordering'][0] - 1][0]
+)
+
+dataset = HDF5Dataset(
+    hdf5_fp="<path_to_nsd>/nsddata_stimuli/stimuli/nsd_stimuli.hdf5",
+    img_ds_key="imgBrick",
+    transforms=extractor.get_transformations(),
+    backend=extractor.backend,
+    img_indices=img_indices
+)
 ```
 
 ## Citation
