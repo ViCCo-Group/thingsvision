@@ -668,8 +668,7 @@ class VGG16_ecoset(Custom):
 
 You can also extract features for images stored in HDF5 dataset. For this you can simply replace `ImageDataset` with `HDF5Dataset`, providing the path to the HDF5 file as `hdf5_fp` and the name of the dataset containing the images as `img_ds_key`. 
 
-Optionally, you can specify which images to extract features for by providing a list of indices as `img_indices`, otherwise
-features for all images will be extracted. 
+Optionally, you can specify which images to extract features for by providing a list of indices as `img_indices`, otherwise features for all images will be extracted. 
 
 The following examples shows how to extract features for images of the NSD stimuli dataset shown to subject 1:
 ```python
