@@ -12,7 +12,7 @@ requirements = [
                 'tensorflow==2.9.*',
                 'torch==1.12.*',
                 'torchvision==0.13.*',
-                'open_clip_torch==2.0.*'; 
+                'open_clip_torch==2.0.*',
 		'tqdm==4.64.0',
                 'timm==0.6.*',
                 'regex',
