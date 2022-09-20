@@ -12,7 +12,8 @@ requirements = [
                 'tensorflow==2.9.*',
                 'torch==1.12.*',
                 'torchvision==0.13.*',
-                'tqdm==4.64.0',
+                'open_clip_torch==2.0.*'; 
+		'tqdm==4.64.0',
                 'timm==0.6.*',
                 'regex',
                 'scikit-image==0.19.3',
@@ -23,7 +24,7 @@ requirements = [
 
 setuptools.setup(
                 name="thingsvision",
-                version="2.0.7",
+                version="2.0.8",
                 author="Lukas Muttenthaler",
                 author_email="muttenthaler@cbs.mpg.de",
                 description="Extracting image features from state-of-the-art neural networks for Computer Vision made easy",

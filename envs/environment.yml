@@ -20,6 +20,7 @@ dependencies:
  - h5py
  - pip
  - pip:
+   - open_clip_torch==2.0.* 
    - tensorflow==2.9.*
    - timm==0.6.*
    - codecov
