@@ -6,7 +6,7 @@ from .custom import Custom
 
 
 class Alexnet_ecoset(Custom):
-    def __init__(self, device) -> None:
+    def __init__(self, device, parameters) -> None:
         super().__init__(device)
         self.backend = "pt"
 
@@ -17,4 +17,4 @@ class Alexnet_ecoset(Custom):
             path_to_weights, map_location=self.device, file_name="Alexnet_ecoset"
         )
         model.load_state_dict(state_dict)
-        return model
+        return model, None
