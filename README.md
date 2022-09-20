@@ -152,6 +152,7 @@ save_features(features, out_path='path/to/features', file_format='npy')
 ```
 
 ### Example call for [CLIP](https://github.com/openai/CLIP) with PyTorch:
+Note, that the vision model has to be defined in the `model_parameters` dictionary with the `variant` key. You can either use `ViT-B/32` or `RN50`.
 
 ```python
 import torch
@@ -161,7 +162,7 @@ from thingsvision.utils.data import ImageDataset, DataLoader
 from thingsvision.core.extraction import center_features
 
 root='path/to/root/img/directory' # (e.g., './images/)
-model_name = 'clip-ViT'
+model_name = 'clip'
 module_name = 'visual'
 source = 'custom'
 batch_size = 64
@@ -170,7 +171,47 @@ file_names = None # optional list of file names according to which features shou
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 # initialize extractor module
-extractor = Extractor(model_name, pretrained=True, model_path=None, device=device, source=source)
+extractor = Extractor(model_name, pretrained=True, model_path=None, device=device, source=source, model_parameters={'variant': 'ViT-B/32'})
+dataset = ImageDataset(
+        root=root,
+        out_path='path/to/features',
+        backend=extractor.backend,
+        transforms=extractor.get_transformations(),
+        class_names=class_names,
+        file_names=file_names,
+)
+batches = DataLoader(dataset=dataset, batch_size=batch_size, backend=extractor.backend)
+features = extractor.extract_features(
+				batches=batches,
+				module_name=module_name,
+				flatten_acts=False,
+				clip=True,
+)
+features = center_features(features)
+save_features(features, out_path='path/to/features', file_format='npy')
+```
+
+### Example call for [Open CLIP](https://github.com/mlfoundations/open_clip) with PyTorch:
+Note, that the vision model and the dataset that was used for training, have to be defined in the `model_parameters` dictionary with the `variant` and `dataset` keys. Possible values can be found in the [Open CLIP](https://github.com/mlfoundations/open_clip) pretrained models list.
+
+```python
+import torch
+from thingsvision import Extractor
+from thingsvision.utils.storing import save_features
+from thingsvision.utils.data import ImageDataset, DataLoader
+from thingsvision.core.extraction import center_features
+
+root='path/to/root/img/directory' # (e.g., './images/)
+model_name = 'OpenCLIP'
+module_name = 'visual'
+source = 'custom'
+batch_size = 64
+class_names = None  # optional list of class names for class dataset
+file_names = None # optional list of file names according to which features should be sorted
+
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+# initialize extractor module
+extractor = Extractor(model_name, pretrained=True, model_path=None, device=device, source=source, model_parameters={'variant': 'ViT-H-14', 'dataset': 'laion2b_s32b_b79k'})
 dataset = ImageDataset(
         root=root,
         out_path='path/to/features',
@@ -644,8 +685,7 @@ CLIP (Contrastive Language-Image Pre-Training) is a neural network trained on a 
 ## Adding custom models
 
 If you want to use your own model and/or want to make it public, you just need to implement a class inheriting from the `custom_models/custom.py:Custom` class and implement the `create_model` method.
-There you can build/download the model and its weights. The constructors expects a `device` (str).
-Afterwards you can put the file in the `custom_models` directory and create a pull request to include the model in the official GitHub repository.
+There you can build/download the model and its weights. The constructors expects a `device` (str) and a `kwargs` (dict) where you can put model parameters. The `backend` attribute needs to be set to either `pt` (PyTorch) or `tf` (Tensorflow). The `create_model` method needs to return the model and an optional preprocessing method. If no preprocessing is set, the ImageNet default preprocessing is used. Afterwards you can put the file in the `custom_models` directory and create a pull request to include the model in the official GitHub repository.
 
 ```python
 from thingsvision.custom_models.custom import Custom
@@ -653,15 +693,17 @@ import torchvision.models as torchvision_models
 import torch
 
 class VGG16_ecoset(Custom):
-    def __init__(self, device) -> None:
+    def __init__(self, device, **kwargs) -> None:
         super().__init__(device)
+        self.backend = 'pt'
+        self.preprocess = None
 
     def create_model(self):
           model = torchvision_models.vgg16_bn(pretrained=False, num_classes=565)
           path_to_weights = 'https://osf.io/fe7s5/download'
           state_dict = torch.hub.load_state_dict_from_url(path_to_weights, map_location=self.device)
           model.load_state_dict(state_dict)
-          return model
+          return model, self.preprocess
 ```
 
 ## Using HDF5 datasets (e.g. NSD stimuli)

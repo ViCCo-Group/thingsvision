@@ -1,6 +1,6 @@
 import re
 import warnings
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Iterator, Tuple
 
 import numpy as np
@@ -30,6 +30,9 @@ class Extractor:
     device: str
     source: str
     model_path: str = None
+    model_parameters: Any = field(
+        default_factory=lambda: {}
+    )
     """
     Parameters
     ----------
@@ -51,9 +54,12 @@ class Extractor:
         features should be extracted for a model that
         was fine-tuned (or trained) on a custom image
         dataset.
+    model_parameters: dict (optional)
+        Further model parameters.
     """
 
     def __post_init__(self) -> None:
+        self.preprocess = None
         self.load_model()
 
     @staticmethod
@@ -97,20 +103,8 @@ class Extractor:
 
     def get_model_from_custom(self) -> None:
         """Load a pretrained custom neural network model (e.g., clip, cornet)."""
-        if self.model_name.startswith("clip"):
-            backend = "pt"
-            if self.model_name.endswith("ViT"):
-                model_name = "ViT-B/32"
-            else:
-                model_name = "RN50"
-            model, self.clip_n_px = clip.load(
-                model_name,
-                device=self.device,
-                model_path=self.model_path,
-                pretrained=self.pretrained,
-                jit=False,
-            )
-        elif self.model_name.startswith("cornet"):
+        preprocess = None
+        if self.model_name.startswith("cornet"):
             backend = "pt"
             try:
                 model = getattr(cornet, f"cornet_{self.model_name[-1]}")
@@ -121,9 +115,11 @@ class Extractor:
             )
             model = model.module  # remove DataParallel
         elif hasattr(custom_models, self.model_name):
+            self.model_parameters['pretrained'] = self.pretrained
+            self.model_parameters['model_path'] = self.model_path
             custom_model = getattr(custom_models, self.model_name)
-            custom_model = custom_model(self.device)
-            model = custom_model.create_model()
+            custom_model = custom_model(self.device, self.model_parameters)
+            model, preprocess = custom_model.create_model()
             backend = custom_model.get_backend()
         else:
             raise ValueError(
@@ -131,6 +127,7 @@ class Extractor:
             )
         self.model = model
         self.backend = backend
+        self.preprocess = preprocess
 
     def get_model_from_keras(self) -> None:
         """Load a (pretrained) neural network model from TensorFlow/Keras."""
@@ -341,29 +338,8 @@ class Extractor:
         self, resize_dim: int = 256, crop_dim: int = 224, apply_center_crop: bool = True
     ) -> Any:
         """Load image transformations for a specific model. Image transformations depend on the backend."""
-        if self.model_name.startswith("clip"):
-            if self.backend != "pt":
-                raise Exception(
-                    "You need to use PyTorch as backend if you want to use a CLIP model."
-                )
-
-            composes = [
-                T.Resize(self.clip_n_px, interpolation=T.InterpolationMode.BICUBIC)
-            ]
-
-            if apply_center_crop:
-                composes.append(T.CenterCrop(self.clip_n_px))
-
-            composes += [
-                lambda image: image.convert("RGB"),
-                T.ToTensor(),
-                T.Normalize(
-                    (0.48145466, 0.4578275, 0.40821073),
-                    (0.26862954, 0.26130258, 0.27577711),
-                ),
-            ]
-
-            composition = T.Compose(composes)
+        if self.preprocess:
+            return self.preprocess            
         else:
             mean = [0.485, 0.456, 0.406]
             std = [0.229, 0.224, 0.225]
