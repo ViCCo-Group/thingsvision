@@ -51,7 +51,7 @@ MODEL_AND_MODULE_NAMES = {
     },
 
     # Custom models
-    "VGG16bn_ecoset": {
+    "VGG16_ecoset": {
         "modules": ["classifier.3"],
         "pretrained": True,
         "source": "custom",
