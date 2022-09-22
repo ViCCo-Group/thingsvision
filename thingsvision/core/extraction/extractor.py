@@ -16,7 +16,6 @@ from torchvision import transforms as T
 from tqdm import tqdm
 
 import thingsvision.custom_models as custom_models
-import thingsvision.custom_models.clip as clip
 import thingsvision.custom_models.cornet as cornet
 
 Tensor = torch.Tensor
@@ -115,8 +114,6 @@ class Extractor:
             )
             model = model.module  # remove DataParallel
         elif hasattr(custom_models, self.model_name):
-            self.model_parameters['pretrained'] = self.pretrained
-            self.model_parameters['model_path'] = self.model_path
             custom_model = getattr(custom_models, self.model_name)
             custom_model = custom_model(self.device, self.model_parameters)
             model, preprocess = custom_model.create_model()
