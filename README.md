@@ -699,7 +699,7 @@ class VGG16_ecoset(Custom):
         self.preprocess = None
 
     def create_model(self):
-          model = torchvision_models.vgg16_bn(pretrained=False, num_classes=565)
+          model = torchvision_models.vgg16(pretrained=False, num_classes=565)
           path_to_weights = 'https://osf.io/fe7s5/download'
           state_dict = torch.hub.load_state_dict_from_url(path_to_weights, map_location=self.device)
           model.load_state_dict(state_dict)
