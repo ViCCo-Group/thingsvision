@@ -24,7 +24,7 @@ requirements = [
 
 setuptools.setup(
                 name="thingsvision",
-                version="2.0.9",
+                version="2.0.10",
                 author="Lukas Muttenthaler",
                 author_email="muttenthaler@cbs.mpg.de",
                 description="Extracting image features from state-of-the-art neural networks for Computer Vision made easy",
@@ -41,5 +41,5 @@ setuptools.setup(
                     "License :: OSI Approved :: MIT License",
                     "Operating System :: OS Independent",
                 ],
-                python_requires='>=3.8',
+                python_requires='>=3.7',
 )
