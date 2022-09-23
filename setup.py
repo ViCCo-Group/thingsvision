@@ -7,8 +7,8 @@ requirements = [
                 'matplotlib==3.5.2',
                 'numba==0.56.*',
                 'ftfy',
-                'numpy==1.21.*',
-                'pandas==1.3.*',
+                'numpy==1.22.*',
+                'pandas==1.4.*',
                 'tensorflow==2.9.*',
                 'torch==1.12.*',
                 'torchvision==0.13.*',
@@ -41,6 +41,6 @@ setuptools.setup(
                     "License :: OSI Approved :: MIT License",
                     "Operating System :: OS Independent",
                 ],
-                python_requires='>=3.7',
+                python_requires='>=3.8',
                 dependency_links=['git+https://github.com/openai/CLIP.git']
 )
