@@ -19,7 +19,8 @@ requirements = [
                 'scikit-image==0.19.3',
                 'scikit-learn==1.1.*',
                 'scipy==1.8.1',
-                'h5py==3.7.0'
+                'h5py==3.7.0',
+                'CLIP'
                 ]
 
 setuptools.setup(
