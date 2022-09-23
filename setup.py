@@ -7,7 +7,7 @@ requirements = [
                 'matplotlib==3.5.2',
                 'numba==0.56.*',
                 'ftfy',
-                'numpy==1.22.*',
+                'numpy==1.21.*',
                 'pandas==1.4.2',
                 'tensorflow==2.9.*',
                 'torch==1.12.*',
