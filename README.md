@@ -71,7 +71,7 @@ You can find the jupyter notebook using `PyTorch` [here](https://colab.research.
     for fn in object_images_*.zip; do unzip -P the_password $fn; done
     ```
 
-3. Features can be extracted for every layer for all `timm`, `torchvision`, `TensorFlow`, `CORnet` and `CLIP` models.
+3. Features can be extracted for every layer for all `timm`, `torchvision`, `TensorFlow`, `CORnet` and `CLIP`/`OpenCLIP` models.
 
 4. The script automatically extracts features for the specified `model` and `module`.
 
@@ -318,7 +318,7 @@ Sequential(
 (e.g., "decoder.flatten")
 
 dataset = ImageDataset(
-	root=root,
+  root=root,
 	out_path='path/to/features',
 	backend=extractor.backend,
 	transforms=extractor.get_transformations(),
