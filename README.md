@@ -319,22 +319,22 @@ Sequential(
 
 dataset = ImageDataset(
   root=root,
-	out_path='path/to/features',
-	backend=extractor.backend,
-	transforms=extractor.get_transformations(),
-	class_names=class_names,
-	file_names=file_names,
+  out_path='path/to/features',
+  backend=extractor.backend,
+  transforms=extractor.get_transformations(),
+  class_names=class_names,
+  file_names=file_names,
 )
 batches = DataLoader(
-	dataset=dataset,
-	batch_size=batch_size,
-	backend=extractor.backend
+  dataset=dataset,
+  batch_size=batch_size,
+  backend=extractor.backend
 )
 features = extractor.extract_features(
-	batches=batches,
-	module_name=module_name,
-	flatten_acts=False,
-	clip=False,
+  batches=batches,
+  module_name=module_name,
+  flatten_acts=False,
+  clip=False,
 )
 save_features(features, out_path='path/to/features', file_format='npy')
 ```
@@ -442,7 +442,7 @@ extractor = Extractor(
   pretrained=True, 
   model_path=None, 
   device=device, 
-  source=custom,
+  source=source,
 )
 ```
 
