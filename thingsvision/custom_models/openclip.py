@@ -18,7 +18,7 @@ class OpenCLIP(Custom):
                 found = True
                 break
         if not found:
-            raise Exception(f'Could not find an OpenCLIP model with variant {self.variant} and dataset {self.dataset}')
+            raise ValueError(f'\nCould not find an OpenCLIP model with variant: {self.variant} and dataset: {self.dataset}.\n')
 
     def create_model(self) -> Any:
         self.check_available_variants_and_datasets()
