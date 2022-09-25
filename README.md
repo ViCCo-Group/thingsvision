@@ -184,7 +184,7 @@ file_names = None # optional list of file names according to which features shou
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 # initialize extractor module
 extractor = Extractor(
-  model_name, 
+  model_name=model_name, 
   pretrained=True, 
   model_path=None, 
   device=device, 
@@ -237,7 +237,7 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 # initialize extractor module
 extractor = Extractor(
-  model_name, 
+  model_name=model_name, 
   pretrained=True,
   model_path=None, 
   device=device, 
@@ -318,19 +318,23 @@ Sequential(
 (e.g., "decoder.flatten")
 
 dataset = ImageDataset(
-        root=root,
-        out_path='path/to/features',
-        backend=extractor.backend,
-        transforms=extractor.get_transformations(),
-        class_names=class_names,
-        file_names=file_names,
+	root=root,
+	out_path='path/to/features',
+	backend=extractor.backend,
+	transforms=extractor.get_transformations(),
+	class_names=class_names,
+	file_names=file_names,
 )
-batches = DataLoader(dataset=dataset, batch_size=batch_size, backend=extractor.backend)
+batches = DataLoader(
+	dataset=dataset,
+	batch_size=batch_size,
+	backend=extractor.backend
+)
 features = extractor.extract_features(
-				batches=batches,
-				module_name=module_name,
-				flatten_acts=False,
-				clip=False,
+	batches=batches,
+	module_name=module_name,
+	flatten_acts=False,
+	clip=False,
 )
 save_features(features, out_path='path/to/features', file_format='npy')
 ```
