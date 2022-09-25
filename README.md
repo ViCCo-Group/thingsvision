@@ -98,7 +98,13 @@ class_names = None  # optional list of class names for class dataset
 file_names = None # optional list of file names according to which features should be sorted
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
-extractor = Extractor(model_name, pretrained=True, model_path=None, device=device, source=source)
+extractor = Extractor(
+  model_name=model_name,
+  pretrained=True,
+  model_path=None, 
+  device=device, 
+  source=source,
+)
 module_name = extractor.show_model()
 
 AlexNet(
@@ -134,19 +140,23 @@ AlexNet(
 (e.g., "features.10")
 
 dataset = ImageDataset(
-        root=root,
-        out_path='path/to/features',
-        backend=extractor.backend,
-        transforms=extractor.get_transformations(),
-        class_names=class_names,
-        file_names=file_names,
+  root=root,
+  out_path='path/to/features',
+  backend=extractor.backend,
+  transforms=extractor.get_transformations(),
+  class_names=class_names,
+  file_names=file_names,
 )
-batches = DataLoader(dataset=dataset, batch_size=batch_size, backend=extractor.backend)
+batches = DataLoader(
+  dataset=dataset,
+  batch_size=batch_size, 
+  backend=extractor.backend
+)
 features = extractor.extract_features(
-				batches=batches,
-				module_name=module_name,
-				flatten_acts=True,
-				clip=False,
+  batches=batches,
+  module_name=module_name,
+  flatten_acts=True,
+  clip=False,
 )
 save_features(features, out_path='path/to/features', file_format='npy')
 ```
@@ -171,28 +181,40 @@ file_names = None # optional list of file names according to which features shou
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 # initialize extractor module
-extractor = Extractor(model_name, pretrained=True, model_path=None, device=device, source=source, model_parameters={'variant': 'ViT-B/32'})
-dataset = ImageDataset(
-        root=root,
-        out_path='path/to/features',
-        backend=extractor.backend,
-        transforms=extractor.get_transformations(),
-        class_names=class_names,
-        file_names=file_names,
+extractor = Extractor(
+  model_name, 
+  pretrained=True, 
+  model_path=None, 
+  device=device, 
+  source=source, 
+  model_parameters={'variant': 'ViT-B/32'},
 )
-batches = DataLoader(dataset=dataset, batch_size=batch_size, backend=extractor.backend)
+dataset = ImageDataset(
+  root=root,
+  out_path='path/to/features',
+  backend=extractor.backend,
+  transforms=extractor.get_transformations(),
+  class_names=class_names,
+  file_names=file_names,
+)
+batches = DataLoader(
+  dataset=dataset, 
+  batch_size=batch_size, 
+  backend=extractor.backend,
+)
 features = extractor.extract_features(
-				batches=batches,
-				module_name=module_name,
-				flatten_acts=False,
-				clip=True,
+  batches=batches,
+  module_name=module_name,
+  flatten_acts=False,
+  clip=True,
 )
 features = center_features(features)
 save_features(features, out_path='path/to/features', file_format='npy')
 ```
 
 ### Example call for [Open CLIP](https://github.com/mlfoundations/open_clip) with PyTorch:
-Note, that the vision model and the dataset that was used for training, have to be defined in the `model_parameters` dictionary with the `variant` and `dataset` keys. Possible values can be found in the [Open CLIP](https://github.com/mlfoundations/open_clip) pretrained models list.
+
+Note that the vision model and the dataset that was used for training CLIP have to be defined in the `model_parameters` dictionary `variant` and `dataset` keys. Possible values can be found in the [Open CLIP](https://github.com/mlfoundations/open_clip) pretrained models list.
 
 ```python
 import torch
@@ -210,259 +232,36 @@ class_names = None  # optional list of class names for class dataset
 file_names = None # optional list of file names according to which features should be sorted
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
+
 # initialize extractor module
-extractor = Extractor(model_name, pretrained=True, model_path=None, device=device, source=source, model_parameters={'variant': 'ViT-H-14', 'dataset': 'laion2b_s32b_b79k'})
-dataset = ImageDataset(
-        root=root,
-        out_path='path/to/features',
-        backend=extractor.backend,
-        transforms=extractor.get_transformations(),
-        class_names=class_names,
-        file_names=file_names,
+extractor = Extractor(
+  model_name, 
+  pretrained=True,
+  model_path=None, 
+  device=device, 
+  source=source, 
+  model_parameters={'variant': 'ViT-H-14', 'dataset': 'laion2b_s32b_b79k'},
 )
-batches = DataLoader(dataset=dataset, batch_size=batch_size, backend=extractor.backend)
+dataset = ImageDataset(
+  root=root,
+  out_path='path/to/features',
+  backend=extractor.backend,
+  transforms=extractor.get_transformations(),
+  class_names=class_names,
+  file_names=file_names,
+)
+batches = DataLoader(
+  dataset=dataset, 
+  batch_size=batch_size, 
+  backend=extractor.backend,
+)
 features = extractor.extract_features(
-				batches=batches,
-				module_name=module_name,
-				flatten_acts=False,
-				clip=True,
+  batches=batches,
+  module_name=module_name,
+  flatten_acts=False,
+  clip=True,
 )
 features = center_features(features)
-save_features(features, out_path='path/to/features', file_format='npy')
-```
-
-### Example call for [ViT](https://arxiv.org/pdf/2010.11929.pdf) with PyTorch:
-
-```python
-import torch
-from thingsvision import Extractor
-from thingsvision.utils.storing import save_features
-from thingsvision.utils.data import ImageDataset, DataLoader
-
-root='path/to/root/img/directory' # (e.g., './images/)
-model_name = 'vit_b_16'
-source = 'torchvision'
-batch_size = 64
-class_names = None  # optional list of class names for class dataset
-file_names = None # optional list of file names according to which features should be sorted
-
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
-# initialize extractor module
-extractor = Extractor(model_name, pretrained=True, model_path=None, device=device, source=source)
-module_name = extractor.show_model()
-
-VisionTransformer(
-  (conv_proj): Conv2d(3, 768, kernel_size=(16, 16), stride=(16, 16))
-  (encoder): Encoder(
-    (dropout): Dropout(p=0.0, inplace=False)
-    (layers): Sequential(
-      (encoder_layer_0): EncoderBlock(
-        (ln_1): LayerNorm((768,), eps=1e-06, elementwise_affine=True)
-        (self_attention): MultiheadAttention(
-          (out_proj): NonDynamicallyQuantizableLinear(in_features=768, out_features=768, bias=True)
-        )
-        (dropout): Dropout(p=0.0, inplace=False)
-        (ln_2): LayerNorm((768,), eps=1e-06, elementwise_affine=True)
-        (mlp): MLPBlock(
-          (linear_1): Linear(in_features=768, out_features=3072, bias=True)
-          (act): GELU()
-          (dropout_1): Dropout(p=0.0, inplace=False)
-          (linear_2): Linear(in_features=3072, out_features=768, bias=True)
-          (dropout_2): Dropout(p=0.0, inplace=False)
-        )
-      )
-      (encoder_layer_1): EncoderBlock(
-        (ln_1): LayerNorm((768,), eps=1e-06, elementwise_affine=True)
-        (self_attention): MultiheadAttention(
-          (out_proj): NonDynamicallyQuantizableLinear(in_features=768, out_features=768, bias=True)
-        )
-        (dropout): Dropout(p=0.0, inplace=False)
-        (ln_2): LayerNorm((768,), eps=1e-06, elementwise_affine=True)
-        (mlp): MLPBlock(
-          (linear_1): Linear(in_features=768, out_features=3072, bias=True)
-          (act): GELU()
-          (dropout_1): Dropout(p=0.0, inplace=False)
-          (linear_2): Linear(in_features=3072, out_features=768, bias=True)
-          (dropout_2): Dropout(p=0.0, inplace=False)
-        )
-      )
-      (encoder_layer_2): EncoderBlock(
-        (ln_1): LayerNorm((768,), eps=1e-06, elementwise_affine=True)
-        (self_attention): MultiheadAttention(
-          (out_proj): NonDynamicallyQuantizableLinear(in_features=768, out_features=768, bias=True)
-        )
-        (dropout): Dropout(p=0.0, inplace=False)
-        (ln_2): LayerNorm((768,), eps=1e-06, elementwise_affine=True)
-        (mlp): MLPBlock(
-          (linear_1): Linear(in_features=768, out_features=3072, bias=True)
-          (act): GELU()
-          (dropout_1): Dropout(p=0.0, inplace=False)
-          (linear_2): Linear(in_features=3072, out_features=768, bias=True)
-          (dropout_2): Dropout(p=0.0, inplace=False)
-        )
-      )
-      (encoder_layer_3): EncoderBlock(
-        (ln_1): LayerNorm((768,), eps=1e-06, elementwise_affine=True)
-        (self_attention): MultiheadAttention(
-          (out_proj): NonDynamicallyQuantizableLinear(in_features=768, out_features=768, bias=True)
-        )
-        (dropout): Dropout(p=0.0, inplace=False)
-        (ln_2): LayerNorm((768,), eps=1e-06, elementwise_affine=True)
-        (mlp): MLPBlock(
-          (linear_1): Linear(in_features=768, out_features=3072, bias=True)
-          (act): GELU()
-          (dropout_1): Dropout(p=0.0, inplace=False)
-          (linear_2): Linear(in_features=3072, out_features=768, bias=True)
-          (dropout_2): Dropout(p=0.0, inplace=False)
-        )
-      )
-      (encoder_layer_4): EncoderBlock(
-        (ln_1): LayerNorm((768,), eps=1e-06, elementwise_affine=True)
-        (self_attention): MultiheadAttention(
-          (out_proj): NonDynamicallyQuantizableLinear(in_features=768, out_features=768, bias=True)
-        )
-        (dropout): Dropout(p=0.0, inplace=False)
-        (ln_2): LayerNorm((768,), eps=1e-06, elementwise_affine=True)
-        (mlp): MLPBlock(
-          (linear_1): Linear(in_features=768, out_features=3072, bias=True)
-          (act): GELU()
-          (dropout_1): Dropout(p=0.0, inplace=False)
-          (linear_2): Linear(in_features=3072, out_features=768, bias=True)
-          (dropout_2): Dropout(p=0.0, inplace=False)
-        )
-      )
-      (encoder_layer_5): EncoderBlock(
-        (ln_1): LayerNorm((768,), eps=1e-06, elementwise_affine=True)
-        (self_attention): MultiheadAttention(
-          (out_proj): NonDynamicallyQuantizableLinear(in_features=768, out_features=768, bias=True)
-        )
-        (dropout): Dropout(p=0.0, inplace=False)
-        (ln_2): LayerNorm((768,), eps=1e-06, elementwise_affine=True)
-        (mlp): MLPBlock(
-          (linear_1): Linear(in_features=768, out_features=3072, bias=True)
-          (act): GELU()
-          (dropout_1): Dropout(p=0.0, inplace=False)
-          (linear_2): Linear(in_features=3072, out_features=768, bias=True)
-          (dropout_2): Dropout(p=0.0, inplace=False)
-        )
-      )
-      (encoder_layer_6): EncoderBlock(
-        (ln_1): LayerNorm((768,), eps=1e-06, elementwise_affine=True)
-        (self_attention): MultiheadAttention(
-          (out_proj): NonDynamicallyQuantizableLinear(in_features=768, out_features=768, bias=True)
-        )
-        (dropout): Dropout(p=0.0, inplace=False)
-        (ln_2): LayerNorm((768,), eps=1e-06, elementwise_affine=True)
-        (mlp): MLPBlock(
-          (linear_1): Linear(in_features=768, out_features=3072, bias=True)
-          (act): GELU()
-          (dropout_1): Dropout(p=0.0, inplace=False)
-          (linear_2): Linear(in_features=3072, out_features=768, bias=True)
-          (dropout_2): Dropout(p=0.0, inplace=False)
-        )
-      )
-      (encoder_layer_7): EncoderBlock(
-        (ln_1): LayerNorm((768,), eps=1e-06, elementwise_affine=True)
-        (self_attention): MultiheadAttention(
-          (out_proj): NonDynamicallyQuantizableLinear(in_features=768, out_features=768, bias=True)
-        )
-        (dropout): Dropout(p=0.0, inplace=False)
-        (ln_2): LayerNorm((768,), eps=1e-06, elementwise_affine=True)
-        (mlp): MLPBlock(
-          (linear_1): Linear(in_features=768, out_features=3072, bias=True)
-          (act): GELU()
-          (dropout_1): Dropout(p=0.0, inplace=False)
-          (linear_2): Linear(in_features=3072, out_features=768, bias=True)
-          (dropout_2): Dropout(p=0.0, inplace=False)
-        )
-      )
-      (encoder_layer_8): EncoderBlock(
-        (ln_1): LayerNorm((768,), eps=1e-06, elementwise_affine=True)
-        (self_attention): MultiheadAttention(
-          (out_proj): NonDynamicallyQuantizableLinear(in_features=768, out_features=768, bias=True)
-        )
-        (dropout): Dropout(p=0.0, inplace=False)
-        (ln_2): LayerNorm((768,), eps=1e-06, elementwise_affine=True)
-        (mlp): MLPBlock(
-          (linear_1): Linear(in_features=768, out_features=3072, bias=True)
-          (act): GELU()
-          (dropout_1): Dropout(p=0.0, inplace=False)
-          (linear_2): Linear(in_features=3072, out_features=768, bias=True)
-          (dropout_2): Dropout(p=0.0, inplace=False)
-        )
-      )
-      (encoder_layer_9): EncoderBlock(
-        (ln_1): LayerNorm((768,), eps=1e-06, elementwise_affine=True)
-        (self_attention): MultiheadAttention(
-          (out_proj): NonDynamicallyQuantizableLinear(in_features=768, out_features=768, bias=True)
-        )
-        (dropout): Dropout(p=0.0, inplace=False)
-        (ln_2): LayerNorm((768,), eps=1e-06, elementwise_affine=True)
-        (mlp): MLPBlock(
-          (linear_1): Linear(in_features=768, out_features=3072, bias=True)
-          (act): GELU()
-          (dropout_1): Dropout(p=0.0, inplace=False)
-          (linear_2): Linear(in_features=3072, out_features=768, bias=True)
-          (dropout_2): Dropout(p=0.0, inplace=False)
-        )
-      )
-      (encoder_layer_10): EncoderBlock(
-        (ln_1): LayerNorm((768,), eps=1e-06, elementwise_affine=True)
-        (self_attention): MultiheadAttention(
-          (out_proj): NonDynamicallyQuantizableLinear(in_features=768, out_features=768, bias=True)
-        )
-        (dropout): Dropout(p=0.0, inplace=False)
-        (ln_2): LayerNorm((768,), eps=1e-06, elementwise_affine=True)
-        (mlp): MLPBlock(
-          (linear_1): Linear(in_features=768, out_features=3072, bias=True)
-          (act): GELU()
-          (dropout_1): Dropout(p=0.0, inplace=False)
-          (linear_2): Linear(in_features=3072, out_features=768, bias=True)
-          (dropout_2): Dropout(p=0.0, inplace=False)
-        )
-      )
-      (encoder_layer_11): EncoderBlock(
-        (ln_1): LayerNorm((768,), eps=1e-06, elementwise_affine=True)
-        (self_attention): MultiheadAttention(
-          (out_proj): NonDynamicallyQuantizableLinear(in_features=768, out_features=768, bias=True)
-        )
-        (dropout): Dropout(p=0.0, inplace=False)
-        (ln_2): LayerNorm((768,), eps=1e-06, elementwise_affine=True)
-        (mlp): MLPBlock(
-          (linear_1): Linear(in_features=768, out_features=3072, bias=True)
-          (act): GELU()
-          (dropout_1): Dropout(p=0.0, inplace=False)
-          (linear_2): Linear(in_features=3072, out_features=768, bias=True)
-          (dropout_2): Dropout(p=0.0, inplace=False)
-        )
-      )
-    )
-    (ln): LayerNorm((768,), eps=1e-06, elementwise_affine=True)
-  )
-  (heads): Sequential(
-    (head): Linear(in_features=768, out_features=1000, bias=True)
-  )
-)
-
-#Enter part of the model for which you would like to extract features:
-
-(e.g., "encoder.layers.encoder_layer_11.mlp.linear_2")
-
-dataset = ImageDataset(
-        root=root,
-        out_path='path/to/features',
-        backend=extractor.backend,
-        transforms=extractor.get_transformations(),
-        class_names=class_names,
-        file_names=file_names,
-)
-batches = DataLoader(dataset=dataset, batch_size=batch_size, backend=extractor.backend)
-features = extractor.extract_features(
-				batches=batches,
-				module_name=module_name,
-				flatten_acts=False,
-				clip=False,
-)
 save_features(features, out_path='path/to/features', file_format='npy')
 ```
 
@@ -482,8 +281,15 @@ class_names = None  # optional list of class names for class dataset
 file_names = None # optional list of file names according to which features should be sorted
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
+
 # initialize extractor module
-extractor = Extractor(model_name, pretrained=True, model_path=None, device=device, source=source)
+extractor = Extractor(
+  model_name=model_name,
+  pretrained=True,
+  model_path=None,
+  device=device,
+  source=source,
+)
 module_name = extractor.show_model()
 
 Sequential(
@@ -497,66 +303,7 @@ Sequential(
     (nonlin2): ReLU(inplace=True)
     (output): Identity()
   )
-  (V2): CORblock_S(
-    (conv_input): Conv2d(64, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
-    (skip): Conv2d(128, 128, kernel_size=(1, 1), stride=(2, 2), bias=False)
-    (norm_skip): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-    (conv1): Conv2d(128, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
-    (nonlin1): ReLU(inplace=True)
-    (conv2): Conv2d(512, 512, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False)
-    (nonlin2): ReLU(inplace=True)
-    (conv3): Conv2d(512, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
-    (nonlin3): ReLU(inplace=True)
-    (output): Identity()
-    (norm1_0): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-    (norm2_0): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-    (norm3_0): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-    (norm1_1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-    (norm2_1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-    (norm3_1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-  )
-  (V4): CORblock_S(
-    (conv_input): Conv2d(128, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
-    (skip): Conv2d(256, 256, kernel_size=(1, 1), stride=(2, 2), bias=False)
-    (norm_skip): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-    (conv1): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
-    (nonlin1): ReLU(inplace=True)
-    (conv2): Conv2d(1024, 1024, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False)
-    (nonlin2): ReLU(inplace=True)
-    (conv3): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
-    (nonlin3): ReLU(inplace=True)
-    (output): Identity()
-    (norm1_0): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-    (norm2_0): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-    (norm3_0): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-    (norm1_1): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-    (norm2_1): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-    (norm3_1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-    (norm1_2): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-    (norm2_2): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-    (norm3_2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-    (norm1_3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-    (norm2_3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-    (norm3_3): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-  )
-  (IT): CORblock_S(
-    (conv_input): Conv2d(256, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
-    (skip): Conv2d(512, 512, kernel_size=(1, 1), stride=(2, 2), bias=False)
-    (norm_skip): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-    (conv1): Conv2d(512, 2048, kernel_size=(1, 1), stride=(1, 1), bias=False)
-    (nonlin1): ReLU(inplace=True)
-    (conv2): Conv2d(2048, 2048, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False)
-    (nonlin2): ReLU(inplace=True)
-    (conv3): Conv2d(2048, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
-    (nonlin3): ReLU(inplace=True)
-    (output): Identity()
-    (norm1_0): BatchNorm2d(2048, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-    (norm2_0): BatchNorm2d(2048, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-    (norm3_0): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-    (norm1_1): BatchNorm2d(2048, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-    (norm2_1): BatchNorm2d(2048, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-    (norm3_1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-  )
+  ...
   (decoder): Sequential(
     (avgpool): AdaptiveAvgPool2d(output_size=1)
     (flatten): Flatten()
@@ -565,8 +312,7 @@ Sequential(
   )
 )
 
-#Enter part of the model for which you would like to extract features:
-
+# enter part of the model for which you would like to extract features (e.g., penultimate layer)
 (e.g., "decoder.flatten")
 
 dataset = ImageDataset(
@@ -604,22 +350,33 @@ class_names = None  # optional list of class names for class dataset
 file_names = None # optional list of file names according to which features should be sorted
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
+
 # initialize extractor module
-extractor = Extractor(model_name, pretrained=True, model_path=None, device=device, source=source)
-dataset = ImageDataset(
-        root=root,
-        out_path='path/to/features',
-        backend=extractor.backend,
-        transforms=extractor.get_transformations(),
-        class_names=class_names,
-        file_names=file_names,
+extractor = Extractor(
+  model_name=model_name,
+  pretrained=True,
+  model_path=None,
+  device=device,
+  source=source,
 )
-batches = DataLoader(dataset=dataset, batch_size=batch_size, backend=extractor.backend)
+dataset = ImageDataset(
+  root=root,
+  out_path='path/to/features',
+  backend=extractor.backend,
+  transforms=extractor.get_transformations(),
+  class_names=class_names,
+  file_names=file_names,
+)
+batches = DataLoader(
+  dataset=dataset,
+  batch_size=batch_size,
+  backend=extractor.backend,
+)
 features = extractor.extract_features(
-				batches=batches,
-				module_name=module_name,
-				flatten_acts=False,
-				clip=False,
+  batches=batches,
+  module_name=module_name,
+  flatten_acts=False,
+  clip=False,
 )
 save_features(features, out_path='path/to/features', file_format='npy')
 ```
@@ -632,12 +389,37 @@ Center cropping is used by default but can be deactivated by turning off the `ap
 root = 'path/to/images'
 apply_center_crop = False
 dataset = ImageDataset(
-        root=root,
-        out_path='path/to/features',
-        backend=extractor.backend,
-        transforms=model.get_transformations(apply_center_crop=apply_center_crop),
-        class_names=class_names,
-        file_names=file_names,
+  root=root,
+  out_path='path/to/features',
+  backend=extractor.backend,
+  transforms=model.get_transformations(apply_center_crop=apply_center_crop),
+  class_names=class_names,
+  file_names=file_names,
+)
+```
+
+## Using HDF5 datasets (e.g. NSD stimuli)
+
+You can also extract features for images stored in HDF5 dataset. For this you can simply replace `ImageDataset` with `HDF5Dataset`, providing the path to the HDF5 file as `hdf5_fp` and the name of the dataset containing the images as `img_ds_key`. 
+
+Optionally, you can specify which images to extract features for by providing a list of indices as `img_indices`, otherwise features for all images will be extracted. 
+
+The following example demonstrates how to extract features for images corresponding to the NSD stimuli dataset shown to subject 1:
+
+```python
+from thingsvision.utils.data import HDF5Dataset
+
+# get indices of all 10000 images shown to first subject
+img_indices = np.unique(
+    experiment['subjectim'][:, experiment['masterordering'][0] - 1][0]
+)
+
+dataset = HDF5Dataset(
+    hdf5_fp="<path_to_nsd>/nsddata_stimuli/stimuli/nsd_stimuli.hdf5",
+    img_ds_key="imgBrick",
+    transforms=extractor.get_transformations(),
+    backend=extractor.backend,
+    img_indices=img_indices
 )
 ```
 
@@ -649,38 +431,14 @@ If you want to use a custom model from the `custom_models` directory, you need t
 from thingsvision import Extractor
 model_name = 'VGG16_ecoset'
 source = 'custom'
-extractor = Extractor(model_name, pretrained=True, model_path=None, device=device, custom=custom)
+extractor = Extractor(
+  model_name=model_name, 
+  pretrained=True, 
+  model_path=None, 
+  device=device, 
+  source=custom,
+)
 ```
-
-## Representational Similarity Analysis (RSA) 
-
-Compare representational (dis-)similarity matrices (RDMs) corresponding to model features and human representations (e.g., fMRI recordings).
-
-```python
-from thingsvision.core.rsa import compute_rdm, correlate_rdms
-rdm_dnn = compute_rdm(features, method='correlation')
-corr_coeff = correlate_rdms(rdm_dnn, rdm_human, correlation='pearson')
-```
-
-## Centered Kernel Alignment (CKA)
-
-Perform CKA to compare image features of two different model architectures for the same layer, or two different layers of the same architecture.
-
-```python
-from thingsvision.core.cka import CKA
-m = # number of images (e.g., features_i.shape[0])
-kernel = 'linear'
-cka = CKA(m=m, kernel=kernel)
-rho = cka.compare(X=features_i, Y=features_j)
-```
-
-## OpenAI's CLIP models
-
-### CLIP
-
-[[Blog]](https://openai.com/blog/clip/) [[Paper]](https://cdn.openai.com/papers/Learning_Transferable_Visual_Models_From_Natural_Language_Supervision.pdf) [[Model Card]](model-card.md) [[Colab]](https://colab.research.google.com/github/openai/clip/blob/master/Interacting_with_CLIP.ipynb)
-
-CLIP (Contrastive Language-Image Pre-Training) is a neural network trained on a variety of (image, text) pairs. It can be instructed in natural language to predict the most relevant text snippet, given an image, without directly optimizing for the task, similarly to the zero-shot capabilities of GPT-2 and 3. We found CLIP matches the performance of the original ResNet50 on ImageNet “zero-shot” without using any of the original 1.28M labeled examples, overcoming several major challenges in computer vision.
 
 ## Adding custom models
 
@@ -706,28 +464,28 @@ class VGG16_ecoset(Custom):
           return model, self.preprocess
 ```
 
-## Using HDF5 datasets (e.g. NSD stimuli)
+## Representational Similarity Analysis (RSA) 
 
-You can also extract features for images stored in HDF5 dataset. For this you can simply replace `ImageDataset` with `HDF5Dataset`, providing the path to the HDF5 file as `hdf5_fp` and the name of the dataset containing the images as `img_ds_key`. 
+Compare representational (dis-)similarity matrices (RDMs) corresponding to model features and human representations (e.g., fMRI recordings).
 
-Optionally, you can specify which images to extract features for by providing a list of indices as `img_indices`, otherwise features for all images will be extracted. 
-
-The following examples shows how to extract features for images of the NSD stimuli dataset shown to subject 1:
 ```python
-from thingsvision.utils.data import HDF5Dataset
+from thingsvision.core.rsa import compute_rdm, correlate_rdms
 
-# get indices of all 10000 images shown to first subject
-img_indices = np.unique(
-    experiment['subjectim'][:, experiment['masterordering'][0] - 1][0]
-)
+rdm_dnn = compute_rdm(features, method='correlation')
+corr_coeff = correlate_rdms(rdm_dnn, rdm_human, correlation='pearson')
+```
 
-dataset = HDF5Dataset(
-    hdf5_fp="<path_to_nsd>/nsddata_stimuli/stimuli/nsd_stimuli.hdf5",
-    img_ds_key="imgBrick",
-    transforms=extractor.get_transformations(),
-    backend=extractor.backend,
-    img_indices=img_indices
-)
+## Centered Kernel Alignment (CKA)
+
+Perform CKA to compare image features of two different model architectures for the same layer, or two different layers of the same architecture.
+
+```python
+from thingsvision.core.cka import CKA
+
+m = # number of images (e.g., features_i.shape[0])
+kernel = 'linear'
+cka = CKA(m=m, kernel=kernel)
+rho = cka.compare(X=features_i, Y=features_j)
 ```
 
 ## Citation
