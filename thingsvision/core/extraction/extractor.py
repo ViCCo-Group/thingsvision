@@ -208,10 +208,10 @@ class Extractor:
         else:
             print(self.model.summary())
         module_names = self.get_module_names()
-        module_name = self.prompt_user(model_names)  
+        module_name = self.prompt_user(model_names)
         return module_name
-
-     def show(self) -> str:
+    
+    def show(self) -> str:
         warnings.warn(
             "\nThe .show() method is deprecated and will be removed in future versions. Use .show_model() instead.\n"
         )
