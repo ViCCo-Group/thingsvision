@@ -1,7 +1,7 @@
 import re
 import warnings
 from dataclasses import dataclass, field
-from typing import Any, Iterator, Tuple
+from typing import Any, Iterator, List, Tuple
 
 import numpy as np
 import tensorflow as tf
@@ -172,11 +172,27 @@ class Extractor:
             self.model.eval()
             self.model = self.model.to(device)
 
-    def show(self) -> str:
-        warnings.warn(
-            "\nThe .show() method is deprecated and will be removed in future versions. Use .show_model() instead.\n"
-        )
-        return self.show_model()
+    def get_module_names(self) -> List[str]:
+        if self.backend == 'pt':
+            module_names, _ = zip(*self.model.named_modules())
+            module_names = list(filter(lambda n: len(n) > 0, module_names))
+        else:
+            module_names = [l._name for l in self.model.submodules]
+        return module_names
+
+    @staticmethod
+    def prompt_user(module_names: List[str]) -> str:
+        print("\nEnter module/layer name for which you would like to extract features:\n")
+        valid_input = False
+        while not valid_input:
+            module_name = str(input())
+            print()
+            if module_name in module_names:
+                valid_input = True
+            else:
+                warnings.warn("\nThe entered module name is not a valid module name.")
+                warnings.warn(f"Please choose a name from the following set of modules: {module_names}\n")
+        return module_name
 
     def show_model(self) -> str:
         """Show architecture of model to select a specific module."""
@@ -191,10 +207,15 @@ class Extractor:
                 print(self.model)
         else:
             print(self.model.summary())
-        print("\nEnter module name for which you would like to extract features:\n")
-        module_name = str(input())
-        print()
+        module_names = self.get_module_names()
+        module_name = self.prompt_user(model_names)      
         return module_name
+
+     def show(self) -> str:
+        warnings.warn(
+            "\nThe .show() method is deprecated and will be removed in future versions. Use .show_model() instead.\n"
+        )
+        return self.show_model()
 
     def tf_extraction(
         self,
