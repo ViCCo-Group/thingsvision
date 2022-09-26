@@ -1,4 +1,3 @@
-import re
 import warnings
 from dataclasses import dataclass, field
 from typing import Any, Iterator, List, Tuple
@@ -29,9 +28,7 @@ class Extractor:
     device: str
     source: str
     model_path: str = None
-    model_parameters: Any = field(
-        default_factory=lambda: {}
-    )
+    model_parameters: Any = field(default_factory=lambda: {})
     """
     Parameters
     ----------
@@ -173,7 +170,7 @@ class Extractor:
             self.model = self.model.to(device)
 
     def get_module_names(self) -> List[str]:
-        if self.backend == 'pt':
+        if self.backend == "pt":
             module_names, _ = zip(*self.model.named_modules())
             module_names = list(filter(lambda n: len(n) > 0, module_names))
         else:
@@ -182,7 +179,9 @@ class Extractor:
 
     @staticmethod
     def prompt_user(module_names: List[str]) -> str:
-        print("\nEnter module/layer name for which you would like to extract features:\n")
+        print(
+            "\nEnter module/layer name for which you would like to extract features:\n"
+        )
         valid_input = False
         while not valid_input:
             module_name = str(input())
@@ -191,7 +190,9 @@ class Extractor:
                 valid_input = True
             else:
                 warnings.warn("\nThe entered module name is not a valid module name.")
-                warnings.warn(f"Please choose a name from the following set of modules: {module_names}\n")
+                warnings.warn(
+                    f"Please choose a name from the following set of modules: {module_names}\n"
+                )
         return module_name
 
     def show_model(self) -> str:
@@ -208,9 +209,9 @@ class Extractor:
         else:
             print(self.model.summary())
         module_names = self.get_module_names()
-        module_name = self.prompt_user(model_names)
+        module_name = self.prompt_user(module_names)
         return module_name
-    
+
     def show(self) -> str:
         warnings.warn(
             "\nThe .show() method is deprecated and will be removed in future versions. Use .show_model() instead.\n"
@@ -357,7 +358,7 @@ class Extractor:
     ) -> Any:
         """Load image transformations for a specific model. Image transformations depend on the backend."""
         if self.preprocess:
-            return self.preprocess            
+            return self.preprocess
         else:
             mean = [0.485, 0.456, 0.406]
             std = [0.229, 0.224, 0.225]
