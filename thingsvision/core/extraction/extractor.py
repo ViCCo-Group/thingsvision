@@ -182,12 +182,12 @@ class Extractor:
         print(
             "\nEnter module/layer name for which you would like to extract features:\n"
         )
-        valid_input = False
-        while not valid_input:
+        valid_name = False
+        while not valid_name:
             module_name = str(input())
             print()
             if module_name in module_names:
-                valid_input = True
+                valid_name = True
             else:
                 warnings.warn("\nThe entered module name is not a valid module name.")
                 warnings.warn(
