@@ -197,10 +197,10 @@ class Extractor:
     def show_model(self) -> str:
         """Show architecture of model to select a specific module."""
         if self.backend == "pt":
-            if re.search(r"^clip", self.model_name):
+            if self.model_name.lower().startswith("clip"):
                 for l, (n, p) in enumerate(self.model.named_modules()):
                     if l > 1:
-                        if re.search(r"^visual", n):
+                        if n.startswith("visual"):
                             print(n)
                 print("visual")
             else:
