@@ -43,7 +43,7 @@ class BaseExtractor:
         return self.show_model()
 
     def show_model(self) -> str:
-        raise NotImplementedError
+        return self._show_model()
 
     def extract_features(
         self,
@@ -155,7 +155,7 @@ class PyTorchMixin:
 
         return act
 
-    def show_model(self) -> str:
+    def _show_model(self) -> str:
         return self.model
 
     def load_model(self) -> Any:
@@ -207,7 +207,7 @@ class TensorFlowMixin:
         features = np.vstack(features)
         return features
 
-    def show_model(self) -> str:
+    def _show_model(self) -> str:
         return self.model.summary()
 
     def load_model(self) -> Any:
