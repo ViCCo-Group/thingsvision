@@ -89,7 +89,7 @@ class BaseExtractor:
         else:
             mean = [0.485, 0.456, 0.406]
             std = [0.229, 0.224, 0.225]
-            composition = self.get_default_transformations(mean, std, resize_dim, crop_dim, apply_center_crop)
+            composition = self.get_default_transformation(mean, std, resize_dim, crop_dim, apply_center_crop)
         return composition
 
 
