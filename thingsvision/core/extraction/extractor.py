@@ -27,6 +27,7 @@ Array = np.ndarray
 @dataclass
 class BaseExtractor:
     model_name: str
+    pretrained: bool
     device: str
     model_path: str
     model_parameters: Any = field(default_factory=lambda: {})
@@ -237,11 +238,13 @@ class TorchvisionExtractor(BaseExtractor, PyTorchMixin):
     def __init__(
         self,
         model_name: str,
+        pretrained: bool, 
         device: str,
         model_path: str,
-        model_parameters: Dict = None
+        model_parameters: Dict = None,
+        preprocess: Any = None
     ):
-        super().__init__(model_name, device, model_path, model_parameters)
+        super().__init__(model_name, device, model_path, pretrained, model_parameters, preprocess)
         self.model_parameters = model_parameters if model_parameters else {
             "weights": "DEFAULT"
         }
@@ -263,7 +266,7 @@ class TorchvisionExtractor(BaseExtractor, PyTorchMixin):
         """Load a (pretrained) neural network model from <torchvision>."""
         if hasattr(torchvision_models, self.model_name):
             model = getattr(torchvision_models, self.model_name)
-            if self.model_parameters['weights']:
+            if self.pretrained:
                 self.weights = self.get_weights(self.model_name)
             else:
                 self.weights = None
@@ -286,19 +289,18 @@ class TimmExtractor(BaseExtractor, PyTorchMixin):
     def __init__(
         self,
         model_name: str,
+        pretrained: bool,
+        device: str,
         model_path: str,
-        device: str = "cuda",
         model_parameters: Dict = None,
+        preprocess: Any = None
     ):
-        super().__init__(model_name, model_path, device)
-        self.model_parameters = model_parameters if model_parameters else {
-            "pretrained": True
-        }
+        super().__init__(model_name, model_path, device, pretrained, model_parameters, preprocess)
 
     def load_model_from_source(self) -> Tuple[Any, str]:
         """Load a (pretrained) neural network model from <timm>."""
         if self.model_name in timm.list_models():
-            self.model = timm.create_model(self.model_name, self.model_parameters['pretrained'])
+            self.model = timm.create_model(self.model_name, self.pretrained)
         else:
             raise ValueError(
                 f"\nCould not find {self.model_name} in timm library.\nChoose a different model.\n"
@@ -309,11 +311,13 @@ class KerasExtractor(BaseExtractor, TensorFlowMixin):
     def __init__(
         self,
         model_name: str,
+        pretrained: bool,
+        device: str,
         model_path: str,
-        device: str = "cuda",
         model_parameters: Dict = None,
+        preprocess: Any = None
     ):
-        super().__init__(model_name, model_path, device)
+        super().__init__(model_name, model_path, device, pretrained, model_parameters, preprocess)
         self.model_parameters = model_parameters if model_parameters else {
             "weights": "imagenet"
         }
@@ -322,7 +326,7 @@ class KerasExtractor(BaseExtractor, TensorFlowMixin):
         """Load a (pretrained) neural network model from <keras>."""
         if hasattr(tensorflow_models, self.model_name):
             model = getattr(tensorflow_models, self.model_name)
-            if self.model_parameters['weights']:
+            if self.pretrained:
                 weights = self.model_parameters['weights']
             elif self.model_path:
                 weights = self.model_path
@@ -337,23 +341,20 @@ class KerasExtractor(BaseExtractor, TensorFlowMixin):
 
 def create_custom_extractor(
     model_name: str,
+    pretrained: bool,
+    device: str,
     model_path: str,
-    device: str = "cuda",
     model_parameters: Dict = None
 ) -> Any:
     """Create a custom extractor from a pretrained model."""
     if model_name.startswith("cornet"):
-        model_parameters = model_parameters if model_parameters else {
-            'pretrained': True
-        }
-
         backend = "pt"
         try:
             model = getattr(cornet, f"cornet_{model_name[-1]}")
         except AttributeError:
             model = getattr(cornet, f"cornet_{model_name[-2:]}")
         model = model(
-            pretrained=model_parameters['pretrained'], map_location=torch.device(device)
+            pretrained=pretrained, map_location=torch.device(device)
         )
         model = model.module  # remove DataParallel
     elif hasattr(custom_models, model_name):
@@ -372,7 +373,8 @@ def create_custom_extractor(
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
 
-    if model_name.lower().startswith('clip'):
+    #TODO: this should probably be defined in the custom model itself
+    if model_name.lower().startswith('clip'):  
         def show_model(self):
             for l, (n, p) in enumerate(self.model.named_modules()):
                 if l > 1:
@@ -404,9 +406,10 @@ def create_custom_extractor(
         CustomExtractor.flatten_acts = flatten_acts
 
     custom_extractor = CustomExtractor(
-        model_name, 
-        model_path, 
-        device, 
+        model_name=model_name, 
+        pretrained=pretrained,
+        device=device, 
+        model_path=model_path, 
         model=model, 
         preprocess=preprocess
     )
@@ -454,6 +457,9 @@ def create_model_extractor(
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
 
+    if forward_fn:
+        ModelExtractor.forward = forward_fn
+
     model_extractor = ModelExtractor(
         model_name="custom", 
         model_path=None, 
@@ -467,20 +473,28 @@ def create_model_extractor(
 
 def get_extractor(
     model_name: str,
-    model_path: str,
     device: str,
     source: str,
+    model_path: str,
     model_parameters: Dict = None,
 ) -> Any:
+
+    model_args = {
+        "model_name": model_name,
+        "model_path": model_path,
+        "device": device,
+        "model_parameters": model_parameters,
+    }
+
     """Get a model extractor from <source> library."""
     if source == "torchvision":
-        return TorchvisionExtractor(model_name, model_path, device, model_parameters)
+        return TorchvisionExtractor(**model_args)
     elif source == "timm":
-        return TimmExtractor(model_name, model_path, device, model_parameters)
+        return TimmExtractor(**model_args)
     elif source == "keras":
-        return KerasExtractor(model_name, model_path, device, model_parameters)
+        return KerasExtractor(**model_args)
     elif source == "custom":
-        return create_custom_extractor(model_name, model_path, device, model_parameters)
+        return create_custom_extractor(**model_args)
     else:
         raise ValueError(
             f"\nCould not find {source} library.\nChoose a different source.\n"
