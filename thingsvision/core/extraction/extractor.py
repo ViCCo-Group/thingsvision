@@ -93,8 +93,10 @@ class BaseExtractor:
         return composition
 
 
-
+@dataclass
 class PyTorchMixin:
+    backend: str = 'pt'
+
     def get_activation(self, name: str) -> Any:
         """Store copy of hidden unit activations at each layer of model."""
 
@@ -181,8 +183,10 @@ class PyTorchMixin:
         return composition
 
 
-
+@dataclass
 class TensorFlowMixin:
+    backend: str = 'tf'
+
     def _extract_features(
         self, 
         batches: Iterator,
