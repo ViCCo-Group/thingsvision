@@ -471,6 +471,7 @@ def create_model_extractor(
 
 def get_extractor(
     model_name: str,
+    pretrained: bool,
     device: str,
     source: str,
     model_path: str,
@@ -481,6 +482,7 @@ def get_extractor(
         "model_name": model_name,
         "model_path": model_path,
         "device": device,
+        "pretrained": pretrained,
         "model_parameters": model_parameters,
     }
 
