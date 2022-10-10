@@ -19,7 +19,7 @@ class ModelLoadingTestCase(unittest.TestCase):
             self.assertEqual(e.exception, expected_exception)
 
     def test_mode_and_device(self):
-        model_name = "vgg16_bn"
+        model_name = "vgg16"
         extractor, _, _ = helper.create_extractor_and_dataloader(
             model_name, pretrained=False, source="torchvision"
         )
@@ -49,7 +49,7 @@ class ModelLoadingTestCase(unittest.TestCase):
 
     def test_load_custom_user_model(self):
         source = "custom"
-        model_name = "VGG16bn_ecoset"
+        model_name = "VGG16_ecoset"
         self.check_model_loading(
             model_name=model_name, expected_class_name="VGG", source=source
         )
@@ -62,6 +62,11 @@ class ModelLoadingTestCase(unittest.TestCase):
         model_name = "Alexnet_ecoset"
         self.check_model_loading(
             model_name=model_name, expected_class_name="AlexNet", source=source
+        )
+
+        model_name = "Inception_ecoset"
+        self.check_model_loading(
+            model_name=model_name, expected_class_name="Inception3", source=source
         )
 
         model_name = "random"

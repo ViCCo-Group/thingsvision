@@ -8,10 +8,11 @@ requirements = [
                 'numba==0.56.*',
                 'ftfy',
                 'numpy==1.22.*',
-                'pandas==1.4.2',
+                'pandas==1.4.*',
                 'tensorflow==2.9.*',
                 'torch==1.12.*',
                 'torchvision==0.13.*',
+                'open_clip_torch==2.0.*',
                 'tqdm==4.64.0',
                 'timm==0.6.*',
                 'regex',
@@ -19,11 +20,12 @@ requirements = [
                 'scikit-learn==1.1.*',
                 'scipy==1.8.1',
                 'h5py==3.7.0',
+                'CLIP'
                 ]
 
 setuptools.setup(
                 name="thingsvision",
-                version="2.0.7",
+                version="2.1.4",
                 author="Lukas Muttenthaler",
                 author_email="muttenthaler@cbs.mpg.de",
                 description="Extracting image features from state-of-the-art neural networks for Computer Vision made easy",
@@ -41,4 +43,5 @@ setuptools.setup(
                     "Operating System :: OS Independent",
                 ],
                 python_requires='>=3.8',
+                dependency_links=['git+https://github.com/openai/CLIP.git']
 )

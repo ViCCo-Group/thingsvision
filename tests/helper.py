@@ -49,14 +49,17 @@ MODEL_AND_MODULE_NAMES = {
         "pretrained": True,
         "source": "custom",
     },
-    "clip-ViT": {"modules": ["visual"], "pretrained": True, "source": "custom"},
-    "clip-RN": {"modules": ["visual"], "pretrained": False, "source": "custom"},
+
     # Custom models
-    "VGG16bn_ecoset": {
+    "VGG16_ecoset": {
         "modules": ["classifier.3"],
         "pretrained": True,
         "source": "custom",
     },
+    "clip": {"modules": ["visual"], "pretrained": True, "source": "custom", 'clip': True, 'kwargs': {'variant': 'ViT-B/32'}},
+    "clip": {"modules": ["visual"], "pretrained": True, "source": "custom", 'clip': True, 'kwargs': {'variant': 'RN50'}},
+    "OpenCLIP": {"modules": ["visual"], "pretrained": True, "source": "custom", 'clip': True, 'kwargs': {'variant': 'ViT-B-32', 'dataset': 'openai'}},
+
     # Timm models
     "mixnet_l": {"modules": ["conv_head"], "pretrained": True, "source": "timm"},
     "gluon_inception_v3": {
@@ -145,18 +148,20 @@ def iterate_through_all_model_combinations():
     for model_name in MODEL_AND_MODULE_NAMES:
         pretrained = MODEL_AND_MODULE_NAMES[model_name]["pretrained"]
         source = MODEL_AND_MODULE_NAMES[model_name]["source"]
+        kwargs = MODEL_AND_MODULE_NAMES[model_name].get('kwargs', {})
         extractor, dataset, batches = create_extractor_and_dataloader(
-            model_name, pretrained, source
+            model_name, pretrained, source, kwargs
         )
 
         modules = MODEL_AND_MODULE_NAMES[model_name]["modules"]
-        yield extractor, dataset, batches, modules, model_name
+        clip = MODEL_AND_MODULE_NAMES[model_name].get('clip', False)
+        yield extractor, dataset, batches, modules, model_name, clip
 
 
-def create_extractor_and_dataloader(model_name: str, pretrained: bool, source: str):
+def create_extractor_and_dataloader(model_name: str, pretrained: bool, source: str, kwargs: dict={}):
     """Iterate through models and create model, dataset and data loader."""
     extractor = Extractor(
-        model_name=model_name, pretrained=pretrained, device=DEVICE, source=source
+        model_name=model_name, pretrained=pretrained, device=DEVICE, source=source, model_parameters=kwargs
     )
     dataset = ImageDataset(
         root=TEST_PATH,
