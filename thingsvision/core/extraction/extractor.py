@@ -242,10 +242,17 @@ class TorchvisionExtractor(BaseExtractor, PyTorchMixin):
         model_parameters: Dict = None,
         preprocess: Any = None
     ):
-        super().__init__(model_name, device, model_path, pretrained, model_parameters, preprocess)
-        self.model_parameters = model_parameters if model_parameters else {
+        model_parameters = model_parameters if model_parameters else {
             "weights": "DEFAULT"
         }
+        super().__init__(
+            model_name=model_name, 
+            pretrained=pretrained, 
+            model_path=model_path, 
+            model_parameters=model_parameters, 
+            preprocess=preprocess,
+            device=device
+        )
 
     def get_weights(self, model_name: str, suffix: str = "_weights") -> Any:
         weights_name = None
@@ -293,7 +300,14 @@ class TimmExtractor(BaseExtractor, PyTorchMixin):
         model_parameters: Dict = None,
         preprocess: Any = None
     ):
-        super().__init__(model_name, model_path, device, pretrained, model_parameters, preprocess)
+        super().__init__(
+            model_name=model_name, 
+            pretrained=pretrained, 
+            model_path=model_path, 
+            model_parameters=model_parameters, 
+            preprocess=preprocess,
+            device=device
+        )
 
     def load_model_from_source(self) -> Tuple[Any, str]:
         """Load a (pretrained) neural network model from <timm>."""
@@ -315,10 +329,18 @@ class KerasExtractor(BaseExtractor, TensorFlowMixin):
         model_parameters: Dict = None,
         preprocess: Any = None
     ):
-        super().__init__(model_name, model_path, device, pretrained, model_parameters, preprocess)
-        self.model_parameters = model_parameters if model_parameters else {
+        model_parameters = model_parameters if model_parameters else {
             "weights": "imagenet"
         }
+        super().__init__(
+            model_name=model_name, 
+            pretrained=pretrained, 
+            model_path=model_path, 
+            model_parameters=model_parameters, 
+            preprocess=preprocess,
+            device=device
+        )
+        
 
     def load_model_from_source(self) -> Tuple[Any, str]:
         """Load a (pretrained) neural network model from <keras>."""
