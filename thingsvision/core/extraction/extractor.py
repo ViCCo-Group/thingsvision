@@ -27,10 +27,10 @@ class BaseExtractor:
     model_name: str
     pretrained: bool
     device: str
-    model_path: str
+    model_path: str = field(init=False, default=None)
     model_parameters: Any = field(default_factory=lambda: {})
     model: Any = field(init=False, default=None)
-    preprocess: Any = None
+    preprocess: Any = field(init=False, default=None)
 
     def __post_init__(self):
         if not self.model:
@@ -238,7 +238,7 @@ class TorchvisionExtractor(BaseExtractor, PyTorchMixin):
         model_name: str,
         pretrained: bool, 
         device: str,
-        model_path: str,
+        model_path: str = None,
         model_parameters: Dict = None,
         preprocess: Any = None
     ):
@@ -289,7 +289,7 @@ class TimmExtractor(BaseExtractor, PyTorchMixin):
         model_name: str,
         pretrained: bool,
         device: str,
-        model_path: str,
+        model_path: str = None,
         model_parameters: Dict = None,
         preprocess: Any = None
     ):
@@ -311,7 +311,7 @@ class KerasExtractor(BaseExtractor, TensorFlowMixin):
         model_name: str,
         pretrained: bool,
         device: str,
-        model_path: str,
+        model_path: str = None,
         model_parameters: Dict = None,
         preprocess: Any = None
     ):
@@ -341,7 +341,7 @@ def create_custom_extractor(
     model_name: str,
     pretrained: bool,
     device: str,
-    model_path: str,
+    model_path: str = None,
     model_parameters: Dict = None
 ) -> Any:
     """Create a custom extractor from a pretrained model."""
@@ -474,7 +474,7 @@ def get_extractor(
     pretrained: bool,
     device: str,
     source: str,
-    model_path: str,
+    model_path: str = None,
     model_parameters: Dict = None,
 ) -> Any:
 
