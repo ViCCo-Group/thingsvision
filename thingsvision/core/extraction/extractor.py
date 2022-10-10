@@ -139,7 +139,7 @@ class PyTorchMixin:
                 _ = self.forward(batch, module_name)
             act = activations[module_name]
             if flatten_acts:
-                act = self.flatten_act(act, batch, module_name)
+                act = self.flatten_acts(act, batch, module_name)
             features.append(act.cpu().numpy())
         features = np.vstack(features)
 
