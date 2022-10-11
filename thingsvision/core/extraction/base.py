@@ -2,11 +2,8 @@ import warnings
 from dataclasses import dataclass, field
 from typing import Any, Iterator
 
-Tensor = torch.Tensor
-Array = np.ndarray
 
-
-@dataclass(repr=True)
+@dataclass(init=True, repr=True)
 class BaseExtractor:
     model_name: str
     pretrained: bool
@@ -16,7 +13,7 @@ class BaseExtractor:
     model: Any = None
     preprocess: Any = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if not self.model:
             self.load_model()
 
@@ -52,7 +49,7 @@ class BaseExtractor:
             should be transformed into a vector.
          Returns
         -------
-        output : Array
+        output : np.ndarray
             Returns the feature matrix (e.g., X \in \mathbb{R}^{n \times p} if head or flatten_acts = True).
         """
         features = self._extract_features(batches, module_name, flatten_acts)
