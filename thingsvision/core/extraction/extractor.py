@@ -117,7 +117,6 @@ class PyTorchMixin:
         """Register a forward hook to store activations."""
         for n, m in self.model.named_modules():
             m.register_forward_hook(self.get_activation(n))
-        return self.model
 
     @torch.no_grad()
     def _extract_features(
@@ -125,35 +124,31 @@ class PyTorchMixin:
         batches: Iterator,
         module_name: str,
         flatten_acts: bool
-    ):
+    ) -> Array:
         device = torch.device(self.device)
         # initialise an empty dict to store features for each mini-batch
         global activations
         activations = {}
-        # register a forward hook to store features
-        _ = self.register_hook()
+        # register forward hook to store features
+        self.register_hook()
         features = []
-        for batch in tqdm(batches):
+        for batch in tqdm(batches, desc="Batch"):
             batch = batch.to(device)
-            with torch.no_grad():
-                _ = self.forward(batch, module_name)
+            _ = self.forward(batch)
             act = activations[module_name]
             if flatten_acts:
-                act = self.flatten_acts(act, batch, module_name)
+                act = self.flatten_acts(act)
             features.append(act.cpu().numpy())
         features = np.vstack(features)
-
         return features
 
-    def forward(self, batch: Tensor, module_name: str) -> Tensor:
+    def forward(self, batch: Tensor) -> Tensor:
         """Default forward pass."""
         return self.model(batch)
 
-    def flatten_acts(self, act: Tensor, img: Tensor, module_name: str) -> Tensor:
-        """Default flatten of activations."""
-        act = act.view(act.size(0), -1)
-
-        return act
+    def flatten_acts(self, act: Tensor) -> Tensor:
+        """Default flattening of activations."""
+        return act.view(act.size(0), -1)
 
     def _show_model(self) -> str:
         return self.model
@@ -225,6 +220,7 @@ class TensorFlowMixin:
             pass
             # TODO: fix center crop problem with Keras
             # composes.append(layers.experimental.preprocessing.CenterCrop(crop_dim, crop_dim))
+
         composes += [
             layers.experimental.preprocessing.Normalization(
                 mean=mean, variance=[std_ * std_ for std_ in std]
