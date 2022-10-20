@@ -1,5 +1,5 @@
 import warnings
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Iterator, Tuple
 
 import numpy as np
@@ -11,11 +11,13 @@ from tensorflow.keras import layers
 from torchvision import transforms as T
 from tqdm import tqdm
 
+Tensor = torch.Tensor
+Array = np.ndarray
+
 
 @dataclass
 class PyTorchMixin:
-    backend: str = 'pt'
-
+    backend: str = field(init=False, default='pt')
     def get_activation(self, name: str) -> Any:
         """Store copy of hidden unit activations at each layer of model."""
 
@@ -96,10 +98,13 @@ class PyTorchMixin:
 
         return composition
 
+    def get_backend(self) -> str:
+        return "pt"
+
 
 @dataclass
 class TensorFlowMixin:
-    backend: str = 'tf'
+    backend: str = field(init=False, default='tf')
 
     def _extract_features(
         self, 
@@ -148,3 +153,6 @@ class TensorFlowMixin:
         composition = tf.keras.Sequential(composes)
 
         return composition
+
+    def get_backend(self) -> str:
+        return "tf"

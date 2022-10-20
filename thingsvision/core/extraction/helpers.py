@@ -5,11 +5,12 @@ import tensorflow as tf
 import thingsvision.custom_models as custom_models
 import thingsvision.custom_models.cornet as cornet
 
-from typing import Any, Dict
+from typing import Any, Dict, Callable
 from .base import BaseExtractor
 from .mixin import PyTorchMixin, TensorFlowMixin
 from .extractor import TorchvisionExtractor, TimmExtractor, KerasExtractor
 
+Tensor = torch.Tensor
 Array = np.ndarray
 AxisError = np.AxisError
 
@@ -127,7 +128,7 @@ def create_model_extractor(
     """
     backend_mixin = PyTorchMixin if backend == "pt" else TensorFlowMixin
 
-    class ModelExtractor(BaseExtractor, backend_mixin) -> None:
+    class ModelExtractor(BaseExtractor, backend_mixin):
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
 

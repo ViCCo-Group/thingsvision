@@ -7,7 +7,7 @@ from typing import Any, Iterator
 class BaseExtractor:
     model_name: str
     pretrained: bool
-    device: str 
+    device: str
     model_path: str = None
     model_parameters: Any = field(default_factory=lambda: {})
     model: Any = None

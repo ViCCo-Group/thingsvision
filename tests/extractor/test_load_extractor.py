@@ -1,7 +1,7 @@
 import unittest
 
 import tests.helper as helper
-from thingsvision import Extractor
+import thingsvision.core.extraction.helpers as core_helpers
 
 
 class ModelLoadingTestCase(unittest.TestCase):
@@ -10,12 +10,12 @@ class ModelLoadingTestCase(unittest.TestCase):
         helper.create_test_images()
 
     def check_model_loading(self, model_name, expected_class_name, source=None):
-        extractor = Extractor(model_name, False, "cpu", source=source)
+        extractor = core_helpers.get_extractor(model_name, pretrained=False, device="cpu", source=source)
         self.assertEqual(extractor.model.__class__.__name__, expected_class_name)
 
     def check_unknown_model_loading(self, model_name, expected_exception, source=None):
         with self.assertRaises(Exception) as e:
-            _ = Extractor(model_name, False, "cpu", source=source)
+            _ = core_helpers.get_extractor(model_name, pretrained=False, device="cpu", source=source)
             self.assertEqual(e.exception, expected_exception)
 
     def test_mode_and_device(self):

@@ -2,8 +2,9 @@ import unittest
 
 import numpy as np
 import tests.helper as helper
-from thingsvision import Extractor
 from thingsvision.utils.data import DataLoader
+import thingsvision.core.extraction.helpers as core_helpers
+
 
 
 class ExtractionPTvsTFTestCase(unittest.TestCase):
@@ -22,7 +23,7 @@ class ExtractionPTvsTFTestCase(unittest.TestCase):
             batch_size=1,
             backend=tf_backend,
         )
-        tf_model = Extractor(
+        tf_model = core_helpers.get_extractor(
             "VGG16", pretrained=False, device=helper.DEVICE, source=tf_source
         )
         tf_model.model = helper.tf_model
@@ -36,7 +37,7 @@ class ExtractionPTvsTFTestCase(unittest.TestCase):
             batch_size=1,
             backend=pt_backend,
         )
-        pt_model = Extractor(
+        pt_model = core_helpers.get_extractor(
             "vgg16", pretrained=False, device=helper.DEVICE, source=pt_source
         )
         pt_model.model = helper.pt_model

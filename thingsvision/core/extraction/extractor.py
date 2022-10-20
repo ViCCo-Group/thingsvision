@@ -27,18 +27,19 @@ class TorchvisionExtractor(BaseExtractor, PyTorchMixin):
         device: str,
         model_path: str = None,
         model_parameters: Dict = None,
-        preprocess: Any = None
+        preprocess: Any = None,
+
     ) -> None:
         model_parameters = model_parameters if model_parameters else {
             "weights": "DEFAULT"
-        }
+        },
         super().__init__(
             model_name=model_name, 
             pretrained=pretrained, 
             model_path=model_path, 
             model_parameters=model_parameters, 
             preprocess=preprocess,
-            device=device
+            device=device,
         )
 
     def get_weights(self, model_name: str, suffix: str = "_weights") -> Any:
@@ -94,7 +95,7 @@ class TimmExtractor(BaseExtractor, PyTorchMixin):
             model_path=model_path, 
             model_parameters=model_parameters, 
             preprocess=preprocess,
-            device=device
+            device=device,
         )
 
     def load_model_from_source(self) -> None:

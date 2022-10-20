@@ -9,8 +9,9 @@ import torch
 import torch.nn as nn
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.models import Sequential
-from thingsvision.core.extraction import Extractor
 from thingsvision.utils.data import DataLoader, ImageDataset
+from thingsvision.core.extraction.helpers import get_extractor
+
 
 DATA_PATH = "./data"
 TEST_PATH = "./test_images"
@@ -160,7 +161,7 @@ def iterate_through_all_model_combinations():
 
 def create_extractor_and_dataloader(model_name: str, pretrained: bool, source: str, kwargs: dict={}):
     """Iterate through models and create model, dataset and data loader."""
-    extractor = Extractor(
+    extractor = get_extractor(
         model_name=model_name, pretrained=pretrained, device=DEVICE, source=source, model_parameters=kwargs
     )
     dataset = ImageDataset(

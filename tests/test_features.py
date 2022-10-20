@@ -1,4 +1,5 @@
 import os
+import pdb
 import shutil
 import unittest
 
@@ -37,6 +38,7 @@ class FeaturesTestCase(unittest.TestCase):
             model_name=model_name, pretrained=False, source="torchvision"
         )
         module_name = "features.23"
+        pdb.set_trace()
         features = extractor.extract_features(
             batches=batches,
             module_name=module_name,
