@@ -1,3 +1,4 @@
+import pdb
 import warnings
 from dataclasses import dataclass, field
 from typing import Any, Iterator, Tuple
@@ -47,6 +48,7 @@ class PyTorchMixin:
         flatten_acts: bool
     ) -> Array:
         device = torch.device(self.device)
+        self.model = self.model.to(device)
         # initialise an empty dict to store features for each mini-batch
         global activations
         activations = {}
@@ -61,10 +63,13 @@ class PyTorchMixin:
                 act = self.flatten_acts(act)
             features.append(act.cpu().numpy())
         features = np.vstack(features)
+        torch.cuda.empty_cache()
         return features
 
     def forward(self, batch: Tensor) -> Tensor:
         """Default forward pass."""
+        if(self.model_name == 'OpenCLIP'):
+            return (self.model(batch, text=None))
         return self.model(batch)
 
     def flatten_acts(self, act: Tensor) -> Tensor:
@@ -88,6 +93,7 @@ class PyTorchMixin:
         self.model.eval()
         self.model = self.model.to(device)
 
+
     def get_default_transformation(self, mean, std, resize_dim: int = 256, crop_dim: int = 224, apply_center_crop: bool = True) -> Any:
         normalize = T.Normalize(mean=mean, std=std)
         composes = [T.Resize(resize_dim)]
@@ -100,6 +106,10 @@ class PyTorchMixin:
 
     def get_backend(self) -> str:
         return "pt"
+
+    def model_to_gpu(self):
+        self.model = self.model.to(torch.device(self.device))
+
 
 
 @dataclass
@@ -156,3 +166,7 @@ class TensorFlowMixin:
 
     def get_backend(self) -> str:
         return "tf"
+
+    #TF Models will automatically choose the GPU
+    def model_to_gpu(self):
+        pass

@@ -17,6 +17,20 @@ DATA_PATH = "./data"
 TEST_PATH = "./test_images"
 OUT_PATH = "./test"
 
+MODEL_AND_MODULE_NAMES_TF = {
+    "VGG16": {
+        "modules": ["block1_conv1", "flatten"],
+        "pretrained": True,
+        "source": "keras",
+    },
+    "VGG19": {
+        "modules": ["block1_conv1", "flatten"],
+        "pretrained": False,
+        "source": "keras",
+    },
+}
+
+
 MODEL_AND_MODULE_NAMES = {
     # Torchvision models
     "vgg16": {
@@ -89,7 +103,8 @@ BATCH_SIZE = 16
 NUM_OBJECTS = 1854
 # we want to iterate over two batches to exhaustively test mini-batching
 NUM_SAMPLES = int(BATCH_SIZE * 2)
-DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+#TODO: Redo
+DEVICE = "cpu" if torch.cuda.is_available() else "cpu"
 
 
 tf_model = Sequential()
@@ -147,6 +162,19 @@ class SimpleDataset(object):
 
 def iterate_through_all_model_combinations():
     for model_name in MODEL_AND_MODULE_NAMES:
+        pretrained = MODEL_AND_MODULE_NAMES[model_name]["pretrained"]
+        source = MODEL_AND_MODULE_NAMES[model_name]["source"]
+        kwargs = MODEL_AND_MODULE_NAMES[model_name].get('kwargs', {})
+        extractor, dataset, batches = create_extractor_and_dataloader(
+            model_name, pretrained, source, kwargs
+        )
+
+        modules = MODEL_AND_MODULE_NAMES[model_name]["modules"]
+        clip = MODEL_AND_MODULE_NAMES[model_name].get('clip', False)
+        yield extractor, dataset, batches, modules, model_name, clip
+
+def iterate_through_tf_model_combinations():
+    for model_name in MODEL_AND_MODULE_NAMES_TF:
         pretrained = MODEL_AND_MODULE_NAMES[model_name]["pretrained"]
         source = MODEL_AND_MODULE_NAMES[model_name]["source"]
         kwargs = MODEL_AND_MODULE_NAMES[model_name].get('kwargs', {})

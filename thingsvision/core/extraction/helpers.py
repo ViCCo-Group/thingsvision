@@ -1,3 +1,5 @@
+import pdb
+
 import torch
 import numpy as np
 import tensorflow as tf
@@ -32,6 +34,7 @@ def create_custom_extractor(
             pretrained=pretrained, map_location=torch.device(device)
         )
         model = model.module  # remove DataParallel
+        preprocess = None
     elif hasattr(custom_models, model_name):
         custom_model = getattr(custom_models, model_name)
         custom_model = custom_model(device, model_parameters)
@@ -57,12 +60,12 @@ def create_custom_extractor(
                         print(n)
             print("visual")
 
-        def forward(self, batch: Tensor, module_name: str) -> Tensor: 
+        def forward(self, batch: Tensor, module_name: str = 'visual') -> Tensor:
             img_features = model.encode_image(batch)
-            if module_name == "visual":
-                assert torch.unique(
-                    activations[module_name] == img_features
-                ).item(), "\nFor CLIP, image features should represent activations in last encoder layer.\n"
+            #if module_name == "visual":
+                #assert torch.unique(
+                #    activations[module_name] == img_features
+                #).item(), "\nFor CLIP, image features should represent activations in last encoder layer.\n"
             
             return img_features
 
@@ -80,6 +83,7 @@ def create_custom_extractor(
         CustomExtractor.forward = forward
         CustomExtractor.flatten_acts = flatten_acts
 
+    print(device)
     custom_extractor = CustomExtractor(
         model_name=model_name, 
         pretrained=pretrained,

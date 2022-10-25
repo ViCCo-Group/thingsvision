@@ -1,8 +1,10 @@
+import pdb
 import re
 import unittest
 
 import numpy as np
 import tests.helper as helper
+import thingsvision.core.extraction.extractor
 
 Array = np.ndarray
 
@@ -12,7 +14,7 @@ class ExtractionPretrainedTestCase(unittest.TestCase):
     def setUpClass(cls):
         helper.create_test_images()
 
-    def test_extraction_pretrained_modells(self):
+    def test_extraction_pretrained_models(self):
         """Tests basic feature extraction pipeline."""
         for (
             extractor,
@@ -21,7 +23,7 @@ class ExtractionPretrainedTestCase(unittest.TestCase):
             module_names,
             model_name,
             clip
-        ) in helper.iterate_through_all_model_combinations():
+        ) in helper.iterate_through_tf_model_combinations():
             self.assertEqual(len(dataset), len(batches) * helper.BATCH_SIZE)
             num_objects = len(dataset)
 
@@ -30,7 +32,7 @@ class ExtractionPretrainedTestCase(unittest.TestCase):
                     batches=batches,
                     module_name=module_name,
                     flatten_acts=False,
-                    clip=clip,
+                    #clip=clip,
                 )
 
                 self.assertTrue(isinstance(features, Array))
@@ -47,7 +49,7 @@ class ExtractionPretrainedTestCase(unittest.TestCase):
                         batches=batches,
                         module_name=module_name,
                         flatten_acts=False,
-                        clip=clip,
+                        #clip=clip,
                     )
 
                     self.assertTrue(isinstance(features, Array))

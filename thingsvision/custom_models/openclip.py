@@ -1,3 +1,5 @@
+import pdb
+
 import open_clip
 
 from typing import Any
@@ -24,3 +26,4 @@ class OpenCLIP(Custom):
         self.check_available_variants_and_datasets()
         model, _, preprocess = open_clip.create_model_and_transforms(self.variant, pretrained=self.dataset)
         return model, preprocess
+

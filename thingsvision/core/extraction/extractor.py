@@ -1,3 +1,5 @@
+import os
+import pdb
 import warnings
 from dataclasses import dataclass
 from typing import Any, Tuple, Dict
@@ -7,6 +9,7 @@ import tensorflow.keras.applications as tensorflow_models
 import timm
 import torch
 import torchvision
+import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
 from torchvision import transforms as T
@@ -14,9 +17,21 @@ from torchvision import transforms as T
 from .base import BaseExtractor
 from .mixin import PyTorchMixin, TensorFlowMixin
 
+#neccessary to prevent gpu memory conflicts between torch and tf
+gpus = tf.config.list_physical_devices('GPU')
+if gpus:
+  try:
+    # Currently, memory growth needs to be the same across GPUs
+    for gpu in gpus:
+      tf.config.experimental.set_memory_growth(gpu, True)
+    logical_gpus = tf.config.list_logical_devices('GPU')
+    print(len(gpus), "Physical GPUs,", len(logical_gpus), "Logical GPUs")
+  except RuntimeError as e:
+    # Memory growth must be set before GPUs have been initialized
+    print(e)
+
 Tensor = torch.Tensor
 Array = np.ndarray
-
 
 @dataclass(repr=True)
 class TorchvisionExtractor(BaseExtractor, PyTorchMixin):
@@ -52,7 +67,7 @@ class TorchvisionExtractor(BaseExtractor, PyTorchMixin):
             raise ValueError(
                 f"\nCould not find pretrained weights for {model_name} in <torchvision>. Choose a different model or change the source.\n"
             )
-        weights = getattr(getattr(torchvision.models, f"{weights_name}"), self.model_parameters["weights"])
+        weights = getattr(getattr(torchvision.models, f"{weights_name}"), self.model_parameters[0]["weights"])
         return weights
 
     def load_model_from_source(self) -> None:
