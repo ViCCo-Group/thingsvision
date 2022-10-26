@@ -54,7 +54,7 @@ $ bash get_files.sh
 ## Google Colab
 
 Alternatively, you can use Google Colab to play around with `thingsvision` by uploading your image data to Google Drive.
-You can find the jupyter notebook using `PyTorch` [here](https://colab.research.google.com/github/ViCCo-Group/THINGSvision/blob/master/doc/pytorch.ipynb) and the `TensorFlow` example [here](https://colab.research.google.com/github/ViCCo-Group/THINGSvision/blob/master/doc/tensorflow.ipynb).
+You can find the jupyter notebook using `PyTorch` [here](https://colab.research.google.com/github/ViCCo-Group/THINGSvision/blob/master/notebooks/pytorch.ipynb) and the `TensorFlow` example [here](https://colab.research.google.com/github/ViCCo-Group/THINGSvision/blob/master/notebooks/tensorflow.ipynb).
 
 ## IMPORTANT NOTES:
 
