@@ -1,4 +1,3 @@
-import pdb
 import re
 import unittest
 
@@ -32,7 +31,6 @@ class ExtractionPretrainedTestCase(unittest.TestCase):
                     batches=batches,
                     module_name=module_name,
                     flatten_acts=False,
-                    #clip=clip,
                 )
 
                 self.assertTrue(isinstance(features, Array))
@@ -49,7 +47,6 @@ class ExtractionPretrainedTestCase(unittest.TestCase):
                         batches=batches,
                         module_name=module_name,
                         flatten_acts=False,
-                        #clip=clip,
                     )
 
                     self.assertTrue(isinstance(features, Array))

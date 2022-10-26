@@ -1,4 +1,3 @@
-import pdb
 import warnings
 from dataclasses import dataclass, field
 from typing import Any, Iterator, Tuple
@@ -63,7 +62,6 @@ class PyTorchMixin:
                 act = self.flatten_acts(act)
             features.append(act.cpu().numpy())
         features = np.vstack(features)
-        torch.cuda.empty_cache()
         return features
 
     def forward(self, batch: Tensor) -> Tensor:
@@ -107,8 +105,6 @@ class PyTorchMixin:
     def get_backend(self) -> str:
         return "pt"
 
-    def model_to_gpu(self):
-        self.model = self.model.to(torch.device(self.device))
 
 
 
@@ -166,7 +162,3 @@ class TensorFlowMixin:
 
     def get_backend(self) -> str:
         return "tf"
-
-    #TF Models will automatically choose the GPU
-    def model_to_gpu(self):
-        pass

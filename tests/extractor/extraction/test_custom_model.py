@@ -1,4 +1,3 @@
-import pdb
 import unittest
 
 import numpy as np
@@ -27,7 +26,8 @@ class ExtractionCustomModelTestCase(unittest.TestCase):
             )
             extractor.backend = backend
             extractor.model = custom_model
-            extractor.model_to_gpu()
+            if backend == "pt":
+                extractor.model = extractor.model.to(helper.DEVICE)
             dataset = helper.SimpleDataset(values, backend)
             batches = DataLoader(
                 dataset,
@@ -50,8 +50,8 @@ class ExtractionCustomModelTestCase(unittest.TestCase):
         )
         extractor.backend = backend
         extractor.model = helper.pt_model
-        extractor.model_to_gpu()
-
+        if backend == "pt":
+            extractor.model = extractor.model.to(helper.DEVICE)
         # no batch remainders -> 5 batches with 2 examples
         # batch remainders -> 3 batches with 3 examples and 1 batch with 1 remainder
 
