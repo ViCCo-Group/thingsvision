@@ -17,7 +17,7 @@
     <a href="https://github.com/psf/black" rel="nofollow">
         <img src="https://img.shields.io/badge/code%20style-black-000000.svg" alt="Code style: black" />
     </a>
-    <a href="https://colab.research.google.com/github/ViCCo-Group/THINGSvision/blob/master/doc/pytorch.ipynb" rel="nofollow">
+    <a href="https://colab.research.google.com/github/ViCCo-Group/THINGSvision/blob/master/notebooks/pytorch.ipynb" rel="nofollow">
         <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab" />
     </a>
 </div>
@@ -54,7 +54,7 @@ $ bash get_files.sh
 ## Google Colab
 
 Alternatively, you can use Google Colab to play around with `thingsvision` by uploading your image data to Google Drive.
-You can find the jupyter notebook using `PyTorch` [here](https://colab.research.google.com/github/ViCCo-Group/THINGSvision/blob/master/doc/pytorch.ipynb) and the `TensorFlow` example [here](https://colab.research.google.com/github/ViCCo-Group/THINGSvision/blob/master/doc/tensorflow.ipynb).
+You can find the jupyter notebook using `PyTorch` [here](https://colab.research.google.com/github/ViCCo-Group/THINGSvision/blob/master/notebooks/pytorch.ipynb) and the `TensorFlow` example [here](https://colab.research.google.com/github/ViCCo-Group/THINGSvision/blob/master/notebooks/tensorflow.ipynb).
 
 ## IMPORTANT NOTES:
 
@@ -88,7 +88,7 @@ Please keep in mind that the model names as well as the layer names depend on th
 
 ```python
 import torch
-from thingsvision import Extractor
+from thingsvision import get_extractor
 from thingsvision.utils.storing import save_features
 from thingsvision.utils.data import ImageDataset, DataLoader
 
@@ -100,14 +100,15 @@ class_names = None  # optional list of class names for class dataset
 file_names = None # optional list of file names according to which features should be sorted
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
-extractor = Extractor(
+
+extractor = get_extractor(
   model_name=model_name,
   pretrained=True,
   model_path=None, 
   device=device, 
   source=source,
 )
-module_name = extractor.show_model()
+extractor.show_model()
 
 AlexNet(
   (features): Sequential(
@@ -137,9 +138,8 @@ AlexNet(
   )
 )
 
-#Enter part of the model for which you would like to extract features:
-
-(e.g., "features.10")
+# enter part of the model for which you would like to extract features
+module_name = "features.10"
 
 dataset = ImageDataset(
   root=root,
@@ -168,7 +168,7 @@ Note, that the vision model has to be defined in the `model_parameters` dictiona
 
 ```python
 import torch
-from thingsvision import Extractor
+from thingsvision import get_extractor
 from thingsvision.utils.storing import save_features
 from thingsvision.utils.data import ImageDataset, DataLoader
 from thingsvision.core.extraction import center_features
@@ -183,7 +183,7 @@ file_names = None # optional list of file names according to which features shou
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 # initialize extractor module
-extractor = Extractor(
+extractor = get_extractor(
   model_name=model_name, 
   pretrained=True, 
   model_path=None, 
@@ -220,7 +220,7 @@ Note that the vision model and the dataset that was used for training CLIP have 
 
 ```python
 import torch
-from thingsvision import Extractor
+from thingsvision import get_extractor
 from thingsvision.utils.storing import save_features
 from thingsvision.utils.data import ImageDataset, DataLoader
 from thingsvision.core.extraction import center_features
@@ -236,7 +236,7 @@ file_names = None # optional list of file names according to which features shou
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 # initialize extractor module
-extractor = Extractor(
+extractor = get_extractor(
   model_name=model_name, 
   pretrained=True,
   model_path=None, 
@@ -271,7 +271,7 @@ save_features(features, out_path='path/to/features', file_format='npy')
 
 ```python
 import torch
-from thingsvision import Extractor
+from thingsvision import get_extractor
 from thingsvision.utils.storing import save_features
 from thingsvision.utils.data import ImageDataset, DataLoader
 
@@ -285,14 +285,14 @@ file_names = None # optional list of file names according to which features shou
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 # initialize extractor module
-extractor = Extractor(
+extractor = get_extractor(
   model_name=model_name,
   pretrained=True,
   model_path=None,
   device=device,
   source=source,
 )
-module_name = extractor.show_model()
+extractor.show_model()
 
 Sequential(
   (V1): Sequential(
@@ -315,7 +315,7 @@ Sequential(
 )
 
 # enter part of the model for which you would like to extract features (e.g., penultimate layer)
-(e.g., "decoder.flatten")
+module_name = "decoder.flatten"
 
 dataset = ImageDataset(
   root=root,
@@ -343,7 +343,7 @@ save_features(features, out_path='path/to/features', file_format='npy')
 
 ```python
 import torch
-from thingsvision import Extractor
+from thingsvision import get_extractor
 from thingsvision.utils.storing import save_features
 from thingsvision.utils.data import ImageDataset, DataLoader
 
@@ -358,7 +358,7 @@ file_names = None # optional list of file names according to which features shou
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 # initialize extractor module
-extractor = Extractor(
+extractor = get_extractor(
   model_name=model_name,
   pretrained=True,
   model_path=None,
@@ -434,10 +434,10 @@ dataset = HDF5Dataset(
 If you want to use a custom model from the `custom_models` directory, you need to use their class name (e.g., `VGG16_ecoset`) as the model name. 
 
 ```python
-from thingsvision import Extractor
+from thingsvision import get_extractor
 model_name = 'VGG16_ecoset'
 source = 'custom'
-extractor = Extractor(
+extractor = get_extractor(
   model_name=model_name, 
   pretrained=True, 
   model_path=None, 
