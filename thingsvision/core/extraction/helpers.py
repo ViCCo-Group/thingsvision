@@ -1,3 +1,4 @@
+
 import torch
 import numpy as np
 import tensorflow as tf
@@ -5,11 +6,12 @@ import tensorflow as tf
 import thingsvision.custom_models as custom_models
 import thingsvision.custom_models.cornet as cornet
 
-from typing import Any, Dict
+from typing import Any, Dict, Callable
 from .base import BaseExtractor
 from .mixin import PyTorchMixin, TensorFlowMixin
 from .extractor import TorchvisionExtractor, TimmExtractor, KerasExtractor
 
+Tensor = torch.Tensor
 Array = np.ndarray
 AxisError = np.AxisError
 
@@ -31,6 +33,7 @@ def create_custom_extractor(
             pretrained=pretrained, map_location=torch.device(device)
         )
         model = model.module  # remove DataParallel
+        preprocess = None
     elif hasattr(custom_models, model_name):
         custom_model = getattr(custom_models, model_name)
         custom_model = custom_model(device, model_parameters)
@@ -56,12 +59,12 @@ def create_custom_extractor(
                         print(n)
             print("visual")
 
-        def forward(self, batch: Tensor, module_name: str) -> Tensor: 
+        def forward(self, batch: Tensor, module_name: str = 'visual') -> Tensor:
             img_features = model.encode_image(batch)
-            if module_name == "visual":
-                assert torch.unique(
-                    activations[module_name] == img_features
-                ).item(), "\nFor CLIP, image features should represent activations in last encoder layer.\n"
+            #if module_name == "visual":
+                #assert torch.unique(
+                #    activations[module_name] == img_features
+                #).item(), "\nFor CLIP, image features should represent activations in last encoder layer.\n"
             
             return img_features
 
@@ -127,7 +130,7 @@ def create_model_extractor(
     """
     backend_mixin = PyTorchMixin if backend == "pt" else TensorFlowMixin
 
-    class ModelExtractor(BaseExtractor, backend_mixin) -> None:
+    class ModelExtractor(BaseExtractor, backend_mixin):
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
 

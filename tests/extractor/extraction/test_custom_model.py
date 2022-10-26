@@ -2,8 +2,8 @@ import unittest
 
 import numpy as np
 from tests import helper
-from thingsvision import Extractor
 from thingsvision.utils.data import DataLoader
+from thingsvision.core.extraction.helpers import get_extractor
 
 
 class ExtractionCustomModelTestCase(unittest.TestCase):
@@ -21,11 +21,13 @@ class ExtractionCustomModelTestCase(unittest.TestCase):
         expected_features = np.array([[2, 2], [0, 0]])
         batch_size = 1
         for backend, custom_model, vgg_model, source in backends:
-            extractor = Extractor(
+            extractor = get_extractor(
                 vgg_model, pretrained=False, device=helper.DEVICE, source=source
             )
             extractor.backend = backend
             extractor.model = custom_model
+            if backend == "pt":
+                extractor.model = extractor.model.to(helper.DEVICE)
             dataset = helper.SimpleDataset(values, backend)
             batches = DataLoader(
                 dataset,
@@ -43,12 +45,13 @@ class ExtractionCustomModelTestCase(unittest.TestCase):
         values = [1] * 10
         backend = "pt"
         dataset = helper.SimpleDataset(values, backend)
-        extractor = Extractor(
+        extractor = get_extractor(
             "vgg16", pretrained=False, device=helper.DEVICE, source="torchvision"
         )
         extractor.backend = backend
         extractor.model = helper.pt_model
-
+        if backend == "pt":
+            extractor.model = extractor.model.to(helper.DEVICE)
         # no batch remainders -> 5 batches with 2 examples
         # batch remainders -> 3 batches with 3 examples and 1 batch with 1 remainder
 

@@ -1,5 +1,5 @@
 import warnings
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Iterator, Tuple
 
 import numpy as np
@@ -11,11 +11,13 @@ from tensorflow.keras import layers
 from torchvision import transforms as T
 from tqdm import tqdm
 
+Tensor = torch.Tensor
+Array = np.ndarray
+
 
 @dataclass
 class PyTorchMixin:
-    backend: str = 'pt'
-
+    backend: str = field(init=False, default='pt')
     def get_activation(self, name: str) -> Any:
         """Store copy of hidden unit activations at each layer of model."""
 
@@ -45,6 +47,7 @@ class PyTorchMixin:
         flatten_acts: bool
     ) -> Array:
         device = torch.device(self.device)
+        self.model = self.model.to(device)
         # initialise an empty dict to store features for each mini-batch
         global activations
         activations = {}
@@ -63,6 +66,8 @@ class PyTorchMixin:
 
     def forward(self, batch: Tensor) -> Tensor:
         """Default forward pass."""
+        if(self.model_name == 'OpenCLIP'):
+            return (self.model(batch, text=None))
         return self.model(batch)
 
     def flatten_acts(self, act: Tensor) -> Tensor:
@@ -86,6 +91,7 @@ class PyTorchMixin:
         self.model.eval()
         self.model = self.model.to(device)
 
+
     def get_default_transformation(self, mean, std, resize_dim: int = 256, crop_dim: int = 224, apply_center_crop: bool = True) -> Any:
         normalize = T.Normalize(mean=mean, std=std)
         composes = [T.Resize(resize_dim)]
@@ -96,10 +102,15 @@ class PyTorchMixin:
 
         return composition
 
+    def get_backend(self) -> str:
+        return "pt"
+
+
+
 
 @dataclass
 class TensorFlowMixin:
-    backend: str = 'tf'
+    backend: str = field(init=False, default='tf')
 
     def _extract_features(
         self, 
@@ -148,3 +159,6 @@ class TensorFlowMixin:
         composition = tf.keras.Sequential(composes)
 
         return composition
+
+    def get_backend(self) -> str:
+        return "tf"
