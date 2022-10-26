@@ -83,7 +83,6 @@ def create_custom_extractor(
         CustomExtractor.forward = forward
         CustomExtractor.flatten_acts = flatten_acts
 
-    print(device)
     custom_extractor = CustomExtractor(
         model_name=model_name, 
         pretrained=pretrained,
