@@ -81,6 +81,12 @@ def create_custom_extractor(
         CustomExtractor.show_model = show_model
         CustomExtractor.forward = forward
         CustomExtractor.flatten_acts = flatten_acts
+    
+    if model_name == 'OpenCLIP':
+        def forward(self, batch: Tensor) -> Tensor:
+            return self.model(batch, text=None)
+
+        CustomExtractor.forward = forward
 
     custom_extractor = CustomExtractor(
         model_name=model_name, 
