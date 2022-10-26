@@ -17,7 +17,7 @@
     <a href="https://github.com/psf/black" rel="nofollow">
         <img src="https://img.shields.io/badge/code%20style-black-000000.svg" alt="Code style: black" />
     </a>
-    <a href="https://colab.research.google.com/github/ViCCo-Group/THINGSvision/blob/master/doc/pytorch.ipynb" rel="nofollow">
+    <a href="https://colab.research.google.com/github/ViCCo-Group/THINGSvision/blob/master/notebooks/pytorch.ipynb" rel="nofollow">
         <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab" />
     </a>
 </div>
