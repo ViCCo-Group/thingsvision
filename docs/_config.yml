@@ -1,5 +1,7 @@
+title: "THINGSVision: Extracting Activations from Neural Nets"
 # Build settings
 remote_theme: just-the-docs/just-the-docs
+search_enabled: false
 
 
 # Exclude from processing.
