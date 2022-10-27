@@ -1,26 +1,26 @@
+from typing import Any, Callable, Dict
 
-import torch
 import numpy as np
-import tensorflow as tf
+import torch
 
 import thingsvision.custom_models as custom_models
 import thingsvision.custom_models.cornet as cornet
 
-from typing import Any, Dict, Callable
 from .base import BaseExtractor
+from .extractor import KerasExtractor, TimmExtractor, TorchvisionExtractor
 from .mixin import PyTorchMixin, TensorFlowMixin
-from .extractor import TorchvisionExtractor, TimmExtractor, KerasExtractor
 
 Tensor = torch.Tensor
 Array = np.ndarray
 AxisError = np.AxisError
+
 
 def create_custom_extractor(
     model_name: str,
     pretrained: bool,
     device: str,
     model_path: str = None,
-    model_parameters: Dict[str, str] = None
+    model_parameters: Dict[str, str] = None,
 ) -> Any:
     """Create a custom extractor from a pretrained model."""
     if model_name.startswith("cornet"):
@@ -29,9 +29,7 @@ def create_custom_extractor(
             model = getattr(cornet, f"cornet_{model_name[-1]}")
         except AttributeError:
             model = getattr(cornet, f"cornet_{model_name[-2:]}")
-        model = model(
-            pretrained=pretrained, map_location=torch.device(device)
-        )
+        model = model(pretrained=pretrained, map_location=torch.device(device))
         model = model.module  # remove DataParallel
         preprocess = None
     elif hasattr(custom_models, model_name):
@@ -50,8 +48,9 @@ def create_custom_extractor(
         def __init__(self, *args, **kwargs) -> None:
             super().__init__(*args, **kwargs)
 
-    #TODO: this should probably be defined in the custom model itself
-    if model_name.lower().startswith('clip'):  
+    # TODO: this should probably be defined in the custom model itself
+    if model_name.lower().startswith("clip"):
+
         def show_model(self):
             for l, (n, p) in enumerate(self.model.named_modules()):
                 if l > 1:
@@ -59,13 +58,13 @@ def create_custom_extractor(
                         print(n)
             print("visual")
 
-        def forward(self, batch: Tensor, module_name: str = 'visual') -> Tensor:
+        def forward(self, batch: Tensor, module_name: str = "visual") -> Tensor:
             img_features = model.encode_image(batch)
-            #if module_name == "visual":
-                #assert torch.unique(
-                #    activations[module_name] == img_features
-                #).item(), "\nFor CLIP, image features should represent activations in last encoder layer.\n"
-            
+            # if module_name == "visual":
+            # assert torch.unique(
+            #    activations[module_name] == img_features
+            # ).item(), "\nFor CLIP, image features should represent activations in last encoder layer.\n"
+
             return img_features
 
         def flatten_acts(self, act: Tensor, img: Tensor, module_name: str) -> Tensor:
@@ -81,29 +80,29 @@ def create_custom_extractor(
         CustomExtractor.show_model = show_model
         CustomExtractor.forward = forward
         CustomExtractor.flatten_acts = flatten_acts
-    
-    if model_name == 'OpenCLIP':
+
+    if model_name == "OpenCLIP":
+
         def forward(self, batch: Tensor) -> Tensor:
             return self.model(batch, text=None)
 
         CustomExtractor.forward = forward
 
     custom_extractor = CustomExtractor(
-        model_name=model_name, 
+        model_name=model_name,
         pretrained=pretrained,
-        device=device, 
-        model_path=model_path, 
-        model=model, 
-        preprocess=preprocess
+        device=device,
+        model_path=model_path,
+        model=model,
+        preprocess=preprocess,
     )
 
     return custom_extractor
 
 
-
 def create_model_extractor(
     model: Any,
-    device: str, 
+    device: str,
     preprocess: Any = None,
     backend: str = "pt",
     forward_fn: Callable = None,
@@ -124,9 +123,9 @@ def create_model_extractor(
     forward_fn: Callable
         In case your model requires more complicated forward passes than simply using model(img),
         you can pass a custom forward function here. The function must have the following signature:
-        
+
         forward_fn(self, img, module_name) -> activations
-        
+
         and calls to the model have to be made on the self.model attribute.
 
     Returns:
@@ -144,14 +143,15 @@ def create_model_extractor(
         ModelExtractor.forward = forward_fn
 
     model_extractor = ModelExtractor(
-        model_name="custom", 
-        model_path=None, 
-        device=device, 
-        model=model, 
-        preprocess=preprocess
+        model_name="custom",
+        model_path=None,
+        device=device,
+        model=model,
+        preprocess=preprocess,
     )
 
     return model_extractor
+
 
 def get_extractor(
     model_name: str,

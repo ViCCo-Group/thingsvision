@@ -26,12 +26,7 @@ class BaseExtractor:
     def show_model(self) -> str:
         return self._show_model()
 
-    def extract_features(
-        self,
-        batches: Iterator,
-        module_name: str,
-        flatten_acts: bool
-    ):
+    def extract_features(self, batches: Iterator, module_name: str, flatten_acts: bool):
         """Extract hidden unit activations (at specified layer) for every image in the database.
 
         Parameters
@@ -52,7 +47,15 @@ class BaseExtractor:
         output : np.ndarray
             Returns the feature matrix (e.g., X \in \mathbb{R}^{n \times p} if head or flatten_acts = True).
         """
-        features = self._extract_features(batches, module_name, flatten_acts)
+        valid_names = self.get_module_names()
+        if not module_name in valid_names:
+            raise ValueError(
+                f"\n{module_name} is not a valid module name. Please choose a name from the following set of modules: {valid_names}\n"
+            )
+
+        features = self._extract_features(
+            batches=batches, module_name=module_name, flatten_acts=flatten_acts
+        )
 
         print(
             f"...Features successfully extracted for all {len(features)} images in the database."
@@ -70,5 +73,7 @@ class BaseExtractor:
         else:
             mean = [0.485, 0.456, 0.406]
             std = [0.229, 0.224, 0.225]
-            composition = self.get_default_transformation(mean, std, resize_dim, crop_dim, apply_center_crop)
+            composition = self.get_default_transformation(
+                mean, std, resize_dim, crop_dim, apply_center_crop
+            )
         return composition

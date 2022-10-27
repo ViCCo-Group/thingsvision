@@ -1,11 +1,9 @@
-import warnings
 from dataclasses import dataclass, field
-from typing import Any, Iterator, Tuple
+from typing import Any, Iterator, List
 
 import numpy as np
 import tensorflow as tf
 import torch
-import torchvision
 from tensorflow import keras
 from tensorflow.keras import layers
 from torchvision import transforms as T
@@ -15,9 +13,10 @@ Tensor = torch.Tensor
 Array = np.ndarray
 
 
-@dataclass
+@dataclass(repr=True)
 class PyTorchMixin:
-    backend: str = field(init=False, default='pt')
+    backend: str = field(init=False, default="pt")
+
     def get_activation(self, name: str) -> Any:
         """Store copy of hidden unit activations at each layer of model."""
 
@@ -41,10 +40,7 @@ class PyTorchMixin:
 
     @torch.no_grad()
     def _extract_features(
-        self,
-        batches: Iterator,
-        module_name: str,
-        flatten_acts: bool
+        self, batches: Iterator, module_name: str, flatten_acts: bool
     ) -> Array:
         device = torch.device(self.device)
         self.model = self.model.to(device)
@@ -89,8 +85,19 @@ class PyTorchMixin:
         self.model.eval()
         self.model = self.model.to(device)
 
+    def get_module_names(self) -> List[str]:
+        module_names, _ = zip(*self.model.named_modules())
+        module_names = list(filter(lambda n: len(n) > 0, module_names))
+        return module_names
 
-    def get_default_transformation(self, mean, std, resize_dim: int = 256, crop_dim: int = 224, apply_center_crop: bool = True) -> Any:
+    def get_default_transformation(
+        self,
+        mean,
+        std,
+        resize_dim: int = 256,
+        crop_dim: int = 224,
+        apply_center_crop: bool = True,
+    ) -> Any:
         normalize = T.Normalize(mean=mean, std=std)
         composes = [T.Resize(resize_dim)]
         if apply_center_crop:
@@ -104,17 +111,12 @@ class PyTorchMixin:
         return "pt"
 
 
-
-
-@dataclass
+@dataclass(repr=True)
 class TensorFlowMixin:
-    backend: str = field(init=False, default='tf')
+    backend: str = field(init=False, default="tf")
 
     def _extract_features(
-        self, 
-        batches: Iterator,
-        module_name: str,
-        flatten_acts: bool
+        self, batches: Iterator, module_name: str, flatten_acts: bool
     ) -> Array:
         features = []
         for img in tqdm(batches, desc="Batch"):
@@ -139,11 +141,20 @@ class TensorFlowMixin:
             self.model.load_weights(self.model_path)
         self.model.trainable = False
 
-    def get_default_transformation(self, mean, std, resize_dim: int = 256, crop_dim: int = 224, apply_center_crop: bool = True) -> Any:
+    def get_module_names(self) -> List[str]:
+        module_names = [l._name for l in self.model.submodules]
+        return module_names
+
+    def get_default_transformation(
+        self,
+        mean,
+        std,
+        resize_dim: int = 256,
+        crop_dim: int = 224,
+        apply_center_crop: bool = True,
+    ) -> Any:
         resize_dim = crop_dim
-        composes = [
-            layers.experimental.preprocessing.Resizing(resize_dim, resize_dim)
-        ]
+        composes = [layers.experimental.preprocessing.Resizing(resize_dim, resize_dim)]
         if apply_center_crop:
             pass
             # TODO: fix center crop problem with Keras
