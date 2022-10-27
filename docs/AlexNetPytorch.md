@@ -6,6 +6,7 @@ nav_order: 1
 ---
 
 
+### Example call for AlexNet with PyTorch:
 
 ```python
 import torch
