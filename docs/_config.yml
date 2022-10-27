@@ -15,8 +15,8 @@ aux_links:
     - "//github.com/ViCCo-Group/THINGSvision"
     -
 nav_external_links:
-  - title: Just the Docs on GitHub
-    url: https://github.com/just-the-docs/just-the-docs
+  - title: THINGSvision on GitHub
+    url: https://github.com/ViCCo-Group/THINGSvision
 
 # Exclude from processing.
 # The following items will not be processed, by default.
