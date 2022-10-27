@@ -5,7 +5,8 @@ permalink: /examples/
 ---
 
 
-{% highlight python %}
+
+```python
 import torch
 from thingsvision import get_extractor
 from thingsvision.utils.storing import save_features
@@ -74,14 +75,12 @@ features = extractor.extract_features(
   clip=False,
 )
 save_features(features, out_path='path/to/features', file_format='npy')
-{% endhighlight %}
+```
 
 ### Example call for [CLIP](https://github.com/openai/CLIP) with PyTorch:
 Note, that the vision model has to be defined in the `model_parameters` dictionary with the `variant` key. You can either use `ViT-B/32` or `RN50`.
 
-
-{% highlight python %}
-
+```python
 import torch
 from thingsvision import get_extractor
 from thingsvision.utils.storing import save_features
@@ -125,14 +124,13 @@ features = extractor.extract_features(
 )
 features = center_features(features)
 save_features(features, out_path='path/to/features', file_format='npy')
-
-{% endhighlight %}
+```
 
 ### Example call for [Open CLIP](https://github.com/mlfoundations/open_clip) with PyTorch:
 
 Note that the vision model and the dataset that was used for training CLIP have to be defined in the `model_parameters` dictionary `variant` and `dataset` keys. Possible values can be found in the [Open CLIP](https://github.com/mlfoundations/open_clip) pretrained models list.
 
-{% highlight python %}
+```python
 import torch
 from thingsvision import get_extractor
 from thingsvision.utils.storing import save_features
@@ -176,11 +174,11 @@ features = extractor.extract_features(
 )
 features = center_features(features)
 save_features(features, out_path='path/to/features', file_format='npy')
-{% endhighlight %}
+```
 
 ### Example call for [CORnet](https://github.com/dicarlolab/CORnet) with PyTorch:
 
-{% highlight python %}
+```python
 import torch
 from thingsvision import get_extractor
 from thingsvision.utils.storing import save_features
@@ -242,11 +240,11 @@ features = extractor.extract_features(
   clip=False,
 )
 save_features(features, out_path='path/to/features', file_format='npy')
-{% endhighlight %}
+```
 
 ### Example call for VGG16 with TensorFlow:
 
-{% highlight python %}
+```python
 import torch
 from thingsvision import get_extractor
 from thingsvision.utils.storing import save_features
@@ -287,5 +285,4 @@ features = extractor.extract_features(
   clip=False,
 )
 save_features(features, out_path='path/to/features', file_format='npy')
-
-{% endhighlight %}
+```
