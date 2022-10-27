@@ -10,7 +10,7 @@ permalink: /
 
 THINGSVision is a python toolbox to quickly and easily extract and analyze image representations from state-of-the-art neural networks for computer vision. 
 
-To get started, please check out the [Getting Started](GettingStarted.md) page, as well as our List of [Examples](Examples.md), or try our Colab Notebooks for [Pytorch](https://colab.research.google.com/github/ViCCo-Group/THINGSvision/blob/master/doc/pytorch.ipynb) and [Tensorflow](https://colab.research.google.com/github/ViCCo-Group/THINGSvision/blob/master/doc/tensorflow.ipynb) .
+To get started, please check out the [Getting Started](GettingStarted.md) page, as well as our list of [Examples](Examples.md), or try our Colab notebooks for [Pytorch](https://colab.research.google.com/github/ViCCo-Group/THINGSvision/blob/master/doc/pytorch.ipynb) and [Tensorflow](https://colab.research.google.com/github/ViCCo-Group/THINGSvision/blob/master/doc/tensorflow.ipynb) .
 
 
 ## Model collection
@@ -32,14 +32,13 @@ PyTorch examples:  `alexnet`, `resnet18`, `resnet50`, `resnet101`, `vit_b_16`, `
 
 2. If you happen to use the [THINGS image database](https://osf.io/jum2f/), make sure to correctly `unzip` all zip files (sorted from A-Z), and have all `object` directories stored in the parent directory `./images/` (e.g., `./images/object_xy/`) as well as the `things_concepts.tsv` file stored in the `./data/` folder. `bash get_files.sh` does the latter for you. Images, however, must be downloaded from the [THINGS database](https://osf.io/jum2f/) `Main` subfolder.  **The download is around 5GB**.
 
-*   Go to <https://osf.io/jum2f/files/>
-*   Select `Main` folder and click on "Download as zip" button (top right).
-*   Unzip contained `object_images_*.zip` file using the password (check the
-    `description.txt` file for details). For example:
+    *   Go to <https://osf.io/jum2f/files/>
+    *   Select `Main` folder and click on "Download as zip" button (top right).
+    *   Unzip contained `object_images_*.zip` file using the password (check the `description.txt` file for details). For example:
 
-    ``` {.bash}
-    for fn in object_images_*.zip; do unzip -P the_password $fn; done
-    ```
+        ``` {.bash}
+        for fn in object_images_*.zip; do unzip -P the_password $fn; done
+        ```
 
 3. Features can be extracted for every layer for all `timm`, `torchvision`, `TensorFlow`, `CORnet` and `CLIP`/`OpenCLIP` models.
 
