@@ -66,8 +66,6 @@ class PyTorchMixin:
 
     def forward(self, batch: Tensor) -> Tensor:
         """Default forward pass."""
-        if(self.model_name == 'OpenCLIP'):
-            return (self.model(batch, text=None))
         return self.model(batch)
 
     def flatten_acts(self, act: Tensor) -> Tensor:

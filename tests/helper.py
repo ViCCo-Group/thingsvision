@@ -10,7 +10,7 @@ import torch.nn as nn
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.models import Sequential
 from thingsvision.utils.data import DataLoader, ImageDataset
-from thingsvision.core.extraction.helpers import get_extractor
+from thingsvision import get_extractor
 
 
 DATA_PATH = "./data"
