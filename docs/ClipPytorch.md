@@ -10,7 +10,7 @@ Note, that the vision model has to be defined in the `model_parameters` dictiona
 
 ```python
 import torch
-from thingsvision import Extractor
+from thingsvision import get_extractor
 from thingsvision.utils.storing import save_features
 from thingsvision.utils.data import ImageDataset, DataLoader
 from thingsvision.core.extraction import center_features
@@ -25,7 +25,7 @@ file_names = None # optional list of file names according to which features shou
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 # initialize extractor module
-extractor = Extractor(
+extractor = get_extractor(
   model_name=model_name, 
   pretrained=True, 
   model_path=None, 

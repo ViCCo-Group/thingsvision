@@ -10,7 +10,7 @@ nav_order: 4
 
 ```python
 import torch
-from thingsvision import Extractor
+from thingsvision import get_extractor
 from thingsvision.utils.storing import save_features
 from thingsvision.utils.data import ImageDataset, DataLoader
 
@@ -25,7 +25,7 @@ file_names = None # optional list of file names according to which features shou
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 # initialize extractor module
-extractor = Extractor(
+extractor = get_extractor(
   model_name=model_name,
   pretrained=True,
   model_path=None,

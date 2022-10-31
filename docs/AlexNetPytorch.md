@@ -10,7 +10,7 @@ nav_order: 1
 
 ```python
 import torch
-from thingsvision import Extractor
+from thingsvision import get_extractor
 from thingsvision.utils.storing import save_features
 from thingsvision.utils.data import ImageDataset, DataLoader
 
@@ -22,14 +22,15 @@ class_names = None  # optional list of class names for class dataset
 file_names = None # optional list of file names according to which features should be sorted
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
-extractor = Extractor(
+
+extractor = get_extractor(
   model_name=model_name,
   pretrained=True,
   model_path=None, 
   device=device, 
   source=source,
 )
-module_name = extractor.show_model()
+extractor.show_model()
 
 AlexNet(
   (features): Sequential(
@@ -59,9 +60,8 @@ AlexNet(
   )
 )
 
-#Enter part of the model for which you would like to extract features:
-
-(e.g., "features.10")
+# enter part of the model for which you would like to extract features
+module_name = "features.10"
 
 dataset = ImageDataset(
   root=root,

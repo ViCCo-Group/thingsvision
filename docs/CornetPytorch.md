@@ -10,7 +10,7 @@ nav_order: 3
 
 ```python
 import torch
-from thingsvision import Extractor
+from thingsvision import get_extractor
 from thingsvision.utils.storing import save_features
 from thingsvision.utils.data import ImageDataset, DataLoader
 
@@ -24,14 +24,14 @@ file_names = None # optional list of file names according to which features shou
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 # initialize extractor module
-extractor = Extractor(
+extractor = get_extractor(
   model_name=model_name,
   pretrained=True,
   model_path=None,
   device=device,
   source=source,
 )
-module_name = extractor.show_model()
+extractor.show_model()
 
 Sequential(
   (V1): Sequential(
@@ -54,7 +54,7 @@ Sequential(
 )
 
 # enter part of the model for which you would like to extract features (e.g., penultimate layer)
-(e.g., "decoder.flatten")
+module_name = "decoder.flatten"
 
 dataset = ImageDataset(
   root=root,

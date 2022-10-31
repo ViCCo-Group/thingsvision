@@ -35,10 +35,10 @@ class VGG16_ecoset(Custom):
 If you want to use a custom model from the `custom_models` directory, you need to use their class name (e.g., `VGG16_ecoset`) as the model name. 
 
 ```python
-from thingsvision import Extractor
+from thingsvision import get_extractor
 model_name = 'VGG16_ecoset'
 source = 'custom'
-extractor = Extractor(
+extractor = get_extractor(
   model_name=model_name, 
   pretrained=True, 
   model_path=None, 
