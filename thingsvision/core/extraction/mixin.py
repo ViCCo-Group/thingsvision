@@ -1,9 +1,11 @@
+import warnings
 from dataclasses import dataclass, field
-from typing import Any, Iterator, List
+from typing import Any, Iterator, Tuple, List
 
 import numpy as np
 import tensorflow as tf
 import torch
+import torchvision
 from tensorflow import keras
 from tensorflow.keras import layers
 from torchvision import transforms as T
@@ -13,7 +15,7 @@ Tensor = torch.Tensor
 Array = np.ndarray
 
 
-@dataclass(repr=True)
+@dataclass
 class PyTorchMixin:
     backend: str = field(init=False, default="pt")
 
@@ -39,9 +41,7 @@ class PyTorchMixin:
             m.register_forward_hook(self.get_activation(n))
 
     @torch.no_grad()
-    def _extract_features(
-        self, batches: Iterator, module_name: str, flatten_acts: bool
-    ) -> Array:
+    def _extract_features(self, batch, module_name: str, flatten_acts: bool) -> Array:
         device = torch.device(self.device)
         self.model = self.model.to(device)
         # initialise an empty dict to store features for each mini-batch
@@ -49,16 +49,14 @@ class PyTorchMixin:
         activations = {}
         # register forward hook to store features
         self.register_hook()
-        features = []
-        for batch in tqdm(batches, desc="Batch"):
-            batch = batch.to(device)
-            _ = self.forward(batch)
-            act = activations[module_name]
-            if flatten_acts:
-                act = self.flatten_acts(act)
-            features.append(act.cpu().numpy())
-        features = np.vstack(features)
-        return features
+
+        batch = batch.to(device)
+        _ = self.forward(batch)
+        act = activations[module_name]
+        if flatten_acts:
+            act = self.flatten_acts(act).cpu().numpy()
+
+        return act
 
     def forward(self, batch: Tensor) -> Tensor:
         """Default forward pass."""
@@ -111,26 +109,21 @@ class PyTorchMixin:
         return "pt"
 
 
-@dataclass(repr=True)
+@dataclass
 class TensorFlowMixin:
     backend: str = field(init=False, default="tf")
 
-    def _extract_features(
-        self, batches: Iterator, module_name: str, flatten_acts: bool
-    ) -> Array:
-        features = []
-        for img in tqdm(batches, desc="Batch"):
-            layer_out = [self.model.get_layer(module_name).output]
-            activation_model = keras.models.Model(
-                inputs=self.model.input,
-                outputs=layer_out,
-            )
-            activations = activation_model.predict(img)
-            if flatten_acts:
-                activations = activations.reshape(activations.shape[0], -1)
-            features.append(activations)
-        features = np.vstack(features)
-        return features
+    def _extract_features(self, batch, module_name: str, flatten_acts: bool) -> Array:
+        layer_out = [self.model.get_layer(module_name).output]
+        activation_model = keras.models.Model(
+            inputs=self.model.input,
+            outputs=layer_out,
+        )
+        activations = activation_model.predict(batch)
+        if flatten_acts:
+            activations = activations.reshape(activations.shape[0], -1)
+
+        return activations
 
     def _show_model(self) -> str:
         return self.model.summary()
