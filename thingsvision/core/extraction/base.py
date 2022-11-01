@@ -106,6 +106,7 @@ class BaseExtractor:
             print(f"...Features saved to {output_dir}.")
             return None
         else:
+            features = np.vstack(features)
             print(f"...Features shape: {features.shape}")
 
         return features
