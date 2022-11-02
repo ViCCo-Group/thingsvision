@@ -35,7 +35,7 @@ class BaseExtractor:
         module_name: str,
         flatten_acts: bool,
         output_dir: str = None,
-        save_every: int = 100,
+        steps: int = 100,
     ) -> np.ndarray:
         """Extract hidden unit activations (at specified layer) for every image in the database.
 
@@ -53,18 +53,17 @@ class BaseExtractor:
             from an early layer of the neural network model)
             should be transformed into a vector.
         output_dir : str, optional
-            Path to an output directory. If set, the extracted
-            features will be iteratively (every save_every batches)
+            Path/to//output/directory. If defined, the extracted
+            features will be iteratively (every steps batches)
             stored to disk as numpy files, freeing up memory space.
             Use this option if your dataset is too large or when extracting many features
             at once. The default is None, so that the features are kept
             in memory.
-        save_every : int, optional
-            Number of batches after which the extracted features
-            are saved to disk. The default is 100. Only used if
-            output_dir is set.
+        steps : int, optional
+            Extracted features will be saved to disk every steps batches.
+            The default is 100. This is only used if output_dir is defined.
 
-         Returns
+        Returns
         -------
         output : np.ndarray
             Returns the feature matrix (e.g., X \in \mathbb{R}^{n \times p} if head or flatten_acts = True).
@@ -80,22 +79,23 @@ class BaseExtractor:
 
         features = []
         image_ct, last_image_ct = 0, 0
-        for batch_i, batch in tqdm(
-            enumerate(batches), desc="Batch", total=len(batches)
+        for i, batch in tqdm(
+            enumerate(batches, start=1), desc="Batch", total=len(batches)
         ):
             features.append(self._extract_features(batch, module_name, flatten_acts))
 
             image_ct += len(batch)
 
             if output_dir and (
-                (batch_i % save_every == 0 and batch_i > 0)
-                or (batch_i == len(batches) - 1)
+                i % steps == 0
+                or i == len(batches)
             ):
-                features_fp = os.path.join(
+                features_subset_file = os.path.join(
                     output_dir,
                     f"features_{last_image_ct}-{image_ct}.npy",
                 )
-                np.save(features_fp, np.vstack(features))
+                features_subset = np.vstack(features)
+                np.save(features_subset_file, features_subset)
                 features = []
                 last_image_ct = image_ct
 
