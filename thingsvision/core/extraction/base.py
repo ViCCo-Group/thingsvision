@@ -1,6 +1,9 @@
 import warnings
 from dataclasses import dataclass, field
 from typing import Any, Iterator
+from tqdm import tqdm
+import numpy as np
+import os
 
 
 @dataclass(init=True, repr=True)
@@ -26,7 +29,14 @@ class BaseExtractor:
     def show_model(self) -> str:
         return self._show_model()
 
-    def extract_features(self, batches: Iterator, module_name: str, flatten_acts: bool):
+    def extract_features(
+        self,
+        batches: Iterator,
+        module_name: str,
+        flatten_acts: bool,
+        output_dir: str = None,
+        steps: int = 100,
+    ) -> np.ndarray:
         """Extract hidden unit activations (at specified layer) for every image in the database.
 
         Parameters
@@ -42,7 +52,20 @@ class BaseExtractor:
             Whether activation tensor (e.g., activations
             from an early layer of the neural network model)
             should be transformed into a vector.
-         Returns
+        output_dir : str, optional
+            Path/to//output/directory. If defined, the extracted
+            features will be iteratively (every steps batches)
+            stored to disk as numpy files, freeing up memory space.
+            Use this option if your dataset is too large or when extracting many features
+            at once. The default is None, so that the features are kept
+            in memory.
+        steps : int, optional
+            Number of batches after which the extracted features
+            are saved to disk. The default uses a heuristic so that
+            extracted features should fit into 8GB of free memory.
+            Only used if output_dir is defined.
+
+        Returns
         -------
         output : np.ndarray
             Returns the feature matrix (e.g., X \in \mathbb{R}^{n \times p} if head or flatten_acts = True).
@@ -53,14 +76,41 @@ class BaseExtractor:
                 f"\n{module_name} is not a valid module name. Please choose a name from the following set of modules: {valid_names}\n"
             )
 
-        features = self._extract_features(
-            batches=batches, module_name=module_name, flatten_acts=flatten_acts
-        )
+        if output_dir:
+            os.makedirs(output_dir, exist_ok=True)
+
+        if steps is None:
+            # assume that features to every image consume 3MB of memory and that the user has 8GB of free RAM
+            steps = 8000 // (len(next(iter(batches))) * 3) + 1
+
+        features = []
+        image_ct, last_image_ct = 0, 0
+        for i, batch in tqdm(
+            enumerate(batches, start=1), desc="Batch", total=len(batches)
+        ):
+            features.append(self._extract_features(batch, module_name, flatten_acts))
+
+            image_ct += len(batch)
+
+            if output_dir and (i % steps == 0 or i == len(batches)):
+                features_subset_file = os.path.join(
+                    output_dir,
+                    f"features_{last_image_ct}-{image_ct}.npy",
+                )
+                features_subset = np.vstack(features)
+                np.save(features_subset_file, features_subset)
+                features = []
+                last_image_ct = image_ct
 
         print(
-            f"...Features successfully extracted for all {len(features)} images in the database."
+            f"...Features successfully extracted for all {image_ct} images in the database."
         )
-        print(f"...Features shape: {features.shape}")
+        if output_dir:
+            print(f"...Features saved to {output_dir}.")
+            return None
+        else:
+            features = np.vstack(features)
+            print(f"...Features shape: {features.shape}")
 
         return features
 
