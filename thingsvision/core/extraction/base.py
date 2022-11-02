@@ -35,7 +35,7 @@ class BaseExtractor:
         module_name: str,
         flatten_acts: bool,
         output_dir: str = None,
-        save_every: int = 100,
+        save_every: int = None,
     ) -> np.ndarray:
         """Extract hidden unit activations (at specified layer) for every image in the database.
 
@@ -61,8 +61,9 @@ class BaseExtractor:
             in memory.
         save_every : int, optional
             Number of batches after which the extracted features
-            are saved to disk. The default is 100. Only used if
-            output_dir is set.
+            are saved to disk. The default uses a heuristic so that
+            extracted features should fit into 8GB of free memory.
+            Only used if output_dir is set.
 
          Returns
         -------
@@ -77,6 +78,10 @@ class BaseExtractor:
 
         if output_dir:
             os.makedirs(output_dir, exist_ok=True)
+
+        if save_every is None:
+            # assume that features to every image consume 3MB of memory and that the user has 8GB of free RAM
+            save_every = 8000 // (len(next(iter(batches))) * 3)
 
         features = []
         image_ct, last_image_ct = 0, 0
