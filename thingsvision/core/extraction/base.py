@@ -35,7 +35,7 @@ class BaseExtractor:
         module_name: str,
         flatten_acts: bool,
         output_dir: str = None,
-        save_every: int = None,
+        steps: int = 100,
     ) -> np.ndarray:
         """Extract hidden unit activations (at specified layer) for every image in the database.
 
@@ -53,19 +53,19 @@ class BaseExtractor:
             from an early layer of the neural network model)
             should be transformed into a vector.
         output_dir : str, optional
-            Path to an output directory. If set, the extracted
-            features will be iteratively (every save_every batches)
+            Path/to//output/directory. If defined, the extracted
+            features will be iteratively (every steps batches)
             stored to disk as numpy files, freeing up memory space.
             Use this option if your dataset is too large or when extracting many features
             at once. The default is None, so that the features are kept
             in memory.
-        save_every : int, optional
+        steps : int, optional
             Number of batches after which the extracted features
             are saved to disk. The default uses a heuristic so that
             extracted features should fit into 8GB of free memory.
-            Only used if output_dir is set.
+            Only used if output_dir is defined.
 
-         Returns
+        Returns
         -------
         output : np.ndarray
             Returns the feature matrix (e.g., X \in \mathbb{R}^{n \times p} if head or flatten_acts = True).
@@ -79,28 +79,26 @@ class BaseExtractor:
         if output_dir:
             os.makedirs(output_dir, exist_ok=True)
 
-        if save_every is None:
+        if steps is None:
             # assume that features to every image consume 3MB of memory and that the user has 8GB of free RAM
-            save_every = 8000 // (len(next(iter(batches))) * 3)
+            steps = 8000 // (len(next(iter(batches))) * 3) + 1
 
         features = []
         image_ct, last_image_ct = 0, 0
-        for batch_i, batch in tqdm(
-            enumerate(batches), desc="Batch", total=len(batches)
+        for i, batch in tqdm(
+            enumerate(batches, start=1), desc="Batch", total=len(batches)
         ):
             features.append(self._extract_features(batch, module_name, flatten_acts))
 
             image_ct += len(batch)
 
-            if output_dir and (
-                (batch_i % save_every == 0 and batch_i > 0)
-                or (batch_i == len(batches) - 1)
-            ):
-                features_fp = os.path.join(
+            if output_dir and (i % steps == 0 or i == len(batches)):
+                features_subset_file = os.path.join(
                     output_dir,
                     f"features_{last_image_ct}-{image_ct}.npy",
                 )
-                np.save(features_fp, np.vstack(features))
+                features_subset = np.vstack(features)
+                np.save(features_subset_file, features_subset)
                 features = []
                 last_image_ct = image_ct
 
