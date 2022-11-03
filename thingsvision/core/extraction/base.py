@@ -1,9 +1,10 @@
+import os
 import warnings
 from dataclasses import dataclass, field
 from typing import Any, Iterator
-from tqdm import tqdm
+
 import numpy as np
-import os
+from tqdm import tqdm
 
 
 @dataclass(init=True, repr=True)
@@ -20,14 +21,16 @@ class BaseExtractor:
         if not self.model:
             self.load_model()
 
-    def show(self) -> str:
+    def show(self) -> None:
         warnings.warn(
-            "\nThe .show() method is deprecated and will be removed in future versions. Use .show_model() instead.\n"
+            message="\nThe .show() method is deprecated and will be removed in future versions. Use .show_model() instead.\n",
+            category=UserWarning,
         )
-        return self.show_model()
+        self.show_model()
 
-    def show_model(self) -> str:
-        return self._show_model()
+    def show_model(self) -> None:
+        print(self._show_model())
+        print()
 
     def extract_features(
         self,
@@ -35,7 +38,7 @@ class BaseExtractor:
         module_name: str,
         flatten_acts: bool,
         output_dir: str = None,
-        steps: int = 100,
+        step_size: int = None,
     ) -> np.ndarray:
         """Extract hidden unit activations (at specified layer) for every image in the database.
 
@@ -54,12 +57,12 @@ class BaseExtractor:
             should be transformed into a vector.
         output_dir : str, optional
             Path/to//output/directory. If defined, the extracted
-            features will be iteratively (every steps batches)
+            features will be iteratively (every step_size batches)
             stored to disk as numpy files, freeing up memory space.
             Use this option if your dataset is too large or when extracting many features
             at once. The default is None, so that the features are kept
             in memory.
-        steps : int, optional
+        step_size : int, optional
             Number of batches after which the extracted features
             are saved to disk. The default uses a heuristic so that
             extracted features should fit into 8GB of free memory.
@@ -79,20 +82,24 @@ class BaseExtractor:
         if output_dir:
             os.makedirs(output_dir, exist_ok=True)
 
-        if steps is None:
-            # assume that features to every image consume 3MB of memory and that the user has 8GB of free RAM
-            steps = 8000 // (len(next(iter(batches))) * 3) + 1
+            if not step_size:
+                # if step size is not given, assume that features to every image consume 3MB of memory and that the user has at least 8GB of free RAM
+                step_size = 8000 // (len(next(iter(batches))) * 3) + 1
 
         features = []
         image_ct, last_image_ct = 0, 0
         for i, batch in tqdm(
             enumerate(batches, start=1), desc="Batch", total=len(batches)
         ):
-            features.append(self._extract_features(batch, module_name, flatten_acts))
+            features.append(
+                self._extract_features(
+                    batch=batch, module_name=module_name, flatten_acts=flatten_acts
+                )
+            )
 
             image_ct += len(batch)
 
-            if output_dir and (i % steps == 0 or i == len(batches)):
+            if output_dir and (i % step_size == 0 or i == len(batches)):
                 features_subset_file = os.path.join(
                     output_dir,
                     f"features_{last_image_ct}-{image_ct}.npy",
@@ -106,7 +113,7 @@ class BaseExtractor:
             f"...Features successfully extracted for all {image_ct} images in the database."
         )
         if output_dir:
-            print(f"...Features saved to {output_dir}.")
+            print(f"...Features were saved to {output_dir}.")
             return None
         else:
             features = np.vstack(features)

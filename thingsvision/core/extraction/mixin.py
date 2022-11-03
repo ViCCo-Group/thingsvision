@@ -1,15 +1,12 @@
-import warnings
 from dataclasses import dataclass, field
-from typing import Any, Iterator, Tuple, List
+from typing import Any, List
 
 import numpy as np
 import tensorflow as tf
 import torch
-import torchvision
 from tensorflow import keras
 from tensorflow.keras import layers
 from torchvision import transforms as T
-from tqdm import tqdm
 
 Tensor = torch.Tensor
 Array = np.ndarray
@@ -18,6 +15,9 @@ Array = np.ndarray
 @dataclass
 class PyTorchMixin:
     backend: str = field(init=False, default="pt")
+
+    def __post_init__(self) -> None:
+        self.device = torch.device(self.device)
 
     def get_activation(self, name: str) -> Any:
         """Store copy of hidden unit activations at each layer of model."""
@@ -35,53 +35,59 @@ class PyTorchMixin:
 
         return hook
 
-    def register_hook(self) -> Any:
+    def register_hook(self) -> None:
         """Register a forward hook to store activations."""
         for n, m in self.model.named_modules():
             m.register_forward_hook(self.get_activation(n))
 
     @torch.no_grad()
-    def _extract_features(self, batch, module_name: str, flatten_acts: bool) -> Array:
-        device = torch.device(self.device)
-        self.model = self.model.to(device)
+    def _extract_features(
+        self, batch: Tensor, module_name: str, flatten_acts: bool
+    ) -> Tensor:
+        self.model = self.model.to(self.device)
         # initialise an empty dict to store features for each mini-batch
         global activations
         activations = {}
         # register forward hook to store features
         self.register_hook()
-
-        batch = batch.to(device)
+        # move current batch to torch device
+        batch = batch.to(self.device)
         _ = self.forward(batch)
         act = activations[module_name]
         if flatten_acts:
-            act = self.flatten_acts(act).cpu().numpy()
-
+            act = self.flatten_acts(act)
+        act = self._to_numpy(act)
         return act
 
     def forward(self, batch: Tensor) -> Tensor:
         """Default forward pass."""
         return self.model(batch)
 
-    def flatten_acts(self, act: Tensor) -> Tensor:
+    @staticmethod
+    def flatten_acts(act: Tensor) -> Tensor:
         """Default flattening of activations."""
         return act.view(act.size(0), -1)
+
+    @staticmethod
+    def _to_numpy(act: Tensor) -> Array:
+        """Move activation to CPU and convert torch.Tensor to np.ndarray."""
+        return act.cpu().numpy()
 
     def _show_model(self) -> str:
         return self.model
 
     def load_model(self) -> Any:
         self.load_model_from_source()
-        device = torch.device(self.device)
         if self.model_path:
             try:
-                state_dict = torch.load(self.model_path, map_location=device)
+                state_dict = torch.load(self.model_path, map_location=self.device)
             except FileNotFoundError:
                 state_dict = torch.hub.load_state_dict_from_url(
-                    self.model_path, map_location=device
+                    self.model_path, map_location=self.device
                 )
             self.model.load_state_dict(state_dict)
         self.model.eval()
-        self.model = self.model.to(device)
+        self.model = self.model.to(self.device)
 
     def get_module_names(self) -> List[str]:
         module_names, _ = zip(*self.model.named_modules())
@@ -90,8 +96,8 @@ class PyTorchMixin:
 
     def get_default_transformation(
         self,
-        mean,
-        std,
+        mean: List[float],
+        std: List[float],
         resize_dim: int = 256,
         crop_dim: int = 224,
         apply_center_crop: bool = True,
@@ -113,7 +119,9 @@ class PyTorchMixin:
 class TensorFlowMixin:
     backend: str = field(init=False, default="tf")
 
-    def _extract_features(self, batch, module_name: str, flatten_acts: bool) -> Array:
+    def _extract_features(
+        self, batch: Array, module_name: str, flatten_acts: bool
+    ) -> Array:
         layer_out = [self.model.get_layer(module_name).output]
         activation_model = keras.models.Model(
             inputs=self.model.input,
@@ -140,8 +148,8 @@ class TensorFlowMixin:
 
     def get_default_transformation(
         self,
-        mean,
-        std,
+        mean: List[float],
+        std: List[float],
         resize_dim: int = 256,
         crop_dim: int = 224,
         apply_center_crop: bool = True,
