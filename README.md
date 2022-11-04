@@ -1,3 +1,4 @@
+<a name="readme-top"></a>
 <div align="center">
     <a href="https://github.com/ViCCo-Group/thingsvision/actions/workflows/tests.yml" rel="nofollow">
         <img src="https://github.com/ViCCo-Group/thingsvision/actions/workflows/tests.yml/badge.svg" alt="Tests" />
@@ -23,68 +24,79 @@
 </div>
 
 
-## Model collection
+<br />
 
-Features can be extracted for all models in [torchvision](https://pytorch.org/vision/0.8/models.html), [Keras](https://www.tensorflow.org/api_docs/python/tf/keras/applications), [timm](https://github.com/rwightman/pytorch-image-models), custom models (VGG-16, Resnet50, Inception_v3 and Alexnet) trained on [Ecoset](https://www.pnas.org/doi/10.1073/pnas.2011417118), each of the many [CORnet](https://github.com/dicarlolab/CORnet) versions and both [CLIP](https://github.com/openai/CLIP) variants (`clip-ViT` and `clip-RN`).<br> 
+<!-- Table of Contents -->
+# :notebook_with_decorative_cover: Table of Contents
+
+- [About the Project](#star2-about-the-project)
+  * [Model collection](#file_cabinet-model-collection)
+  * [Functionality](#mechanical_arm-functionality)
+- [Getting Started](#running-getting-started)
+- [Basic usage](#computer-basic-usage)
+- [Contributing](#wave-how-to-contribute)
+- [License](#warning-license)
+- [Citation](#page_with_curl-citation)
+- [Acknowledgements](#gem-acknowledgements)
 
 
-Note that you have to use the respective model name (`str`). For example, if you want to use VGG16 from torchvision, use `vgg16` as the model name and if you want to use VGG16 from TensorFlow/Keras, use the model name `VGG16`. You can further specify the model source by setting the `source` parameter (e.g., `timm`, `torchvision`, `keras`).<br>
+<!-- About the Project -->
+## :star2: About the Project
+`thingsvision` is a Python package that let's you easily extract image representations from many state-of-the-art neural networks for computer vision. In a nutshell, you feed `thingsvision` with a bunch of images and tell it which neural network you are interested in. `thingsvision` will then give you the  representation of the indicated neural network for each image so that you will end up with one feature vector per image. You can use these feature vectors for further analyses. We use the word `features` for short when we mean "image representation".
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
-For the correct abbreviations of [torchvision](https://pytorch.org/vision/0.8/models.html) models have a look [here](https://github.com/pytorch/vision/tree/master/torchvision/models). For the correct abbreviations of [CORnet](https://github.com/dicarlolab/CORnet) models look [here](https://github.com/dicarlolab/CORnet/tree/master/cornet). To separate the string `cornet` from its variant (e.g., `s`, `z`) use a hyphen instead of an underscore (e.g., `cornet-s`, `cornet-z`).<br>
+<!-- Model collection -->
+### :file_cabinet: Model collection
+Neural networks come from different sources. With `thingsvision`, you can extract image representations of all models from:
+- [torchvision](https://pytorch.org/vision/0.8/models.html)
+- [Keras](https://www.tensorflow.org/api_docs/python/tf/keras/applications)
+- [timm](https://github.com/rwightman/pytorch-image-models)
+- some custom models (VGG-16, Resnet50, Inception_v3 and Alexnet) trained on [Ecoset](https://www.pnas.org/doi/10.1073/pnas.2011417118)
+- each of the many [CORnet](https://github.com/dicarlolab/CORnet) versions
+- both [CLIP](https://github.com/openai/CLIP) variants (`clip-ViT` and `clip-RN`).<br> 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-PyTorch examples:  `alexnet`, `resnet18`, `resnet50`, `resnet101`, `vit_b_16`, `vit_b_32`, `vgg13`, `vgg13_bn`, `vgg16`, `vgg16_bn`, `vgg19`, `vgg19_bn`, `cornet-s`, `clip-ViT`
 
-## Environment Setup
+<!-- Functionality -->
+### :mechanical_arm: Functionality
+With `thingsvision`, you can:
+- extract features for any imageset from many popular networks.
+- extract features for any imageset from your custom networks.
+- extract features for the [THINGS image database](https://osf.io/jum2f/).
+- optionally turn off the standard center cropping performed by many networks before extracting features.
+- use HDF5 datasets.
+- conduct basic Representational Similarity Analysis (RSA) after feature extraction.
+- perform Centered Kernel Alignment (CKA) to compare image features across model-module combinations.
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-We recommend to create a new `conda environment` with Python version 3.7, 3.8, or 3.9 before using `thingsvision`. Check out the `environment.yml` file in `envs`, if you want to create a `conda environment` via `yml`. Activate the `environment` and run the following `pip` command in your terminal.
 
-```bash
-$ pip install --upgrade thingsvision
-```
+<!-- Getting Started -->
+## :running: Getting Started
 
-You have to download files from the parent folder of this repository, if you want to extract network activations for [THINGS](https://osf.io/jum2f/). Simply download the shell script `get_files.sh` from this repo and execute it as follows (the shell script will automatically do file downloading and moving for you):
+#### Working locally.
+First, create a new `conda environment` with Python version 3.7, 3.8, or 3.9, e.g. by using `conda` and the [`environment.yml` file](https://github.com/ViCCo-Group/thingsvision/blob/master/envs/environment.yml). Then, activate the environment and simply install `thingsvision` via running the following `pip` command in your terminal.
 
-```bash
-$ wget https://raw.githubusercontent.com/ViCCo-Group/thingsvision/master/get_files.sh (Linux)
-$ curl -O https://raw.githubusercontent.com/ViCCo-Group/thingsvision/master/get_files.sh (macOS)
-$ bash get_files.sh
-```
-
-## Google Colab
-
+#### Google Colab.
 Alternatively, you can use Google Colab to play around with `thingsvision` by uploading your image data to Google Drive.
 You can find the jupyter notebook using `PyTorch` [here](https://colab.research.google.com/github/ViCCo-Group/thingsvision/blob/master/notebooks/pytorch.ipynb) and the `TensorFlow` example [here](https://colab.research.google.com/github/ViCCo-Group/thingsvision/blob/master/notebooks/tensorflow.ipynb).
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-## IMPORTANT NOTES:
 
-1. There exist four different sources from which neural network models and their (pretrained) weights can be downloaded. You can define the source of a model using the `source` argument. Possible sources are [`torchvision`](https://pytorch.org/vision/stable/models.html), [`keras`](https://keras.io/api/applications/), [`timm`](https://github.com/rwightman/pytorch-image-models), and `custom` (e.g., `source = torchvision`).
+<!-- Basic usage -->
+## :computer: Basic usage
+The basic usage of `thingsvision` is straightforward. There are just a handful of variables you have to declare to begin: <br>
+- `root` is the path to the directory that holds the images you want to extract the features for.<br>
+- `source` indicates from which source you want to use a network  (e.g., `torchvision`, `keras`, `timm`, `custom`.).<br>
+- `model_name` denotes the specific network architecture you want to use. Sometimes, the same network architecture is available from different sources, though. Therefore, within `thingsvision`, you have to use the source-specific model name when declaring the model. For torchvision's abbreviations, look [here](https://github.com/pytorch/vision/tree/master/torchvision/models). For CORnet's abbreviations, look [here](https://github.com/dicarlolab/CORnet/tree/master/cornet). To separate the string `cornet` from its variant (e.g., `s`, `z`) use a hyphen instead of an underscore (e.g., `cornet-s`).
+- `batch_size` indicates how many images in parallel `thingsvision` shall process. The higher, the more RAM of your machine is used (and it might appear unresponsive). The lower, the longer it takes to extract all features. A good default value is 64.
+- `class_names` is an optional list of class names for class dataset.
+- `file_names` is an optional list of file names according to which features should be sorted.
+- `module_name` denotes for which specific module of your chosen network architecture you want to extract features. You can see all module names of your chosen network by executing `extractor.show_model()` (see example below).
 
-2. If you happen to use the [THINGS image database](https://osf.io/jum2f/), make sure to correctly `unzip` all zip files (sorted from A-Z), and have all `object` directories stored in the parent directory `./images/` (e.g., `./images/object_xy/`) as well as the `things_concepts.tsv` file stored in the `./data/` folder. `bash get_files.sh` does the latter for you. Images, however, must be downloaded from the [THINGS database](https://osf.io/jum2f/) `Main` subfolder.  **The download is around 5GB**.
-
-*   Go to <https://osf.io/jum2f/files/>
-*   Select `Main` folder and click on "Download as zip" button (top right).
-*   Unzip contained `object_images_*.zip` file using the password (check the
-    `description.txt` file for details). For example:
-
-    ``` {.bash}
-    for fn in object_images_*.zip; do unzip -P the_password $fn; done
-    ```
-
-3. Features can be extracted for every layer for all `timm`, `torchvision`, `TensorFlow`, `CORnet` and `CLIP`/`OpenCLIP` models.
-
-4. The script automatically extracts features for the specified `model` and `module`.
-
-5. If you happen to extract hidden unit activations for many images, it is possible to run into `MemoryErrors`. To circumvent such problems, a helper function called `split_activations` will split the activation matrix into several batches, and stores them in separate files. For now, the split parameter is set to `10`. Hence, the function will split the activation matrix into `10` files. This parameter can, however, easily be modified in case you need more (or fewer) splits. To merge the separate activation batches back into a single activation matrix, just call `merge_activations` when loading the activations (e.g., `activations = merge_activations(PATH)`). 
-
-## Feature extraction
-
-### Extract features for a specific layer/module of a state-of-the-art `torchvision`, `timm`, `TensorFlow`, `CORnet`, or `CLIP` model
-
-The following examples demonstrate how to load a model with PyTorch or TensorFlow/Keras and how to subsequently extract features. 
-Please keep in mind that the model names as well as the layer names depend on the backend you want to use. If you use PyTorch, you will need to use these [model names](https://pytorch.org/vision/stable/models.html). If you use Tensorflow, you will need to use these [model names](https://keras.io/api/applications/). You can find the layer names by using `extractor.show_model()`.
 
 ### Example call for AlexNet with PyTorch:
+The following examples demonstrate how to load the model AlexNet with PyTorch and how to subsequently extract features. 
 
 ```python
 import torch
@@ -96,8 +108,8 @@ root='path/to/root/img/directory' # (e.g., './images/)
 model_name = 'alexnet'
 source = 'torchvision'
 batch_size = 64
-class_names = None  # optional list of class names for class dataset
-file_names = None # optional list of file names according to which features should be sorted
+class_names = None
+file_names = None
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
@@ -163,340 +175,25 @@ features = extractor.extract_features(
 save_features(features, out_path='path/to/features', file_format='npy')
 ```
 
-### Example call for [CLIP](https://github.com/openai/CLIP) with PyTorch:
-Note, that the vision model has to be defined in the `model_parameters` dictionary with the `variant` key. You can either use `ViT-B/32` or `RN50`.
+_For more examples and explanations of additional functionality like how to optionally turn off center cropping, how to use HDF5 datasets, how to perform RSA or CKA, or how to easily extract features for the [THINGS image database](https://osf.io/jum2f/), please refer to the [Documentation](https://vicco-group.github.io/thingsvision/)._
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-```python
-import torch
-from thingsvision import get_extractor
-from thingsvision.utils.storing import save_features
-from thingsvision.utils.data import ImageDataset, DataLoader
-from thingsvision.core.extraction import center_features
 
-root='path/to/root/img/directory' # (e.g., './images/)
-model_name = 'clip'
-module_name = 'visual'
-source = 'custom'
-batch_size = 64
-class_names = None  # optional list of class names for class dataset
-file_names = None # optional list of file names according to which features should be sorted
+<!-- Contributing -->
+## :wave: How to contribute
+If you come across problems or have suggestions please submit an issue!
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
-# initialize extractor module
-extractor = get_extractor(
-  model_name=model_name, 
-  pretrained=True, 
-  model_path=None, 
-  device=device, 
-  source=source, 
-  model_parameters={'variant': 'ViT-B/32'},
-)
-dataset = ImageDataset(
-  root=root,
-  out_path='path/to/features',
-  backend=extractor.backend,
-  transforms=extractor.get_transformations(),
-  class_names=class_names,
-  file_names=file_names,
-)
-batches = DataLoader(
-  dataset=dataset, 
-  batch_size=batch_size, 
-  backend=extractor.backend,
-)
-features = extractor.extract_features(
-  batches=batches,
-  module_name=module_name,
-  flatten_acts=False,
-  clip=True,
-)
-features = center_features(features)
-save_features(features, out_path='path/to/features', file_format='npy')
-```
 
-### Example call for [Open CLIP](https://github.com/mlfoundations/open_clip) with PyTorch:
+<!-- License -->
+## :warning: License
+This GitHub repository is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-Note that the vision model and the dataset that was used for training CLIP have to be defined in the `model_parameters` dictionary `variant` and `dataset` keys. Possible values can be found in the [Open CLIP](https://github.com/mlfoundations/open_clip) pretrained models list.
 
-```python
-import torch
-from thingsvision import get_extractor
-from thingsvision.utils.storing import save_features
-from thingsvision.utils.data import ImageDataset, DataLoader
-from thingsvision.core.extraction import center_features
-
-root='path/to/root/img/directory' # (e.g., './images/)
-model_name = 'OpenCLIP'
-module_name = 'visual'
-source = 'custom'
-batch_size = 64
-class_names = None  # optional list of class names for class dataset
-file_names = None # optional list of file names according to which features should be sorted
-
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
-
-# initialize extractor module
-extractor = get_extractor(
-  model_name=model_name, 
-  pretrained=True,
-  model_path=None, 
-  device=device, 
-  source=source, 
-  model_parameters={'variant': 'ViT-H-14', 'dataset': 'laion2b_s32b_b79k'},
-)
-dataset = ImageDataset(
-  root=root,
-  out_path='path/to/features',
-  backend=extractor.backend,
-  transforms=extractor.get_transformations(),
-  class_names=class_names,
-  file_names=file_names,
-)
-batches = DataLoader(
-  dataset=dataset, 
-  batch_size=batch_size, 
-  backend=extractor.backend,
-)
-features = extractor.extract_features(
-  batches=batches,
-  module_name=module_name,
-  flatten_acts=False,
-  clip=True,
-)
-features = center_features(features)
-save_features(features, out_path='path/to/features', file_format='npy')
-```
-
-### Example call for [CORnet](https://github.com/dicarlolab/CORnet) with PyTorch:
-
-```python
-import torch
-from thingsvision import get_extractor
-from thingsvision.utils.storing import save_features
-from thingsvision.utils.data import ImageDataset, DataLoader
-
-root='path/to/root/img/directory' # (e.g., './images/)
-model_name = 'cornet-s'
-source = 'custom'
-batch_size = 64
-class_names = None  # optional list of class names for class dataset
-file_names = None # optional list of file names according to which features should be sorted
-
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
-
-# initialize extractor module
-extractor = get_extractor(
-  model_name=model_name,
-  pretrained=True,
-  model_path=None,
-  device=device,
-  source=source,
-)
-extractor.show_model()
-
-Sequential(
-  (V1): Sequential(
-    (conv1): Conv2d(3, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
-    (norm1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-    (nonlin1): ReLU(inplace=True)
-    (pool): MaxPool2d(kernel_size=3, stride=2, padding=1, dilation=1, ceil_mode=False)
-    (conv2): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
-    (norm2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-    (nonlin2): ReLU(inplace=True)
-    (output): Identity()
-  )
-  ...
-  (decoder): Sequential(
-    (avgpool): AdaptiveAvgPool2d(output_size=1)
-    (flatten): Flatten()
-    (linear): Linear(in_features=512, out_features=1000, bias=True)
-    (output): Identity()
-  )
-)
-
-# enter part of the model for which you would like to extract features (e.g., penultimate layer)
-module_name = "decoder.flatten"
-
-dataset = ImageDataset(
-  root=root,
-  out_path='path/to/features',
-  backend=extractor.backend,
-  transforms=extractor.get_transformations(),
-  class_names=class_names,
-  file_names=file_names,
-)
-batches = DataLoader(
-  dataset=dataset,
-  batch_size=batch_size,
-  backend=extractor.backend
-)
-features = extractor.extract_features(
-  batches=batches,
-  module_name=module_name,
-  flatten_acts=False,
-  clip=False,
-)
-save_features(features, out_path='path/to/features', file_format='npy')
-```
-
-### Example call for VGG16 with TensorFlow:
-
-```python
-import torch
-from thingsvision import get_extractor
-from thingsvision.utils.storing import save_features
-from thingsvision.utils.data import ImageDataset, DataLoader
-
-root='path/to/root/img/directory' # (e.g., './images/)
-model_name = 'VGG16'
-module_name = 'block1_conv1'
-source = 'keras' # TensorFlow backend
-batch_size = 64
-class_names = None  # optional list of class names for class dataset
-file_names = None # optional list of file names according to which features should be sorted
-
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
-
-# initialize extractor module
-extractor = get_extractor(
-  model_name=model_name,
-  pretrained=True,
-  model_path=None,
-  device=device,
-  source=source,
-)
-dataset = ImageDataset(
-  root=root,
-  out_path='path/to/features',
-  backend=extractor.backend,
-  transforms=extractor.get_transformations(),
-  class_names=class_names,
-  file_names=file_names,
-)
-batches = DataLoader(
-  dataset=dataset,
-  batch_size=batch_size,
-  backend=extractor.backend,
-)
-features = extractor.extract_features(
-  batches=batches,
-  module_name=module_name,
-  flatten_acts=False,
-  clip=False,
-)
-save_features(features, out_path='path/to/features', file_format='npy')
-```
-
-### Optional Center Cropping
-
-Center cropping is used by default but can be deactivated by turning off the `apply_center_crop` argument of the `get_transformations` method.
-
-```python
-root = 'path/to/images'
-apply_center_crop = False
-dataset = ImageDataset(
-  root=root,
-  out_path='path/to/features',
-  backend=extractor.backend,
-  transforms=model.get_transformations(apply_center_crop=apply_center_crop),
-  class_names=class_names,
-  file_names=file_names,
-)
-```
-
-## Using HDF5 datasets (e.g. NSD stimuli)
-
-You can also extract features for images stored in HDF5 dataset. For this you can simply replace `ImageDataset` with `HDF5Dataset`, providing the path to the HDF5 file as `hdf5_fp` and the name of the dataset containing the images as `img_ds_key`. 
-
-Optionally, you can specify which images to extract features for by providing a list of indices as `img_indices`, otherwise features for all images will be extracted. 
-
-The following example demonstrates how to extract features for images corresponding to the NSD stimuli dataset shown to subject 1:
-
-```python
-from thingsvision.utils.data import HDF5Dataset
-
-# get indices of all 10000 images shown to first subject
-img_indices = np.unique(
-    experiment['subjectim'][:, experiment['masterordering'][0] - 1][0]
-)
-
-dataset = HDF5Dataset(
-    hdf5_fp="<path_to_nsd>/nsddata_stimuli/stimuli/nsd_stimuli.hdf5",
-    img_ds_key="imgBrick",
-    transforms=extractor.get_transformations(),
-    backend=extractor.backend,
-    img_indices=img_indices
-)
-```
-
-## Extract features from custom models
-
-If you want to use a custom model from the `custom_models` directory, you need to use their class name (e.g., `VGG16_ecoset`) as the model name. 
-
-```python
-from thingsvision import get_extractor
-model_name = 'VGG16_ecoset'
-source = 'custom'
-extractor = get_extractor(
-  model_name=model_name, 
-  pretrained=True, 
-  model_path=None, 
-  device=device, 
-  source=source,
-)
-```
-
-## Adding custom models
-
-If you want to use your own model and/or want to make it public, you just need to implement a class inheriting from the `custom_models/custom.py:Custom` class and implement the `create_model` method.
-There you can build/download the model and its weights. The constructors expects a `device` (str) and a `kwargs` (dict) where you can put model parameters. The `backend` attribute needs to be set to either `pt` (PyTorch) or `tf` (Tensorflow). The `create_model` method needs to return the model and an optional preprocessing method. If no preprocessing is set, the ImageNet default preprocessing is used. Afterwards you can put the file in the `custom_models` directory and create a pull request to include the model in the official GitHub repository.
-
-```python
-from thingsvision.custom_models.custom import Custom
-import torchvision.models as torchvision_models
-import torch
-
-class VGG16_ecoset(Custom):
-    def __init__(self, device, **kwargs) -> None:
-        super().__init__(device)
-        self.backend = 'pt'
-        self.preprocess = None
-
-    def create_model(self):
-          model = torchvision_models.vgg16(pretrained=False, num_classes=565)
-          path_to_weights = 'https://osf.io/fe7s5/download'
-          state_dict = torch.hub.load_state_dict_from_url(path_to_weights, map_location=self.device)
-          model.load_state_dict(state_dict)
-          return model, self.preprocess
-```
-
-## Representational Similarity Analysis (RSA) 
-
-Compare representational (dis-)similarity matrices (RDMs) corresponding to model features and human representations (e.g., fMRI recordings).
-
-```python
-from thingsvision.core.rsa import compute_rdm, correlate_rdms
-
-rdm_dnn = compute_rdm(features, method='correlation')
-corr_coeff = correlate_rdms(rdm_dnn, rdm_human, correlation='pearson')
-```
-
-## Centered Kernel Alignment (CKA)
-
-Perform CKA to compare image features of two different model architectures for the same layer, or two different layers of the same architecture.
-
-```python
-from thingsvision.core.cka import CKA
-
-m = # number of images (e.g., features_i.shape[0])
-kernel = 'linear'
-cka = CKA(m=m, kernel=kernel)
-rho = cka.compare(X=features_i, Y=features_j)
-```
-
-## Citation
-
-If you use this GitHub repository (or any modules associated with it), we would grately appreciate to cite our [paper](https://www.frontiersin.org/articles/10.3389/fninf.2021.679838/full) as follows:
+<!-- Citation -->
+## :page_with_curl: Citation
+If you use this GitHub repository (or any modules associated with it), please cite our [paper](https://www.frontiersin.org/articles/10.3389/fninf.2021.679838/full) as follows:
 
 ```latex
 @article{Muttenthaler_2021,
@@ -511,3 +208,12 @@ If you use this GitHub repository (or any modules associated with it), we would 
 	issn = {1662-5196},
 }
 ```
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+<!-- Acknowledgements -->
+## :gem: Acknowledgements
+- mention useful resources and libraries.
+- mention collaborators.
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
