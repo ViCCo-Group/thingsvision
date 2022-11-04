@@ -30,8 +30,8 @@
 # :notebook_with_decorative_cover: Table of Contents
 
 - [About the Project](#star2-about-the-project)
-  * [Model collection](#file_cabinet-model-collection)
   * [Functionality](#mechanical_arm-functionality)
+  * [Model collection](#file_cabinet-model-collection)
 - [Getting Started](#running-getting-started)
 - [Basic usage](#computer-basic-usage)
 - [Contributing](#wave-how-to-contribute)
@@ -46,18 +46,6 @@
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
-<!-- Model collection -->
-### :file_cabinet: Model collection
-Neural networks come from different sources. With `thingsvision`, you can extract image representations of all models from:
-- [torchvision](https://pytorch.org/vision/0.8/models.html)
-- [Keras](https://www.tensorflow.org/api_docs/python/tf/keras/applications)
-- [timm](https://github.com/rwightman/pytorch-image-models)
-- some custom models (VGG-16, Resnet50, Inception_v3 and Alexnet) trained on [Ecoset](https://www.pnas.org/doi/10.1073/pnas.2011417118)
-- each of the many [CORnet](https://github.com/dicarlolab/CORnet) versions
-- both [CLIP](https://github.com/openai/CLIP) variants (`clip-ViT` and `clip-RN`).<br> 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
 <!-- Functionality -->
 ### :mechanical_arm: Functionality
 With `thingsvision`, you can:
@@ -68,6 +56,18 @@ With `thingsvision`, you can:
 - use HDF5 datasets.
 - conduct basic Representational Similarity Analysis (RSA) after feature extraction.
 - perform Centered Kernel Alignment (CKA) to compare image features across model-module combinations.
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+<!-- Model collection -->
+### :file_cabinet: Model collection
+Neural networks come from different sources. With `thingsvision`, you can extract image representations of all models from:
+- [torchvision](https://pytorch.org/vision/0.8/models.html)
+- [Keras](https://www.tensorflow.org/api_docs/python/tf/keras/applications)
+- [timm](https://github.com/rwightman/pytorch-image-models)
+- some custom models (VGG-16, Resnet50, Inception_v3 and Alexnet) trained on [Ecoset](https://www.pnas.org/doi/10.1073/pnas.2011417118)
+- each of the many [CORnet](https://github.com/dicarlolab/CORnet) versions
+- both [CLIP](https://github.com/openai/CLIP) variants (`clip-ViT` and `clip-RN`).<br> 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
