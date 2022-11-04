@@ -1,6 +1,6 @@
 ---
 layout: default
-title: VGG16 with Tensorflow
+title: VGG16 with TensorFlow
 parent: Examples
 nav_order: 4
 ---

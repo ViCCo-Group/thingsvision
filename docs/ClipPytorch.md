@@ -1,6 +1,6 @@
 ---
 layout: default
-title: CLIP/OpenCLIP with Pytorch
+title: CLIP/OpenCLIP with PyTorch
 parent: Examples
 nav_order: 2
 ---
