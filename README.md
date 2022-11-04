@@ -44,7 +44,7 @@
 ## :star2: About the Project
 `thingsvision` is a Python package that let's you easily extract image representations from many state-of-the-art neural networks for computer vision. In a nutshell, you feed `thingsvision` with a bunch of images and tell it which neural network you are interested in. `thingsvision` will then give you the  representation of the indicated neural network for each image so that you will end up with one feature vector per image. You can use these feature vectors for further analyses. We use the word `features` for short when we mean "image representation".
 
-:rotating_light: Note: some function calls mentioned in the [paper](https://www.frontiersin.org/articles/10.3389/fninf.2021.679838/full) have been deprecated. To use this package successfully, exclusively follow this README and the [Documentation](https://vicco-group.github.io/thingsvision/). :rotating_light:
+:rotating_light: Note: some function calls mentioned in the [paper](https://www.frontiersin.org/articles/10.3389/fninf.2021.679838/full) have been deprecated. To use this package successfully, exclusively follow this `README` and the [Documentation](https://vicco-group.github.io/thingsvision/). :rotating_light:
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -67,6 +67,7 @@ Neural networks come from different sources. With `thingsvision`, you can extrac
 - [torchvision](https://pytorch.org/vision/0.8/models.html)
 - [Keras](https://www.tensorflow.org/api_docs/python/tf/keras/applications)
 - [timm](https://github.com/rwightman/pytorch-image-models)
+- [vissl](https://github.com/facebookresearch/vissl)
 - some custom models (VGG-16, Resnet50, Inception_v3 and Alexnet) trained on [Ecoset](https://www.pnas.org/doi/10.1073/pnas.2011417118)
 - each of the many [CORnet](https://github.com/dicarlolab/CORnet) versions
 - both [CLIP](https://github.com/openai/CLIP) variants (`clip-ViT` and `clip-RN`).<br> 
@@ -77,10 +78,21 @@ Neural networks come from different sources. With `thingsvision`, you can extrac
 ## :running: Getting Started
 
 #### Working locally.
-First, create a new `conda environment` with Python version 3.7, 3.8, or 3.9, e.g. by using `conda` and the [`environment.yml` file](https://github.com/ViCCo-Group/thingsvision/blob/master/envs/environment.yml). Then, activate the environment and simply install `thingsvision` via running the following `pip` command in your terminal.
+First, create a new `conda environment` with Python version 3.7, 3.8, or 3.9, e.g. by using `conda` and the [`environment.yml` file](https://github.com/ViCCo-Group/thingsvision/blob/master/envs/environment.yml) like so
+
+```bash
+$ conda env create --prefix /path/to/conda/envs/thingsvision --file envs/environment.yml
+$ conda activate thingsvision
+```
+
+Then, activate the environment and simply install `thingsvision` via running the following `pip` command in your terminal.
+
+```bash
+$ pip install --upgrade thingsvision
+```
 
 #### Google Colab.
-Alternatively, you can use Google Colab to play around with `thingsvision` by uploading your image data to Google Drive.
+Alternatively, you can use Google Colab to play around with `thingsvision` by uploading your image data to Google Drive (via directory mounting).
 You can find the jupyter notebook using `PyTorch` [here](https://colab.research.google.com/github/ViCCo-Group/thingsvision/blob/master/notebooks/pytorch.ipynb) and the `TensorFlow` example [here](https://colab.research.google.com/github/ViCCo-Group/thingsvision/blob/master/notebooks/tensorflow.ipynb).
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -92,8 +104,8 @@ The basic usage of `thingsvision` is straightforward. There are just a handful o
 - `source` indicates from which source you want to use a network  (e.g., `torchvision`, `keras`, `timm`, `custom`.).<br>
 - `model_name` denotes the specific network architecture you want to use. Sometimes, the same network architecture is available from different sources, though. Therefore, within `thingsvision`, you have to use the source-specific model name when declaring the model. For torchvision's abbreviations, look [here](https://github.com/pytorch/vision/tree/master/torchvision/models). For CORnet's abbreviations, look [here](https://github.com/dicarlolab/CORnet/tree/master/cornet). To separate the string `cornet` from its variant (e.g., `s`, `z`) use a hyphen instead of an underscore (e.g., `cornet-s`).
 - `batch_size` indicates how many images in parallel `thingsvision` shall process. The higher, the more RAM of your machine is used (and it might appear unresponsive). The lower, the longer it takes to extract all features. A good default value is 64.
-- `class_names` is an optional list of class names for class dataset.
-- `file_names` is an optional list of file names according to which features should be sorted.
+- `class_names` is an optional list of class names for a class dataset.
+- `file_names` is an optional list of file names according to which the extracted features should be sorted.
 - `module_name` denotes for which specific module of your chosen network architecture you want to extract features. You can see all module names of your chosen network by executing `extractor.show_model()` (see example below).
 
 
@@ -122,7 +134,7 @@ extractor = get_extractor(
   device=device, 
   source=source,
 )
-extractor.show_model()
+extractor.show_model() # display architecture
 
 AlexNet(
   (features): Sequential(
