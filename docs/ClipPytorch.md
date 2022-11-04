@@ -108,3 +108,4 @@ features = extractor.extract_features(
 )
 features = center_features(features)
 save_features(features, out_path='path/to/features', file_format='npy')
+```
