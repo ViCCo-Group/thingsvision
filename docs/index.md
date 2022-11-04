@@ -2,11 +2,11 @@
 layout: default
 title: Home
 nav_order: 1
-description: "thingsvision: Extracting Features from Deep Neural Networks"
+description: "thingsvision: extracting features from deep neural nets"
 permalink: /
 ---
 
-# thingsvision - Extracting Features from Deep Neural Networks.
+# thingsvision - extracting features from deep neural nets.
 
 thingsvision is a Python package for easily extracting and analyzing image representations from state-of-the-art neural networks for computer vision. 
 
