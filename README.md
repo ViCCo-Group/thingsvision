@@ -1,9 +1,9 @@
 <div align="center">
-    <a href="https://github.com/ViCCo-Group/THINGSvision/actions/workflows/tests.yml" rel="nofollow">
-        <img src="https://github.com/ViCCo-Group/THINGSvision/actions/workflows/tests.yml/badge.svg" alt="Tests" />
+    <a href="https://github.com/ViCCo-Group/thingsvision/actions/workflows/tests.yml" rel="nofollow">
+        <img src="https://github.com/ViCCo-Group/thingsvision/actions/workflows/tests.yml/badge.svg" alt="Tests" />
     </a>
-    <a href="https://github.com/ViCCo-Group/THINGSvision/actions/workflows/coverage.yml" rel="nofollow">
-        <img src="https://codecov.io/gh/ViCCo-Group/THINGSvision/branch/master/graph/badge.svg" alt="Code Coverage" />
+    <a href="https://github.com/ViCCo-Group/thingsvision/actions/workflows/coverage.yml" rel="nofollow">
+        <img src="https://codecov.io/gh/ViCCo-Group/thingsvision/branch/master/graph/badge.svg" alt="Code Coverage" />
     </a>
     <a href="https://pypi.org/project/thingsvision/" rel="nofollow">
         <img src="https://img.shields.io/pypi/v/thingsvision" alt="PyPI" />
@@ -11,13 +11,13 @@
     <a href="https://www.python.org/" rel="nofollow">
         <img src="https://img.shields.io/badge/python-3.8%20%7C%203.9%20%7C%203.10-blue.svg" alt="Python version" />
     </a>
-    <a href="https://github.com/ViCCo-Group/THINGSvision/blob/master/LICENSE" rel="nofollow">
+    <a href="https://github.com/ViCCo-Group/thingsvision/blob/master/LICENSE" rel="nofollow">
         <img src="https://img.shields.io/pypi/l/thingsvision" alt="License" />
     </a>
     <a href="https://github.com/psf/black" rel="nofollow">
         <img src="https://img.shields.io/badge/code%20style-black-000000.svg" alt="Code style: black" />
     </a>
-    <a href="https://colab.research.google.com/github/ViCCo-Group/THINGSvision/blob/master/notebooks/pytorch.ipynb" rel="nofollow">
+    <a href="https://colab.research.google.com/github/ViCCo-Group/thingsvision/blob/master/notebooks/pytorch.ipynb" rel="nofollow">
         <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab" />
     </a>
 </div>
@@ -46,15 +46,15 @@ $ pip install --upgrade thingsvision
 You have to download files from the parent folder of this repository, if you want to extract network activations for [THINGS](https://osf.io/jum2f/). Simply download the shell script `get_files.sh` from this repo and execute it as follows (the shell script will automatically do file downloading and moving for you):
 
 ```bash
-$ wget https://raw.githubusercontent.com/ViCCo-Group/THINGSvision/master/get_files.sh (Linux)
-$ curl -O https://raw.githubusercontent.com/ViCCo-Group/THINGSvision/master/get_files.sh (macOS)
+$ wget https://raw.githubusercontent.com/ViCCo-Group/thingsvision/master/get_files.sh (Linux)
+$ curl -O https://raw.githubusercontent.com/ViCCo-Group/thingsvision/master/get_files.sh (macOS)
 $ bash get_files.sh
 ```
 
 ## Google Colab
 
 Alternatively, you can use Google Colab to play around with `thingsvision` by uploading your image data to Google Drive.
-You can find the jupyter notebook using `PyTorch` [here](https://colab.research.google.com/github/ViCCo-Group/THINGSvision/blob/master/notebooks/pytorch.ipynb) and the `TensorFlow` example [here](https://colab.research.google.com/github/ViCCo-Group/THINGSvision/blob/master/notebooks/tensorflow.ipynb).
+You can find the jupyter notebook using `PyTorch` [here](https://colab.research.google.com/github/ViCCo-Group/thingsvision/blob/master/notebooks/pytorch.ipynb) and the `TensorFlow` example [here](https://colab.research.google.com/github/ViCCo-Group/thingsvision/blob/master/notebooks/tensorflow.ipynb).
 
 ## IMPORTANT NOTES:
 

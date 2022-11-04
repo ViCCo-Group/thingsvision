@@ -2,13 +2,13 @@
 layout: default
 title: Home
 nav_order: 1
-description: "THINGSVision: Extracting Features from Deep Neural Networks"
+description: "thingsvision: Extracting Features from Deep Neural Networks"
 permalink: /
 ---
 
-# THINGSVision - Extracting Features from Deep Neural Networks.
+# thingsvision - Extracting Features from Deep Neural Networks.
 
-THINGSVision is a python toolbox to quickly and easily extract and analyze image representations from state-of-the-art neural networks for computer vision. 
+thingsvision is a Python package for easily extracting and analyzing image representations from state-of-the-art neural networks for computer vision. 
 
 To get started, please check out the [Getting Started](GettingStarted.md) page, as well as our list of [Examples](Examples.md), or try our Colab notebooks for [Pytorch](https://colab.research.google.com/github/ViCCo-Group/THINGSvision/blob/master/doc/pytorch.ipynb) and [Tensorflow](https://colab.research.google.com/github/ViCCo-Group/THINGSvision/blob/master/doc/tensorflow.ipynb) .
 
