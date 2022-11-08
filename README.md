@@ -226,7 +226,7 @@ If you use this GitHub repository (or any modules associated with it), please ci
 
 <!-- Contributions -->
 ## :gem: Contributions
-- Here, we list all the people that have made and still make this project possible. We only list contributors that have made substantial contributions without which core functionalities would not work. Contributors are listed in descending order according to their quality $\cup$ quantity of contributions.
+Here, we list all the people that have made and still make this project possible. We only list contributors that have made substantial contributions without which core functionalities would not work. Contributors are listed in descending order according to their quality $\cup$ quantity of contributions.
 
 
 - Design: [Lukas Muttenthaler](https://lukasmut.github.io/), [Martin N. Hebart](http://martin-hebart.de/), [Johannes Roth](https://jroth.space/)
