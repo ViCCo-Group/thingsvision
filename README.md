@@ -231,7 +231,7 @@ Here, we list all the people that have made and still make this project possible
 
 - Conception / Design: [Lukas Muttenthaler](https://lukasmut.github.io/), [Martin N. Hebart](http://martin-hebart.de/), [Johannes Roth](https://jroth.space/), [Philipp Kaniuth](https://www.cbs.mpg.de/person/kaniuth/1483114)
 - Software Dev.: [Lukas Muttenthaler](https://lukasmut.github.io/), [Johannes Roth](https://jroth.space/), [Hannes Hansen](https://github.com/hahahannes), [Jonas Dippel](https://github.com/jonasd4), [Alex Murphy](https://github.com/Alxmrphi), [Roman Leipe](https://github.com/RLeipe)
-- Docs/Website: [Roman Leipe](https://github.com/RLeipe), [Philipp Kaniuth](https://www.cbs.mpg.de/person/kaniuth/1483114), [Lukas Muttenthaler](https://lukasmut.github.io/), [Johannes Roth](https://jroth.space/)
+- Docs / Website: [Roman Leipe](https://github.com/RLeipe), [Philipp Kaniuth](https://www.cbs.mpg.de/person/kaniuth/1483114), [Lukas Muttenthaler](https://lukasmut.github.io/), [Johannes Roth](https://jroth.space/)
 - README: [Philipp Kaniuth](https://www.cbs.mpg.de/person/kaniuth/1483114), [Lukas Muttenthaler](https://lukasmut.github.io/), [Johannes Roth](https://jroth.space/), [Oliver Contier](https://olivercontier.com/)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
