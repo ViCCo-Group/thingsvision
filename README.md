@@ -178,13 +178,12 @@ dataset = ImageDataset(
 batches = DataLoader(
   dataset=dataset,
   batch_size=batch_size, 
-  backend=extractor.backend
+  backend=extractor.get_backend()
 )
 features = extractor.extract_features(
   batches=batches,
   module_name=module_name,
   flatten_acts=True,
-  clip=False,
 )
 save_features(features, out_path='path/to/features', file_format='npy')
 ```
