@@ -37,7 +37,7 @@
 - [Contributing](#wave-how-to-contribute)
 - [License](#warning-license)
 - [Citation](#page_with_curl-citation)
-- [Acknowledgements](#gem-acknowledgements)
+- [Contributions](#gem-contributions)
 
 
 <!-- About the Project -->
@@ -206,7 +206,7 @@ This GitHub repository is licensed under the MIT License - see the [LICENSE.md](
 
 <!-- Citation -->
 ## :page_with_curl: Citation
-If you use this GitHub repository (or any modules associated with it), please cite our [paper](https://www.frontiersin.org/articles/10.3389/fninf.2021.679838/full) as follows:
+If you use this GitHub repository (or any modules associated with it), please cite our [paper](https://www.frontiersin.org/articles/10.3389/fninf.2021.679838/full) for the initial version of `thingsvision` as follows:
 
 ```latex
 @article{Muttenthaler_2021,
