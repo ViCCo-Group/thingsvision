@@ -225,9 +225,12 @@ If you use this GitHub repository (or any modules associated with it), please ci
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
-<!-- Acknowledgements -->
-## :gem: Acknowledgements
-- mention useful resources and libraries.
-- mention collaborators.
+<!-- Contributions -->
+## :gem: Contributions
+- Here, we list all the people that have made and still make this project possible. We only list contributors that have made substantial contributions without which core functionalities would not work. Contributors are listed according to their contributions in descending order.
+- Design: (Lukas Muttenthaler)[https://lukasmut.github.io/], (Martin N. Hebart)[http://martin-hebart.de/], (Johannes Roth)[https://jroth.space/]
+- Software Dev.: (Lukas Muttenthaler)[https://lukasmut.github.io/], (Johannes Roth)[https://jroth.space/], (Hannes Hansen)[https://github.com/hahahannes], (Jonas Dippel)[https://github.com/jonasd4], (Alex Murphy)[https://github.com/Alxmrphi], (Roman Leipe)[https://github.com/RLeipe]
+- Docs: (Roman Leipe)[https://github.com/RLeipe], (Philipp Kaniuth)[https://www.cbs.mpg.de/person/kaniuth/1483114], (Lukas Muttenthaler)[https://lukasmut.github.io/], (Johannes Roth)[https://jroth.space/]
+- README: (Philipp Kaniuth)[https://www.cbs.mpg.de/person/kaniuth/1483114], (Lukas Muttenthaler)[https://lukasmut.github.io/], (Johannes Roth)[https://jroth.space/], (Oliver Contier)[https://olivercontier.com/]
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
