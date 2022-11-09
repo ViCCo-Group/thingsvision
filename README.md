@@ -143,7 +143,7 @@ batches = DataLoader(
 
 Now all that is left is to extract the image features and store them to disk! Here we're extracting features from the last convolutional layer of AlexNet (`features.10`), but if you don't know which modules are available for a given model, just call `extractor.show_model()` to print all modules.
 
-```
+```python
 module_name = 'features.10'
 
 features = extractor.extract_features(
