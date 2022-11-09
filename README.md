@@ -117,7 +117,7 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 extractor = get_extractor(
   model_name=model_name,
   source=source,
-  device=device, 
+  device=device
 )
 ```
 
@@ -131,7 +131,7 @@ dataset = ImageDataset(
   root=root,
   out_path='path/to/features',
   backend=extractor.get_backend(),
-  transforms=extractor.get_transformations(),
+  transforms=extractor.get_transformations()
 )
 
 batches = DataLoader(
@@ -149,7 +149,7 @@ module_name = 'features.10'
 features = extractor.extract_features(
   batches=batches,
   module_name=module_name,
-  flatten_acts=True,  # flatten 2D feature maps from convolutional layer 
+  flatten_acts=True  # flatten 2D feature maps from convolutional layer
 )
 
 save_features(features, out_path='path/to/features', file_format='npy')
