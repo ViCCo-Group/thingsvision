@@ -54,7 +54,7 @@
 With `thingsvision`, you can:
 - extract features for any imageset from many popular networks.
 - extract features for any imageset from your custom networks.
-- extract features for the [THINGS image database](https://osf.io/jum2f/).
+- extract features for >26,000 images from the [THINGS image database](https://osf.io/jum2f/).
 - optionally turn off the standard center cropping performed by many networks before extracting features.
 - extract features from HDF5 datasets directly (e.g. NSD stimuli)
 - conduct basic Representational Similarity Analysis (RSA) after feature extraction.
