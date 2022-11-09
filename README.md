@@ -33,7 +33,8 @@
   * [Functionality](#mechanical_arm-functionality)
   * [Model collection](#file_cabinet-model-collection)
 - [Getting Started](#running-getting-started)
-- [Basic usage](#computer-basic-usage)
+  * [Setting up your environment](#computer-setting-up-your-environment)
+  * [Basic usage](#mag-basic-usage)
 - [Contributing](#wave-how-to-contribute)
 - [License](#warning-license)
 - [Citation](#page_with_curl-citation)
@@ -77,6 +78,8 @@ Neural networks come from different sources. With `thingsvision`, you can extrac
 <!-- Getting Started -->
 ## :running: Getting Started
 
+<!-- Setting up your environment -->
+### :computer: Setting up your environment
 #### Working locally.
 First, create a new `conda environment` with Python version 3.7, 3.8, or 3.9, e.g. by using `conda` and the [`environment.yml` file](https://github.com/ViCCo-Group/thingsvision/blob/master/envs/environment.yml) like so
 
@@ -98,19 +101,8 @@ You can find the jupyter notebook using `PyTorch` [here](https://colab.research.
 
 
 <!-- Basic usage -->
-## :computer: Basic usage
-The basic usage of `thingsvision` is straightforward. There are just a handful of variables you have to declare to begin: <br>
-- `root` is the path to the directory that holds the images you want to extract the features for.<br>
-- `source` indicates from which source you want to use a network  (e.g., `torchvision`, `keras`, `timm`, `custom`.).<br>
-- `model_name` denotes the specific network architecture you want to use. Sometimes, the same network architecture is available from different sources, though. Therefore, within `thingsvision`, you have to use the source-specific model name when declaring the model. For torchvision's abbreviations, look [here](https://github.com/pytorch/vision/tree/master/torchvision/models). For CORnet's abbreviations, look [here](https://github.com/dicarlolab/CORnet/tree/master/cornet). To separate the string `cornet` from its variant (e.g., `s`, `z`) use a hyphen instead of an underscore (e.g., `cornet-s`).
-- `batch_size` indicates how many images in parallel `thingsvision` shall process. The higher, the more RAM of your machine is used (and it might appear unresponsive). The lower, the longer it takes to extract all features. A good default value is 64.
-- `class_names` is an optional list of class names for a class dataset.
-- `file_names` is an optional list of file names according to which the extracted features should be sorted.
-- `module_name` denotes for which specific module of your chosen network architecture you want to extract features. You can see all module names of your chosen network by executing `extractor.show_model()` (see example below).
-
-
-### Example call for AlexNet with PyTorch:
-The following examples demonstrate how to load the model AlexNet with PyTorch and how to subsequently extract features. 
+### :mag: Basic usage
+`thingsvision` was designed to make extracting features as easy as possible. Start by importing all the necessary components and instantiating a thingsvision extractor. Here we're using `AlexNet` from the `torchvision` library as the model to extract features from and also load the model to GPU for faster inference:
 
 ```python
 import torch
@@ -118,77 +110,52 @@ from thingsvision import get_extractor
 from thingsvision.utils.storing import save_features
 from thingsvision.utils.data import ImageDataset, DataLoader
 
-root='path/to/root/img/directory' # (e.g., './images/)
 model_name = 'alexnet'
 source = 'torchvision'
-batch_size = 64
-class_names = None
-file_names = None
-
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 extractor = get_extractor(
   model_name=model_name,
-  pretrained=True,
-  model_path=None, 
-  device=device, 
   source=source,
+  device=device, 
 )
-extractor.show_model() # display architecture
+```
 
-AlexNet(
-  (features): Sequential(
-    (0): Conv2d(3, 64, kernel_size=(11, 11), stride=(4, 4), padding=(2, 2))
-    (1): ReLU(inplace=True)
-    (2): MaxPool2d(kernel_size=3, stride=2, padding=0, dilation=1, ceil_mode=False)
-    (3): Conv2d(64, 192, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2))
-    (4): ReLU(inplace=True)
-    (5): MaxPool2d(kernel_size=3, stride=2, padding=0, dilation=1, ceil_mode=False)
-    (6): Conv2d(192, 384, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
-    (7): ReLU(inplace=True)
-    (8): Conv2d(384, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
-    (9): ReLU(inplace=True)
-    (10): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
-    (11): ReLU(inplace=True)
-    (12): MaxPool2d(kernel_size=3, stride=2, padding=0, dilation=1, ceil_mode=False)
-  )
-  (avgpool): AdaptiveAvgPool2d(output_size=(6, 6))
-  (classifier): Sequential(
-    (0): Dropout(p=0.5, inplace=False)
-    (1): Linear(in_features=9216, out_features=4096, bias=True)
-    (2): ReLU(inplace=True)
-    (3): Dropout(p=0.5, inplace=False)
-    (4): Linear(in_features=4096, out_features=4096, bias=True)
-    (5): ReLU(inplace=True)
-    (6): Linear(in_features=4096, out_features=1000, bias=True)
-  )
-)
+Next, create the Dataset and Dataloader for your images. Here, we have all our images in a single directory `root`, which can also contain subfolders (e.g. for individual classes), so we're using the `ImageDataset` class. 
 
-# enter part of the model for which you would like to extract features
-module_name = "features.10"
+```python
+root='path/to/root/img/directory' # (e.g., './images/)
+batch_size = 32
 
 dataset = ImageDataset(
   root=root,
   out_path='path/to/features',
-  backend=extractor.backend,
+  backend=extractor.get_backend(),
   transforms=extractor.get_transformations(),
-  class_names=class_names,
-  file_names=file_names,
 )
+
 batches = DataLoader(
   dataset=dataset,
   batch_size=batch_size, 
   backend=extractor.get_backend()
 )
+```
+
+Now all that is left is to extract the image features and store them to disk! Here we're extracting features from the last convolutional layer of AlexNet (`features.10`), but if you don't know which modules are available for a given model, just call `extractor.show_model()` to print all modules.
+
+```
+module_name = 'features.10'
+
 features = extractor.extract_features(
   batches=batches,
   module_name=module_name,
-  flatten_acts=True,
+  flatten_acts=True,  # flatten 2D feature maps from convolutional layer 
 )
+
 save_features(features, out_path='path/to/features', file_format='npy')
 ```
 
-_For more examples and explanations of additional functionality like how to optionally turn off center cropping, how to use HDF5 datasets, how to perform RSA or CKA, or how to easily extract features for the [THINGS image database](https://osf.io/jum2f/), please refer to the [Documentation](https://vicco-group.github.io/thingsvision/)._
+_For more examples and explanations of additional functionality like how to optionally turn off center cropping, how to use HDF5 datasets (e.g. NSD stimuli), how to perform RSA or CKA, or how to easily extract features for the [THINGS image database](https://osf.io/jum2f/), please refer to the [Documentation](https://vicco-group.github.io/thingsvision/)._
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
