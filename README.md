@@ -193,7 +193,7 @@ If you use this GitHub repository (or any modules associated with it), please ci
 
 <!-- Contributions -->
 ## :gem: Contributions
-Here, we list all the people that have made and still make this project possible. We only list contributors that have made substantial contributions without which core functionalities would not work and who are still actively involved. Contributors are listed in descending order according to their quality $\cup$ quantity of contributions.
+Here, we list all the people that have made and still make this open-source project possible. Note that we only list contributors who are still actively involved. Contributors are listed in descending order according to their quality $\cup$ quantity of contributions (which may or may not be subjective, but we did not know how else to sort).
 
 
 - Conception / Design: [Lukas Muttenthaler](https://lukasmut.github.io/), [Martin N. Hebart](http://martin-hebart.de/), [Johannes Roth](https://jroth.space/), [Philipp Kaniuth](https://www.cbs.mpg.de/person/kaniuth/1483114)
