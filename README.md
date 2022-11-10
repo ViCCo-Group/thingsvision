@@ -117,7 +117,8 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 extractor = get_extractor(
   model_name=model_name,
   source=source,
-  device=device
+  device=device,
+  pretrained=True
 )
 ```
 
