@@ -194,13 +194,18 @@ If you use this GitHub repository (or any modules associated with it), please ci
 
 <!-- Contributions -->
 ## :gem: Contributions
-Here, we list all the people that have made and still make this open-source project possible. Note that we only list contributors who are still actively involved. Contributors are listed in descending order according to their quality $\cup$ quantity of contributions (which may or may not be subjective, but we did not know how else to sort).
+This library is based on the groundwork by [Lukas Muttenthaler](https://lukasmut.github.io/) and [Martin N. Hebart](http://martin-hebart.de/), who are both still actively involved, but has been extended and refined into its current form with the help of our many contributors
 
+- [Alex Murphy](https://github.com/Alxmrphi) (software dev.)
+- [Hannes Hansen](https://github.com/hahahannes) (software dev.)
+- [Johannes Roth](https://jroth.space/)(software dev., design, docs)
+- [Jonas Dippel](https://github.com/jonasd4) (software dev.)
+- [Lukas Muttenthaler](https://lukasmut.github.io/)(software dev., design, docs)
+- [Oliver Contier](https://olivercontier.com/) (docs)
+- [Philipp Kaniuth](https://www.cbs.mpg.de/person/kaniuth/1483114) (design, docs)
+- [Roman Leipe](https://github.com/RLeipe) (sofware dev., docs),
 
-- Conception / Design: [Lukas Muttenthaler](https://lukasmut.github.io/), [Martin N. Hebart](http://martin-hebart.de/), [Johannes Roth](https://jroth.space/), [Philipp Kaniuth](https://www.cbs.mpg.de/person/kaniuth/1483114)
-- Software Dev.: [Lukas Muttenthaler](https://lukasmut.github.io/), [Johannes Roth](https://jroth.space/), [Hannes Hansen](https://github.com/hahahannes), [Jonas Dippel](https://github.com/jonasd4), [Alex Murphy](https://github.com/Alxmrphi), [Roman Leipe](https://github.com/RLeipe)
-- Docs / Website: [Roman Leipe](https://github.com/RLeipe), [Philipp Kaniuth](https://www.cbs.mpg.de/person/kaniuth/1483114), [Lukas Muttenthaler](https://lukasmut.github.io/), [Johannes Roth](https://jroth.space/)
-- README: [Philipp Kaniuth](https://www.cbs.mpg.de/person/kaniuth/1483114), [Lukas Muttenthaler](https://lukasmut.github.io/), [Johannes Roth](https://jroth.space/), [Oliver Contier](https://olivercontier.com/)
+sorted alphabetically.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
