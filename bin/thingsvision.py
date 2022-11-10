@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+""" This is the command-line interface for the thingsvision toolbox """
+
 import argparse
 import torch
 import textwrap
@@ -46,6 +48,7 @@ subparsers = parent_parser.add_subparsers(
 parser_model = subparsers.add_parser(
     "show_model", description="Shows the model architecture", parents=[common_parser]
 )
+
 parser_extract = subparsers.add_parser(
     "extract", description="Extract features from images", parents=[common_parser]
 )
@@ -97,9 +100,8 @@ parser_extract.add_argument(
     type=str,
     default="npy",
     help="File format to use for storing features.",
-    choices=["npy", "h5", "csv"],
+    choices=["npy", "hdf5", "mat", "txt"],
 )
-
 parent_parser.add_argument(
     "-h",
     "--help",
@@ -118,9 +120,15 @@ parent_parser.add_argument(
 
 def main():
     args = parent_parser.parse_args()
-
     if len(sys.argv) == 1:
         parent_parser.print_help(sys.stderr)
+        sys.exit(1)
+    elif len(sys.argv) == 2:
+        print("\nPlease specify optional commands and arguments:\n")
+        if args.command == "show_model":
+            parser_model.print_help(sys.stderr)
+        elif args.command == "extract":
+            parser_extract.print_help(sys.stderr)
         sys.exit(1)
     try:
         from thingsvision import get_extractor
@@ -143,7 +151,7 @@ def main():
 
     if args.command == "show_model":
         extractor.show_model()
-        exit()
+        sys.exit(1)
 
     if args.command == "extract":
         dataset = ImageDataset(
@@ -165,7 +173,9 @@ def main():
             clip=True if args.model_name in ["clip", "OpenCLIP"] else False,
         )
 
-        save_features(features=features, out_path=args.out_path, file_format="npy")
+        save_features(
+            features=features, out_path=args.out_path, file_format=args.file_format
+        )
 
 
 if __name__ == "__main__":
