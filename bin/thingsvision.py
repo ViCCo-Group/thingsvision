@@ -50,14 +50,11 @@ parser_model = subparsers.add_parser(
 )
 
 parser_extract = subparsers.add_parser(
-    "extract", description="Extract features from images", parents=[common_parser]
+    "extract_features", description="Extract features from images", parents=[common_parser]
 )
 
 parser_extract.add_argument(
-    "--extract", action="store_true", help="Extract features from images"
-)
-parser_extract.add_argument(
-    "--image_dir",
+    "--image_root",
     type=str,
     help="Path to directory containing images",
     default="./images",
@@ -127,7 +124,7 @@ def main():
         print("\nPlease specify optional commands and arguments:\n")
         if args.command == "show_model":
             parser_model.print_help(sys.stderr)
-        elif args.command == "extract":
+        elif args.command == "extract_features":
             parser_extract.print_help(sys.stderr)
         sys.exit(1)
     try:
@@ -153,9 +150,9 @@ def main():
         extractor.show_model()
         sys.exit(1)
 
-    if args.command == "extract":
+    if args.command == "extract_features":
         dataset = ImageDataset(
-            root=args.image_dir,
+            root=args.image_root,
             out_path=args.out_path,
             backend=extractor.backend,
             transforms=extractor.get_transformations(),
