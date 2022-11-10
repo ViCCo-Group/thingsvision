@@ -102,7 +102,18 @@ You can find the jupyter notebook using `PyTorch` [here](https://colab.research.
 
 <!-- Basic usage -->
 ### :mag: Basic usage
-`thingsvision` was designed to make extracting features as easy as possible. Start by importing all the necessary components and instantiating a thingsvision extractor. Here we're using `AlexNet` from the `torchvision` library as the model to extract features from and also load the model to GPU for faster inference:
+`thingsvision` was designed to make extracting features as easy as possible. Using the available command-line-interface, we provide a tool to easily extract features and show models. Thde interface includes two options `thingsvision show_model` and `thingsvision extract_features`. Example calls might be:
+
+```bash
+thingsvision show_model --module_name 'alexnet' --source 'pt'
+thingsvision extract_features --image_root "./data" --model_name "alexnet" --module_name "features.10" --batch_size 32 --device "cuda" --source "pt" --file_format "npy"
+```
+
+See `thingsvision show_model -h` and `thingsvision extract_features -h` for list of all optional arguments. In a nutshell the command-line-interface implements basic functionality of the python scripts below. Do you analyses based on these to have more finegrained control on extracting features. 
+
+
+
+To do this, start by importing all the necessary components and instantiating a thingsvision extractor. Here we're using `AlexNet` from the `torchvision` library as the model to extract features from and also load the model to GPU for faster inference:
 
 ```python
 import torch
