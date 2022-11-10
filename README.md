@@ -198,9 +198,9 @@ This library is based on the groundwork by [Lukas Muttenthaler](https://lukasmut
 
 - [Alex Murphy](https://github.com/Alxmrphi) (software dev.)
 - [Hannes Hansen](https://github.com/hahahannes) (software dev.)
-- [Johannes Roth](https://jroth.space/)(software dev., design, docs)
+- [Johannes Roth](https://jroth.space/) (software dev., design, docs)
 - [Jonas Dippel](https://github.com/jonasd4) (software dev.)
-- [Lukas Muttenthaler](https://lukasmut.github.io/)(software dev., design, docs)
+- [Lukas Muttenthaler](https://lukasmut.github.io/) (software dev., design, docs)
 - [Oliver Contier](https://olivercontier.com/) (docs)
 - [Philipp Kaniuth](https://www.cbs.mpg.de/person/kaniuth/1483114) (design, docs)
 - [Roman Leipe](https://github.com/RLeipe) (sofware dev., docs),
