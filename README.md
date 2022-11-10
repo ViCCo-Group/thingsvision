@@ -201,6 +201,7 @@ This library is based on the groundwork laid by [Lukas Muttenthaler](https://luk
 - [Johannes Roth](https://jroth.space/) (software dev., design, docs)
 - [Jonas Dippel](https://github.com/jonasd4) (software dev.)
 - [Lukas Muttenthaler](https://lukasmut.github.io/) (software dev., design, docs)
+- [Martin N. Hebart](http://martin-hebart.de/) (design)
 - [Oliver Contier](https://olivercontier.com/) (docs)
 - [Philipp Kaniuth](https://www.cbs.mpg.de/person/kaniuth/1483114) (design, docs)
 - [Roman Leipe](https://github.com/RLeipe) (sofware dev., docs),
