@@ -3,6 +3,9 @@ import setuptools
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
+# activate __version__ variable
+exec(open("thingsvision/_version.py").read())
+
 requirements = [
                 'matplotlib==3.5.2',
                 'numba==0.56.*',
@@ -26,7 +29,7 @@ requirements = [
 
 setuptools.setup(
                 name="thingsvision",
-                version="2.2.3",
+                version=__version__,
                 author="Lukas Muttenthaler",
                 author_email="muttenthaler@cbs.mpg.de",
                 description="Extracting image features from state-of-the-art neural networks for Computer Vision made easy",

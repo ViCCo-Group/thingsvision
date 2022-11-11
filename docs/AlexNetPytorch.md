@@ -1,6 +1,6 @@
 ---
 layout: default
-title: AlexNet with Pytorch
+title: AlexNet with PyTorch
 parent: Examples
 nav_order: 1
 ---

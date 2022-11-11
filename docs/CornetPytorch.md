@@ -1,6 +1,6 @@
 ---
 layout: default
-title: CORnet with Pytorch
+title: CORnet with PyTorch
 parent: Examples
 nav_order: 3
 ---
