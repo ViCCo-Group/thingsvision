@@ -17,6 +17,12 @@ DATA_PATH = "./data"
 TEST_PATH = "./test_images"
 OUT_PATH = "./test"
 
+SSL_RN50_DEFAULT_CONFIG = {
+        "modules": ["avgpool"],
+        "pretrained": True,
+        "source": "vissl",
+}
+
 
 MODEL_AND_MODULE_NAMES = {
     # Torchvision models
@@ -80,6 +86,13 @@ MODEL_AND_MODULE_NAMES = {
         "pretrained": False,
         "source": "keras",
     },
+    # Vissl models
+    'simclr-rn50': SSL_RN50_DEFAULT_CONFIG,
+    'mocov2-rn50': SSL_RN50_DEFAULT_CONFIG,
+    'jigsaw-rn50': SSL_RN50_DEFAULT_CONFIG,
+    'rotnet-rn50': SSL_RN50_DEFAULT_CONFIG,
+    'swav-rn50': SSL_RN50_DEFAULT_CONFIG,
+    'pirl-rn50': SSL_RN50_DEFAULT_CONFIG
 }
 
 
