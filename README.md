@@ -206,7 +206,7 @@ This library is based on the groundwork laid by [Lukas Muttenthaler](https://luk
 - [Philipp Kaniuth](https://www.cbs.mpg.de/person/kaniuth/1483114) (design, docs)
 - [Roman Leipe](https://github.com/RLeipe) (sofware dev., docs),
 
-sorted alphabetically. This is a joint open-source project between the Max Planck Institute for Human Cognitive and Brain Sciences, Leipzig, and the Machine Learning Group at Technische Universtität Berlin. Correspondence and requests for contributing should be adressed to [Lukas Muttenthaler](https://lukasmut.github.io/). Feel free to contact us if you want to become a contributor or have any suggestions/feedback.
+sorted alphabetically. This is a joint open-source project between the Max Planck Institute for Human Cognitive and Brain Sciences, Leipzig, and the Machine Learning Group at Technische Universtität Berlin. Correspondence and requests for contributing should be adressed to [Lukas Muttenthaler](https://lukasmut.github.io/). Feel free to contact us if you want to become a contributor or have any suggestions/feedback. For the latter, you could also just post an issue or engange in discussions. We'll try to respond as fast as we can.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
