@@ -106,7 +106,7 @@ You can find the jupyter notebook using `PyTorch` [here](https://colab.research.
 
 ```bash
 thingsvision show_model --model_name 'alexnet' --source 'torchvision'
-thingsvision extract_features --image_root "./data" --model_name "alexnet" --module_name "features.10" --batch_size 32 --device "cuda" --source "pt" --file_format "npy"
+thingsvision extract_features --image_root "./data" --model_name "alexnet" --module_name "features.10" --batch_size 32 --device "cuda" --source "torchvision" --file_format "npy"
 ```
 
 See `thingsvision show_model -h` and `thingsvision extract_features -h` for list of all optional arguments. In a nutshell the command-line-interface implements basic functionality of the python scripts below. Do you analyses based on these to have more finegrained control on extracting features. 
