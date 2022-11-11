@@ -70,7 +70,7 @@ Neural networks come from different sources. With `thingsvision`, you can extrac
 - [timm](https://github.com/rwightman/pytorch-image-models)
 - [vissl](https://github.com/facebookresearch/vissl)
 - [OpenCLIP](https://github.com/mlfoundations/open_clip)
-- both [CLIP](https://github.com/openai/CLIP) variants (`clip-ViT` and `clip-RN`)
+- both original [CLIP](https://github.com/openai/CLIP) variants (`clip-ViT` and `clip-RN`)
 - some custom models (VGG-16, Resnet50, Inception_v3 and Alexnet) trained on [Ecoset](https://www.pnas.org/doi/10.1073/pnas.2011417118)
 - each of the many [CORnet](https://github.com/dicarlolab/CORnet) versions.<br> 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
