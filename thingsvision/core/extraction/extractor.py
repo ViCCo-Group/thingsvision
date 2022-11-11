@@ -190,7 +190,7 @@ class VisslExtractor(BaseExtractor, PyTorchMixin):
             'arch': 'resnet50'
         },
         'jigsaw-rn50': {
-            'url': 'https://dl.fbaipublicfiles.com/vissl/model_zoo/converted_vissl_rn50_jigsaw_in1k_goyal19.torch',
+            'url': 'https://dl.fbaipublicfiles.com/vissl/model_zoo/jigsaw_rn50_in1k_ep105_perm2k_jigsaw_8gpu_resnet_17_07_20.db174a43/model_final_checkpoint_phase104.torch',
             'arch': 'resnet50'
         },
         'rotnet-rn50': {
@@ -226,7 +226,10 @@ class VisslExtractor(BaseExtractor, PyTorchMixin):
         )
 
     def _download_and_save_model(self, model_url: str, output_model_filepath: str):
-        """Downloads"""
+        """
+        Downloads the model in vissl format, converts it to torchvision format and
+        saves it under output_model_filepath.
+        """
         model = load_state_dict_from_url(model_url, map_location=torch.device('cpu'))
 
         # get the model trunk to rename
@@ -256,7 +259,9 @@ class VisslExtractor(BaseExtractor, PyTorchMixin):
         return state_dict
 
     def _get_torch_home(self):
-        """Gets the torch home folder used as a cache directory for the vissl models"""
+        """
+        Gets the torch home folder used as a cache directory for the vissl models.
+        """
         torch_home = os.path.expanduser(
             os.getenv(VisslExtractor.ENV_TORCH_HOME,
                       os.path.join(os.getenv(VisslExtractor.ENV_XDG_CACHE_HOME,
@@ -264,7 +269,10 @@ class VisslExtractor(BaseExtractor, PyTorchMixin):
         return torch_home
 
     def load_model_from_source(self) -> None:
-        """Load a (pretrained) neural network model from vissl."""
+        """
+        Load a (pretrained) neural network model from vissl. Downloads the model when it is not available.
+        Otherwise, loads it from the cache directory.
+        """
         if self.model_name in VisslExtractor.MODELS:
             cache_dir = os.path.join(self._get_torch_home(), 'vissl')
             model_filepath = os.path.join(cache_dir, self.model_name + '.torch')
