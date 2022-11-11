@@ -68,11 +68,12 @@ Neural networks come from different sources. With `thingsvision`, you can extrac
 - [torchvision](https://pytorch.org/vision/0.8/models.html)
 - [Keras](https://www.tensorflow.org/api_docs/python/tf/keras/applications)
 - [timm](https://github.com/rwightman/pytorch-image-models)
-- [vissl](https://github.com/facebookresearch/vissl)
+- [vissl](https://github.com/facebookresearch/vissl) (Self-Supervised Learning Models)
   - Currently available: `simclr-rn50`, `mocov2-rn50`, `jigsaw-rn50`, `rotnet-rn50`, `swav-rn50`, `pirl-rn50`
+- [OpenCLIP](https://github.com/mlfoundations/open_clip)
+- both original [CLIP](https://github.com/openai/CLIP) variants (`clip-ViT` and `clip-RN`)
 - some custom models (VGG-16, Resnet50, Inception_v3 and Alexnet) trained on [Ecoset](https://www.pnas.org/doi/10.1073/pnas.2011417118)
-- each of the many [CORnet](https://github.com/dicarlolab/CORnet) versions
-- both [CLIP](https://github.com/openai/CLIP) variants (`clip-ViT` and `clip-RN`).<br> 
+- each of the many [CORnet](https://github.com/dicarlolab/CORnet) versions.<br> 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
@@ -195,7 +196,7 @@ If you use this GitHub repository (or any modules associated with it), please ci
 
 <!-- Contributions -->
 ## :gem: Contributions
-This library is based on the groundwork laid by [Lukas Muttenthaler](https://lukasmut.github.io/) and [Martin N. Hebart](http://martin-hebart.de/), who are both still actively involved, but has been extended and refined into its current form with the help of our many contributors
+This library is based on the groundwork laid by [Lukas Muttenthaler](https://lukasmut.github.io/) and [Martin N. Hebart](http://martin-hebart.de/), who are both still actively involved, but has been extended and refined into its current form with the help of our many contributors,
 
 - [Alex Murphy](https://github.com/Alxmrphi) (software dev.)
 - [Hannes Hansen](https://github.com/hahahannes) (software dev.)
@@ -207,7 +208,9 @@ This library is based on the groundwork laid by [Lukas Muttenthaler](https://luk
 - [Philipp Kaniuth](https://www.cbs.mpg.de/person/kaniuth/1483114) (design, docs)
 - [Roman Leipe](https://github.com/RLeipe) (sofware dev., docs),
 
-sorted alphabetically.
+sorted alphabetically. 
+
+This is a joint open-source project between the Max Planck Institute for Human Cognitive and Brain Sciences, Leipzig, and the Machine Learning Group at Technische Universtität Berlin. Correspondence and requests for contributing should be adressed to [Lukas Muttenthaler](https://lukasmut.github.io/). Feel free to contact us if you want to become a contributor or have any suggestions/feedback. For the latter, you could also just post an issue or engange in discussions. We'll try to respond as fast as we can.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
