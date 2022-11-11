@@ -154,7 +154,7 @@ def main():
         dataset = ImageDataset(
             root=args.image_root,
             out_path=args.out_path,
-            backend=extractor.backend,
+            backend=extractor.get_backend(),
             transforms=extractor.get_transformations(),
             class_names=args.class_names,
             file_names=args.file_names,
