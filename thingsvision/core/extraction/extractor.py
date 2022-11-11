@@ -181,14 +181,34 @@ class VisslExtractor(BaseExtractor, PyTorchMixin):
     ENV_XDG_CACHE_HOME = 'XDG_CACHE_HOME'
     DEFAULT_CACHE_DIR = '~/.cache'
     MODELS = {
-        'simclr-rn50-e800': {
+        'simclr-rn50': {
             'url': 'https://dl.fbaipublicfiles.com/vissl/model_zoo/simclr_rn50_800ep_simclr_8node_resnet_16_07_20.7e8feed1/model_final_checkpoint_phase799.torch',
             'arch': 'resnet50'
         },
-        'mocov2-rn50-e200': {
+        'mocov2-rn50': {
             'url': 'https://dl.fbaipublicfiles.com/vissl/model_zoo/moco_v2_1node_lr.03_step_b32_zero_init/model_final_checkpoint_phase199.torch',
             'arch': 'resnet50'
-        }
+        },
+        'seer-regnet_y_32gf': {
+            'url': 'https://dl.fbaipublicfiles.com/vissl/model_zoo/seer_regnet32d/seer_regnet32gf_model_iteration244000.torch',
+            'arch': 'regnet_y_32gf'
+        },
+        'seer-regnet_y_128gf': {
+            'url': 'https://dl.fbaipublicfiles.com/vissl/model_zoo/swav_ig1b_regnet128Gf_cnstant_bs32_node16_sinkhorn10_proto16k_syncBN64_warmup8k/model_final_checkpoint_phase0.torch',
+            'arch': 'regnet_y_128gf'
+        },
+        'jigsaw-rn50': {
+            'url': 'https://dl.fbaipublicfiles.com/vissl/model_zoo/converted_vissl_rn50_jigsaw_in1k_goyal19.torch',
+            'arch': 'resnet50'
+        },
+        'rotnet-rn50': {
+            'url': 'https://dl.fbaipublicfiles.com/vissl/model_zoo/rotnet_rn50_in1k_ep105_rotnet_8gpu_resnet_17_07_20.46bada9f/model_final_checkpoint_phase125.torch',
+            'arch': 'resnet50'
+        },
+        'swav-rn50': {
+            'url': 'https://dl.fbaipublicfiles.com/vissl/model_zoo/swav_in1k_rn50_800ep_swav_8node_resnet_27_07_20.a0a6b676/model_final_checkpoint_phase799.torch',
+            'arch': 'resnet50'
+        },
     }
 
     def __init__(
