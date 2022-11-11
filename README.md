@@ -105,7 +105,7 @@ You can find the jupyter notebook using `PyTorch` [here](https://colab.research.
 `thingsvision` was designed to make extracting features as easy as possible. If you have a folder of images `./data` and simply want to extract their features, its easiest use our available command-line-interface. The interface includes two options `thingsvision show_model` and `thingsvision extract_features`. Example calls might be:
 
 ```bash
-thingsvision show_model --module_name 'alexnet' --source 'pt'
+thingsvision show_model --model_name 'alexnet' --source 'torchvision'
 thingsvision extract_features --image_root "./data" --model_name "alexnet" --module_name "features.10" --batch_size 32 --device "cuda" --source "pt" --file_format "npy"
 ```
 
