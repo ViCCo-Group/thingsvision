@@ -102,7 +102,7 @@ You can find the jupyter notebook using `PyTorch` [here](https://colab.research.
 
 <!-- Basic usage -->
 ### :mag: Basic usage
-`thingsvision` was designed to make extracting features as easy as possible. Using the available command-line-interface, we provide a tool to easily extract features and show models. Thde interface includes two options `thingsvision show_model` and `thingsvision extract_features`. Example calls might be:
+`thingsvision` was designed to make extracting features as easy as possible. If you have a folder of images `./data` and simply want to extract their features, its easiest use our available command-line-interface. The interface includes two options `thingsvision show_model` and `thingsvision extract_features`. Example calls might be:
 
 ```bash
 thingsvision show_model --module_name 'alexnet' --source 'pt'
