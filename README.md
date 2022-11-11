@@ -109,7 +109,7 @@ thingsvision show_model --model_name 'alexnet' --source 'torchvision'
 thingsvision extract_features --image_root "./data" --model_name "alexnet" --module_name "features.10" --batch_size 32 --device "cuda" --source "torchvision" --file_format "npy"
 ```
 
-See `thingsvision show_model -h` and `thingsvision extract_features -h` for list of all optional arguments. In a nutshell the command-line-interface implements basic functionality of the python scripts below. Do you analyses based on these to have more finegrained control on extracting features. 
+See `thingsvision show_model -h` and `thingsvision extract_features -h` for list of all optional arguments. The CLI generally provides just the basic extraction functionality, but is probably enough for most users. If you need more fine-grained control over the extraction itself, use the python package directly.
 
 
 
