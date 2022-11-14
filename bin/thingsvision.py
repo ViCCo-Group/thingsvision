@@ -167,7 +167,6 @@ def main():
             batches=batches,
             module_name=args.module_name,
             flatten_acts=True,
-            clip=True if args.model_name in ["clip", "OpenCLIP"] else False,
         )
 
         save_features(
