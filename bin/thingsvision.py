@@ -7,6 +7,11 @@ import torch
 import textwrap
 import sys
 
+from thingsvision import get_extractor
+from thingsvision.utils.storing import save_features
+from thingsvision.utils.data import ImageDataset, DataLoader
+
+
 parent_parser = argparse.ArgumentParser(
     add_help=False,
     prog="thingsvision",
@@ -132,16 +137,7 @@ def main():
         elif args.command == "extract_features":
             parser_extract.print_help(sys.stderr)
         sys.exit(1)
-    try:
-        from thingsvision import get_extractor
-        from thingsvision.utils.data import ImageDataset, DataLoader
-        from thingsvision.utils.storing import save_features
-    except ImportError:
-        print(
-            "Thingsvision is not installed. Please install it using pip install thingsvision"
-        )
-        sys.exit(1)
-
+    
     device = torch.device(args.device)
     extractor = get_extractor(
         model_name=args.model_name,
