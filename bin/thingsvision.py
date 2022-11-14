@@ -50,7 +50,9 @@ parser_model = subparsers.add_parser(
 )
 
 parser_extract = subparsers.add_parser(
-    "extract-features", description="Extract features from images", parents=[common_parser]
+    "extract-features",
+    description="Extract features from images",
+    parents=[common_parser],
 )
 
 parser_extract.add_argument(
@@ -81,9 +83,7 @@ parser_extract.add_argument(
     help="Path to directory where features should be stored.",
 )
 parser_extract.add_argument(
-    "--flatten-acts", 
-    action="store_true", 
-    help="Flatten activations before saving."
+    "--flatten-acts", action="store_true", help="Flatten activations before saving."
 )
 parser_extract.add_argument(
     "--model-parameters",
@@ -119,6 +119,7 @@ parent_parser.add_argument(
     help="Show program's version number and exit.",
 )
 
+
 def main():
     args = parent_parser.parse_args()
     if len(sys.argv) == 1:
@@ -126,12 +127,12 @@ def main():
         sys.exit(1)
     elif len(sys.argv) == 2:
         print("\nPlease specify optional commands and arguments:\n")
-        if args.command == "show_model":
+        if args.command == "show-model":
             parser_model.print_help(sys.stderr)
-        elif args.command == "extract_features":
+        elif args.command == "extract-features":
             parser_extract.print_help(sys.stderr)
         sys.exit(1)
-    
+
     device = torch.device(args.device)
 
     from thingsvision import get_extractor
@@ -146,11 +147,11 @@ def main():
         device=device,
     )
 
-    if args.command == "show_model":
+    if args.command == "show-model":
         extractor.show_model()
         sys.exit(1)
 
-    if args.command == "extract_features":
+    if args.command == "extract-features":
         dataset = ImageDataset(
             root=args.image_root,
             out_path=args.out_path,
