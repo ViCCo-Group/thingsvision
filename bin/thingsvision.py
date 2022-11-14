@@ -18,7 +18,7 @@ parent_parser = argparse.ArgumentParser(
 
 common_parser = argparse.ArgumentParser(parents=[parent_parser], add_help=False)
 common_parser.add_argument(
-    "--model_name",
+    "--model-name",
     type=str,
     default="alexnet",
     help="Name of the model to use for feature extraction.",
@@ -46,59 +46,59 @@ subparsers = parent_parser.add_subparsers(
 )
 
 parser_model = subparsers.add_parser(
-    "show_model", description="Shows the model architecture", parents=[common_parser]
+    "show-model", description="Shows the model architecture", parents=[common_parser]
 )
 
 parser_extract = subparsers.add_parser(
-    "extract_features", description="Extract features from images", parents=[common_parser]
+    "extract-features", description="Extract features from images", parents=[common_parser]
 )
 
 parser_extract.add_argument(
-    "--image_root",
+    "--image-root",
     type=str,
     help="Path to directory containing images",
     default="./images",
 )
 parser_extract.add_argument(
-    "--class_names",
+    "--class-names",
     type=str,
     help="optional list of class names for class dataset",
     default=None,
 )
 parser_extract.add_argument(
-    "--file_names",
+    "--file-names",
     type=str,
     help="optional list of file names for class dataset",
     default=None,
 )
 parser_extract.add_argument(
-    "--batch_size", type=int, default=32, help="Batch size used for feature extraction."
+    "--batch-size", type=int, default=32, help="Batch size used for feature extraction."
 )
 parser_extract.add_argument(
-    "--out_path",
+    "--out-path",
     type=str,
     default="./features",
     help="Path to directory where features should be stored.",
 )
 parser_extract.add_argument(
-    "--flatten_acts", 
+    "--flatten-acts", 
     action="store_true", 
     help="Flatten activations before saving."
 )
 parser_extract.add_argument(
-    "--model_parameters",
+    "--model-parameters",
     type=str,
     default=None,
     help="Clip vision model has to be defined in the model_parameters dictionary",
 )
 parser_extract.add_argument(
-    "--module_name",
+    "--module-name",
     type=str,
     default="features.10",
     help="Name of the module to use for feature extraction.",
 )
 parser_extract.add_argument(
-    "--file_format",
+    "--file-format",
     type=str,
     default="npy",
     help="File format to use for storing features.",
