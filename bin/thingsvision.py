@@ -81,6 +81,11 @@ parser_extract.add_argument(
     help="Path to directory where features should be stored.",
 )
 parser_extract.add_argument(
+    "--flatten_acts", 
+    action="store_true", 
+    help="Flatten activations before saving."
+)
+parser_extract.add_argument(
     "--model_parameters",
     type=str,
     default=None,
@@ -166,7 +171,7 @@ def main():
         features = extractor.extract_features(
             batches=batches,
             module_name=args.module_name,
-            flatten_acts=True,
+            flatten_acts=args.flatten_acts,
         )
 
         save_features(
