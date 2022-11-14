@@ -7,11 +7,6 @@ import torch
 import textwrap
 import sys
 
-from thingsvision import get_extractor
-from thingsvision.utils.storing import save_features
-from thingsvision.utils.data import ImageDataset, DataLoader
-
-
 parent_parser = argparse.ArgumentParser(
     add_help=False,
     prog="thingsvision",
@@ -120,10 +115,9 @@ parent_parser.add_argument(
     "-v",
     "--version",
     action="version",
-    version="%(prog)s 2.2.8",
+    version="%(prog)s {}".format(open("thingsvision/_version.py").read().split('"')[1]),
     help="Show program's version number and exit.",
 )
-
 
 def main():
     args = parent_parser.parse_args()
@@ -139,6 +133,11 @@ def main():
         sys.exit(1)
     
     device = torch.device(args.device)
+
+    from thingsvision import get_extractor
+    from thingsvision.utils.storing import save_features
+    from thingsvision.utils.data import ImageDataset, DataLoader
+
     extractor = get_extractor(
         model_name=args.model_name,
         model_path=None,
