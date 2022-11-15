@@ -1,8 +1,7 @@
-import os
 from typing import Iterator, List
 
 from .data_loader import DataLoader
-from .dataset import ImageDataset, HDF5Dataset
+from .dataset import HDF5Dataset, ImageDataset
 
 
 def load_batches(
@@ -44,11 +43,6 @@ def load_batches(
         Each mini-batch consists of <batch_size> samples.
         The order is determined by <file_names>, <class_names> or is alphanumeric.
     """
-    print("\n...Creating dataset.")
-    if not os.path.exists(out_path):
-        os.makedirs(out_path)
-        print("...Output directory does not exist.")
-        print("...Creating output directory.")
     dataset = ImageDataset(
         root=root,
         out_path=out_path,
@@ -57,6 +51,8 @@ def load_batches(
         file_names=file_names,
         transforms=transforms,
     )
-    print(f"...Transforming dataset into a {backend} DataLoader.\n")
+    print(
+        f"...Transforming dataset into a {backend} DataLoader for batch-wise feature extraction.\n"
+    )
     batches = DataLoader(dataset=dataset, batch_size=batch_size, backend=backend)
     return batches

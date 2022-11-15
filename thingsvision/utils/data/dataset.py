@@ -3,8 +3,8 @@ import re
 from collections import defaultdict
 from dataclasses import dataclass
 from typing import Any, Dict, List
-import h5py
 
+import h5py
 import tensorflow as tf
 from PIL import Image
 
@@ -47,6 +47,12 @@ class ImageDataset:
     transforms: Any = None
 
     def __post_init__(self) -> None:
+        print("\n...Creating dataset.")
+        if not os.path.exists(self.out_path):
+            os.makedirs(self.out_path, exist_ok=True)
+            print("...Output directory does not exist.")
+            print("...Creating output directory to save order of file names.\n")
+
         self._find_classes()
         if self.type == "class_dataset":
             if self.file_names:
