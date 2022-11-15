@@ -24,7 +24,7 @@ requirements = [
                 'scikit-learn==1.1.*',
                 'scipy==1.8.1',
                 'h5py==3.7.0',
-                'CLIP'
+                'CLIP @ git+https://github.com/openai/CLIP.git'
                 ]
 
 setuptools.setup(
