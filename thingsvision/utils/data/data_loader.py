@@ -24,6 +24,7 @@ class DataLoader:
         Each mini-batch consists of <batch_size> examples.
         The order is determined by the dataset.
     """
+
     dataset: Tuple[Any]
     batch_size: int
     backend: str
