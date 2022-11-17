@@ -2,6 +2,8 @@
 title: Getting Started
 nav_order: 2
 ---
+# Getting started
+
 ### Setting up your environment
 #### Working locally.
 First, create a new `conda environment` with Python version 3.8, 3.9, or 3.10 e.g. by using `conda`:
@@ -25,7 +27,7 @@ You can find the jupyter notebook using `PyTorch` [here](https://colab.research.
 
 
 <!-- Basic usage -->
-## :mag: Basic usage
+## Basic usage
 `thingsvision` was designed to make extracting features as easy as possible. Start by importing all the necessary components and instantiating a thingsvision extractor. Here we're using `AlexNet` from the `torchvision` library as the model to extract features from and also load the model to GPU for faster inference:
 
 ```python
@@ -147,4 +149,4 @@ ResNet(
       (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
       (conv2): Conv2d(64, 64, kernel_size [...]
 ```
-so the first convolutional layer is called `conv1` and the last convolutional layer is called `layer4.2.conv3`. The last fully connected layer is called `fc`.
+so the first convolutional layer is called `conv1` and the last convolutional layer is called `layer4.2.conv3`. The last fully connected layer would be called `fc`.
