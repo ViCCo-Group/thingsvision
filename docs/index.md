@@ -8,29 +8,28 @@ permalink: /
 
 # thingsvision - extracting features from deep neural nets.
 
-thingsvision is a Python package for easily extracting and analyzing image representations from state-of-the-art neural networks for computer vision. 
+`thingsvision` is a Python package that let's you easily extract image representations from many state-of-the-art neural networks for computer vision. In a nutshell, you feed `thingsvision` with a directory of images and tell it which neural network you are interested in. `thingsvision` will then give you the  representation of the indicated neural network for each image so that you will end up with one feature vector per image. You can use these feature vectors for further analyses. We use the word `features` for short when we mean "image representation".
 
-To get started, please check out the [Getting Started](GettingStarted.md) page, as well as our list of [Examples](Examples.md), or try our Colab notebooks for [Pytorch](https://colab.research.google.com/github/ViCCo-Group/thingsvision/blob/master/doc/pytorch.ipynb) and [Tensorflow](https://colab.research.google.com/github/ViCCo-Group/thingsvision/blob/master/doc/tensorflow.ipynb) .
-
+To get started, please check out the [Getting Started](GettingStarted.md) page, or try our Colab notebooks for [Pytorch](https://colab.research.google.com/github/ViCCo-Group/thingsvision/blob/master/doc/pytorch.ipynb) and [Tensorflow](https://colab.research.google.com/github/ViCCo-Group/thingsvision/blob/master/doc/tensorflow.ipynb) .
 
 ## Model collection
 
-Features can be extracted for all models in [torchvision](https://pytorch.org/vision/0.8/models.html), [Keras](https://www.tensorflow.org/api_docs/python/tf/keras/applications), [timm](https://github.com/rwightman/pytorch-image-models), custom models (VGG-16, Resnet50, Inception_v3 and Alexnet) trained on [Ecoset](https://www.pnas.org/doi/10.1073/pnas.2011417118), each of the many [CORnet](https://github.com/dicarlolab/CORnet) versions and both [CLIP](https://github.com/openai/CLIP) variants (`clip-ViT` and `clip-RN`).<br> 
+Neural networks come from different sources. With `thingsvision`, you can extract image representations of all models from:
+- [torchvision](https://pytorch.org/vision/0.8/models.html)
+- [Keras](https://www.tensorflow.org/api_docs/python/tf/keras/applications)
+- [timm](https://github.com/rwightman/pytorch-image-models)
+- [vissl](https://github.com/facebookresearch/vissl)
+- some custom models (VGG-16, Resnet50, Inception_v3 and Alexnet) trained on [Ecoset](https://www.pnas.org/doi/10.1073/pnas.2011417118)
+- each of the many [CORnet](https://github.com/dicarlolab/CORnet) versions
+- both [CLIP](https://github.com/openai/CLIP) variants (`clip-ViT` and `clip-RN`).<br> 
 
+Note that you have to use the respective model name (`str`). For example, if you want to use VGG16 from torchvision, use `vgg16` as the model name and if you want to use VGG16 from TensorFlow/Keras, use the model name `VGG16`. You further have to specify the model source by setting the `source` parameter (e.g., `timm`, `torchvision`, `keras`).<br>
 
-Note that you have to use the respective model name (`str`). For example, if you want to use VGG16 from torchvision, use `vgg16` as the model name and if you want to use VGG16 from TensorFlow/Keras, use the model name `VGG16`. You can further specify the model source by setting the `source` parameter (e.g., `timm`, `torchvision`, `keras`).<br>
+We provide more details on the model collection in the [Available Models](AvailableModels.md) page.
 
+## Using `thingsvision` with the THINGS dataset:
 
-For the correct abbreviations of [torchvision](https://pytorch.org/vision/0.8/models.html) models have a look [here](https://github.com/pytorch/vision/tree/master/torchvision/models). For the correct abbreviations of [CORnet](https://github.com/dicarlolab/CORnet) models look [here](https://github.com/dicarlolab/CORnet/tree/master/cornet). To separate the string `cornet` from its variant (e.g., `s`, `z`) use a hyphen instead of an underscore (e.g., `cornet-s`, `cornet-z`).<br>
-
-PyTorch examples:  `alexnet`, `resnet18`, `resnet50`, `resnet101`, `vit_b_16`, `vit_b_32`, `vgg13`, `vgg13_bn`, `vgg16`, `vgg16_bn`, `vgg19`, `vgg19_bn`, `cornet-s`, `clip-ViT`
-
-
-## IMPORTANT NOTES:
-
-1. There exist four different sources from which neural network models and their (pretrained) weights can be downloaded. You can define the source of a model using the `source` argument. Possible sources are [`torchvision`](https://pytorch.org/vision/stable/models.html), [`keras`](https://keras.io/api/applications/), [`timm`](https://github.com/rwightman/pytorch-image-models), and `custom` (e.g., `source = torchvision`).
-
-2. If you happen to use the [THINGS image database](https://osf.io/jum2f/), make sure to correctly `unzip` all zip files (sorted from A-Z), and have all `object` directories stored in the parent directory `./images/` (e.g., `./images/object_xy/`) as well as the `things_concepts.tsv` file stored in the `./data/` folder. `bash get_files.sh` does the latter for you. Images, however, must be downloaded from the [THINGS database](https://osf.io/jum2f/) `Main` subfolder.  **The download is around 5GB**.
+If you happen to use the [THINGS image database](https://osf.io/jum2f/), make sure to correctly `unzip` all zip files (sorted from A-Z), and have all `object` directories stored in the parent directory `./images/` (e.g., `./images/object_xy/`) as well as the `things_concepts.tsv` file stored in the `./data/` folder. `bash get_files.sh` does the latter for you. Images, however, must be downloaded from the [THINGS database](https://osf.io/jum2f/) `Main` subfolder.  **The download is around 5GB**.
 
    - Go to <https://osf.io/jum2f/files/>
    - Select `Main` folder and click on "Download as zip" button (top right).
@@ -39,14 +38,6 @@ PyTorch examples:  `alexnet`, `resnet18`, `resnet50`, `resnet101`, `vit_b_16`, `
         ``` {.bash}
         for fn in object_images_*.zip; do unzip -P the_password $fn; done
         ```
-
-3. Features can be extracted for every layer for all `timm`, `torchvision`, `TensorFlow`, `CORnet` and `CLIP`/`OpenCLIP` models.
-
-4. The script automatically extracts features for the specified `model` and `module`.
-
-5. If you happen to extract hidden unit activations for many images, it is possible to run into `MemoryErrors`. To circumvent such problems, a helper function called `split_activations` will split the activation matrix into several batches, and stores them in separate files. For now, the split parameter is set to `10`. Hence, the function will split the activation matrix into `10` files. This parameter can, however, easily be modified in case you need more (or fewer) splits. To merge the separate activation batches back into a single activation matrix, just call `merge_activations` when loading the activations (e.g., `activations = merge_activations(PATH)`). 
-
-
 
 ## Citation
 
