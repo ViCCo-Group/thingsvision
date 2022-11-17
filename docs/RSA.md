@@ -1,9 +1,11 @@
 ---
-title: Tools
-nav_order: 4
+title: RSA tools
+nav_order: 7
 ---
 
+# RSA tools
 
+We provide some basic functions to conduct a similarity analysis on the extracted features. Note that these provide only a basic functionality and are not optimized for speed. For more advanced and optimized analysis tools, we recommend to use the [rsatoolbox](https://rsatoolbox.readthedocs.io/en/latest/) library.
 
 ## Representational Similarity Analysis (RSA) 
 

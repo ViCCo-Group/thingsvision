@@ -1,9 +1,10 @@
 ---
 layout: default
-title: Using Custom Models
-nav_order: 3
+title: Using your own models
+nav_order: 5
 ---
 
+# Using your own models
 
 ## Adding custom models
 
@@ -29,20 +30,36 @@ class VGG16_ecoset(Custom):
           return model, self.preprocess
 ```
 
+## Use custom models with the `get_extractor_from_model` function
 
-## Extract features from custom models
-
-If you want to use a custom model from the `custom_models` directory, you need to use their class name (e.g., `VGG16_ecoset`) as the model name. 
+Alternatively, you can use `get_extractor_from_model()` helper function to directly create an extractor for any PyTorch or TensorFlow model, without the need for creating a custom class.
 
 ```python
-from thingsvision import get_extractor
-model_name = 'VGG16_ecoset'
-source = 'custom'
-extractor = get_extractor(
-  model_name=model_name, 
-  pretrained=True, 
-  model_path=None, 
-  device=device, 
-  source=source,
+from thingsvision import get_extractor_from_model
+from torchvision.models import alexnet, AlexNet_Weights
+import torch
+
+# initialize a model of your choice, here we use AlexNet from torchvision 
+# and load the ImageNet weights
+model_weights = AlexNet_Weights.DEFAULT
+model = vgg16(model_weights)
+
+# you can also pass a custom preprocessing function that is applied to every 
+# image before extraction
+transforms = model_weights.transforms()
+
+# provide the backend of the model (either 'pt' or 'tf')
+backend = 'pt'
+
+# set the device to 'cuda' if you have a GPU available
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+
+extractor = get_extractor_from_model(
+  model=model, 
+  device=device,
+  transforms=transforms,
+  backend=backend
 )
 ```
+
+This will create an extractor just like the ones that are already implemented in thingsvision!
