@@ -110,14 +110,14 @@ We also provide several custom models, which were not available in other sources
 
 ### CORnet
 We provide the CORnet models from [this paper](https://proceedings.neurips.cc/paper/2019/file/7813d1590d28a7dd372ad54b5d29d033-Paper.pdf). Available model names are:
-- `cornet_s`
-- `cornet_r`
-- `cornet_rt`
-- `cornet_z`
+- `CORnet_S`
+- `CORnet_R`
+- `CORnet_RT`
+- `CORnet_Z`
 
 Example:
 ```python
-model_name = 'cornet_s'
+model_name = 'CORnet_S'
 source = 'custom'
 device = 'cpu'
 
@@ -132,14 +132,14 @@ extractor = get_extractor(
 ### Models trained on Ecoset
 
 We provide models trained on the [Ecoset](https://www.kietzmannlab.org/ecoset/) dataset, which contains 1.5m images from 565 categories selected to be both frequent in linguistic use and rated as concrete by human observers. Available `model_name`s are:
-- `alexnet_ecoset`
-- `resnet50_ecoset`
-- `vgg16_ecoset`
-- `inception_ecoset`
+- `Alexnet_ecoset`
+- `Resnet50_ecoset`
+- `VGG16_ecoset`
+- `Inception_ecoset`
 
 Example:
 ```python
-model_name = 'alexnet_ecoset'
+model_name = 'Alexnet_ecoset'
 source = 'custom'
 device = 'cpu'
 
@@ -155,7 +155,7 @@ extractor = get_extractor(
 
 We provide models trained using [CLIP](https://arxiv.org/abs/2103.00020), both from the official repository and from [OpenCLIP](https://github.com/mlfoundations/open_clip). Available `model_name`s are:
 - `clip`
-- `openclip`
+- `OpenClip`
 
 Both provide multiple model architectures and, in the case of OpenCLIP also multiple training datasets, which can be specified using the `model_parameters` argument. For example, if you want to get a `ViT-B/32` model from official CLIP, you would do the following:
 
