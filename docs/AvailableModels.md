@@ -106,7 +106,7 @@ If you use `pretrained=True`, the model will be pretrained on ImageNet, otherwis
 
 ## `custom` 
 
-We also provide several custom models, which were not available in other sources at the time of writing, in the source `custom`. These models are:
+In addition, we provide several custom models - that are not available in other sources -, in the `custom` source. These models are:
 
 ### CORnet
 We provide all CORnet models from [this paper](https://proceedings.neurips.cc/paper/2019/file/7813d1590d28a7dd372ad54b5d29d033-Paper.pdf). Available model names are:
