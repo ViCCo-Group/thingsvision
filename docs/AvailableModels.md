@@ -180,10 +180,10 @@ extractor = get_extractor(
 
 `ViT-B/32` is the default model architecture, so you can also leave out the `model_parameters` argument. For a list of all available architectures and datasets, please refer to the [CLIP repo](https://github.com/openai/CLIP/blob/main/clip/clip.py).
 
-In the case of OpenCLIP, you can also specify the dataset used for training for most models, e.g. if you want to get a `ViT-B/32` model trained on the `LAION-400M` dataset, you would do the following:
+In the case of `OpenCLIP`, you can also specify the dataset used for training for most models, e.g. if you want to get a `ViT-B/32` model trained on the `LAION-400M` dataset, you would do the following:
 
 ```python
-model_name = 'openclip'
+model_name = 'OpenCLIP'
 source = 'custom'
 device = 'cpu'
 model_parameters = {
