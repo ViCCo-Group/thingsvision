@@ -111,14 +111,14 @@ We also provide several custom models, which were not available in other sources
 ### CORnet
 We provide all CORnet models from [this paper](https://proceedings.neurips.cc/paper/2019/file/7813d1590d28a7dd372ad54b5d29d033-Paper.pdf). Available model names are:
 
-- `cornet_s`
-- `cornet_r`
-- `cornet_rt`
-- `cornet_z`
+- `cornet-s`
+- `cornet-r`
+- `cornet-rt`
+- `cornet-z`
 
 Example:
 ```python
-model_name = 'cornet_s'
+model_name = 'cornet-s'
 source = 'custom'
 device = 'cpu'
 
