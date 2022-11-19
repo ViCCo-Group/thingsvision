@@ -109,15 +109,16 @@ If you use `pretrained=True`, the model will be pretrained on ImageNet, otherwis
 We also provide several custom models, which were not available in other sources at the time of writing, in the source `custom`. These models are:
 
 ### CORnet
-We provide the CORnet models from [this paper](https://proceedings.neurips.cc/paper/2019/file/7813d1590d28a7dd372ad54b5d29d033-Paper.pdf). Available model names are:
-- `CORnet_S`
-- `CORnet_R`
-- `CORnet_RT`
-- `CORnet_Z`
+We provide all CORnet models from [this paper](https://proceedings.neurips.cc/paper/2019/file/7813d1590d28a7dd372ad54b5d29d033-Paper.pdf). Available model names are:
+
+- `cornet_s`
+- `cornet_r`
+- `cornet_rt`
+- `cornet_z`
 
 Example:
 ```python
-model_name = 'CORnet_S'
+model_name = 'cornet_s'
 source = 'custom'
 device = 'cpu'
 
@@ -132,6 +133,7 @@ extractor = get_extractor(
 ### Models trained on Ecoset
 
 We provide models trained on the [Ecoset](https://www.kietzmannlab.org/ecoset/) dataset, which contains 1.5m images from 565 categories selected to be both frequent in linguistic use and rated as concrete by human observers. Available `model_name`s are:
+
 - `Alexnet_ecoset`
 - `Resnet50_ecoset`
 - `VGG16_ecoset`
