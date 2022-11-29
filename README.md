@@ -102,15 +102,14 @@ You can find the jupyter notebook using `PyTorch` [here](https://colab.research.
 
 <!-- Basic usage -->
 ### :mag: Basic usage
-`thingsvision` was designed to make extracting features as easy as possible. If you have a folder of images `./data` and simply want to extract their features, its easiest use our available command-line-interface. The interface includes two options `thingsvision show_model` and `thingsvision extract_features`. Example calls might be:
+`thingsvision` was designed to make extracting features as easy as possible. If you have a folder of images `./data` and simply want to extract their features, its easiest use our available command-line interface. The interface includes two options `thingsvision show-model` and `thingsvision extract-features`. Example calls might be:
 
 ```bash
-thingsvision show_model --model-name "alexnet" --source "torchvision"
+thingsvision show-model --model-name "alexnet" --source "torchvision"
 thingsvision extract_features --image-root "./data" --model-name "alexnet" --module-name "features.10" --batch-size 32 --device "cuda" --source "torchvision" --file-format "npy" --out-path "./features"
 ```
 
-See `thingsvision show_model -h` and `thingsvision extract_features -h` for list of all optional arguments. The CLI generally provides just the basic extraction functionality, but is probably enough for most users. If you need more fine-grained control over the extraction itself, use the python package directly.
-
+See `thingsvision show-model -h` and `thingsvision extract-features -h` for a list of all optional arguments. The command-line interface generally provides just the basic extraction functionality, but is probably enough for most users. If you need more fine-grained control over the extraction itself, use the python package directly.
 
 
 To do this, start by importing all the necessary components and instantiating a thingsvision extractor. Here we're using `AlexNet` from the `torchvision` library as the model to extract features from and also load the model to GPU for faster inference:
