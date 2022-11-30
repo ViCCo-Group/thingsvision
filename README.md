@@ -45,7 +45,7 @@
 ## :star2: About the Project
 `thingsvision` is a Python package that let's you easily extract image representations from many state-of-the-art neural networks for computer vision. In a nutshell, you feed `thingsvision` with a directory of images and tell it which neural network you are interested in. `thingsvision` will then give you the  representation of the indicated neural network for each image so that you will end up with one feature vector per image. You can use these feature vectors for further analyses. We use the word `features` for short when we mean "image representation".
 
-:rotating_light: Note: some function calls mentioned in the [paper](https://www.frontiersin.org/articles/10.3389/fninf.2021.679838/full) have been deprecated. To use this package successfully, exclusively follow this `README` and the [Documentation](https://vicco-group.github.io/thingsvision/). :rotating_light:
+:rotating_light: Note: some function calls mentioned in the [paper](https://www.frontiersin.org/articles/10.3389/fninf.2021.679838/full) have been deprecated. To use this package successfully, exclusively follow this `README` and the [documentation](https://vicco-group.github.io/thingsvision/). :rotating_light:
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -68,10 +68,12 @@ Neural networks come from different sources. With `thingsvision`, you can extrac
 - [torchvision](https://pytorch.org/vision/0.8/models.html)
 - [Keras](https://www.tensorflow.org/api_docs/python/tf/keras/applications)
 - [timm](https://github.com/rwightman/pytorch-image-models)
-- [vissl](https://github.com/facebookresearch/vissl)
+- [vissl](https://github.com/facebookresearch/vissl) (Self-Supervised Learning Models)
+  - Currently available: `simclr-rn50`, `mocov2-rn50`, `jigsaw-rn50`, `rotnet-rn50`, `swav-rn50`, `pirl-rn50`
+- [OpenCLIP](https://github.com/mlfoundations/open_clip)
+- both original [CLIP](https://github.com/openai/CLIP) variants (`ViT-B/32` and `RN50`)
 - some custom models (VGG-16, Resnet50, Inception_v3 and Alexnet) trained on [Ecoset](https://www.pnas.org/doi/10.1073/pnas.2011417118)
-- each of the many [CORnet](https://github.com/dicarlolab/CORnet) versions
-- both [CLIP](https://github.com/openai/CLIP) variants (`clip-ViT` and `clip-RN`).<br> 
+- each of the many [CORnet](https://github.com/dicarlolab/CORnet) versions.<br> 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
@@ -81,10 +83,10 @@ Neural networks come from different sources. With `thingsvision`, you can extrac
 <!-- Setting up your environment -->
 ### :computer: Setting up your environment
 #### Working locally.
-First, create a new `conda environment` with Python version 3.8, 3.9, or 3.10 e.g. by using `conda` and the [`environment.yml` file](https://github.com/ViCCo-Group/thingsvision/blob/master/envs/environment.yml) like so
+First, create a new `conda environment` with Python version 3.8, 3.9, or 3.10 e.g. by using `conda`:
 
 ```bash
-$ conda env create --prefix /path/to/conda/envs/thingsvision --file envs/environment.yml
+$ conda create -n thingsvision python=3.9
 $ conda activate thingsvision
 ```
 
@@ -92,6 +94,7 @@ Then, activate the environment and simply install `thingsvision` via running the
 
 ```bash
 $ pip install --upgrade thingsvision
+$ pip install git+https://github.com/openai/CLIP.git
 ```
 
 #### Google Colab.
@@ -127,7 +130,8 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 extractor = get_extractor(
   model_name=model_name,
   source=source,
-  device=device
+  device=device,
+  pretrained=True
 )
 ```
 
@@ -165,7 +169,7 @@ features = extractor.extract_features(
 save_features(features, out_path='path/to/features', file_format='npy')
 ```
 
-_For more examples and explanations of additional functionality like how to optionally turn off center cropping, how to use HDF5 datasets (e.g. NSD stimuli), how to perform RSA or CKA, or how to easily extract features for the [THINGS image database](https://osf.io/jum2f/), please refer to the [Documentation](https://vicco-group.github.io/thingsvision/)._
+_For more examples on the many models available in `thingsvision` and explanations of additional functionality like how to optionally turn off center cropping, how to use HDF5 datasets (e.g. NSD stimuli), how to perform RSA or CKA, or how to easily extract features for the [THINGS image database](https://osf.io/jum2f/), please refer to the [Documentation](https://vicco-group.github.io/thingsvision/)._
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
@@ -203,13 +207,21 @@ If you use this GitHub repository (or any modules associated with it), please ci
 
 <!-- Contributions -->
 ## :gem: Contributions
-Here, we list all the people that have made and still make this project possible. We only list contributors that have made substantial contributions without which core functionalities would not work and who are still actively involved. Contributors are listed in descending order according to their quality $\cup$ quantity of contributions.
+This library is based on the groundwork laid by [Lukas Muttenthaler](https://lukasmut.github.io/) and [Martin N. Hebart](http://martin-hebart.de/), who are both still actively involved, but has been extended and refined into its current form with the help of our many contributors,
 
+- [Alex Murphy](https://github.com/Alxmrphi) (software dev.)
+- [Hannes Hansen](https://github.com/hahahannes) (software dev.)
+- [Johannes Roth](https://jroth.space/) (software dev., design, docs)
+- [Jonas Dippel](https://github.com/jonasd4) (software dev.)
+- [Lukas Muttenthaler](https://lukasmut.github.io/) (software dev., design, docs)
+- [Martin N. Hebart](http://martin-hebart.de/) (design)
+- [Oliver Contier](https://olivercontier.com/) (docs)
+- [Philipp Kaniuth](https://www.cbs.mpg.de/person/kaniuth/1483114) (design, docs)
+- [Roman Leipe](https://github.com/RLeipe) (sofware dev., docs),
 
-- Conception / Design: [Lukas Muttenthaler](https://lukasmut.github.io/), [Martin N. Hebart](http://martin-hebart.de/), [Johannes Roth](https://jroth.space/), [Philipp Kaniuth](https://www.cbs.mpg.de/person/kaniuth/1483114)
-- Software Dev.: [Lukas Muttenthaler](https://lukasmut.github.io/), [Johannes Roth](https://jroth.space/), [Hannes Hansen](https://github.com/hahahannes), [Jonas Dippel](https://github.com/jonasd4), [Alex Murphy](https://github.com/Alxmrphi), [Roman Leipe](https://github.com/RLeipe)
-- Docs / Website: [Roman Leipe](https://github.com/RLeipe), [Philipp Kaniuth](https://www.cbs.mpg.de/person/kaniuth/1483114), [Lukas Muttenthaler](https://lukasmut.github.io/), [Johannes Roth](https://jroth.space/)
-- README: [Philipp Kaniuth](https://www.cbs.mpg.de/person/kaniuth/1483114), [Lukas Muttenthaler](https://lukasmut.github.io/), [Johannes Roth](https://jroth.space/), [Oliver Contier](https://olivercontier.com/)
+sorted alphabetically. 
+
+This is a joint open-source project between the Max Planck Institute for Human Cognitive and Brain Sciences, Leipzig, and the Machine Learning Group at Technische Universtität Berlin. Correspondence and requests for contributing should be adressed to [Lukas Muttenthaler](https://lukasmut.github.io/). Feel free to contact us if you want to become a contributor or have any suggestions/feedback. For the latter, you could also just post an issue or engange in discussions. We'll try to respond as fast as we can.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

@@ -55,7 +55,10 @@ class PyTorchMixin:
         _ = self.forward(batch)
         act = activations[module_name]
         if flatten_acts:
-            act = self.flatten_acts(act)
+            if self.model_name.lower().startswith('clip'):
+                act = self.flatten_acts(act, batch, module_name)
+            else:
+                act = self.flatten_acts(act)
         act = self._to_numpy(act)
         return act
 

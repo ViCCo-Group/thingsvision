@@ -7,7 +7,7 @@ import thingsvision.custom_models as custom_models
 import thingsvision.custom_models.cornet as cornet
 
 from .base import BaseExtractor
-from .extractor import KerasExtractor, TimmExtractor, TorchvisionExtractor
+from .extractor import KerasExtractor, TimmExtractor, TorchvisionExtractor, VisslExtractor
 from .mixin import PyTorchMixin, TensorFlowMixin
 
 Tensor = torch.Tensor
@@ -58,21 +58,18 @@ def create_custom_extractor(
                         print(n)
             print("visual")
 
-        def forward(self, batch: Tensor, module_name: str = "visual") -> Tensor:
+        @staticmethod
+        def forward(batch: Tensor) -> Tensor:
             img_features = model.encode_image(batch)
-            # if module_name == "visual":
-            # assert torch.unique(
-            #    activations[module_name] == img_features
-            # ).item(), "\nFor CLIP, image features should represent activations in last encoder layer.\n"
-
             return img_features
 
-        def flatten_acts(self, act: Tensor, img: Tensor, module_name: str) -> Tensor:
+        @staticmethod
+        def flatten_acts(act: Tensor, batch: Tensor, module_name: str) -> Tensor:
             if module_name.endswith("attn"):
                 if isinstance(act, tuple):
                     act = act[0]
             else:
-                if act.size(0) != img.shape[0] and len(act.shape) == 3:
+                if act.size(0) != batch.shape[0] and len(act.shape) == 3:
                     act = act.permute(1, 0, 2)
             act = act.view(act.size(0), -1)
             return act
@@ -178,6 +175,8 @@ def get_extractor(
         return KerasExtractor(**model_args)
     elif source == "custom":
         return create_custom_extractor(**model_args)
+    elif source == "vissl":
+        return VisslExtractor(**model_args)
     else:
         raise ValueError(
             f"\nCould not find {source} library.\nChoose a different source.\n"
