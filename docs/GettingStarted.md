@@ -29,19 +29,24 @@ You can find the jupyter notebook using `PyTorch` [here](https://colab.research.
 <!-- Basic usage -->
 ## Basic usage
 
-## Command Line Interface
+## Command Line Interface (CLI)
 
-`thingsvision` was designed to make extracting features as easy as possible. If you have a folder of images `./data` and simply want to extract their features, its easiest use our available command-line interface. The interface includes two options `thingsvision show-model` and `thingsvision extract-features`. Example calls might be:
+`thingsvision` was designed to simplify feature extraction. If you have some folder of images (e.g., `./images`) and want to extract features for each of these images without opening a Jupyter Notebook instance or writing a Python script, it's probably easiest to use our CLI. The interface includes two options,
+
+- `thingsvision show-model`
+- `thingsvision extract-features`
+
+Example calls might look as follows:
 
 ```bash
 thingsvision show-model --model-name "alexnet" --source "torchvision"
 thingsvision extract_features --image-root "./data" --model-name "alexnet" --module-name "features.10" --batch-size 32 --device "cuda" --source "torchvision" --file-format "npy" --out-path "./features"
 ```
 
-See `thingsvision show-model -h` and `thingsvision extract-features -h` for a list of all optional arguments. The command-line interface generally provides just the basic extraction functionality, but is probably enough for most users. If you need more fine-grained control over the extraction itself, use the python package directly. 
+See `thingsvision show-model -h` and `thingsvision extract-features -h` for a list of all possible arguments. Note that the CLI provides just the basic extraction functionalities but is probably enough for most users that don't want to dive too deep into various models and modules. If you need more fine-grained control over the extraction itself, we recommend to use the python package directly and write your own Python script.
 
 
-To do this start by importing all the necessary components and instantiating a thingsvision extractor. Here we're using `AlexNet` from the `torchvision` library as the model to extract features from and also load the model to GPU for faster inference:
+To do this start by importing all the necessary components and instantiating a `thingsvision` extractor. Here we're using `AlexNet` from the `torchvision` library as the model to extract features from and also load the model to GPU for faster inference,
 
 ```python
 import torch
@@ -61,7 +66,7 @@ extractor = get_extractor(
 )
 ```
 
-Next, create the Dataset and Dataloader for your images. We have all our images in a single directory `root`, which can also contain subfolders (e.g. for individual classes), so we're using the `ImageDataset` class. 
+As a next step, create both dataset and dataloader for your images. We assume that all of your images are in a single `root` directory which can contain subfolders (e.g., for individual classes). Therefore, we leverage the `ImageDataset` class. 
 
 ```python
 root='path/to/root/img/directory' # (e.g., './images/)
