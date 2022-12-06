@@ -47,6 +47,7 @@ setuptools.setup(
                     "License :: OSI Approved :: MIT License",
                     "Operating System :: OS Independent",
                 ],
+                entry_points={"console_scripts": ["thingsvision = bin.thingsvision:main"]},
                 python_requires='>=3.8',
                 dependency_links=['git+https://github.com/openai/CLIP.git']
 )
