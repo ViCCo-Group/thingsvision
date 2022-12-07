@@ -105,9 +105,8 @@ You can find the jupyter notebook using `PyTorch` [here](https://colab.research.
 
 <!-- Basic usage -->
 ### :mag: Basic usage
-## Basic usage
 
-## Command Line Interface (CLI)
+#### Command Line Interface (CLI)
 
 `thingsvision` was designed to simplify feature extraction. If you have some folder of images (e.g., `./images`) and want to extract features for each of these images without opening a Jupyter Notebook instance or writing a Python script, it's probably easiest to use our CLI. The interface includes two options,
 
@@ -122,6 +121,8 @@ thingsvision extract_features --image-root "./data" --model-name "alexnet" --mod
 ```
 
 See `thingsvision show-model -h` and `thingsvision extract-features -h` for a list of all possible arguments. Note that the CLI provides just the basic extraction functionalities but is probably enough for most users that don't want to dive too deep into various models and modules. If you need more fine-grained control over the extraction itself, we recommend to use the python package directly and write your own Python script.
+
+#### Python commands
 
 To do this start by importing all the necessary components and instantiating a `thingsvision` extractor. Here we're using `AlexNet` from the `torchvision` library as the model to extract features from and also load the model to GPU for faster inference,
 
