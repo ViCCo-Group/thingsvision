@@ -18,7 +18,7 @@ Neural networks come from different sources. With `thingsvision`, you can extrac
 - [torchvision](https://pytorch.org/vision/0.8/models.html)
 - [Keras](https://www.tensorflow.org/api_docs/python/tf/keras/applications)
 - [timm](https://github.com/rwightman/pytorch-image-models)
-- [vissl](https://github.com/facebookresearch/vissl)
+- Self-supervised learning models (e.g. SimCLR) coming from [vissl](https://github.com/facebookresearch/vissl) or the Torch Hub.
 - some custom models (VGG-16, Resnet50, Inception_v3 and Alexnet) trained on [Ecoset](https://www.pnas.org/doi/10.1073/pnas.2011417118)
 - each of the many [CORnet](https://github.com/dicarlolab/CORnet) versions
 - both [CLIP](https://github.com/openai/CLIP) variants (`clip-ViT` and `clip-RN`).<br> 

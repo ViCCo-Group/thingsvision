@@ -65,13 +65,24 @@ Model names are case-sensitive and must be spelled exactly as they are in the `t
 
 If you use `pretrained=True`, the model will be pretrained according to the model documentation, otherwise it is initialized randomly. 
 
-## `vissl`
-For the [VISSL](https://vissl.readthedocs.io/en/v0.1.5/) library, `thingsvision` supports ResNet50, pretrained using SimCLR (`simclr-rn50`), MoCov V2 (`mocov2-rn50`), Jigsaw (`jigsaw-rn50`), RotNet (`rotnet-rn50`), SwAV (`swav-rn50`) or PIRL (`pirl-rn50`), and finetuned on ImageNet. Here, the model name describes the pre-training method, instead of the model architecture.
+## `ssl`
+`thingsvision` provides various Self-supervised learning models that are loaded from the [VISSL](https://vissl.readthedocs.io/en/v0.1.5/) library or the Torch Hub.
+* SimCLR (`simclr-rn50`)
+* MoCov V2 (`mocov2-rn50`), 
+* Jigsaw (`jigsaw-rn50`), 
+* RotNet (`rotnet-rn50`)
+* SwAV (`swav-rn50`) 
+* PIRL (`pirl-rn50`) 
+* BarlowTwins (`barlowtwins-rn50`)
+* VicReg (`vicreg-rn50`)
+
+All models have the ResNet50 architecture and are pretrained on ImageNet-1K. 
+Here, the model name describes the pre-training method, instead of the model architecture.
 
 Example:
 ```python
 model_name = 'simclr-rn50'
-source = 'vissl'
+source = 'ssl'
 device = 'cpu'
 
 extractor = get_extractor(
