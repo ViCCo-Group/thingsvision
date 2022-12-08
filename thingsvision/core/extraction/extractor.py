@@ -37,13 +37,13 @@ Array = np.ndarray
 @dataclass(repr=True)
 class TorchvisionExtractor(BaseExtractor, PyTorchMixin):
     def __init__(
-        self,
-        model_name: str,
-        pretrained: bool,
-        device: str,
-        model_path: str = None,
-        model_parameters: Dict = None,
-        preprocess: Any = None,
+            self,
+            model_name: str,
+            pretrained: bool,
+            device: str,
+            model_path: str = None,
+            model_parameters: Dict = None,
+            preprocess: Any = None,
     ) -> None:
         model_parameters = (
             model_parameters if model_parameters else {"weights": "DEFAULT"},
@@ -88,12 +88,12 @@ class TorchvisionExtractor(BaseExtractor, PyTorchMixin):
             )
 
     def get_default_transformation(
-        self,
-        mean,
-        std,
-        resize_dim: int = 256,
-        crop_dim: int = 224,
-        apply_center_crop: bool = True,
+            self,
+            mean,
+            std,
+            resize_dim: int = 256,
+            crop_dim: int = 224,
+            apply_center_crop: bool = True,
     ) -> Any:
         if self.weights:
             transforms = self.weights.transforms()
@@ -108,13 +108,13 @@ class TorchvisionExtractor(BaseExtractor, PyTorchMixin):
 @dataclass(repr=True)
 class TimmExtractor(BaseExtractor, PyTorchMixin):
     def __init__(
-        self,
-        model_name: str,
-        pretrained: bool,
-        device: str,
-        model_path: str = None,
-        model_parameters: Dict = None,
-        preprocess: Any = None,
+            self,
+            model_name: str,
+            pretrained: bool,
+            device: str,
+            model_path: str = None,
+            model_parameters: Dict = None,
+            preprocess: Any = None,
     ) -> None:
         super().__init__(
             model_name=model_name,
@@ -138,13 +138,13 @@ class TimmExtractor(BaseExtractor, PyTorchMixin):
 @dataclass(repr=True)
 class KerasExtractor(BaseExtractor, TensorFlowMixin):
     def __init__(
-        self,
-        model_name: str,
-        pretrained: bool,
-        device: str,
-        model_path: str = None,
-        model_parameters: Dict = None,
-        preprocess: Any = None,
+            self,
+            model_name: str,
+            pretrained: bool,
+            device: str,
+            model_path: str = None,
+            model_parameters: Dict = None,
+            preprocess: Any = None,
     ) -> None:
         model_parameters = (
             model_parameters if model_parameters else {"weights": "imagenet"}
@@ -176,34 +176,50 @@ class KerasExtractor(BaseExtractor, TensorFlowMixin):
 
 
 @dataclass(repr=True)
-class VisslExtractor(BaseExtractor, PyTorchMixin):
-    ENV_TORCH_HOME = 'TORCH_HOME'
-    ENV_XDG_CACHE_HOME = 'XDG_CACHE_HOME'
-    DEFAULT_CACHE_DIR = '~/.cache'
+class SSLExtractor(BaseExtractor, PyTorchMixin):
+    ENV_TORCH_HOME = "TORCH_HOME"
+    ENV_XDG_CACHE_HOME = "XDG_CACHE_HOME"
+    DEFAULT_CACHE_DIR = "~/.cache"
     MODELS = {
-        'simclr-rn50': {
-            'url': 'https://dl.fbaipublicfiles.com/vissl/model_zoo/simclr_rn50_800ep_simclr_8node_resnet_16_07_20.7e8feed1/model_final_checkpoint_phase799.torch',
-            'arch': 'resnet50'
+        "simclr-rn50": {
+            "url": "https://dl.fbaipublicfiles.com/vissl/model_zoo/simclr_rn50_800ep_simclr_8node_resnet_16_07_20.7e8feed1/model_final_checkpoint_phase799.torch",
+            "arch": "resnet50",
+            "type": "vissl"
         },
-        'mocov2-rn50': {
-            'url': 'https://dl.fbaipublicfiles.com/vissl/model_zoo/moco_v2_1node_lr.03_step_b32_zero_init/model_final_checkpoint_phase199.torch',
-            'arch': 'resnet50'
+        "mocov2-rn50": {
+            "url": "https://dl.fbaipublicfiles.com/vissl/model_zoo/moco_v2_1node_lr.03_step_b32_zero_init/model_final_checkpoint_phase199.torch",
+            "arch": "resnet50",
+            "type": "vissl"
         },
-        'jigsaw-rn50': {
-            'url': 'https://dl.fbaipublicfiles.com/vissl/model_zoo/jigsaw_rn50_in1k_ep105_perm2k_jigsaw_8gpu_resnet_17_07_20.db174a43/model_final_checkpoint_phase104.torch',
-            'arch': 'resnet50'
+        "jigsaw-rn50": {
+            "url": "https://dl.fbaipublicfiles.com/vissl/model_zoo/jigsaw_rn50_in1k_ep105_perm2k_jigsaw_8gpu_resnet_17_07_20.db174a43/model_final_checkpoint_phase104.torch",
+            "arch": "resnet50",
+            "type": "vissl"
         },
-        'rotnet-rn50': {
-            'url': 'https://dl.fbaipublicfiles.com/vissl/model_zoo/rotnet_rn50_in1k_ep105_rotnet_8gpu_resnet_17_07_20.46bada9f/model_final_checkpoint_phase125.torch',
-            'arch': 'resnet50'
+        "rotnet-rn50": {
+            "url": "https://dl.fbaipublicfiles.com/vissl/model_zoo/rotnet_rn50_in1k_ep105_rotnet_8gpu_resnet_17_07_20.46bada9f/model_final_checkpoint_phase125.torch",
+            "arch": "resnet50",
+            "type": "vissl"
         },
-        'swav-rn50': {
-            'url': 'https://dl.fbaipublicfiles.com/vissl/model_zoo/swav_in1k_rn50_800ep_swav_8node_resnet_27_07_20.a0a6b676/model_final_checkpoint_phase799.torch',
-            'arch': 'resnet50'
+        "swav-rn50": {
+            "url": "https://dl.fbaipublicfiles.com/vissl/model_zoo/swav_in1k_rn50_800ep_swav_8node_resnet_27_07_20.a0a6b676/model_final_checkpoint_phase799.torch",
+            "arch": "resnet50",
+            "type": "vissl"
         },
-        'pirl-rn50': {
-            'url': 'https://dl.fbaipublicfiles.com/vissl/model_zoo/pirl_jigsaw_4node_pirl_jigsaw_4node_resnet_22_07_20.34377f59/model_final_checkpoint_phase799.torch',
-            'arch': 'resnet50'
+        "pirl-rn50": {
+            "url": "https://dl.fbaipublicfiles.com/vissl/model_zoo/pirl_jigsaw_4node_pirl_jigsaw_4node_resnet_22_07_20.34377f59/model_final_checkpoint_phase799.torch",
+            "arch": "resnet50",
+            "type": "vissl"
+        },
+        "barlowtwins-rn50": {
+            "repository": "facebookresearch/barlowtwins:main",
+            "arch": "resnet50",
+            "type": "hub"
+        },
+        "vicreg-rn50": {
+            "repository": "facebookresearch/vicreg:main",
+            "arch": "resnet50",
+            "type": "hub"
         }
     }
 
@@ -230,7 +246,7 @@ class VisslExtractor(BaseExtractor, PyTorchMixin):
         Downloads the model in vissl format, converts it to torchvision format and
         saves it under output_model_filepath.
         """
-        model = load_state_dict_from_url(model_url, map_location=torch.device('cpu'))
+        model = load_state_dict_from_url(model_url, map_location=torch.device("cpu"))
 
         # get the model trunk to rename
         if "classy_state_dict" in model.keys():
@@ -263,9 +279,9 @@ class VisslExtractor(BaseExtractor, PyTorchMixin):
         Gets the torch home folder used as a cache directory for the vissl models.
         """
         torch_home = os.path.expanduser(
-            os.getenv(VisslExtractor.ENV_TORCH_HOME,
-                      os.path.join(os.getenv(VisslExtractor.ENV_XDG_CACHE_HOME,
-                                             VisslExtractor.DEFAULT_CACHE_DIR), 'torch')))
+            os.getenv(SSLExtractor.ENV_TORCH_HOME,
+                      os.path.join(os.getenv(SSLExtractor.ENV_XDG_CACHE_HOME,
+                                             SSLExtractor.DEFAULT_CACHE_DIR), "torch")))
         return torch_home
 
     def load_model_from_source(self) -> None:
@@ -273,20 +289,29 @@ class VisslExtractor(BaseExtractor, PyTorchMixin):
         Load a (pretrained) neural network model from vissl. Downloads the model when it is not available.
         Otherwise, loads it from the cache directory.
         """
-        if self.model_name in VisslExtractor.MODELS:
-            cache_dir = os.path.join(self._get_torch_home(), 'vissl')
-            model_filepath = os.path.join(cache_dir, self.model_name + '.torch')
-            model_config = VisslExtractor.MODELS[self.model_name]
-            if not os.path.exists(model_filepath):
-                os.makedirs(cache_dir, exist_ok=True)
-                model_state_dict = self._download_and_save_model(model_url=model_config['url'],
-                                                                 output_model_filepath=model_filepath)
+        if self.model_name in SSLExtractor.MODELS:
+            model_config = SSLExtractor.MODELS[self.model_name]
+            if model_config["type"] == "vissl":
+                cache_dir = os.path.join(self._get_torch_home(), "vissl")
+                model_filepath = os.path.join(cache_dir, self.model_name + ".torch")
+                if not os.path.exists(model_filepath):
+                    os.makedirs(cache_dir, exist_ok=True)
+                    model_state_dict = self._download_and_save_model(model_url=model_config["url"],
+                                                                     output_model_filepath=model_filepath)
+                else:
+                    model_state_dict = torch.load(model_filepath, map_location=torch.device("cpu"))
+                self.model = getattr(torchvision.models, model_config["arch"])()
+                self.model.fc = torch.nn.Identity()
+                message = self.model.load_state_dict(model_state_dict, strict=True)
+                print(message)
+            elif model_config["type"] == "hub":
+                self.model = torch.hub.load(model_config["repository"], model_config["arch"])
+                self.model.fc = torch.nn.Identity()
             else:
-                model_state_dict = torch.load(model_filepath, map_location=torch.device('cpu'))
-            self.model = getattr(torchvision.models, model_config['arch'])()
-            self.model.fc = torch.nn.Identity()
-            self.model.load_state_dict(model_state_dict, strict=True)
+                raise ValueError(
+                    f"\nUnknown model type.\n"
+                )
         else:
             raise ValueError(
-                f"\nCould not find {self.model_name} among in the Vissl library.\n"
+                f"\nCould not find {self.model_name} in the SSLExtractor.\n"
             )
