@@ -302,8 +302,7 @@ class SSLExtractor(BaseExtractor, PyTorchMixin):
                     model_state_dict = torch.load(model_filepath, map_location=torch.device("cpu"))
                 self.model = getattr(torchvision.models, model_config["arch"])()
                 self.model.fc = torch.nn.Identity()
-                message = self.model.load_state_dict(model_state_dict, strict=True)
-                print(message)
+                self.model.load_state_dict(model_state_dict, strict=True)
             elif model_config["type"] == "hub":
                 self.model = torch.hub.load(model_config["repository"], model_config["arch"])
                 self.model.fc = torch.nn.Identity()
