@@ -1,4 +1,5 @@
 from typing import Any, Callable, Dict
+from warnings import warn
 
 import numpy as np
 import torch
@@ -176,6 +177,9 @@ def get_extractor(
     elif source == "custom":
         return create_custom_extractor(**model_args)
     elif source == "ssl":
+        return SSLExtractor(**model_args)
+    elif source == "vissl":
+        warn('The source "vissl" is deprecated. Use the source "ssl" instead.', DeprecationWarning, stacklevel=2)
         return SSLExtractor(**model_args)
     else:
         raise ValueError(
