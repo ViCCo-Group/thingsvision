@@ -1,4 +1,5 @@
 from typing import Any, Callable, Dict
+from warnings import warn
 
 import numpy as np
 import torch
@@ -7,7 +8,7 @@ import thingsvision.custom_models as custom_models
 import thingsvision.custom_models.cornet as cornet
 
 from .base import BaseExtractor
-from .extractor import KerasExtractor, TimmExtractor, TorchvisionExtractor, VisslExtractor
+from .extractor import KerasExtractor, TimmExtractor, TorchvisionExtractor, SSLExtractor
 from .mixin import PyTorchMixin, TensorFlowMixin
 
 Tensor = torch.Tensor
@@ -175,8 +176,11 @@ def get_extractor(
         return KerasExtractor(**model_args)
     elif source == "custom":
         return create_custom_extractor(**model_args)
+    elif source == "ssl":
+        return SSLExtractor(**model_args)
     elif source == "vissl":
-        return VisslExtractor(**model_args)
+        warn('The source "vissl" is deprecated. Use the source "ssl" instead.', DeprecationWarning, stacklevel=2)
+        return SSLExtractor(**model_args)
     else:
         raise ValueError(
             f"\nCould not find {source} library.\nChoose a different source.\n"
