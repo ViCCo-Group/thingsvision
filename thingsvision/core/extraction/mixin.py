@@ -2,6 +2,9 @@ from dataclasses import dataclass, field
 from typing import Any, List
 
 import numpy as np
+import os
+
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"  # suppress tensorflow warnings
 import tensorflow as tf
 import torch
 from tensorflow import keras
@@ -55,7 +58,7 @@ class PyTorchMixin:
         _ = self.forward(batch)
         act = activations[module_name]
         if flatten_acts:
-            if self.model_name.lower().startswith('clip'):
+            if self.model_name.lower().startswith("clip"):
                 act = self.flatten_acts(act, batch, module_name)
             else:
                 act = self.flatten_acts(act)
