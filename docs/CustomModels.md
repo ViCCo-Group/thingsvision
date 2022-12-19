@@ -42,7 +42,7 @@ import torch
 # initialize a model of your choice, here we use AlexNet from torchvision 
 # and load the ImageNet weights
 model_weights = AlexNet_Weights.DEFAULT
-model = vgg16(model_weights)
+model = alexnet(model_weights)
 
 # you can also pass a custom preprocessing function that is applied to every 
 # image before extraction
