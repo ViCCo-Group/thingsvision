@@ -70,7 +70,7 @@ Neural networks come from different sources. With `thingsvision`, you can extrac
 - [timm](https://github.com/rwightman/pytorch-image-models)
 - `ssl` (Self-Supervised Learning Models)
   - `simclr-rn50`, `mocov2-rn50`, `jigsaw-rn50`, `rotnet-rn50`, `swav-rn50`, `pirl-rn50` (from [vissl](https://github.com/facebookresearch/vissl))
-  - `barlowtwins-rn50`, `vicreg-rn50` (from [torch.hub](https://pytorch.org/hub/)
+  - `barlowtwins-rn50`, `vicreg-rn50` (from [torch.hub](https://pytorch.org/hub/))
 - [OpenCLIP](https://github.com/mlfoundations/open_clip)
 - both original [CLIP](https://github.com/openai/CLIP) variants (`ViT-B/32` and `RN50`)
 - some custom models (VGG-16, Resnet50, Inception_v3 and Alexnet) trained on [Ecoset](https://www.pnas.org/doi/10.1073/pnas.2011417118)
