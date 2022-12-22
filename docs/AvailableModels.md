@@ -154,6 +154,26 @@ Example:
 ```python
 model_name = 'Alexnet_ecoset'
 source = 'custom'
+device = 'cuda'
+
+extractor = get_extractor(
+  model_name=model_name,
+  source=source,
+  device=device,
+  pretrained=True
+)
+```
+
+### Models trained on ImageNet and fine-tuned on SalObjSub
+
+We provide an Alexnet model pretrained on ImageNet and fine-tuned on [SalObjSub](https://cs-people.bu.edu/jmzhang/sos.html). Available model name is:
+
+- `AlexNet_SalObjSub`
+
+Example:
+```python
+model_name = 'AlexNet_SalObjSub'
+source = 'custom'
 device = 'cpu'
 
 extractor = get_extractor(

@@ -73,7 +73,7 @@ Neural networks come from different sources. With `thingsvision`, you can extrac
   - `barlowtwins-rn50`, `vicreg-rn50` (from [torch.hub](https://pytorch.org/hub/))
 - [OpenCLIP](https://github.com/mlfoundations/open_clip)
 - both original [CLIP](https://github.com/openai/CLIP) variants (`ViT-B/32` and `RN50`)
-- some custom models (VGG-16, Resnet50, Inception_v3 and Alexnet) trained on [Ecoset](https://www.pnas.org/doi/10.1073/pnas.2011417118)
+- a few custom models trained on [Ecoset](https://www.pnas.org/doi/10.1073/pnas.2011417118) (VGG-16, Resnet50, Inception_v3 and Alexnet) or trained on ImageNet and fine-tuned on [SalObjSub](https://cs-people.bu.edu/jmzhang/sos.html)(AlexNet)
 - each of the many [CORnet](https://github.com/dicarlolab/CORnet) versions.<br> 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
