@@ -19,6 +19,7 @@ requirements = [
     "open_clip_torch==2.0.*",
     "tqdm==4.64.0",
     "timm==0.6.*",
+    "torchtyping", 
     "regex",
     "scikit-image==0.19.3",
     "scikit-learn==1.1.*",

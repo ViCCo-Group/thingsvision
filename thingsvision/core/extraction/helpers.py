@@ -1,17 +1,17 @@
-from typing import Any, Callable, Dict
+from typing import Any, Callable, Dict, Union
 from warnings import warn
 
 import numpy as np
-import torch
-
 import thingsvision.custom_models as custom_models
 import thingsvision.custom_models.cornet as cornet
+import torch
+from torchtyping import TensorType
 
 from .base import BaseExtractor
-from .extractor import KerasExtractor, TimmExtractor, TorchvisionExtractor, SSLExtractor
+from .extractor import (KerasExtractor, SSLExtractor, TimmExtractor,
+                        TorchvisionExtractor)
 from .mixin import PyTorchMixin, TensorFlowMixin
 
-Tensor = torch.Tensor
 Array = np.ndarray
 AxisError = np.AxisError
 
@@ -60,12 +60,19 @@ def create_custom_extractor(
             print("visual")
 
         @staticmethod
-        def forward(batch: Tensor) -> Tensor:
+        def forward(batch: TensorType["b", "c", "h", "w"]) -> TensorType["b", "d"]:
             img_features = model.encode_image(batch)
             return img_features
 
         @staticmethod
-        def flatten_acts(act: Tensor, batch: Tensor, module_name: str) -> Tensor:
+        def flatten_acts(
+            act: Union[
+                TensorType["b", "num_maps", "h_prime", "w_prime"],
+                TensorType["b", "t", "d"],
+            ],
+            batch: TensorType["b", "c", "h", "w"],
+            module_name: str,
+        ) -> TensorType["b", "p"]:
             if module_name.endswith("attn"):
                 if isinstance(act, tuple):
                     act = act[0]
@@ -81,7 +88,9 @@ def create_custom_extractor(
 
     if model_name == "OpenCLIP":
 
-        def forward(self, batch: Tensor) -> Tensor:
+        def forward(
+            self, batch: TensorType["b", "c", "h", "w"]
+        ) -> TensorType["b", "d"]:
             return self.model(batch, text=None)
 
         CustomExtractor.forward = forward
@@ -179,7 +188,11 @@ def get_extractor(
     elif source == "ssl":
         return SSLExtractor(**model_args)
     elif source == "vissl":
-        warn('The source "vissl" is deprecated. Use the source "ssl" instead.', DeprecationWarning, stacklevel=2)
+        warn(
+            'The source "vissl" is deprecated. Use the source "ssl" instead.',
+            DeprecationWarning,
+            stacklevel=2,
+        )
         return SSLExtractor(**model_args)
     else:
         raise ValueError(

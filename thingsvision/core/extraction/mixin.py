@@ -1,17 +1,17 @@
+import os
 from dataclasses import dataclass, field
-from typing import Any, List
+from typing import Any, Callable, List, Union
 
 import numpy as np
-import os
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"  # suppress tensorflow warnings
 import tensorflow as tf
 import torch
 from tensorflow import keras
 from tensorflow.keras import layers
+from torchtyping import TensorType
 from torchvision import transforms as T
 
-Tensor = torch.Tensor
 Array = np.ndarray
 
 
@@ -22,10 +22,10 @@ class PyTorchMixin:
     def __post_init__(self) -> None:
         self.device = torch.device(self.device)
 
-    def get_activation(self, name: str) -> Any:
+    def get_activation(self, name: str) -> Callable:
         """Store copy of hidden unit activations at each layer of model."""
 
-        def hook(model, input, output):
+        def hook(model, input, output) -> None:
             # store copy of tensor rather than tensor itself
             if isinstance(output, tuple):
                 act = output[0]
@@ -45,8 +45,16 @@ class PyTorchMixin:
 
     @torch.no_grad()
     def _extract_features(
-        self, batch: Tensor, module_name: str, flatten_acts: bool
-    ) -> Tensor:
+        self,
+        batch: TensorType["b", "c", "h", "w"],
+        module_name: str,
+        flatten_acts: bool,
+    ) -> Union[
+        TensorType["b", "num_maps", "h_prime", "w_prime"],
+        TensorType["b", "t", "d"],
+        TensorType["b", "p"],
+        TensorType["b", "d"],
+    ]:
         self.model = self.model.to(self.device)
         # initialise an empty dict to store features for each mini-batch
         global activations
@@ -65,24 +73,37 @@ class PyTorchMixin:
         act = self._to_numpy(act)
         return act
 
-    def forward(self, batch: Tensor) -> Tensor:
+    def forward(
+        self, batch: TensorType["b", "c", "h", "w"]
+    ) -> TensorType["b", "num_cls"]:
         """Default forward pass."""
         return self.model(batch)
 
     @staticmethod
-    def flatten_acts(act: Tensor) -> Tensor:
+    def flatten_acts(
+        act: Union[
+            TensorType["b", "num_maps", "h_prime", "w_prime"], TensorType["b", "t", "d"]
+        ]
+    ) -> TensorType["b", "p"]:
         """Default flattening of activations."""
         return act.view(act.size(0), -1)
 
     @staticmethod
-    def _to_numpy(act: Tensor) -> Array:
+    def _to_numpy(
+        act: Union[
+            TensorType["b", "num_maps", "h_prime", "w_prime"],
+            TensorType["b", "t", "d"],
+            TensorType["b", "p"],
+            TensorType["b", "d"],
+        ]
+    ) -> Array:
         """Move activation to CPU and convert torch.Tensor to np.ndarray."""
         return act.cpu().numpy()
 
     def _show_model(self) -> str:
         return self.model
 
-    def load_model(self) -> Any:
+    def load_model(self) -> None:
         self.load_model_from_source()
         if self.model_path:
             try:
@@ -107,7 +128,7 @@ class PyTorchMixin:
         resize_dim: int = 256,
         crop_dim: int = 224,
         apply_center_crop: bool = True,
-    ) -> Any:
+    ) -> Callable:
         normalize = T.Normalize(mean=mean, std=std)
         composes = [T.Resize(resize_dim)]
         if apply_center_crop:
@@ -142,7 +163,7 @@ class TensorFlowMixin:
     def _show_model(self) -> str:
         return self.model.summary()
 
-    def load_model(self) -> Any:
+    def load_model(self) -> None:
         self.load_model_from_source()
         if self.model_path:
             self.model.load_weights(self.model_path)
