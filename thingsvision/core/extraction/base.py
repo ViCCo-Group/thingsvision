@@ -6,6 +6,8 @@ from typing import Any, Iterator
 import numpy as np
 from tqdm import tqdm
 
+Array = np.ndarray
+
 
 @dataclass(init=True, repr=True)
 class BaseExtractor:
@@ -39,7 +41,7 @@ class BaseExtractor:
         flatten_acts: bool,
         output_dir: str = None,
         step_size: int = None,
-    ) -> np.ndarray:
+    ) -> Array:
         """Extract hidden unit activations (at specified layer) for every image in the database.
 
         Parameters
