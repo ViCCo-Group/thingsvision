@@ -153,3 +153,7 @@ class BaseExtractor(metaclass=abc.ABCMeta):
                 mean, std, resize_dim, crop_dim, apply_center_crop
             )
         return composition
+
+    @abc.abstractmethod
+    def get_backend(self) -> str:
+        raise NotImplementedError()

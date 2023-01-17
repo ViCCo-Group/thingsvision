@@ -4,6 +4,7 @@ import abc
 class Custom(metaclass=abc.ABCMeta):
     def __init__(self, device) -> None:
         self.device = device
+        self.backend = None
 
     @abc.abstractmethod
     def create_model(self):

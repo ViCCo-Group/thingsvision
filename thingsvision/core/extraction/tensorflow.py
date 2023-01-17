@@ -30,9 +30,8 @@ class TensorFlowExtractor(BaseExtractor):
         self.model_name = model_name
         self.pretrained = pretrained
         self.model_path = model_path
-        self.model_parameters = (model_parameters,)
+        self.model_parameters = model_parameters
         self.model = model
-        self.backend = field(init=False, default="tf")
 
         if not self.model:
             self.load_model()
@@ -54,7 +53,6 @@ class TensorFlowExtractor(BaseExtractor):
     def show_model(self) -> str:
         return self.model.summary()
 
-    @abc.abstractmethod
     def load_model_from_source(self) -> None:
         raise NotImplementedError
 
