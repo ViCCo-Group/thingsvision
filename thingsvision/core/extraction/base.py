@@ -1,27 +1,15 @@
-import os
+import abc
 import warnings
-from dataclasses import dataclass, field
-from typing import Any, Iterator
+from typing import Any
 
 import numpy as np
-from tqdm import tqdm
 
 Array = np.ndarray
 
 
-@dataclass(init=True, repr=True)
-class BaseExtractor:
-    model_name: str
-    pretrained: bool
-    device: str
-    model_path: str = None
-    model_parameters: Any = field(default_factory=lambda: {})
-    model: Any = None
-    preprocess: Any = None
-
-    def __post_init__(self) -> None:
-        if not self.model:
-            self.load_model()
+class BaseExtractor(metaclass=abc.ABCMeta):
+    def __init__(self, device) -> None:
+        self.device = device
 
     def show(self) -> None:
         warnings.warn(
@@ -30,18 +18,30 @@ class BaseExtractor:
         )
         self.show_model()
 
+    @abc.abstractmethod
     def show_model(self) -> None:
-        print(self._show_model())
-        print()
+        """Show model."""
+        raise NotImplementedError
 
-    def extract_features(
-        self,
-        batches: Iterator,
-        module_name: str,
-        flatten_acts: bool,
-        output_dir: str = None,
-        step_size: int = None,
-    ) -> Array:
+    @abc.abstractmethod
+    def get_transformations(self, **kwargs) -> Any:
+        """Get default image transformations."""
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def get_default_transformation(self, **kwargs):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def get_module_names(self):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def load_model(self):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def extract_features(self, **kwargs) -> Array:
         """Extract hidden unit activations (at specified layer) for every image in the database.
 
         Parameters
@@ -75,64 +75,4 @@ class BaseExtractor:
         output : np.ndarray
             Returns the feature matrix (e.g., X \in \mathbb{R}^{n \times p} if head or flatten_acts = True).
         """
-        valid_names = self.get_module_names()
-        if not module_name in valid_names:
-            raise ValueError(
-                f"\n{module_name} is not a valid module name. Please choose a name from the following set of modules: {valid_names}\n"
-            )
-
-        if output_dir:
-            os.makedirs(output_dir, exist_ok=True)
-
-            if not step_size:
-                # if step size is not given, assume that features to every image consume 3MB of memory and that the user has at least 8GB of free RAM
-                step_size = 8000 // (len(next(iter(batches))) * 3) + 1
-
-        features = []
-        image_ct, last_image_ct = 0, 0
-        for i, batch in tqdm(
-            enumerate(batches, start=1), desc="Batch", total=len(batches)
-        ):
-            features.append(
-                self._extract_features(
-                    batch=batch, module_name=module_name, flatten_acts=flatten_acts
-                )
-            )
-
-            image_ct += len(batch)
-
-            if output_dir and (i % step_size == 0 or i == len(batches)):
-                features_subset_file = os.path.join(
-                    output_dir,
-                    f"features_{last_image_ct}-{image_ct}.npy",
-                )
-                features_subset = np.vstack(features)
-                np.save(features_subset_file, features_subset)
-                features = []
-                last_image_ct = image_ct
-
-        print(
-            f"...Features successfully extracted for all {image_ct} images in the database."
-        )
-        if output_dir:
-            print(f"...Features were saved to {output_dir}.")
-            return None
-        else:
-            features = np.vstack(features)
-            print(f"...Features shape: {features.shape}")
-
-        return features
-
-    def get_transformations(
-        self, resize_dim: int = 256, crop_dim: int = 224, apply_center_crop: bool = True
-    ) -> Any:
-        """Load image transformations for a specific model. Image transformations depend on the backend."""
-        if self.preprocess:
-            return self.preprocess
-        else:
-            mean = [0.485, 0.456, 0.406]
-            std = [0.229, 0.224, 0.225]
-            composition = self.get_default_transformation(
-                mean, std, resize_dim, crop_dim, apply_center_crop
-            )
-        return composition
+        raise NotImplementedError
