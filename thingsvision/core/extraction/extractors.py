@@ -14,7 +14,8 @@ try:
 except ImportError:
     from torch.utils.model_zoo import load_url as load_state_dict_from_url
 
-from .main_extractors import PyTorchExtractor, TensorFlowExtractor
+from .torch import PyTorchExtractor
+from .tensorflow import TensorFlowExtractor
 
 # neccessary to prevent gpu memory conflicts between torch and tf
 gpus = tf.config.list_physical_devices("GPU")

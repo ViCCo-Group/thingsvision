@@ -7,13 +7,14 @@ import thingsvision.custom_models.cornet as cornet
 import torch
 from torchtyping import TensorType
 
-from .source_extractors import (
+from .extractors import (
     KerasExtractor,
     SSLExtractor,
     TimmExtractor,
     TorchvisionExtractor,
 )
-from .main_extractors import PyTorchExtractor, TensorFlowExtractor
+from .torch import PyTorchExtractor
+from .tensorflow import TensorFlowExtractor
 
 Array = np.ndarray
 AxisError = np.AxisError
