@@ -3,19 +3,20 @@ from dataclasses import dataclass
 from typing import Any, Dict
 
 import numpy as np
+import timm
+import torchvision
+
 import tensorflow as tf
 import tensorflow.keras.applications as tensorflow_models
-import timm
 import torch
-import torchvision
 
 try:
     from torch.hub import load_state_dict_from_url
 except ImportError:
     from torch.utils.model_zoo import load_url as load_state_dict_from_url
 
-from .torch import PyTorchExtractor
 from .tensorflow import TensorFlowExtractor
+from .torch import PyTorchExtractor
 
 # neccessary to prevent gpu memory conflicts between torch and tf
 gpus = tf.config.list_physical_devices("GPU")

@@ -1,12 +1,13 @@
-import os
 import abc
 from dataclasses import field
 from typing import Any, Callable, Iterator, List, Union
-from tqdm import tqdm
+
 import numpy as np
-import torch
 from torchtyping import TensorType
 from torchvision import transforms as T
+
+import torch
+
 from .base import BaseExtractor
 
 Array = np.ndarray
@@ -14,14 +15,14 @@ Array = np.ndarray
 
 class PyTorchExtractor(BaseExtractor):
     def __init__(
-            self,
-            model_name: str,
-            pretrained: bool,
-            device: str,
-            model_path: str = None,
-            model_parameters: Any = field(default_factory=lambda: {}),
-            model: Any = None,
-            preprocess: Any = None,
+        self,
+        model_name: str,
+        pretrained: bool,
+        device: str,
+        model_path: str = None,
+        model_parameters: Any = field(default_factory=lambda: {}),
+        model: Any = None,
+        preprocess: Any = None,
     ) -> None:
         super().__init__(device, preprocess)
         self.model_name = model_name
@@ -37,23 +38,26 @@ class PyTorchExtractor(BaseExtractor):
             self.load_model()
 
     def extract_features(
-            self,
-            batches: Iterator,
-            module_name: str,
-            flatten_acts: bool,
-            output_dir: str = None,
-            step_size: int = None,
+        self,
+        batches: Iterator,
+        module_name: str,
+        flatten_acts: bool,
+        output_dir: str = None,
+        step_size: int = None,
     ):
         self.model = self.model.to(self.device)
         self.activations = {}
         self.register_hook(module_name=module_name)
-        features = super().extract_features(batches=batches, module_name=module_name,
-                                 flatten_acts=flatten_acts, output_dir=output_dir,
-                                 step_size=step_size)
+        features = super().extract_features(
+            batches=batches,
+            module_name=module_name,
+            flatten_acts=flatten_acts,
+            output_dir=output_dir,
+            step_size=step_size,
+        )
         if self.hook_handle:
             self.hook_handle.remove()
         return features
-
 
     def get_activation(self, name: str) -> Callable:
         """Store copy of hidden unit activations at each layer of model."""
@@ -80,10 +84,10 @@ class PyTorchExtractor(BaseExtractor):
 
     @torch.no_grad()
     def _extract_batch(
-            self,
-            batch: TensorType["b", "c", "h", "w"],
-            module_name: str,
-            flatten_acts: bool,
+        self,
+        batch: TensorType["b", "c", "h", "w"],
+        module_name: str,
+        flatten_acts: bool,
     ) -> Union[
         TensorType["b", "num_maps", "h_prime", "w_prime"],
         TensorType["b", "t", "d"],
@@ -103,28 +107,28 @@ class PyTorchExtractor(BaseExtractor):
         return act
 
     def forward(
-            self, batch: TensorType["b", "c", "h", "w"]
+        self, batch: TensorType["b", "c", "h", "w"]
     ) -> TensorType["b", "num_cls"]:
         """Default forward pass."""
         return self.model(batch)
 
     @staticmethod
     def flatten_acts(
-            act: Union[
-                TensorType["b", "num_maps", "h_prime", "w_prime"], TensorType["b", "t", "d"]
-            ]
+        act: Union[
+            TensorType["b", "num_maps", "h_prime", "w_prime"], TensorType["b", "t", "d"]
+        ]
     ) -> TensorType["b", "p"]:
         """Default flattening of activations."""
         return act.view(act.size(0), -1)
 
     @staticmethod
     def _to_numpy(
-            act: Union[
-                TensorType["b", "num_maps", "h_prime", "w_prime"],
-                TensorType["b", "t", "d"],
-                TensorType["b", "p"],
-                TensorType["b", "d"],
-            ]
+        act: Union[
+            TensorType["b", "num_maps", "h_prime", "w_prime"],
+            TensorType["b", "t", "d"],
+            TensorType["b", "p"],
+            TensorType["b", "d"],
+        ]
     ) -> Array:
         """Move activation to CPU and convert torch.Tensor to np.ndarray."""
         return act.cpu().numpy()
@@ -155,12 +159,12 @@ class PyTorchExtractor(BaseExtractor):
         return module_names
 
     def get_default_transformation(
-            self,
-            mean: List[float],
-            std: List[float],
-            resize_dim: int = 256,
-            crop_dim: int = 224,
-            apply_center_crop: bool = True,
+        self,
+        mean: List[float],
+        std: List[float],
+        resize_dim: int = 256,
+        crop_dim: int = 224,
+        apply_center_crop: bool = True,
     ) -> Callable:
         normalize = T.Normalize(mean=mean, std=std)
         composes = [T.Resize(resize_dim)]

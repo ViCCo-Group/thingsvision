@@ -4,17 +4,14 @@ from warnings import warn
 import numpy as np
 import thingsvision.custom_models as custom_models
 import thingsvision.custom_models.cornet as cornet
-import torch
 from torchtyping import TensorType
 
-from .extractors import (
-    KerasExtractor,
-    SSLExtractor,
-    TimmExtractor,
-    TorchvisionExtractor,
-)
-from .torch import PyTorchExtractor
+import torch
+
+from .extractors import (KerasExtractor, SSLExtractor, TimmExtractor,
+                         TorchvisionExtractor)
 from .tensorflow import TensorFlowExtractor
+from .torch import PyTorchExtractor
 
 Array = np.ndarray
 AxisError = np.AxisError

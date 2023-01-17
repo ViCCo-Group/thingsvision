@@ -1,8 +1,10 @@
+import abc
 import os
 from dataclasses import field
-from typing import Any, Callable, Iterator, List, Union
-import abc
+from typing import Any, List
+
 import numpy as np
+
 from .base import BaseExtractor
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"  # suppress tensorflow warnings
@@ -15,14 +17,14 @@ Array = np.ndarray
 
 class TensorFlowExtractor(BaseExtractor):
     def __init__(
-            self,
-            model_name: str,
-            pretrained: bool,
-            device: str,
-            model_path: str = None,
-            model_parameters: Any = field(default_factory=lambda: {}),
-            model: Any = None,
-            preprocess: Any = None,
+        self,
+        model_name: str,
+        pretrained: bool,
+        device: str,
+        model_path: str = None,
+        model_parameters: Any = field(default_factory=lambda: {}),
+        model: Any = None,
+        preprocess: Any = None,
     ) -> None:
         super().__init__(device, preprocess)
         self.model_name = model_name
@@ -35,7 +37,9 @@ class TensorFlowExtractor(BaseExtractor):
         if not self.model:
             self.load_model()
 
-    def _extract_batch(self, batch: Array, module_name: str, flatten_acts: bool) -> Array:
+    def _extract_batch(
+        self, batch: Array, module_name: str, flatten_acts: bool
+    ) -> Array:
         layer_out = [self.model.get_layer(module_name).output]
         activation_model = keras.models.Model(
             inputs=self.model.input,
@@ -65,12 +69,12 @@ class TensorFlowExtractor(BaseExtractor):
         return module_names
 
     def get_default_transformation(
-            self,
-            mean: List[float],
-            std: List[float],
-            resize_dim: int = 256,
-            crop_dim: int = 224,
-            apply_center_crop: bool = True,
+        self,
+        mean: List[float],
+        std: List[float],
+        resize_dim: int = 256,
+        crop_dim: int = 224,
+        apply_center_crop: bool = True,
     ) -> Any:
         resize_dim = crop_dim
         composes = [layers.experimental.preprocessing.Resizing(resize_dim, resize_dim)]

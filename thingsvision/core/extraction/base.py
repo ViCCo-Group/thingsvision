@@ -1,10 +1,10 @@
 import abc
-import warnings
-from typing import Any, Iterator, List, Callable
-from tqdm.auto import tqdm
 import os
+import warnings
+from typing import Any, Callable, Iterator, List
 
 import numpy as np
+from tqdm.auto import tqdm
 
 Array = np.ndarray
 
@@ -28,12 +28,12 @@ class BaseExtractor(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def get_default_transformation(
-            self,
-            mean: List[float],
-            std: List[float],
-            resize_dim: int = 256,
-            crop_dim: int = 224,
-            apply_center_crop: bool = True,
+        self,
+        mean: List[float],
+        std: List[float],
+        resize_dim: int = 256,
+        crop_dim: int = 224,
+        apply_center_crop: bool = True,
     ) -> Callable:
         raise NotImplementedError()
 
@@ -46,16 +46,18 @@ class BaseExtractor(metaclass=abc.ABCMeta):
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def _extract_batch(self, batch: Array, module_name: str, flatten_acts: bool) -> Array:
+    def _extract_batch(
+        self, batch: Array, module_name: str, flatten_acts: bool
+    ) -> Array:
         raise NotImplementedError()
 
     def extract_features(
-            self,
-            batches: Iterator,
-            module_name: str,
-            flatten_acts: bool,
-            output_dir: str = None,
-            step_size: int = None,
+        self,
+        batches: Iterator,
+        module_name: str,
+        flatten_acts: bool,
+        output_dir: str = None,
+        step_size: int = None,
     ):
         """Extract hidden unit activations (at specified layer) for every image in the database.
 
@@ -106,7 +108,7 @@ class BaseExtractor(metaclass=abc.ABCMeta):
         features = []
         image_ct, last_image_ct = 0, 0
         for i, batch in tqdm(
-                enumerate(batches, start=1), desc="Batch", total=len(batches)
+            enumerate(batches, start=1), desc="Batch", total=len(batches)
         ):
             features.append(
                 self._extract_batch(
@@ -139,7 +141,7 @@ class BaseExtractor(metaclass=abc.ABCMeta):
         return features
 
     def get_transformations(
-            self, resize_dim: int = 256, crop_dim: int = 224, apply_center_crop: bool = True
+        self, resize_dim: int = 256, crop_dim: int = 224, apply_center_crop: bool = True
     ) -> Any:
         """Load image transformations for a specific model. Image transformations depend on the backend."""
         if self.preprocess:
