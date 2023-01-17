@@ -397,6 +397,9 @@ class TensorFlowExtractor(BaseExtractor):
     def show_model(self) -> str:
         return self.model.summary()
 
+    def load_model_from_source(self) -> None:
+        raise NotImplementedError
+
     def load_model(self) -> None:
         self.load_model_from_source()
         if self.model_path:
