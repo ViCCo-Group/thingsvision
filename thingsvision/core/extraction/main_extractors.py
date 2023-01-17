@@ -210,7 +210,7 @@ class PyTorchExtractor(BaseExtractor):
         """Move activation to CPU and convert torch.Tensor to np.ndarray."""
         return act.cpu().numpy()
 
-    def _show_model(self) -> str:
+    def show_model(self) -> str:
         return self.model
 
     def load_model(self) -> None:
@@ -378,7 +378,7 @@ class TensorFlowExtractor(BaseExtractor):
 
         return activations
 
-    def _show_model(self) -> str:
+    def show_model(self) -> str:
         return self.model.summary()
 
     def load_model(self) -> None:
