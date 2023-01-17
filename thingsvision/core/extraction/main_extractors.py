@@ -37,6 +37,7 @@ class PyTorchExtractor(BaseExtractor):
         self.model_parameters = (model_parameters,)
         self.model = model
         self.preprocess = preprocess
+        self.backend = field(init=False, default="pt")
 
         if not self.model:
             self.load_model()
@@ -251,9 +252,117 @@ class PyTorchExtractor(BaseExtractor):
         return "pt"
 
 
-@dataclass
-class TensorFlowMixin:
-    backend: str = field(init=False, default="tf")
+class TensorFlowExtractor(BaseExtractor):
+    def __init__(
+        self,
+        model_name: str,
+        pretrained: bool,
+        device: str,
+        model_path: str = None,
+        model_parameters: Any = field(default_factory=lambda: {}),
+        model: Any = None,
+        preprocess: Any = None,
+    ) -> None:
+        super().__init__(device)
+        self.model_names = model_name
+        self.pretrained = pretrained
+        self.model_path = model_path
+        self.model_parameters = (model_parameters,)
+        self.model = model
+        self.preprocess = preprocess
+        self.backend = field(init=False, default="tf")
+
+        if not self.model:
+            self.load_model()
+
+    def extract_features(
+        self,
+        batches: Iterator,
+        module_name: str,
+        flatten_acts: bool,
+        output_dir: str = None,
+        step_size: int = None,
+    ):
+        """Extract hidden unit activations (at specified layer) for every image in the database.
+
+        Parameters
+        ----------
+        batches : Iterator
+            Mini-batches. Iterator with equally sized
+            mini-batches, where each element is a
+            subsample of the full (image) dataset.
+        module_name : str
+            Layer name. Name of neural network layer for
+            which features should be extraced.
+        flatten_acts : bool
+            Whether activation tensor (e.g., activations
+            from an early layer of the neural network model)
+            should be transformed into a vector.
+        output_dir : str, optional
+            Path/to//output/directory. If defined, the extracted
+            features will be iteratively (every step_size batches)
+            stored to disk as numpy files, freeing up memory space.
+            Use this option if your dataset is too large or when extracting many features
+            at once. The default is None, so that the features are kept
+            in memory.
+        step_size : int, optional
+            Number of batches after which the extracted features
+            are saved to disk. The default uses a heuristic so that
+            extracted features should fit into 8GB of free memory.
+            Only used if output_dir is defined.
+
+        Returns
+        -------
+        output : np.ndarray
+            Returns the feature matrix (e.g., X \in \mathbb{R}^{n \times p} if head or flatten_acts = True).
+        """
+        valid_names = self.get_module_names()
+        if not module_name in valid_names:
+            raise ValueError(
+                f"\n{module_name} is not a valid module name. Please choose a name from the following set of modules: {valid_names}\n"
+            )
+
+        if output_dir:
+            os.makedirs(output_dir, exist_ok=True)
+
+            if not step_size:
+                # if step size is not given, assume that features to every image consume 3MB of memory and that the user has at least 8GB of free RAM
+                step_size = 8000 // (len(next(iter(batches))) * 3) + 1
+
+        features = []
+        image_ct, last_image_ct = 0, 0
+        for i, batch in tqdm(
+            enumerate(batches, start=1), desc="Batch", total=len(batches)
+        ):
+            features.append(
+                self._extract_features(
+                    batch=batch, module_name=module_name, flatten_acts=flatten_acts
+                )
+            )
+
+            image_ct += len(batch)
+
+            if output_dir and (i % step_size == 0 or i == len(batches)):
+                features_subset_file = os.path.join(
+                    output_dir,
+                    f"features_{last_image_ct}-{image_ct}.npy",
+                )
+                features_subset = np.vstack(features)
+                np.save(features_subset_file, features_subset)
+                features = []
+                last_image_ct = image_ct
+
+        print(
+            f"...Features successfully extracted for all {image_ct} images in the database."
+        )
+        if output_dir:
+            print(f"...Features were saved to {output_dir}.")
+            return None
+        else:
+            features = np.vstack(features)
+            print(f"...Features shape: {features.shape}")
+
+        return features
 
     def _extract_features(
         self, batch: Array, module_name: str, flatten_acts: bool
