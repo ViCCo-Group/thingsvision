@@ -30,7 +30,7 @@ class PyTorchExtractor(BaseExtractor):
         preprocess: Any = None,
     ) -> None:
         super().__init__(device)
-        self.model_names = model_name
+        self.model_name = model_name
         self.pretrained = pretrained
         self.model_path = model_path
         self.model_parameters = (model_parameters,)
@@ -57,10 +57,10 @@ class PyTorchExtractor(BaseExtractor):
 
         return hook
 
-    def register_hook(self) -> None:
+    def register_hook(self, module_name: str) -> None:
         """Register a forward hook to store activations."""
         for n, m in self.model.named_modules():
-            if n == self.module_name:
+            if n == module_name:
                 m.register_forward_hook(self.get_activation(n))
 
     def extract_features(
@@ -109,7 +109,7 @@ class PyTorchExtractor(BaseExtractor):
         global activations
         activations = {}
         # register forward hook to store features
-        self.register_hook()
+        self.register_hook(module_name)
         valid_names = self.get_module_names()
         if not module_name in valid_names:
             raise ValueError(
@@ -212,6 +212,9 @@ class PyTorchExtractor(BaseExtractor):
     def show_model(self) -> str:
         return self.model
 
+    def load_model_from_source(self) -> None:
+        raise NotImplementedError
+
     def load_model(self) -> None:
         self.load_model_from_source()
         if self.model_path:
@@ -277,7 +280,7 @@ class TensorFlowExtractor(BaseExtractor):
         preprocess: Any = None,
     ) -> None:
         super().__init__(device)
-        self.model_names = model_name
+        self.model_name = model_name
         self.pretrained = pretrained
         self.model_path = model_path
         self.model_parameters = (model_parameters,)

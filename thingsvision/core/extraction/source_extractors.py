@@ -33,7 +33,6 @@ Tensor = torch.Tensor
 Array = np.ndarray
 
 
-@dataclass(repr=True)
 class TorchvisionExtractor(PyTorchExtractor):
     def __init__(
         self,
@@ -104,7 +103,6 @@ class TorchvisionExtractor(PyTorchExtractor):
         return transforms
 
 
-@dataclass(repr=True)
 class TimmExtractor(PyTorchExtractor):
     def __init__(
         self,
@@ -134,7 +132,6 @@ class TimmExtractor(PyTorchExtractor):
             )
 
 
-@dataclass(repr=True)
 class KerasExtractor(TensorFlowExtractor):
     def __init__(
         self,
@@ -174,7 +171,6 @@ class KerasExtractor(TensorFlowExtractor):
             )
 
 
-@dataclass(repr=True)
 class SSLExtractor(PyTorchExtractor):
     ENV_TORCH_HOME = "TORCH_HOME"
     ENV_XDG_CACHE_HOME = "XDG_CACHE_HOME"
