@@ -14,8 +14,7 @@ try:
 except ImportError:
     from torch.utils.model_zoo import load_url as load_state_dict_from_url
 
-from .base import BaseExtractor
-from .mixin import PyTorchMixin, TensorFlowMixin
+from .main_extractors import PyTorchExtractor, TensorFlowExtractor
 
 # neccessary to prevent gpu memory conflicts between torch and tf
 gpus = tf.config.list_physical_devices("GPU")
@@ -35,7 +34,7 @@ Array = np.ndarray
 
 
 @dataclass(repr=True)
-class TorchvisionExtractor(BaseExtractor, PyTorchMixin):
+class TorchvisionExtractor(PyTorchExtractor):
     def __init__(
         self,
         model_name: str,
@@ -106,7 +105,7 @@ class TorchvisionExtractor(BaseExtractor, PyTorchMixin):
 
 
 @dataclass(repr=True)
-class TimmExtractor(BaseExtractor, PyTorchMixin):
+class TimmExtractor(PyTorchExtractor):
     def __init__(
         self,
         model_name: str,
@@ -136,7 +135,7 @@ class TimmExtractor(BaseExtractor, PyTorchMixin):
 
 
 @dataclass(repr=True)
-class KerasExtractor(BaseExtractor, TensorFlowMixin):
+class KerasExtractor(TensorFlowExtractor):
     def __init__(
         self,
         model_name: str,
@@ -176,7 +175,7 @@ class KerasExtractor(BaseExtractor, TensorFlowMixin):
 
 
 @dataclass(repr=True)
-class SSLExtractor(BaseExtractor, PyTorchMixin):
+class SSLExtractor(PyTorchExtractor):
     ENV_TORCH_HOME = "TORCH_HOME"
     ENV_XDG_CACHE_HOME = "XDG_CACHE_HOME"
     DEFAULT_CACHE_DIR = "~/.cache"

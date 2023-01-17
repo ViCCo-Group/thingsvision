@@ -38,6 +38,9 @@ class PyTorchExtractor(BaseExtractor):
         self.model = model
         self.preprocess = preprocess
 
+        if not self.model:
+            self.load_model()
+
     def get_activation(self, name: str) -> Callable:
         """Store copy of hidden unit activations at each layer of model."""
 
