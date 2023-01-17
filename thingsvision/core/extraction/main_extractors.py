@@ -1,8 +1,7 @@
 import os
-from dataclasses import dataclass, field
+from dataclasses import field
 from typing import Any, Callable, Iterator, List, Union
 
-import data
 import numpy as np
 
 from .base import BaseExtractor
