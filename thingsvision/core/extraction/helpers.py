@@ -8,8 +8,12 @@ from torchtyping import TensorType
 
 import torch
 
-from .extractors import (KerasExtractor, SSLExtractor, TimmExtractor,
-                         TorchvisionExtractor)
+from .extractors import (
+    KerasExtractor,
+    SSLExtractor,
+    TimmExtractor,
+    TorchvisionExtractor,
+)
 from .tensorflow import TensorFlowExtractor
 from .torch import PyTorchExtractor
 
