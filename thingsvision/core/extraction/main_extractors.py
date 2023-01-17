@@ -231,6 +231,20 @@ class PyTorchExtractor(BaseExtractor):
         module_names = list(filter(lambda n: len(n) > 0, module_names))
         return module_names
 
+    def get_transformations(
+        self, resize_dim: int = 256, crop_dim: int = 224, apply_center_crop: bool = True
+    ) -> Any:
+        """Load image transformations for a specific model. Image transformations depend on the backend."""
+        if self.preprocess:
+            return self.preprocess
+        else:
+            mean = [0.485, 0.456, 0.406]
+            std = [0.229, 0.224, 0.225]
+            composition = self.get_default_transformation(
+                mean, std, resize_dim, crop_dim, apply_center_crop
+            )
+        return composition
+
     def get_default_transformation(
         self,
         mean: List[float],
@@ -390,6 +404,20 @@ class TensorFlowExtractor(BaseExtractor):
     def get_module_names(self) -> List[str]:
         module_names = [l._name for l in self.model.submodules]
         return module_names
+
+    def get_transformations(
+        self, resize_dim: int = 256, crop_dim: int = 224, apply_center_crop: bool = True
+    ) -> Any:
+        """Load image transformations for a specific model. Image transformations depend on the backend."""
+        if self.preprocess:
+            return self.preprocess
+        else:
+            mean = [0.485, 0.456, 0.406]
+            std = [0.229, 0.224, 0.225]
+            composition = self.get_default_transformation(
+                mean, std, resize_dim, crop_dim, apply_center_crop
+            )
+        return composition
 
     def get_default_transformation(
         self,
