@@ -1,4 +1,3 @@
-import abc
 import os
 from dataclasses import field
 from typing import Any, List
@@ -63,8 +62,7 @@ class TensorFlowExtractor(BaseExtractor):
         self.model.trainable = False
 
     def get_module_names(self) -> List[str]:
-        module_names = [l._name for l in self.model.submodules]
-        return module_names
+        return [l._name for l in self.model.submodules]
 
     def get_default_transformation(
         self,
