@@ -1,21 +1,21 @@
 import os
-from dataclasses import dataclass
 from typing import Any, Dict
 
 import numpy as np
+import timm
+import torchvision
+
 import tensorflow as tf
 import tensorflow.keras.applications as tensorflow_models
-import timm
 import torch
-import torchvision
 
 try:
     from torch.hub import load_state_dict_from_url
 except ImportError:
     from torch.utils.model_zoo import load_url as load_state_dict_from_url
 
-from .base import BaseExtractor
-from .mixin import PyTorchMixin, TensorFlowMixin
+from .tensorflow import TensorFlowExtractor
+from .torch import PyTorchExtractor
 
 # neccessary to prevent gpu memory conflicts between torch and tf
 gpus = tf.config.list_physical_devices("GPU")
@@ -34,8 +34,7 @@ Tensor = torch.Tensor
 Array = np.ndarray
 
 
-@dataclass(repr=True)
-class TorchvisionExtractor(BaseExtractor, PyTorchMixin):
+class TorchvisionExtractor(PyTorchExtractor):
     def __init__(
         self,
         model_name: str,
@@ -105,8 +104,7 @@ class TorchvisionExtractor(BaseExtractor, PyTorchMixin):
         return transforms
 
 
-@dataclass(repr=True)
-class TimmExtractor(BaseExtractor, PyTorchMixin):
+class TimmExtractor(PyTorchExtractor):
     def __init__(
         self,
         model_name: str,
@@ -135,8 +133,7 @@ class TimmExtractor(BaseExtractor, PyTorchMixin):
             )
 
 
-@dataclass(repr=True)
-class KerasExtractor(BaseExtractor, TensorFlowMixin):
+class KerasExtractor(TensorFlowExtractor):
     def __init__(
         self,
         model_name: str,
@@ -175,8 +172,7 @@ class KerasExtractor(BaseExtractor, TensorFlowMixin):
             )
 
 
-@dataclass(repr=True)
-class SSLExtractor(BaseExtractor, PyTorchMixin):
+class SSLExtractor(PyTorchExtractor):
     ENV_TORCH_HOME = "TORCH_HOME"
     ENV_XDG_CACHE_HOME = "XDG_CACHE_HOME"
     DEFAULT_CACHE_DIR = "~/.cache"

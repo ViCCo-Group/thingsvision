@@ -180,13 +180,13 @@ def create_extractor_and_dataloader(model_name: str, pretrained: bool, source: s
     dataset = ImageDataset(
         root=TEST_PATH,
         out_path=OUT_PATH,
-        backend=extractor.backend,
+        backend=extractor.get_backend(),
         transforms=extractor.get_transformations(),
     )
     batches = DataLoader(
         dataset,
         batch_size=BATCH_SIZE,
-        backend=extractor.backend,
+        backend=extractor.get_backend(),
     )
     return extractor, dataset, batches
 

@@ -3,7 +3,6 @@ import unittest
 
 import numpy as np
 import tests.helper as helper
-import thingsvision.core.extraction.extractor
 
 Array = np.ndarray
 

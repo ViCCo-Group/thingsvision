@@ -1,27 +1,18 @@
+import abc
 import os
 import warnings
-from dataclasses import dataclass, field
-from typing import Any, Iterator
+from typing import Any, Callable, Iterator, List
 
 import numpy as np
-from tqdm import tqdm
+from tqdm.auto import tqdm
 
 Array = np.ndarray
 
 
-@dataclass(init=True, repr=True)
-class BaseExtractor:
-    model_name: str
-    pretrained: bool
-    device: str
-    model_path: str = None
-    model_parameters: Any = field(default_factory=lambda: {})
-    model: Any = None
-    preprocess: Any = None
-
-    def __post_init__(self) -> None:
-        if not self.model:
-            self.load_model()
+class BaseExtractor(metaclass=abc.ABCMeta):
+    def __init__(self, device, preprocess) -> None:
+        self.device = device
+        self.preprocess = preprocess
 
     def show(self) -> None:
         warnings.warn(
@@ -30,9 +21,35 @@ class BaseExtractor:
         )
         self.show_model()
 
+    @abc.abstractmethod
     def show_model(self) -> None:
-        print(self._show_model())
-        print()
+        """Show model."""
+        raise NotImplementedError()
+
+    @abc.abstractmethod
+    def get_default_transformation(
+        self,
+        mean: List[float],
+        std: List[float],
+        resize_dim: int = 256,
+        crop_dim: int = 224,
+        apply_center_crop: bool = True,
+    ) -> Callable:
+        raise NotImplementedError()
+
+    @abc.abstractmethod
+    def get_module_names(self):
+        raise NotImplementedError()
+
+    @abc.abstractmethod
+    def load_model(self):
+        raise NotImplementedError()
+
+    @abc.abstractmethod
+    def _extract_batch(
+        self, batch: Array, module_name: str, flatten_acts: bool
+    ) -> Array:
+        raise NotImplementedError()
 
     def extract_features(
         self,
@@ -41,7 +58,7 @@ class BaseExtractor:
         flatten_acts: bool,
         output_dir: str = None,
         step_size: int = None,
-    ) -> Array:
+    ):
         """Extract hidden unit activations (at specified layer) for every image in the database.
 
         Parameters
@@ -94,7 +111,7 @@ class BaseExtractor:
             enumerate(batches, start=1), desc="Batch", total=len(batches)
         ):
             features.append(
-                self._extract_features(
+                self._extract_batch(
                     batch=batch, module_name=module_name, flatten_acts=flatten_acts
                 )
             )
@@ -136,3 +153,7 @@ class BaseExtractor:
                 mean, std, resize_dim, crop_dim, apply_center_crop
             )
         return composition
+
+    @abc.abstractmethod
+    def get_backend(self) -> str:
+        raise NotImplementedError()

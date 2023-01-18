@@ -4,13 +4,18 @@ from warnings import warn
 import numpy as np
 import thingsvision.custom_models as custom_models
 import thingsvision.custom_models.cornet as cornet
-import torch
 from torchtyping import TensorType
 
-from .base import BaseExtractor
-from .extractor import (KerasExtractor, SSLExtractor, TimmExtractor,
-                        TorchvisionExtractor)
-from .mixin import PyTorchMixin, TensorFlowMixin
+import torch
+
+from .extractors import (
+    KerasExtractor,
+    SSLExtractor,
+    TimmExtractor,
+    TorchvisionExtractor,
+)
+from .tensorflow import TensorFlowExtractor
+from .torch import PyTorchExtractor
 
 Array = np.ndarray
 AxisError = np.AxisError
@@ -43,9 +48,9 @@ def create_custom_extractor(
             f"\nCould not find {model_name} among custom models.\nChoose a different model.\n"
         )
 
-    backend_mixin = PyTorchMixin if backend == "pt" else TensorFlowMixin
+    Extractor = PyTorchExtractor if backend == "pt" else TensorFlowExtractor
 
-    class CustomExtractor(BaseExtractor, backend_mixin):
+    class CustomExtractor(Extractor):
         def __init__(self, *args, **kwargs) -> None:
             super().__init__(*args, **kwargs)
 
@@ -140,9 +145,9 @@ def create_model_extractor(
     extractor: Any
         The custom extractor class.
     """
-    backend_mixin = PyTorchMixin if backend == "pt" else TensorFlowMixin
+    Extractor = PyTorchExtractor if backend == "pt" else TensorFlowExtractor
 
-    class ModelExtractor(BaseExtractor, backend_mixin):
+    class ModelExtractor(Extractor):
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
 
