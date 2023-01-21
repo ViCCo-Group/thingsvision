@@ -155,7 +155,7 @@ dataset = ImageDataset(
   root=root,
   out_path='path/to/features',
   backend=extractor.get_backend(),
-  transforms=extractor.get_transformations()
+  transforms=extractor.get_transformations(resize_dim=256, crop_dim=224)
 )
 
 batches = DataLoader(
