@@ -155,7 +155,7 @@ dataset = ImageDataset(
   root=root,
   out_path='path/to/features',
   backend=extractor.get_backend(),
-  transforms=extractor.get_transformations(resize_dim=256, crop_dim=224)
+  transforms=extractor.get_transformations(resize_dim=256, crop_dim=224) # set input dimensionality to whatever is needed for your pretrained model
 )
 
 batches = DataLoader(
