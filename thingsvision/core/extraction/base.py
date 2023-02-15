@@ -47,13 +47,19 @@ class BaseExtractor(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def _extract_batch(
-        self, batch: Union[TensorType["b", "c", "h", "w"], Array], module_name: str, flatten_acts: bool
-    ) -> Union[Union[
+        self,
+        batch: Union[TensorType["b", "c", "h", "w"], Array],
+        module_name: str,
+        flatten_acts: bool,
+    ) -> Union[
+        Union[
             TensorType["b", "num_maps", "h_prime", "w_prime"],
             TensorType["b", "t", "d"],
             TensorType["b", "p"],
             TensorType["b", "d"],
-        ], Array]:
+        ],
+        Array,
+    ]:
         raise NotImplementedError
 
     def get_output_types(self) -> List[str]:
@@ -83,7 +89,7 @@ class BaseExtractor(metaclass=abc.ABCMeta):
             Whether activation tensor (e.g., activations
             from an early layer of the neural network model)
             should be transformed into a vector.
-        output_type : str 
+        output_type : str
             Whether to return output features as torch.Tensor or np.ndarray.
             Use torch.Tensor if you don't save the features to disk after
             calling the exraction method (moving tensors to CPU is costly).
@@ -111,7 +117,9 @@ class BaseExtractor(metaclass=abc.ABCMeta):
             raise ValueError(
                 f"\n{module_name} is not a valid module name. Please choose a name from the following set of modules: {valid_names}\n"
             )
-        assert output_type in self.get_output_types(), f"\nData type of output feature matrix must be set to one of the following available data types: {self.get_output_types()}\n"
+        assert (
+            output_type in self.get_output_types()
+        ), f"\nData type of output feature matrix must be set to one of the following available data types: {self.get_output_types()}\n"
         if output_dir:
             os.makedirs(output_dir, exist_ok=True)
 
