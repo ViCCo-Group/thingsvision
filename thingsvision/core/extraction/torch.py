@@ -2,10 +2,9 @@ from dataclasses import field
 from typing import Any, Callable, Iterator, List, Optional, Union
 
 import numpy as np
+import torch
 from torchtyping import TensorType
 from torchvision import transforms as T
-
-import torch
 
 from .base import BaseExtractor
 
@@ -60,7 +59,7 @@ class PyTorchExtractor(BaseExtractor):
         return features
 
     def get_activation(self, name: str) -> Callable:
-        """Store copy of hidden unit activations at each layer of model."""
+        """Store copy of activations for a specific layer of the model."""
 
         def hook(model, input, output) -> None:
             # store copy of tensor rather than tensor itself
