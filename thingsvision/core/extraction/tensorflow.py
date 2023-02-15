@@ -46,7 +46,6 @@ class TensorFlowExtractor(BaseExtractor):
         activations = activation_model.predict(batch)
         if flatten_acts:
             activations = activations.reshape(activations.shape[0], -1)
-
         return activations
 
     def show_model(self) -> str:

@@ -1,7 +1,7 @@
 import abc
 import os
 import warnings
-from typing import Any, Callable, Iterator, List
+from typing import Any, Callable, Iterator, List, Optional, Union
 
 import numpy as np
 from tqdm.auto import tqdm
@@ -23,8 +23,8 @@ class BaseExtractor(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def show_model(self) -> None:
-        """Show model."""
-        raise NotImplementedError()
+        """Show architecture."""
+        raise NotImplementedError
 
     @abc.abstractmethod
     def get_default_transformation(
@@ -35,29 +35,38 @@ class BaseExtractor(metaclass=abc.ABCMeta):
         crop_dim: int = 224,
         apply_center_crop: bool = True,
     ) -> Callable:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
-    def get_module_names(self):
-        raise NotImplementedError()
+    def get_module_names(self) -> List[str]:
+        raise NotImplementedError
 
     @abc.abstractmethod
-    def load_model(self):
-        raise NotImplementedError()
+    def load_model(self) -> None:
+        raise NotImplementedError
 
     @abc.abstractmethod
     def _extract_batch(
-        self, batch: Array, module_name: str, flatten_acts: bool
-    ) -> Array:
-        raise NotImplementedError()
+        self, batch: Union[TensorType["b", "c", "h", "w"], Array], module_name: str, flatten_acts: bool
+    ) -> Union[Union[
+            TensorType["b", "num_maps", "h_prime", "w_prime"],
+            TensorType["b", "t", "d"],
+            TensorType["b", "p"],
+            TensorType["b", "d"],
+        ], Array]:
+        raise NotImplementedError
+
+    def get_output_types(self) -> List[str]:
+        return ["ndarray", "tensor"]
 
     def extract_features(
         self,
-        batches: Iterator,
+        batches: Iterator[Union[TensorType["b", "c", "h", "w"], Array]],
         module_name: str,
         flatten_acts: bool,
-        output_dir: str = None,
-        step_size: int = None,
+        output_type: str = "ndarray",
+        output_dir: Optional[str] = None,
+        step_size: Optional[int] = None,
     ):
         """Extract hidden unit activations (at specified layer) for every image in the database.
 
@@ -74,10 +83,15 @@ class BaseExtractor(metaclass=abc.ABCMeta):
             Whether activation tensor (e.g., activations
             from an early layer of the neural network model)
             should be transformed into a vector.
+        output_type : str 
+            Whether to return output features as torch.Tensor or np.ndarray.
+            Use torch.Tensor if you don't save the features to disk after
+            calling the exraction method (moving tensors to CPU is costly).
+            Available options are "ndarray" or "tensor".
         output_dir : str, optional
             Path/to//output/directory. If defined, the extracted
             features will be iteratively (every step_size batches)
-            stored to disk as numpy files, freeing up memory space.
+            stored to disk as NumPy files, freeing up memory space.
             Use this option if your dataset is too large or when extracting many features
             at once. The default is None, so that the features are kept
             in memory.
@@ -89,15 +103,15 @@ class BaseExtractor(metaclass=abc.ABCMeta):
 
         Returns
         -------
-        output : np.ndarray
-            Returns the feature matrix (e.g., X \in \mathbb{R}^{n \times p} if head or flatten_acts = True).
+        output : np.ndarray or torch.Tensor
+            Returns the feature matrix (e.g., $X \in \mathbb{R}^{n \times d}$ if penultimate or logits layer or flatten_acts = True).
         """
         valid_names = self.get_module_names()
         if not module_name in valid_names:
             raise ValueError(
                 f"\n{module_name} is not a valid module name. Please choose a name from the following set of modules: {valid_names}\n"
             )
-
+        assert output_type in self.get_output_types(), f"\nData type of output feature matrix must be set to one of the following available data types: {self.get_output_types()}\n"
         if output_dir:
             os.makedirs(output_dir, exist_ok=True)
 
@@ -123,7 +137,11 @@ class BaseExtractor(metaclass=abc.ABCMeta):
                     output_dir,
                     f"features_{last_image_ct}-{image_ct}.npy",
                 )
-                features_subset = np.vstack(features)
+                if self.get_backend() == "pt":
+                    features_subset = torch.cat(features)
+                    features_subset = self._to_numpy(features_subset)
+                else:
+                    features_subset = np.vstack(features)
                 np.save(features_subset_file, features_subset)
                 features = []
                 last_image_ct = image_ct
@@ -135,14 +153,30 @@ class BaseExtractor(metaclass=abc.ABCMeta):
             print(f"...Features were saved to {output_dir}.")
             return None
         else:
-            features = np.vstack(features)
-            print(f"...Features shape: {features.shape}")
-
+            if self.get_backend() == "pt":
+                features = torch.cat(features)
+                if output_type == "ndarray":
+                    features = self._to_numpy(features)
+            else:
+                features = np.vstack(features)
+                print(f"...Features shape: {features.shape}")
         return features
+
+    @staticmethod
+    def _to_numpy(
+        features: Union[
+            TensorType["n", "num_maps", "h_prime", "w_prime"],
+            TensorType["n", "t", "d"],
+            TensorType["n", "p"],
+            TensorType["n", "d"],
+        ]
+    ) -> Array:
+        """Move activations to CPU and convert torch.Tensor to np.ndarray."""
+        return features.cpu().numpy()
 
     def get_transformations(
         self, resize_dim: int = 256, crop_dim: int = 224, apply_center_crop: bool = True
-    ) -> Any:
+    ) -> Callable:
         """Load image transformations for a specific model. Image transformations depend on the backend."""
         if self.preprocess:
             return self.preprocess
@@ -156,4 +190,4 @@ class BaseExtractor(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def get_backend(self) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError

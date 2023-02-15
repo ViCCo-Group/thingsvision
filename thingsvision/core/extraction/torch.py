@@ -101,7 +101,6 @@ class PyTorchExtractor(BaseExtractor):
                 act = self.flatten_acts(act, batch, module_name)
             else:
                 act = self.flatten_acts(act)
-        act = self._to_numpy(act)
         return act
 
     def forward(
@@ -118,18 +117,6 @@ class PyTorchExtractor(BaseExtractor):
     ) -> TensorType["b", "p"]:
         """Default flattening of activations."""
         return act.view(act.size(0), -1)
-
-    @staticmethod
-    def _to_numpy(
-        act: Union[
-            TensorType["b", "num_maps", "h_prime", "w_prime"],
-            TensorType["b", "t", "d"],
-            TensorType["b", "p"],
-            TensorType["b", "d"],
-        ]
-    ) -> Array:
-        """Move activation to CPU and convert torch.Tensor to np.ndarray."""
-        return act.cpu().numpy()
 
     def show_model(self) -> str:
         return self.model
