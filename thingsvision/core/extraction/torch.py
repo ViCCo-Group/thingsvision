@@ -1,5 +1,5 @@
 from dataclasses import field
-from typing import Any, Callable, Iterator, List, Union
+from typing import Any, Callable, Iterator, List, Optional, Union
 
 import numpy as np
 from torchtyping import TensorType
@@ -40,8 +40,9 @@ class PyTorchExtractor(BaseExtractor):
         batches: Iterator,
         module_name: str,
         flatten_acts: bool,
-        output_dir: str = None,
-        step_size: int = None,
+        output_type: str = "ndarray",
+        output_dir: Optional[str] = None,
+        step_size: Optional[int] = None,
     ):
         self.model = self.model.to(self.device)
         self.activations = {}
@@ -50,6 +51,7 @@ class PyTorchExtractor(BaseExtractor):
             batches=batches,
             module_name=module_name,
             flatten_acts=flatten_acts,
+            output_type=output_type,
             output_dir=output_dir,
             step_size=step_size,
         )
