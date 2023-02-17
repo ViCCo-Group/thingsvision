@@ -217,6 +217,51 @@ class SSLExtractor(PyTorchExtractor):
             "arch": "resnet50",
             "type": "hub",
         },
+        "dino-vits16": {
+            "repository": "facebookresearch/dino:main",
+            "arch": "dino_vits16",
+            "type": "hub",
+        },
+         "dino-vits8": {
+            "repository": "facebookresearch/dino:main",
+            "arch": "dino_vits8",
+            "type": "hub",
+        },
+        "dino-vitb16": {
+            "repository": "facebookresearch/dino:main",
+            "arch": "dino_vitb16",
+            "type": "hub",
+        },
+        "dino-vitb8": {
+            "repository": "facebookresearch/dino:main",
+            "arch": "dino_vitb8",
+            "type": "hub",
+        },
+        "dino-xcit-small-12-p16": {
+            "repository": "facebookresearch/dino:main",
+            "arch": "dino_xcit_small_12_p16",
+            "type": "hub",
+        },
+        "dino-xcit-small-12-p8": {
+            "repository": "facebookresearch/dino:main",
+            "arch": "dino_xcit_small_12_p8",
+            "type": "hub",
+        },
+        "dino-xcit-medium-24-p16": {
+            "repository": "facebookresearch/dino:main",
+            "arch": "dino_xcit_medium_24_p16",
+            "type": "hub",
+        },
+        "dino-xcit-medium-24-p8": {
+            "repository": "facebookresearch/dino:main",
+            "arch": "dino_xcit_medium_24_p8",
+            "type": "hub",
+        },
+        "dino-resnet50": {
+            "repository": "facebookresearch/dino:main",
+            "arch": "dino_resnet50",
+            "type": "hub",
+        },
     }
 
     def __init__(
@@ -310,13 +355,15 @@ class SSLExtractor(PyTorchExtractor):
                         model_filepath, map_location=torch.device("cpu")
                     )
                 self.model = getattr(torchvision.models, model_config["arch"])()
-                self.model.fc = torch.nn.Identity()
+                if model_config["arch"] == 'resnet50':
+                    self.model.fc = torch.nn.Identity()
                 self.model.load_state_dict(model_state_dict, strict=True)
             elif model_config["type"] == "hub":
                 self.model = torch.hub.load(
                     model_config["repository"], model_config["arch"]
                 )
-                self.model.fc = torch.nn.Identity()
+                if model_config["arch"] == 'resnet50':
+                    self.model.fc = torch.nn.Identity()
             else:
                 raise ValueError(f"\nUnknown model type.\n")
         else:
