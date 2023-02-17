@@ -355,13 +355,15 @@ class SSLExtractor(PyTorchExtractor):
                         model_filepath, map_location=torch.device("cpu")
                     )
                 self.model = getattr(torchvision.models, model_config["arch"])()
-                self.model.fc = torch.nn.Identity()
+                if model_config["arch"] in ['resnet50']:
+                    self.model.fc = torch.nn.Identity()
                 self.model.load_state_dict(model_state_dict, strict=True)
             elif model_config["type"] == "hub":
                 self.model = torch.hub.load(
                     model_config["repository"], model_config["arch"]
                 )
-                self.model.fc = torch.nn.Identity()
+                if model_config["arch"] in ['resnet50']:
+                    self.model.fc = torch.nn.Identity()
             else:
                 raise ValueError(f"\nUnknown model type.\n")
         else:
