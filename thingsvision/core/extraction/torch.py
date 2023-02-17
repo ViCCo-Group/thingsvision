@@ -2,9 +2,10 @@ from dataclasses import field
 from typing import Any, Callable, Iterator, List, Optional, Union
 
 import numpy as np
-import torch
 from torchtyping import TensorType
 from torchvision import transforms as T
+
+import torch
 
 from .base import BaseExtractor
 

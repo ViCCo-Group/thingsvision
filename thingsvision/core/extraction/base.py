@@ -76,7 +76,15 @@ class BaseExtractor(metaclass=abc.ABCMeta):
         output_type: str = "ndarray",
         output_dir: Optional[str] = None,
         step_size: Optional[int] = None,
-    ):
+    ) -> Union[
+        Union[
+            TensorType["n", "num_maps", "h_prime", "w_prime"],
+            TensorType["n", "t", "d"],
+            TensorType["n", "p"],
+            TensorType["n", "d"],
+        ],
+        Array,
+    ]:
         """Extract hidden unit activations (at specified layer) for every image in the database.
 
         Parameters
@@ -92,7 +100,7 @@ class BaseExtractor(metaclass=abc.ABCMeta):
             Whether activation tensor (e.g., activations
             from an early layer of the neural network model)
             should be transformed into a vector.
-        output_type : str
+        output_type : str {"ndarray", "tensor"}
             Whether to return output features as torch.Tensor or np.ndarray.
             Use torch.Tensor if you don't save the features to disk after
             calling the exraction method (moving tensors to CPU is costly).
@@ -144,19 +152,29 @@ class BaseExtractor(metaclass=abc.ABCMeta):
             image_ct += len(batch)
 
             if output_dir and (i % step_size == 0 or i == len(batches)):
-                features_subset_file = os.path.join(
-                    output_dir,
-                    f"features_{last_image_ct}-{image_ct}.npy",
-                )
                 if self.get_backend() == "pt":
                     features_subset = torch.cat(features)
-                    features_subset = self._to_numpy(features_subset)
+                    if output_type == "ndarray":
+                        features_subset = self._to_numpy(features_subset)
+                        features_subset_file = os.path.join(
+                            output_dir,
+                            f"features_{last_image_ct}-{image_ct}.npy",
+                        )
+                        np.save(features_subset_file, features_subset)
+                    else:  # output_type = tensor
+                        features_subset_file = os.path.join(
+                            output_dir,
+                            f"features_{last_image_ct}-{image_ct}.pt",
+                        )
+                        torch.save(features_subset, features_subset_file)
                 else:
+                    features_subset_file = os.path.join(
+                        output_dir, f"features_{last_image_ct}-{image_ct}.npy"
+                    )
                     features_subset = np.vstack(features)
-                np.save(features_subset_file, features_subset)
+                    np.save(features_subset_file, features_subset)
                 features = []
                 last_image_ct = image_ct
-
         print(
             f"...Features successfully extracted for all {image_ct} images in the database."
         )
