@@ -138,10 +138,10 @@ source = 'torchvision'
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 extractor = get_extractor(
-  model_name=model_name,
-  source=source,
-  device=device,
-  pretrained=True
+    model_name=model_name,
+    source=source,
+    device=device,
+    pretrained=True
 )
 ```
 
@@ -152,16 +152,16 @@ root='path/to/root/img/directory' # (e.g., './images/)
 batch_size = 32
 
 dataset = ImageDataset(
-  root=root,
-  out_path='path/to/features',
-  backend=extractor.get_backend(),
-  transforms=extractor.get_transformations(resize_dim=256, crop_dim=224) # set input dimensionality to whatever is needed for your pretrained model
+    root=root,
+    out_path='path/to/features',
+    backend=extractor.get_backend(), # backend framework of model
+    transforms=extractor.get_transformations(resize_dim=256, crop_dim=224) # set input dimensionality to whatever is required for your pretrained model
 )
 
 batches = DataLoader(
-  dataset=dataset,
-  batch_size=batch_size, 
-  backend=extractor.get_backend()
+    dataset=dataset,
+    batch_size=batch_size,
+    backend=extractor.get_backend() # backend framework of model
 )
 ```
 
