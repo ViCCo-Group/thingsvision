@@ -29,6 +29,7 @@ requirements = [
     "h5py==3.7.0",
     "CLIP",
     # 'CLIP @ git+ssh://git@github.com/openai/CLIP@v1.0#egg=CLIP'
+    "Harmonization",
 ]
 
 setuptools.setup(
@@ -52,5 +53,8 @@ setuptools.setup(
     ],
     entry_points={"console_scripts": ["thingsvision = thingsvision.thingsvision:main"]},
     python_requires=">=3.8",
-    dependency_links=["git+https://github.com/openai/CLIP.git"],
+    dependency_links=[
+        "git+https://github.com/openai/CLIP.git",
+        "git+https://github.com/serre-lab/Harmonization.git",
+    ],
 )
