@@ -171,9 +171,10 @@ Now all that is left is to extract the image features and store them to disk! He
 module_name = 'features.10'
 
 features = extractor.extract_features(
-  batches=batches,
-  module_name=module_name,
-  flatten_acts=True  # flatten 2D feature maps from convolutional layer
+    batches=batches,
+    module_name=module_name,
+    flatten_acts=True, # flatten 2D feature maps from convolutional layer
+    output_type="ndarray", # or "tensor"
 )
 
 save_features(features, out_path='path/to/features', file_format='npy')
