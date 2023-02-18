@@ -48,7 +48,7 @@ def store_features(
         except FileNotFoundError:
             scipy.io.savemat(os.path.join(root, "features.mat"), {"features": features})
     elif file_format == "hdf5":
-        h5f = h5py.File(os.path.join(root, "features.h5"), "w")
+        h5f = h5py.File(os.path.join(root, "features.hdf5"), "w")
         h5f.create_dataset("features", data=features)
         h5f.close()
     else: # txt
@@ -71,7 +71,7 @@ def split_features(
             file_names = None
     splits = np.linspace(0, len(features), n_splits, dtype=int)
     if file_format == "hdf5":
-        h5f = h5py.File(os.path.join(root, "features.h5"), "w")
+        h5f = h5py.File(os.path.join(root, "features.hdf5"), "w")
 
     for i in range(1, len(splits)):
         feature_split = features[splits[i - 1] : splits[i]]
@@ -144,7 +144,7 @@ def save_features(
 
 def merge_features(root: str, file_format: str) -> Array:
     if file_format == "hdf5":
-        with h5py.file(os.path.join(root, "features.h5"), "r") as f:
+        with h5py.file(os.path.join(root, "features.hdf5"), "r") as f:
             features = np.vstack([split[:] for split in f.values()])
     else:
         feature_splits = np.array(
