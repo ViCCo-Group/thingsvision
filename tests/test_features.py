@@ -1,6 +1,7 @@
 import os
 import shutil
 import unittest
+import torch
 
 import numpy as np
 from thingsvision.core.extraction import center_features, normalize_features
@@ -93,6 +94,8 @@ class FeaturesTestCase(unittest.TestCase):
         n_splits = 3
         features = self.get_2D_features()
         for format in helper.FILE_FORMATS:
+            if format == "pt":
+                features = torch.from_numpy(features)
             split_features(
                 features=features,
                 root=helper.OUT_PATH,
@@ -107,6 +110,8 @@ class FeaturesTestCase(unittest.TestCase):
         n_splits = 3
         features = self.get_4D_features()
         for format in set(helper.FILE_FORMATS) - set(["txt"]):
+            if format == "pt":
+                features = torch.from_numpy(features)
             split_features(
                 features=features,
                 root=helper.OUT_PATH,
