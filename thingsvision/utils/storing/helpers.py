@@ -6,6 +6,7 @@ import numpy as np
 import scipy
 import scipy.io
 import torch
+import warnings
 
 from typing import Union
 
@@ -78,6 +79,8 @@ def split_features(
         if file_format == "npy":
             with open(os.path.join(root, f"features_{i:02d}.npy"), "wb") as f:
                 np.save(f, feature_split)
+        elif file_format == "pt":
+            torch.save(feature_split, os.path.join(root, f"features_{i:02d}.pt"))
         elif file_format == "mat":
             if file_names:
                 file_name_split = file_names[splits[i - 1] : splits[i]]
@@ -110,12 +113,19 @@ def save_features(
     """Save feature matrix in desired format to disk."""
     assert (
         file_format in FILE_FORMATS
-    ), f"\nFile format must be one of {FILE_FORMATS}.\nChange output format.\n"
+    ), f"\nFile format must be one of {FILE_FORMATS}.\nChange output format accordingly.\n"
     if not os.path.exists(out_path):
         print(
             "\nOutput directory did not exist. Creating directories to save features...\n"
         )
-        os.makedirs(out_path)
+        os.makedirs(out_path, exist_ok=True)
+    if file_format == "pt":
+        if not isinstance(features, torch.Tensor):
+            warnings.warn(
+                message=f"\nExpected features to be of type <torch.Tensor> but got {type(features)} instead.\nConverting features to type <torch.Tensor> now.\n",
+                category=UserWarning,
+                )
+            features = torch.from_numpy(features)
     # save hidden unit actvations to disk (either as one single file or as several splits)
     if len(features.shape) > 2 and file_format == "txt":
         print("\n...Cannot save 4-way tensor in a txt format.")

@@ -1,6 +1,7 @@
 import os
 import shutil
 import unittest
+import torch
 
 import numpy as np
 from thingsvision.core.extraction import center_features, normalize_features
@@ -57,9 +58,7 @@ class FeaturesTestCase(unittest.TestCase):
 
     def check_file_exists(self, file_name, format, txt_should_exists=True):
         if format == "hdf5":
-            format = "h5"
             file_name = "features"
-
         path = os.path.join(helper.OUT_PATH, f"{file_name}.{format}")
         if format == "txt" and not txt_should_exists:
             self.assertTrue(not os.path.exists(path))
@@ -95,6 +94,8 @@ class FeaturesTestCase(unittest.TestCase):
         n_splits = 3
         features = self.get_2D_features()
         for format in helper.FILE_FORMATS:
+            if format == "pt":
+                features = torch.from_numpy(features)
             split_features(
                 features=features,
                 root=helper.OUT_PATH,
@@ -103,12 +104,14 @@ class FeaturesTestCase(unittest.TestCase):
             )
 
             for i in range(1, n_splits):
-                self.check_file_exists(f"features_0{i}", format)
+                self.check_file_exists(f"features_{i:02d}", format)
 
     def test_splitting_4d(self):
         n_splits = 3
         features = self.get_4D_features()
         for format in set(helper.FILE_FORMATS) - set(["txt"]):
+            if format == "pt":
+                features = torch.from_numpy(features)
             split_features(
                 features=features,
                 root=helper.OUT_PATH,
@@ -117,7 +120,7 @@ class FeaturesTestCase(unittest.TestCase):
             )
 
             for i in range(1, n_splits):
-                self.check_file_exists(f"features_0{i}", format, False)
+                self.check_file_exists(f"features_{i:02d}", format, False)
 
         with self.assertRaises(Exception):
             split_features(
