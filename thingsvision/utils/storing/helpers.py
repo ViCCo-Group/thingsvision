@@ -122,7 +122,7 @@ def save_features(
     if file_format == "pt":
         if not isinstance(features, torch.Tensor):
             warnings.warn(
-                message=f"\nExpected features to be of type torch.Tensor but got {type(features} instead.\nConverting features to torch.Tensor now.\n",
+                message=f"\nExpected features to be of type <torch.Tensor> but got {type(features)} instead.\nConverting features to type <torch.Tensor> now.\n",
                 category=UserWarning,
                 )
             features = torch.from_numpy(features)
