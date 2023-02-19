@@ -22,6 +22,7 @@ class ModelTransformationsTestCase(unittest.TestCase):
         extractor, _, _ = helper.create_extractor_and_dataloader(
             model_name, pretrained=False, source="keras"
         )
+        transforms = extractor.get_transformations()
         self.assertTrue(isinstance(transforms, tf.keras.Sequential))
 
     def test_transformations_transformer(self):
