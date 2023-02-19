@@ -113,12 +113,12 @@ def save_features(
     """Save feature matrix in desired format to disk."""
     assert (
         file_format in FILE_FORMATS
-    ), f"\nFile format must be one of {FILE_FORMATS}.\nChange output format.\n"
+    ), f"\nFile format must be one of {FILE_FORMATS}.\nChange output format accordingly.\n"
     if not os.path.exists(out_path):
         print(
             "\nOutput directory did not exist. Creating directories to save features...\n"
         )
-        os.makedirs(out_path)
+        os.makedirs(out_path, exist_ok=True)
     if file_format == "pt":
         if not isinstance(features, torch.Tensor):
             warnings.warn(
