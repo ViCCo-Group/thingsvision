@@ -96,7 +96,7 @@ MODEL_AND_MODULE_NAMES = {
 }
 
 
-FILE_FORMATS = ["hdf5", "npy", "mat", "txt"]
+FILE_FORMATS = ["hdf5", "npy", "mat", "pt", "txt"]
 DISTANCES = ["correlation", "cosine", "euclidean", "gaussian"]
 
 BATCH_SIZE = 16
