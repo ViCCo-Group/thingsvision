@@ -235,7 +235,7 @@ For a list of all available architectures and datasets, please refer to the [Ope
 
 ### Harmonization
 
-We provide [Harmonization](https://arxiv.org/abs/2211.04533) models from the [official repo](https://github.com/serre-lab/harmonization). The default variant is `ViT_B16`, however the following variants are available as of now:
+We provide [Harmonization](https://arxiv.org/abs/2211.04533) models from the [official repo](https://github.com/serre-lab/harmonization). The following variants are available as of now:
 
 - `ViT_B16`
 - `ResNet50`
@@ -250,11 +250,15 @@ Example:
 model_name = 'Harmonization'
 source = 'custom'
 device = 'cpu'
+model_parameters = {
+    'variant': 'ViT_B16'
+}
 
 extractor = get_extractor(
   model_name=model_name,
   source=source,
   device=device,
   pretrained=True
+  model_parameters=model_parameters
 )
 ```
