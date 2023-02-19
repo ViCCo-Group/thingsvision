@@ -92,7 +92,20 @@ MODEL_AND_MODULE_NAMES = {
     'swav-rn50': SSL_RN50_DEFAULT_CONFIG,
     'pirl-rn50': SSL_RN50_DEFAULT_CONFIG,
     'barlowtwins-rn50': SSL_RN50_DEFAULT_CONFIG,
-    'vicreg-rn50': SSL_RN50_DEFAULT_CONFIG
+    'vicreg-rn50': SSL_RN50_DEFAULT_CONFIG,
+    # Harmonization models
+    "Harmonization": {
+        "modules": ["visual"],
+        "pretrained": True,
+        "source": "custom",
+        "kwargs": {"variant": "ResNet50"},
+    },
+    "Harmonization": {
+        "modules": ["fc2"],
+        "pretrained": True,
+        "source": "custom",
+        "kwargs": {"variant": "VGG16"},
+    },
 }
 
 

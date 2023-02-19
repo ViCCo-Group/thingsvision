@@ -42,5 +42,5 @@ class Harmonization(Custom):
             "load_tiny_MaxViT": load_tiny_MaxViT,
             "LeViT_small": load_LeViT_small,
         }
-        (model,) = variant_function_dict[self.variant]()
+        model = variant_function_dict[self.variant]()
         return model, None
