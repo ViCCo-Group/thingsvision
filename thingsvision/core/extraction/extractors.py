@@ -217,22 +217,22 @@ class SSLExtractor(PyTorchExtractor):
             "arch": "resnet50",
             "type": "hub",
         },
-        "dino-vits16": {
+        "dino-vit-small-p16": {
             "repository": "facebookresearch/dino:main",
             "arch": "dino_vits16",
             "type": "hub",
         },
-         "dino-vits8": {
+         "dino-vit-small-p8": {
             "repository": "facebookresearch/dino:main",
             "arch": "dino_vits8",
             "type": "hub",
         },
-        "dino-vitb16": {
+        "dino-vit-big-p16": {
             "repository": "facebookresearch/dino:main",
             "arch": "dino_vitb16",
             "type": "hub",
         },
-        "dino-vitb8": {
+        "dino-vit-big-p8": {
             "repository": "facebookresearch/dino:main",
             "arch": "dino_vitb8",
             "type": "hub",
@@ -257,7 +257,7 @@ class SSLExtractor(PyTorchExtractor):
             "arch": "dino_xcit_medium_24_p8",
             "type": "hub",
         },
-        "dino-resnet50": {
+        "dino-rn50": {
             "repository": "facebookresearch/dino:main",
             "arch": "dino_resnet50",
             "type": "hub",
