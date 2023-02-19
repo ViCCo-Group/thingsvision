@@ -99,7 +99,7 @@ class FeaturesTestCase(unittest.TestCase):
             )
 
             for i in range(1, n_splits):
-                self.check_file_exists(f"features_0{i}", format)
+                self.check_file_exists(f"features_{i:02d}", format)
 
     def test_splitting_4d(self):
         n_splits = 3
@@ -113,7 +113,7 @@ class FeaturesTestCase(unittest.TestCase):
             )
 
             for i in range(1, n_splits):
-                self.check_file_exists(f"features_0{i}", format, False)
+                self.check_file_exists(f"features_{i:02d}", format, False)
 
         with self.assertRaises(Exception):
             split_features(
