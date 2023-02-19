@@ -56,6 +56,8 @@ class FeaturesTestCase(unittest.TestCase):
         )
 
     def check_file_exists(self, file_name, format, txt_should_exists=True):
+        if format == "hdf5":
+            file_name = "features"
         path = os.path.join(helper.OUT_PATH, f"{file_name}.{format}")
         if format == "txt" and not txt_should_exists:
             self.assertTrue(not os.path.exists(path))
