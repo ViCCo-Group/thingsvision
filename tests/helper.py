@@ -110,7 +110,7 @@ MODEL_AND_MODULE_NAMES = {
     'barlowtwins-rn50': SSL_RN50_DEFAULT_CONFIG,
     'vicreg-rn50': SSL_RN50_DEFAULT_CONFIG,
     'dino-rn50' : SSL_RN50_DEFAULT_CONFIG,
-    # Harmonization models
+     # Harmonization models
     "Harmonization": {
         "modules": ["visual"],
         "pretrained": True,
