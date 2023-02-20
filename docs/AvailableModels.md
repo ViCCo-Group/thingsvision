@@ -75,9 +75,13 @@ If you use `pretrained=True`, the model will be pretrained according to the mode
 * PIRL (`pirl-rn50`) 
 * BarlowTwins (`barlowtwins-rn50`)
 * VicReg (`vicreg-rn50`)
+* DINO (`dino-rn50`)
 
 All models have the ResNet50 architecture and are pretrained on ImageNet-1K. 
 Here, the model name describes the pre-training method, instead of the model architecture.
+
+DINO models are available in ViT (Vision Transformer) and XCiT (Cross-Covariance Image Transformer) variants. For ViT models trained using DINO, the following models are available: `dino-vit-small-p8`, `dino-vit-small-p16`, `dino-vit-big-p8`, `dino-vit-p16`, where the trailing number describes the image patch resolution in the ViT (i.e. either 8x8 or 16x16). For the XCiT models, we have `dino-xcit-small-12-p16`, `dino-xcit-small-12-p8`, `dino-xcit-medium-24-p16`, `dino-xcit-medium-24-p8`, where the penultimate number represents model depth (12 = small, 24 = medium).
+
 
 Example:
 ```python
