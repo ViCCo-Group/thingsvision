@@ -8,8 +8,12 @@ from torchtyping import TensorType
 
 import torch
 
-from .extractors import (KerasExtractor, SSLExtractor, TimmExtractor,
-                         TorchvisionExtractor)
+from .extractors import (
+    KerasExtractor,
+    SSLExtractor,
+    TimmExtractor,
+    TorchvisionExtractor,
+)
 from .tensorflow import TensorFlowExtractor
 from .torch import PyTorchExtractor
 
@@ -114,6 +118,7 @@ def create_model_extractor(
     preprocess: Any = None,
     backend: str = "pt",
     forward_fn: Callable = None,
+    flatten_fn: Callable = None,
 ) -> Any:
     """
     Creates a class for extracting activations from a given model (PyTorch or TensorFlow).
@@ -129,17 +134,34 @@ def create_model_extractor(
     backend: str
         The backend of the model. Either "pt" for PyTorch or "tf" for TensorFlow.
     forward_fn: Callable
-        In case your model requires more complicated forward passes than simply using model(img),
-        you can pass a custom forward function here. The function must have the following signature:
+        In case your model requires more complicated forward passes than the default,
+        for example if the forward pass requires multiple inputs, you can pass a custom
+        forward function here, which should take a batch of images as input. Only required
+        for PyTorch models.
 
-        forward_fn(self, img, module_name) -> activations
+        Default:
+            def forward(
+                self, batch: TensorType["b", "c", "h", "w"]
+            ) -> TensorType["b", "num_cls"]:
+                return self.model(batch)
 
-        and calls to the model have to be made on the self.model attribute.
+    flatten_fn: Callable
+        In case your model requires more complicated flattening of activations than
+        the default, you can pass a custom flattening function here. Only required for
+        PyTorch models.
+
+        Default:
+            def flatten_acts(
+                act: Union[
+                    TensorType["b", "num_maps", "h_prime", "w_prime"], TensorType["b", "t", "d"]
+                ]
+            ) -> TensorType["b", "p"]:
+                return act.view(act.size(0), -1)
 
     Returns:
     --------
     extractor: Any
-        The custom extractor class.
+        The custom extractor class for your model.
     """
     Extractor = PyTorchExtractor if backend == "pt" else TensorFlowExtractor
 
@@ -150,12 +172,16 @@ def create_model_extractor(
     if forward_fn:
         ModelExtractor.forward = forward_fn
 
+    if flatten_fn:
+        ModelExtractor.flatten_acts = flatten_fn
+
     model_extractor = ModelExtractor(
         model_name="custom",
         model_path=None,
         device=device,
         model=model,
         preprocess=preprocess,
+        pretrained=True,
     )
 
     return model_extractor
@@ -204,12 +230,15 @@ def get_extractor(
 def get_extractor_from_model(
     model: Any,
     device: str,
+    backend: str,
     preprocess: Any = None,
-    backend: str = "pt",
     forward_fn: Callable = None,
+    flatten_fn: Callable = None,
 ) -> Any:
     """Get a model extractor from a model."""
-    return create_model_extractor(model, device, preprocess, backend, forward_fn)
+    return create_model_extractor(
+        model, device, preprocess, backend, forward_fn, flatten_fn
+    )
 
 
 def center_features(X: Array) -> Array:
