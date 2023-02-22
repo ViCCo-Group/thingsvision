@@ -125,7 +125,7 @@ class PyTorchExtractor(BaseExtractor):
         return self.model
 
     def load_model_from_source(self) -> None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def load_model(self) -> None:
         self.load_model_from_source()
