@@ -176,7 +176,7 @@ features = extractor.extract_features(
     batches=batches,
     module_name=module_name,
     flatten_acts=True, # flatten 2D feature maps from convolutional layer
-    output_type="ndarray", # or "tensor"
+    output_type="ndarray", # or "tensor" (only applicable to backend="pt")
 )
 
 save_features(features, out_path='path/to/features', file_format='npy')
