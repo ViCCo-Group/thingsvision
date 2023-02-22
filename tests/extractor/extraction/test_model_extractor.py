@@ -65,18 +65,18 @@ class ExtractionModelExtractorTestCase(unittest.TestCase):
             self.assertEqual(features.shape[0], len(dataset))
 
     def test_alternative_forward(self):
-        values = [1] * 10
+        layer_name = "relu"
+        values = [2, -10]
         backend = "pt"
 
         expected_features = np.array([[2, 2], [0, 0]])
         batch_size = 1
-        layer_name = "relu"
 
         def forward_fn(self, batch):
             return self.model(batch, y=None)
 
         extractor = get_extractor_from_model(
-            helper.ComplexForwardNN(),
+            helper.ComplexForwardNN(1, 2),
             device=helper.DEVICE,
             backend=backend,
             forward_fn=forward_fn,
