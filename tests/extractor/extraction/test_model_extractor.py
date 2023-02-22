@@ -6,7 +6,7 @@ from thingsvision.utils.data import DataLoader
 from thingsvision.core.extraction.helpers import get_extractor_from_model
 
 
-class ExtractionModelExtractorTestCase(unittest.TestCase):
+class CustmModelExtractorTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         helper.create_test_images()
