@@ -1,5 +1,4 @@
 from typing import Any, Callable, Dict, Union
-from warnings import warn
 
 import numpy as np
 import thingsvision.custom_models as custom_models
@@ -7,6 +6,7 @@ import thingsvision.custom_models.cornet as cornet
 from torchtyping import TensorType
 
 import torch
+import warnings
 
 from .extractors import (
     KerasExtractor,
@@ -215,15 +215,15 @@ def get_extractor(
     elif source == "ssl":
         return SSLExtractor(**model_args)
     elif source == "vissl":
-        warn(
-            'The source "vissl" is deprecated. Use the source "ssl" instead.',
-            DeprecationWarning,
+        warnings.warn(
+            message='\nThe source "vissl" is deprecated. Use the source "ssl" instead.\n',
+            category=DeprecationWarning,
             stacklevel=2,
         )
         return SSLExtractor(**model_args)
     else:
         raise ValueError(
-            f"\nCould not find {source} library.\nChoose a different source.\n"
+            f"\nCould not find source: {source}.\nChoose a different source.\n"
         )
 
 
