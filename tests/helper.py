@@ -17,9 +17,9 @@ TEST_PATH = "./test_images"
 OUT_PATH = "./test"
 
 SSL_RN50_DEFAULT_CONFIG = {
-        "modules": ["avgpool"],
-        "pretrained": True,
-        "source": "ssl",
+    "modules": ["avgpool"],
+    "pretrained": True,
+    "source": "ssl",
 }
 
 MODEL_AND_MODULE_NAMES = {
@@ -55,17 +55,33 @@ MODEL_AND_MODULE_NAMES = {
         "pretrained": True,
         "source": "custom",
     },
-
     # Custom models
     "VGG16_ecoset": {
         "modules": ["classifier.3"],
         "pretrained": True,
         "source": "custom",
     },
-    "clip": {"modules": ["visual"], "pretrained": True, "source": "custom", 'clip': True, 'kwargs': {'variant': 'ViT-B/32'}},
-    "clip": {"modules": ["visual"], "pretrained": True, "source": "custom", 'clip': True, 'kwargs': {'variant': 'RN50'}},
-    "OpenCLIP": {"modules": ["visual"], "pretrained": True, "source": "custom", 'clip': True, 'kwargs': {'variant': 'ViT-B-32', 'dataset': 'openai'}},
-
+    "clip": {
+        "modules": ["visual"],
+        "pretrained": True,
+        "source": "custom",
+        "clip": True,
+        "kwargs": {"variant": "ViT-B/32"},
+    },
+    "clip": {
+        "modules": ["visual"],
+        "pretrained": True,
+        "source": "custom",
+        "clip": True,
+        "kwargs": {"variant": "RN50"},
+    },
+    "OpenCLIP": {
+        "modules": ["visual"],
+        "pretrained": True,
+        "source": "custom",
+        "clip": True,
+        "kwargs": {"variant": "ViT-B-32", "dataset": "openai"},
+    },
     # Timm models
     "mixnet_l": {"modules": ["conv_head"], "pretrained": True, "source": "timm"},
     "gluon_inception_v3": {
@@ -85,15 +101,15 @@ MODEL_AND_MODULE_NAMES = {
         "source": "keras",
     },
     # Vissl models
-    'simclr-rn50': SSL_RN50_DEFAULT_CONFIG,
-    'mocov2-rn50': SSL_RN50_DEFAULT_CONFIG,
-    'jigsaw-rn50': SSL_RN50_DEFAULT_CONFIG,
-    'rotnet-rn50': SSL_RN50_DEFAULT_CONFIG,
-    'swav-rn50': SSL_RN50_DEFAULT_CONFIG,
-    'pirl-rn50': SSL_RN50_DEFAULT_CONFIG,
-    'barlowtwins-rn50': SSL_RN50_DEFAULT_CONFIG,
-    'vicreg-rn50': SSL_RN50_DEFAULT_CONFIG,
-    'dino-rn50' : SSL_RN50_DEFAULT_CONFIG
+    "simclr-rn50": SSL_RN50_DEFAULT_CONFIG,
+    "mocov2-rn50": SSL_RN50_DEFAULT_CONFIG,
+    "jigsaw-rn50": SSL_RN50_DEFAULT_CONFIG,
+    "rotnet-rn50": SSL_RN50_DEFAULT_CONFIG,
+    "swav-rn50": SSL_RN50_DEFAULT_CONFIG,
+    "pirl-rn50": SSL_RN50_DEFAULT_CONFIG,
+    "barlowtwins-rn50": SSL_RN50_DEFAULT_CONFIG,
+    "vicreg-rn50": SSL_RN50_DEFAULT_CONFIG,
+    "dino-rn50": SSL_RN50_DEFAULT_CONFIG,
 }
 
 
@@ -140,6 +156,27 @@ class NN(nn.Module):
 pt_model = NN(1, 2)
 
 
+class ComplexForwardNN(nn.Module):
+    def __init__(self, in_size: int, out_size: int):
+        super(ComplexForwardNN, self).__init__()
+        self.linear = nn.Linear(in_size, out_size, bias=False)
+        self.relu = nn.ReLU()
+        self.linear2 = nn.Linear(out_size, 1, bias=False)
+        # exchange weight value with 1.
+        self.linear.weight = nn.Parameter(torch.tensor([[1.0], [1.0]]))
+        self.linear2.weight = nn.Parameter(torch.tensor([[1.0, 1.0], [1.0, 1.0]]))
+        self.relu2 = nn.ReLU()
+
+    def forward(self, x, y):
+        x = self.linear(x)
+        act = self.relu(x)
+        # print(act)
+        y = self.linear2(act)
+        act = self.relu2(y)
+        # print(y)
+        return y
+
+
 class SimpleDataset(object):
     def __init__(self, values: List[int], backend: str):
         self.values = values
@@ -164,19 +201,26 @@ def iterate_through_all_model_combinations():
     for model_name in MODEL_AND_MODULE_NAMES:
         pretrained = MODEL_AND_MODULE_NAMES[model_name]["pretrained"]
         source = MODEL_AND_MODULE_NAMES[model_name]["source"]
-        kwargs = MODEL_AND_MODULE_NAMES[model_name].get('kwargs', {})
+        kwargs = MODEL_AND_MODULE_NAMES[model_name].get("kwargs", {})
         extractor, dataset, batches = create_extractor_and_dataloader(
             model_name, pretrained, source, kwargs
         )
 
         modules = MODEL_AND_MODULE_NAMES[model_name]["modules"]
-        clip = MODEL_AND_MODULE_NAMES[model_name].get('clip', False)
+        clip = MODEL_AND_MODULE_NAMES[model_name].get("clip", False)
         yield extractor, dataset, batches, modules, model_name, clip
 
-def create_extractor_and_dataloader(model_name: str, pretrained: bool, source: str, kwargs: dict={}):
+
+def create_extractor_and_dataloader(
+    model_name: str, pretrained: bool, source: str, kwargs: dict = {}
+):
     """Iterate through models and create model, dataset and data loader."""
     extractor = get_extractor(
-        model_name=model_name, pretrained=pretrained, device=DEVICE, source=source, model_parameters=kwargs
+        model_name=model_name,
+        pretrained=pretrained,
+        device=DEVICE,
+        source=source,
+        model_parameters=kwargs,
     )
     dataset = ImageDataset(
         root=TEST_PATH,
