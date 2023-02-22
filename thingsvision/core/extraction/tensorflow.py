@@ -34,6 +34,7 @@ class TensorFlowExtractor(BaseExtractor):
 
         if not self.model:
             self.load_model()
+        self.prepare_inference()
 
     def _extract_batch(
         self, batch: Array, module_name: str, flatten_acts: bool
@@ -58,6 +59,8 @@ class TensorFlowExtractor(BaseExtractor):
         self.load_model_from_source()
         if self.model_path:
             self.model.load_weights(self.model_path)
+
+    def prepare_inference(self) -> None:
         self.model.trainable = False
 
     def get_module_names(self) -> List[str]:
