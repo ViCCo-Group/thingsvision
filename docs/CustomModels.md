@@ -62,7 +62,7 @@ extractor = get_extractor_from_model(
 ```
 
 ### Custom forward and flatten functions for PyTorch models
-The created extractor will pass image batches to the model's forward function (`self.model(batch)`) and optionally flatten the activations (`act.view(act.size(0), -1)`). Your models (e.g. a CLIP variant) forward function may have a different signature or activations in your model require a different flattening. In this case, you can provide custom forward and flatten functions to the `get_extractor_from_model` function to enable the extractor to work with your model. These will be used instead of the default ones. You can pass them as `forward_fn` and `flatten_fn` arguments to the `get_extractor_from_model` function.
+The created extractor will pass image batches to the model's forward function (`self.model(batch)`) and optionally flatten the activations (`act.view(act.size(0), -1)`). Your models (e.g., a CLIP variant) forward function may have a different signature or activations in your model require a different way of flattening. In that case, you can provide custom forward and flatten functions to the `get_extractor_from_model` function to enable the extractor to work with your model. These will be used instead of the default ones. You can pass them as `forward_fn` and `flatten_fn` arguments to the `get_extractor_from_model` function.
 
 ```python
 from thingsvision import get_extractor_from_model
