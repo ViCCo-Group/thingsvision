@@ -31,8 +31,7 @@ class VGG16_ecoset(Custom):
 ```
 
 ## Use custom models with the `get_extractor_from_model` function
-
-Alternatively, you can use `get_extractor_from_model()` helper function to directly create an extractor for any PyTorch or TensorFlow model, without the need for creating a custom class.
+Alternatively, you can use `get_extractor_from_model()` helper function to directly create an extractor for any PyTorch or TensorFlow model, without the need for creating a custom class. Simply pass the model, the device, the backend (either `pt` or `tf`) and optionally a preprocessing function to the `get_extractor_from_model` function. The function will return an extractor that can be used with the `extract` function, just like the built-in extractors.
 
 ```python
 from thingsvision import get_extractor_from_model
@@ -62,4 +61,39 @@ extractor = get_extractor_from_model(
 )
 ```
 
-This will create an extractor just like the ones that are already implemented in thingsvision!
+### Custom forward and flatten functions for PyTorch models
+The created extractor will pass image batches to the model's forward function (`self.model(batch)`) and optionally flatten the activations (`act.view(act.size(0), -1)`). Your models (e.g. a CLIP variant) forward function may have a different signature or activations in your model require a different flattening. In this case, you can provide custom forward and flatten functions to the `get_extractor_from_model` function to enable the extractor to work with your model. These will be used instead of the default ones. You can pass them as `forward_fn` and `flatten_fn` arguments to the `get_extractor_from_model` function.
+
+```python
+from thingsvision import get_extractor_from_model
+import torch.nn as nn
+
+class ComplexForwardModel(nn.Module):
+    def __init__(self):
+        super().__init__()
+        # model definition 
+        # ...
+
+    def forward(self, x, y):
+        # forward function with custom signature
+        # ...
+        return x
+
+def custom_forward_fn(self, batch):
+    # custom forward function that passes the batch to the model's forward function
+    return self.model(batch, y=None)
+
+model = ComplexForwardModel()
+backend = 'pt'
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+
+extractor = get_extractor_from_model(
+  model=model, 
+  device=device,
+  transforms=transforms,
+  backend=backend,
+  forward_fn=custom_forward_fn
+)
+```
+
+Note that the custom forward function needs to have the following signature: `forward_fn(self, batch)`, as it replaces the default `forward_fn` function of the extractor. The `self` argument is the extractor instance and the `batch` argument is the batch of images that is passed to the model's forward function. 
