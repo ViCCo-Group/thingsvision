@@ -6,7 +6,7 @@ from thingsvision.utils.data import DataLoader
 from thingsvision.core.extraction.helpers import get_extractor_from_model
 
 
-class ExtractionModelExtractorTestCase(unittest.TestCase):
+class CustomModelExtractorTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         helper.create_test_images()
@@ -28,7 +28,7 @@ class ExtractionModelExtractorTestCase(unittest.TestCase):
                 extractor.model = extractor.model.to(helper.DEVICE)
             dataset = helper.SimpleDataset(values, backend)
             batches = DataLoader(
-                dataset,
+                dataset=dataset,
                 batch_size=batch_size,
                 backend=backend,
             )
@@ -53,7 +53,7 @@ class ExtractionModelExtractorTestCase(unittest.TestCase):
 
         for batch_size in [2, 3]:
             batches = DataLoader(
-                dataset,
+                dataset=dataset,
                 batch_size=batch_size,
                 backend=backend,
             )
@@ -85,7 +85,7 @@ class ExtractionModelExtractorTestCase(unittest.TestCase):
         extractor.model = extractor.model.to(helper.DEVICE)
         dataset = helper.SimpleDataset(values, backend)
         batches = DataLoader(
-            dataset,
+            dataset=dataset,
             batch_size=batch_size,
             backend=backend,
         )
