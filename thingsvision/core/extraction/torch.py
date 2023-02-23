@@ -34,6 +34,7 @@ class PyTorchExtractor(BaseExtractor):
 
         if not self.model:
             self.load_model()
+        self.prepare_inference()
 
     def extract_features(
         self,
@@ -124,7 +125,7 @@ class PyTorchExtractor(BaseExtractor):
         return self.model
 
     def load_model_from_source(self) -> None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def load_model(self) -> None:
         self.load_model_from_source()
@@ -136,8 +137,10 @@ class PyTorchExtractor(BaseExtractor):
                     self.model_path, map_location=self.device
                 )
             self.model.load_state_dict(state_dict)
-        self.model.eval()
+
+    def prepare_inference(self) -> None:
         self.model = self.model.to(self.device)
+        self.model.eval()
 
     def get_module_names(self) -> List[str]:
         module_names, _ = zip(*self.model.named_modules())
