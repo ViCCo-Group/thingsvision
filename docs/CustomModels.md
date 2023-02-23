@@ -31,7 +31,7 @@ class VGG16_ecoset(Custom):
 ```
 
 ## Use custom models with the `get_extractor_from_model` function
-Alternatively, you can use `get_extractor_from_model()` helper function to directly create an extractor for any PyTorch or TensorFlow model, without the need for creating a custom class. Simply pass the model, the device, the backend (either `pt` or `tf`) and optionally a preprocessing function to the `get_extractor_from_model` function. The function will return an extractor that can be used with the `extract` function, just like the built-in extractors.
+Alternatively, you can use the `get_extractor_from_model()` helper function to directly create an extractor for any PyTorch or TensorFlow model, without the need for creating a custom class. Simply pass the model, the device, the backend (either `pt` or `tf`) and optionally a preprocessing function to the `get_extractor_from_model` function. The function will return an extractor that can be used with the `extract` method, just like the built-in extractors.
 
 ```python
 from thingsvision import get_extractor_from_model
