@@ -1,39 +1,30 @@
 <a name="readme-top"></a>
 <div align="center">
-	<a href="https://gist.github.com/cheerfulstoic/d107229326a01ff0f333a1d3476e068d" rel="nofollow">
-	<img src="https://img.shields.io/badge/maintenance-yes-brightgreen.svg" alt="maintenance" />
-	</a>
-	
-	<a href="https://github.com/ViCCo-Group/thingsvision/actions/workflows/tests.yml" rel="nofollow">
+    <a href="https://gist.github.com/cheerfulstoic/d107229326a01ff0f333a1d3476e068d" rel="nofollow">
+        <img src="https://img.shields.io/badge/maintenance-yes-brightgreen.svg" alt="Maintenance" />
+    </a>
+    <a href="https://github.com/ViCCo-Group/thingsvision/actions/workflows/tests.yml" rel="nofollow">
         <img src="https://github.com/ViCCo-Group/thingsvision/actions/workflows/tests.yml/badge.svg" alt="Tests" />
-	</a>
-	
-	<a href="https://github.com/ViCCo-Group/thingsvision/actions/workflows/coverage.yml" rel="nofollow">
-	<img src="https://codecov.io/gh/ViCCo-Group/thingsvision/branch/master/graph/badge.svg" alt="Code Coverage" />
-	</a>
-    	
-	<a href="https://pypi.org/project/thingsvision/" rel="nofollow">
+    </a>
+    <a href="https://github.com/ViCCo-Group/thingsvision/actions/workflows/coverage.yml" rel="nofollow">
+        <img src="https://codecov.io/gh/ViCCo-Group/thingsvision/branch/master/graph/badge.svg" alt="Code Coverage" />
+    </a>
+    <a href="https://pypi.org/project/thingsvision/" rel="nofollow">
         <img src="https://img.shields.io/pypi/v/thingsvision" alt="PyPI" />
-	</a>
-	
-	<a href="https://www.python.org/" rel="nofollow">
+    </a>
+    <a href="https://www.python.org/" rel="nofollow">
         <img src="https://img.shields.io/badge/python-3.8%20%7C%203.9%20%7C%203.10-blue.svg" alt="Python version" />
-	</a>
-	
-	<a href="https://github.com/ViCCo-Group/thingsvision/blob/master/LICENSE" rel="nofollow">
+    </a>
+    <a href="https://github.com/ViCCo-Group/thingsvision/blob/master/LICENSE" rel="nofollow">
         <img src="https://img.shields.io/pypi/l/thingsvision" alt="License" />
-	</a>
-	
-	<a href="https://github.com/psf/black" rel="nofollow">
+    </a>
+    <a href="https://github.com/psf/black" rel="nofollow">
         <img src="https://img.shields.io/badge/code%20style-black-000000.svg" alt="Code style: black" />
-	</a>
-	
-	<a href="https://colab.research.google.com/github/ViCCo-Group/thingsvision/blob/master/notebooks/pytorch.ipynb" rel="nofollow">
+    </a>
+    <a href="https://colab.research.google.com/github/ViCCo-Group/thingsvision/blob/master/notebooks/pytorch.ipynb" rel="nofollow">
         <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab" />
-	</a>
+    </a>
 </div>
-
-
 <br />
 
 <!-- Table of Contents -->
