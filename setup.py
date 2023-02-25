@@ -28,6 +28,7 @@ requirements = [
     "scipy==1.8.1",
     "h5py==3.7.0",
     "CLIP",
+    "keras_cv_attention_models",
     # 'CLIP @ git+ssh://git@github.com/openai/CLIP@v1.0#egg=CLIP'
     "Harmonization",
 ]
