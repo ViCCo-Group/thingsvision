@@ -4,7 +4,7 @@ from harmonization.models import (
     load_VGG16,
     load_EfficientNetB0,
     load_tiny_ConvNeXT,
-    load_tiny_MaxViT,
+    # load_tiny_MaxViT,
     load_LeViT_small,
 )
 from typing import Any
