@@ -101,28 +101,15 @@ MODEL_AND_MODULE_NAMES = {
         "source": "keras",
     },
     # Vissl models
-    'simclr-rn50': SSL_RN50_DEFAULT_CONFIG,
-    'mocov2-rn50': SSL_RN50_DEFAULT_CONFIG,
-    'jigsaw-rn50': SSL_RN50_DEFAULT_CONFIG,
-    'rotnet-rn50': SSL_RN50_DEFAULT_CONFIG,
-    'swav-rn50': SSL_RN50_DEFAULT_CONFIG,
-    'pirl-rn50': SSL_RN50_DEFAULT_CONFIG,
-    'barlowtwins-rn50': SSL_RN50_DEFAULT_CONFIG,
-    'vicreg-rn50': SSL_RN50_DEFAULT_CONFIG,
-    'dino-rn50' : SSL_RN50_DEFAULT_CONFIG,
-     # Harmonization models
-    "Harmonization": {
-        "modules": ["visual"],
-        "pretrained": True,
-        "source": "custom",
-        "kwargs": {"variant": "ResNet50"},
-    },
-    "Harmonization": {
-        "modules": ["fc2"],
-        "pretrained": True,
-        "source": "custom",
-        "kwargs": {"variant": "VGG16"},
-    },
+    "simclr-rn50": SSL_RN50_DEFAULT_CONFIG,
+    "mocov2-rn50": SSL_RN50_DEFAULT_CONFIG,
+    "jigsaw-rn50": SSL_RN50_DEFAULT_CONFIG,
+    "rotnet-rn50": SSL_RN50_DEFAULT_CONFIG,
+    "swav-rn50": SSL_RN50_DEFAULT_CONFIG,
+    "pirl-rn50": SSL_RN50_DEFAULT_CONFIG,
+    "barlowtwins-rn50": SSL_RN50_DEFAULT_CONFIG,
+    "vicreg-rn50": SSL_RN50_DEFAULT_CONFIG,
+    "dino-rn50": SSL_RN50_DEFAULT_CONFIG,
 }
 
 

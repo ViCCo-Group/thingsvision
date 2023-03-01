@@ -18,7 +18,6 @@ Then, activate the environment and simply install `thingsvision` via running the
 ```bash
 $ pip install --upgrade thingsvision
 $ pip install git+https://github.com/openai/CLIP.git
-$ pip install git+https://github.com/serre-lab/Harmonization.git
 ```
 
 ### Google Colab.
