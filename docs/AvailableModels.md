@@ -236,33 +236,3 @@ extractor = get_extractor(
 ```
 
 For a list of all available architectures and datasets, please refer to the [OpenCLIP repo](https://github.com/mlfoundations/open_clip/blob/main/src/open_clip/pretrained.py).
-
-### Harmonization
-
-We provide [Harmonization](https://arxiv.org/abs/2211.04533) models from the [official repo](https://github.com/serre-lab/harmonization). The following variants are available as of now:
-
-- `ViT_B16`
-- `ResNet50`
-- `VGG16`
-- `EfficientNetB0`
-- `tiny_ConvNeXT`
-- `tiny_MaxViT`
-- `LeViT_small`
-
-Example:
-```python
-model_name = 'Harmonization'
-source = 'custom'
-device = 'cpu'
-model_parameters = {
-    'variant': 'ViT_B16'
-}
-
-extractor = get_extractor(
-  model_name=model_name,
-  source=source,
-  device=device,
-  pretrained=True
-  model_parameters=model_parameters
-)
-```
