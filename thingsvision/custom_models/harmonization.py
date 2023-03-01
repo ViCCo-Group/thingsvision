@@ -34,13 +34,13 @@ class Harmonization(Custom):
     def create_model(self) -> Any:
         self.check_available_variants()
         variant_function_dict = {
-            "ViT_B16": load_ViT_B16,
-            "ResNet50": load_ResNet50,
-            "VGG16": load_VGG16,
-            "EfficientNetB0": load_EfficientNetB0,
-            "tiny_ConvNeXT": load_tiny_ConvNeXT,
-            "tiny_MaxViT": load_tiny_MaxViT,
-            "LeViT_small": load_LeViT_small,
+            "ViT_B16": load_ViT_B16(),
+            "ResNet50": load_ResNet50(),
+            "VGG16": load_VGG16(),
+            "EfficientNetB0": load_EfficientNetB0(),
+            "tiny_ConvNeXT": load_tiny_ConvNeXT(),
+            "tiny_MaxViT": load_tiny_MaxViT(),
+            "LeViT_small": load_LeViT_small(),
         }
         model = variant_function_dict[self.variant]()
         return model, None
