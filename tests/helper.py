@@ -123,6 +123,12 @@ MODEL_AND_MODULE_NAMES = {
         "source": "custom",
         "kwargs": {"variant": "VGG16"},
     },
+    "Harmonization": {
+        "modules": ["fc2"],
+        "pretrained": True,
+        "source": "custom",
+        "kwargs": {"variant": "ViT_B16"},
+    }
 }
 
 
