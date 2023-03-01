@@ -27,10 +27,10 @@ requirements = [
     "scikit-learn==1.1.*",
     "scipy==1.8.1",
     "h5py==3.7.0",
+    "keras-cv-attention-models",
     "CLIP",
-    "keras_cv_attention_models",
-    # 'CLIP @ git+ssh://git@github.com/openai/CLIP@v1.0#egg=CLIP'
     "Harmonization",
+    # 'CLIP @ git+ssh://git@github.com/openai/CLIP@v1.0#egg=CLIP'
 ]
 
 setuptools.setup(
