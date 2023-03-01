@@ -24,7 +24,7 @@ class Harmonization(Custom):
             "VGG16",
             "EfficientNetB0",
             "tiny_ConvNeXT",
-            "tiny_MaxViT",
+            # "tiny_MaxViT",
             "LeViT_small",
         ]
 
@@ -39,7 +39,7 @@ class Harmonization(Custom):
             "VGG16": load_VGG16(),
             "EfficientNetB0": load_EfficientNetB0(),
             "tiny_ConvNeXT": load_tiny_ConvNeXT(),
-            "tiny_MaxViT": load_tiny_MaxViT(),
+            # "tiny_MaxViT": load_tiny_MaxViT(),
             "LeViT_small": load_LeViT_small(),
         }
         model = variant_function_dict[self.variant]()
