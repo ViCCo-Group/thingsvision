@@ -13,7 +13,7 @@ requirements = [
     "numpy==1.22.*",
     "pandas==1.4.*",
     "tensorflow==2.10.* ; sys_platform != 'darwin' or platform_machine != 'arm64' ",
-    "tensorflow-macos==2.*.* ; sys_platform == 'darwin' and platform_machine == 'arm64' ",
+    "tensorflow-macos; platform_system == "Darwin" ",
     "torch==1.13.1",
     "torchvision==0.14.1",
     "open_clip_torch==2.0.*",
