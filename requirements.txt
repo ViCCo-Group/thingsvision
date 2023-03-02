@@ -1,21 +1,21 @@
-ftfy==5.8
-numpy==1.22.*
-pandas==1.4.*
-scikit-image==0.19.*
-scikit-learn==1.1.*
-torch==1.13.*
-torchvision==0.14.*
-tqdm==4.64.0
-numba==0.56.*
-matplotlib==3.5.2
+numpy>=1.22.*
+pandas>=1.3.*
+scikit-image>=0.19.*
+scikit-learn>=0.24.2
+torch>=1.12.0
+torchvision>=0.13.0
+numba>=0.55
+tensorflow>=2.9.* ; sys_platform != 'darwin' or platform_machine != 'arm64'
+tensorflow-macos>=2.9.* ; sys_platform == 'darwin' and platform_machine == 'arm64'
+timm==0.6.*
+open_clip_torch>=2.0.2
+keras-cv-attention-models>=1.3.5
+ftfy
+matplotlib
+tqdm
 torchtyping
 regex
 scipy
 h5py
-tensorflow==2.9.* ; sys_platform != 'darwin' or platform_machine != 'arm64'
-tensorflow-macos==2.9.* ; sys_platform == 'darwin' and platform_machine == 'arm64'
-timm==0.6.*
-open_clip_torch==2.0.2
-keras-cv-attention-models>=1.3.5
 git+https://github.com/openai/CLIP.git
 git+https://github.com/serre-lab/Harmonization.git
