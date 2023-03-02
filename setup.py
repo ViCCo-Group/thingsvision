@@ -57,6 +57,6 @@ setuptools.setup(
     python_requires=">=3.8",
     dependency_links=[
         "git+https://github.com/openai/CLIP.git",
-        "git+https://github.com/serre-lab/Harmonization.git",
+        # "git+https://github.com/serre-lab/Harmonization.git",
     ],
 )
