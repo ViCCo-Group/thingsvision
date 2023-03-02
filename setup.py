@@ -30,7 +30,7 @@ requirements = [
     "keras-cv-attention-models==1.2.4",
     # "keras-cv-attention-models>=1.3.5",
     "CLIP",
-    "Harmonization",
+    # "Harmonization",
     # 'CLIP @ git+ssh://git@github.com/openai/CLIP@v1.0#egg=CLIP'
 ]
 
