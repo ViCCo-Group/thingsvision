@@ -39,6 +39,7 @@ def create_custom_extractor(
         model = model.module  # remove DataParallel
         preprocess = None
     elif hasattr(custom_models, model_name):
+        model_parameters = model_parameters if model_parameters else {}
         custom_model = getattr(custom_models, model_name)
         custom_model = custom_model(device, model_parameters)
         model, preprocess = custom_model.create_model()
