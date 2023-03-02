@@ -13,7 +13,6 @@ regex
 scipy
 h5py
 tensorflow==2.10.* ; sys_platform != 'darwin' or platform_machine != 'arm64'
-tensorflow-macos; platform_system == "Darwin"
 timm==0.6.*
 open_clip_torch==2.0.2
 keras-cv-attention-models>=1.3.5
