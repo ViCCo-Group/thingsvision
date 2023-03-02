@@ -111,24 +111,24 @@ MODEL_AND_MODULE_NAMES = {
     'vicreg-rn50': SSL_RN50_DEFAULT_CONFIG,
     'dino-rn50' : SSL_RN50_DEFAULT_CONFIG,
     # Harmonization models
-    # "Harmonization": {
-    #    "modules": ["visual"],
-    #    "pretrained": True,
-    #    "source": "custom",
-    #    "kwargs": {"variant": "ResNet50"},
-    # },
-    # "Harmonization": {
-    #    "modules": ["fc2"],
-    #    "pretrained": True,
-    #    "source": "custom",
-    #    "kwargs": {"variant": "VGG16"},
-    # },
-    # "Harmonization": {
-    #    "modules": ["head"],
-    #    "pretrained": True,
-    #    "source": "custom",
-    #    "kwargs": {"variant": "ViT_B16"},
-    # }
+    "Harmonization": {
+        "modules": ["visual"],
+        "pretrained": True,
+        "source": "custom",
+        "kwargs": {"variant": "ResNet50"},
+    },
+    "Harmonization": {
+        "modules": ["fc2"],
+        "pretrained": True,
+        "source": "custom",
+        "kwargs": {"variant": "VGG16"},
+    },
+     "Harmonization": {
+        "modules": ["head"],
+        "pretrained": True,
+        "source": "custom",
+        "kwargs": {"variant": "ViT_B16"},
+    }
 }
 
 
