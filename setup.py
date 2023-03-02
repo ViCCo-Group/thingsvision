@@ -9,11 +9,11 @@ exec(open("thingsvision/_version.py").read())
 requirements = [
     "matplotlib==3.5.2",
     "numba==0.56.4",
-    "ftfy==6.1.1,
+    "ftfy==6.1.1",
     "numpy==1.22.4",
     "pandas==1.4.4",
     "tensorflow==2.9.* ; sys_platform != 'darwin' or platform_machine != 'arm64' ",
-    "tensorflow-macos==2.9.* ; sys_platform == 'darwin' and platform_machine == 'arm64',
+    "tensorflow-macos==2.9.* ; sys_platform == 'darwin' and platform_machine == 'arm64'",
     "torch>=1.13.0",
     "torchvision>=0.13.1",
     "open_clip_torch==2.0.2",
