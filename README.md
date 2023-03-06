@@ -104,10 +104,11 @@ $ pip install --upgrade thingsvision
 $ pip install git+https://github.com/openai/CLIP.git
 ```
 
-If you want to extract features for [harmonized models](https://vicco-group.github.io/thingsvision/AvailableModels.html#harmonization) from the [Harmonization repo](https://github.com/serre-lab/harmonization), you have to additionally run the following `pip` command in your `thingsvision` environment (FYI: as of now, this seems to be working on Ubuntu only but not on macOS),
+If you want to extract features for [harmonized models](https://vicco-group.github.io/thingsvision/AvailableModels.html#harmonization) from the [Harmonization repo](https://github.com/serre-lab/harmonization), you have to additionally run the following `pip` command in your `thingsvision` environment (FYI: as of now, this seems to be working smoothly on Ubuntu only but not on macOS),
 
 ```bash
 $ pip install git+https://github.com/serre-lab/Harmonization.git
+$ pip install keras-cv-attention-models>=1.3.5
 ```
 
 #### Google Colab.
