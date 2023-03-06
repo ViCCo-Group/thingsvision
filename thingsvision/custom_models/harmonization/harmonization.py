@@ -1,14 +1,10 @@
-from harmonization.models import (
-    load_ViT_B16,
-    load_ResNet50,
-    load_VGG16,
-    load_EfficientNetB0,
-    load_tiny_ConvNeXT,
-    load_tiny_MaxViT,
-    load_LeViT_small,
-)
 from typing import Any
-from .custom import Custom
+
+from harmonization.models import (load_EfficientNetB0, load_LeViT_small,
+                                  load_ResNet50, load_tiny_ConvNeXT,
+                                  load_tiny_MaxViT, load_VGG16, load_ViT_B16)
+
+from thingsvision.custom_models.custom import Custom
 
 
 class Harmonization(Custom):
