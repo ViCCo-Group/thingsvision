@@ -27,8 +27,7 @@ requirements = [
     "torchtyping",
     "tqdm",
     "CLIP",
-    # "Harmonization",
-    # 'CLIP @ git+ssh://git@github.com/openai/CLIP@v1.0#egg=CLIP'
+    # 'CLIP @ git+ssh://git@github.com/openai/CLIP@v1.0#egg=CLIP' # TODO: see issue #111
 ]
 
 setuptools.setup(
@@ -54,6 +53,5 @@ setuptools.setup(
     python_requires=">=3.8",
     dependency_links=[
         "git+https://github.com/openai/CLIP.git",
-        # "git+https://github.com/serre-lab/Harmonization.git",
     ],
 )
