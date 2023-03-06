@@ -34,7 +34,6 @@ def create_custom_extractor(
         model = model.module  # remove DataParallel
         preprocess = None
     else:
-        model_parameters = model_parameters if model_parameters else {}
         if model_name == "Harmonization":
             import thingsvision.custom_models.harmonization as harmonization
 
@@ -48,6 +47,7 @@ def create_custom_extractor(
                 raise ValueError(
                     f"\nCould not find {model_name} among available custom models.\nChoose a different model.\n"
                 )
+        model_parameters = model_parameters if model_parameters else {}
         custom_model = custom_model(device, model_parameters)
         model, preprocess = custom_model.create_model()
         backend = custom_model.get_backend()
