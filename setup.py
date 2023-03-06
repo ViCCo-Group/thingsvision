@@ -9,7 +9,7 @@ exec(open("thingsvision/_version.py").read())
 requirements = [
     "ftfy",
     "h5py",
-    "keras-cv-attention-models>=1.3.5",
+    # "keras-cv-attention-models>=1.3.5",
     "matplotlib",
     "numba",
     "numpy>=1.22.*",
