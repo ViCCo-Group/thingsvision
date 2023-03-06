@@ -1,19 +1,12 @@
+import warnings
 from typing import Any, Callable, Dict, Union
 
 import numpy as np
-import thingsvision.custom_models as custom_models
-import thingsvision.custom_models.cornet as cornet
+import torch
 from torchtyping import TensorType
 
-import torch
-import warnings
-
-from .extractors import (
-    KerasExtractor,
-    SSLExtractor,
-    TimmExtractor,
-    TorchvisionExtractor,
-)
+from .extractors import (KerasExtractor, SSLExtractor, TimmExtractor,
+                         TorchvisionExtractor)
 from .tensorflow import TensorFlowExtractor
 from .torch import PyTorchExtractor
 
@@ -30,6 +23,8 @@ def create_custom_extractor(
 ) -> Any:
     """Create a custom extractor from a pretrained model."""
     if model_name.startswith("cornet"):
+        import thingsvision.custom_models.cornet as cornet
+
         backend = "pt"
         try:
             model = getattr(cornet, f"cornet_{model_name[-1]}")
@@ -38,16 +33,24 @@ def create_custom_extractor(
         model = model(pretrained=pretrained, map_location=torch.device(device))
         model = model.module  # remove DataParallel
         preprocess = None
-    elif hasattr(custom_models, model_name):
+    else:
         model_parameters = model_parameters if model_parameters else {}
-        custom_model = getattr(custom_models, model_name)
+        if model_name == "Harmonization":
+            import thingsvision.custom_models.harmonization as harmonization
+
+            custom_model = getattr(harmonization, model_name)
+        else:
+            import thingsvision.custom_models as custom_models
+
+            if hasattr(custom_models, model_name):
+                custom_model = getattr(custom_models, model_name)
+            else:
+                raise ValueError(
+                    f"\nCould not find {model_name} among available custom models.\nChoose a different model.\n"
+                )
         custom_model = custom_model(device, model_parameters)
         model, preprocess = custom_model.create_model()
         backend = custom_model.get_backend()
-    else:
-        raise ValueError(
-            f"\nCould not find {model_name} among custom models.\nChoose a different model.\n"
-        )
 
     Extractor = PyTorchExtractor if backend == "pt" else TensorFlowExtractor
 
