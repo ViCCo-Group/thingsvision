@@ -269,7 +269,7 @@ extractor = get_extractor(
   model_name=model_name,
   source=source,
   device=device,
-  pretrained=True
+  pretrained=True,
   model_parameters=model_parameters
 )
 ```
