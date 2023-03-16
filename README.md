@@ -190,7 +190,7 @@ features = extractor.extract_features(
     output_type="ndarray", # or "tensor" (only applicable to PyTorch models)
 )
 
-save_features(features, out_path='path/to/features', file_format='npy')
+save_features(features, out_path='path/to/features', file_format='npy') # file_format can be set to "npy", "txt", "mat", "pt", or "hdf5"
 ```
 
 _For more examples on the many models available in `thingsvision` and explanations of additional functionality like how to optionally turn off center cropping, how to use HDF5 datasets (e.g. NSD stimuli), how to perform RSA or CKA, or how to easily extract features for the [THINGS image database](https://osf.io/jum2f/), please refer to the [Documentation](https://vicco-group.github.io/thingsvision/)._
