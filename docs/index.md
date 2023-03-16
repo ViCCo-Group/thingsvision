@@ -10,7 +10,7 @@ permalink: /
 
 `thingsvision` is a Python package that let's you easily extract image representations from many state-of-the-art neural networks for computer vision. In a nutshell, you feed `thingsvision` with a directory of images and tell it which neural network you are interested in. `thingsvision` will then give you the  representation of the indicated neural network for each image so that you will end up with one feature vector per image. You can use these feature vectors for further analyses. We use the word `features` for short when we mean "image representation".
 
-To get started, please check out the [Getting Started](GettingStarted.md) page, or try our Colab notebooks for [Pytorch](https://colab.research.google.com/github/ViCCo-Group/thingsvision/blob/master/doc/pytorch.ipynb) and [Tensorflow](https://colab.research.google.com/github/ViCCo-Group/thingsvision/blob/master/doc/tensorflow.ipynb) .
+To get started, please check out the [Getting Started](GettingStarted.md) page, or try our Colab notebooks for [Pytorch](https://colab.research.google.com/github/ViCCo-Group/thingsvision/blob/master/notebooks/pytorch.ipynb) and [Tensorflow](https://colab.research.google.com/github/ViCCo-Group/thingsvision/blob/master/notebooks/tensorflow.ipynb) .
 
 ## Model collection
 
