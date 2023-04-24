@@ -38,7 +38,7 @@ def get_parsers():
         type=str,
         default="cuda",
         choices=["cpu", "cuda"],
-        help="Device to use for the extractor. (default: cpu)",
+        help="Device to use for the extractor. (default: cuda)",
     )
 
     subparsers = parent_parser.add_subparsers(
