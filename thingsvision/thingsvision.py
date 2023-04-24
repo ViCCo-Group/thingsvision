@@ -36,7 +36,7 @@ def get_parsers():
     common_parser.add_argument(
         "--device",
         type=str,
-        default="cpu",
+        default="cuda",
         choices=["cpu", "cuda"],
         help="Device to use for the extractor. (default: cpu)",
     )
@@ -67,22 +67,17 @@ def get_parsers():
         default="./images",
     )
     parser_extract.add_argument(
-        "--class-names",
-        type=str,
-        help="optional list of class names for class dataset. (default: None)",
-        default=None,
-    )
-    parser_extract.add_argument(
-        "--file-names",
-        type=str,
-        help="optional list of file names for class dataset. (default: None)",
-        default=None,
-    )
-    parser_extract.add_argument(
         "--batch-size",
         type=int,
         default=32,
         help="Batch size used for feature extraction. (default: 32)",
+    )
+    parser_extract.add_argument(
+        "--output-type",
+        type=str,
+        default="ndarray",
+        help="Output type of the extracted features.",
+        choices=["ndarray", "tensor"],
     )
     parser_extract.add_argument(
         "--out-path",
@@ -145,8 +140,8 @@ def main():
         elif args.command == "extract-features":
             parser_extract.print_help(sys.stderr)
         sys.exit(1)
-
-    device = torch.device(args.device)
+    
+    device = 'cuda' if torch.cuda.is_available() and args.device == "cuda" else 'cpu'
 
     from thingsvision import get_extractor
     from thingsvision.utils.storing import save_features
@@ -154,9 +149,8 @@ def main():
 
     extractor = get_extractor(
         model_name=args.model_name,
-        model_path=None,
+        source=args.source, 
         pretrained=True,
-        source=args.source,
         device=device,
     )
 
@@ -170,8 +164,6 @@ def main():
             out_path=args.out_path,
             backend=extractor.get_backend(),
             transforms=extractor.get_transformations(),
-            class_names=args.class_names,
-            file_names=args.file_names,
         )
         batches = DataLoader(
             dataset=dataset, batch_size=args.batch_size, backend=extractor.backend
@@ -181,6 +173,7 @@ def main():
             batches=batches,
             module_name=args.module_name,
             flatten_acts=args.flatten_acts,
+            output_type=args.output_type,
         )
 
         save_features(
