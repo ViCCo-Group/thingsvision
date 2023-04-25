@@ -15,6 +15,7 @@ Array = np.ndarray
 class BaseExtractor(metaclass=abc.ABCMeta):
     def __init__(self, device, preprocess) -> None:
         self.device = device
+        self._check_device()
         self.preprocess = preprocess
 
     def show(self) -> None:
@@ -24,6 +25,15 @@ class BaseExtractor(metaclass=abc.ABCMeta):
         )
         self.show_model()
 
+    def _check_device(self) -> None:
+        if self.device == "cuda" and not torch.cuda.is_available():
+            warnings.warn(
+                "CUDA is not available on your system. Switching to device='cpu'.",
+                category=UserWarning,
+            )
+            self.device = "cpu"
+        print("Using device: ", self.device)
+    
     @abc.abstractmethod
     def show_model(self) -> None:
         """Show architecture."""

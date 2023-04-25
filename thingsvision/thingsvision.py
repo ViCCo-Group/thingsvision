@@ -141,8 +141,6 @@ def main():
             parser_extract.print_help(sys.stderr)
         sys.exit(1)
     
-    device = 'cuda' if torch.cuda.is_available() and args.device == "cuda" else 'cpu'
-
     from thingsvision import get_extractor
     from thingsvision.utils.storing import save_features
     from thingsvision.utils.data import ImageDataset, DataLoader
@@ -151,7 +149,7 @@ def main():
         model_name=args.model_name,
         source=args.source, 
         pretrained=True,
-        device=device,
+        device=args.device,
     )
 
     if args.command == "show-model":
