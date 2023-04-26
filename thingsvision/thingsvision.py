@@ -3,7 +3,6 @@
 """ This is the command-line interface for the thingsvision toolbox """
 
 import argparse
-import torch
 import textwrap
 import sys
 import pkg_resources
