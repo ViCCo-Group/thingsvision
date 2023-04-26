@@ -5,8 +5,14 @@
 import argparse
 import textwrap
 import sys
+import re
 import pkg_resources
 
+def device_type(device_str: str) -> str:
+    if device_str == "cpu" or device_str == "cuda" or re.match(r"cuda:\d+", device_str):
+        return device_str
+    else:
+        raise argparse.ArgumentTypeError(f"Invalid device string: '{device_str}'. Expected 'cpu', 'cuda', or 'cuda:x'.")
 
 def get_parsers():
     parent_parser = argparse.ArgumentParser(
@@ -34,10 +40,10 @@ def get_parsers():
     )
     common_parser.add_argument(
         "--device",
-        type=str,
+        type=device_type,
         default="cuda",
-        choices=["cpu", "cuda"],
-        help="Device to use for the extractor. (default: cuda)",
+        help="""Device to use for the extractor. Options are 'cpu', 'cuda', or 'cuda:x', 
+                where x is the GPU index. (default: cuda)""",
     )
 
     subparsers = parent_parser.add_subparsers(
