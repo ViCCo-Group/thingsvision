@@ -1,4 +1,5 @@
 import abc
+import re
 import os
 import warnings
 from typing import Callable, Iterator, List, Optional, Union
@@ -15,6 +16,7 @@ Array = np.ndarray
 class BaseExtractor(metaclass=abc.ABCMeta):
     def __init__(self, device, preprocess) -> None:
         self.device = device
+        self._check_device()
         self.preprocess = preprocess
 
     def show(self) -> None:
@@ -23,6 +25,27 @@ class BaseExtractor(metaclass=abc.ABCMeta):
             category=UserWarning,
         )
         self.show_model()
+
+    def _check_device(self) -> None:
+        if self.device.startswith("cuda"):
+            gpu_index = re.search(r"cuda:(\d+)", self.device)
+
+            if not torch.cuda.is_available():
+                warnings.warn(
+                    "CUDA is not available on your system. Switching to device='cpu'.",
+                    category=UserWarning,
+                )
+                self.device = "cpu"
+            elif gpu_index and int(gpu_index.group(1)) >= torch.cuda.device_count():
+                warnings.warn(
+                    f"GPU index {gpu_index.group(1)} is out of range. "
+                    f"Available GPUs: {torch.cuda.device_count()}. "
+                    f"Switching to device='cuda:0'.",
+                    category=UserWarning,
+                )
+                self.device = "cuda:0"
+
+        print("Using device: ", self.device)
 
     @abc.abstractmethod
     def show_model(self) -> None:
