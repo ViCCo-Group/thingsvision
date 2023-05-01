@@ -32,15 +32,15 @@ class BaseExtractor(metaclass=abc.ABCMeta):
 
             if not torch.cuda.is_available():
                 warnings.warn(
-                    "CUDA is not available on your system. Switching to device='cpu'.",
+                    "\nCUDA is not available on your system. Switching to device='cpu'.\n",
                     category=UserWarning,
                 )
                 self.device = "cpu"
             elif gpu_index and int(gpu_index.group(1)) >= torch.cuda.device_count():
                 warnings.warn(
-                    f"GPU index {gpu_index.group(1)} is out of range. "
+                    f"\nGPU index {gpu_index.group(1)} is out of range. "
                     f"Available GPUs: {torch.cuda.device_count()}. "
-                    f"Switching to device='cuda:0'.",
+                    f"Switching to device='cuda:0'.\n",
                     category=UserWarning,
                 )
                 self.device = "cuda:0"
