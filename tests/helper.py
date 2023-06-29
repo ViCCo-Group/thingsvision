@@ -83,12 +83,17 @@ MODEL_AND_MODULE_NAMES = {
         "kwargs": {"variant": "ViT-B-32", "dataset": "openai"},
     },
     # Timm models
-    "mixnet_l": {"modules": ["conv_head"], "pretrained": True, "source": "timm"},
-    "gluon_inception_v3": {
-        "modules": ["Mixed_6d"],
-        "pretrained": False,
-        "source": "timm",
+    "mixnet_l": {
+        "modules": ["conv_head"], 
+        "pretrained": True, 
+        "source": "timm"
     },
+    # "gluon_inception_v3": {
+    #    "modules": ["Mixed_6d"],
+    #    "pretrained": False,
+    #    "source": "timm",
+    # },
+    
     # Keras models
     "VGG16": {
         "modules": ["block1_conv1", "flatten"],
@@ -101,15 +106,20 @@ MODEL_AND_MODULE_NAMES = {
         "source": "keras",
     },
     # Vissl models
-    'simclr-rn50': SSL_RN50_DEFAULT_CONFIG,
-    'mocov2-rn50': SSL_RN50_DEFAULT_CONFIG,
-    'jigsaw-rn50': SSL_RN50_DEFAULT_CONFIG,
-    'rotnet-rn50': SSL_RN50_DEFAULT_CONFIG,
-    'swav-rn50': SSL_RN50_DEFAULT_CONFIG,
-    'pirl-rn50': SSL_RN50_DEFAULT_CONFIG,
-    'barlowtwins-rn50': SSL_RN50_DEFAULT_CONFIG,
-    'vicreg-rn50': SSL_RN50_DEFAULT_CONFIG,
-    'dino-rn50' : SSL_RN50_DEFAULT_CONFIG,
+    "simclr-rn50": SSL_RN50_DEFAULT_CONFIG,
+    "mocov2-rn50": SSL_RN50_DEFAULT_CONFIG,
+    "jigsaw-rn50": SSL_RN50_DEFAULT_CONFIG,
+    "rotnet-rn50": SSL_RN50_DEFAULT_CONFIG,
+    "swav-rn50": SSL_RN50_DEFAULT_CONFIG,
+    "pirl-rn50": SSL_RN50_DEFAULT_CONFIG,
+    "barlowtwins-rn50": SSL_RN50_DEFAULT_CONFIG,
+    "vicreg-rn50": SSL_RN50_DEFAULT_CONFIG,
+    "dino-rn50" : SSL_RN50_DEFAULT_CONFIG,
+    "dino-vit-small-p8": {
+        "modules": ["norm"],
+        "pretrained": True,
+        "source": "ssl",
+    }
     # Harmonization models
     "Harmonization": {
         "modules": ["visual"],
