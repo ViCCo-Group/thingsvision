@@ -104,7 +104,7 @@ class PyTorchExtractor(BaseExtractor):
                 act = self.flatten_acts(act, batch, module_name)
             else:
                 act = self.flatten_acts(act)
-        if torch.cuda.is_available():
+        if act.is_cuda:
             torch.cuda.empty_cache()
         return act
 
