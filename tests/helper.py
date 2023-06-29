@@ -119,7 +119,7 @@ MODEL_AND_MODULE_NAMES = {
         "modules": ["norm"],
         "pretrained": True,
         "source": "ssl",
-    }
+    },
     # Harmonization models
     "Harmonization": {
         "modules": ["visual"],
