@@ -227,12 +227,12 @@ class SSLExtractor(PyTorchExtractor):
             "arch": "dino_vits8",
             "type": "hub",
         },
-        "dino-vit-big-p16": {
+        "dino-vit-base-p16": {
             "repository": "facebookresearch/dino:main",
             "arch": "dino_vitb16",
             "type": "hub",
         },
-        "dino-vit-big-p8": {
+        "dino-vit-base-p8": {
             "repository": "facebookresearch/dino:main",
             "arch": "dino_vitb8",
             "type": "hub",
