@@ -57,7 +57,7 @@ class PyTorchExtractor(BaseExtractor):
             step_size=step_size,
         )
         if self.hook_handle:
-            self._unregister_hook()
+            self.hook_handle.remove()
         return features
 
     def get_activation(self, name: str) -> Callable:
@@ -82,10 +82,7 @@ class PyTorchExtractor(BaseExtractor):
             if n == module_name:
                 self.hook_handle = m.register_forward_hook(self.get_activation(n))
                 break
-
-    def _unregister_hook(self) -> None:
-        self.hook_handle.remove()
-
+        
     @torch.no_grad()
     def _extract_batch(
         self,
@@ -107,7 +104,8 @@ class PyTorchExtractor(BaseExtractor):
                 act = self.flatten_acts(act, batch, module_name)
             else:
                 act = self.flatten_acts(act)
-        torch.cuda.empty_cache()
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
         return act
 
     def forward(
