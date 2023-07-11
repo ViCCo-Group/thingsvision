@@ -1,8 +1,10 @@
+from typing import Any
+
 import torch
 import torchvision.models as models
 
-from typing import Any
 from .custom import Custom
+
 
 class AlexNet_SalObjSub(Custom):
     def __init__(self, device, parameters) -> None:

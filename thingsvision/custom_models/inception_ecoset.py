@@ -1,7 +1,8 @@
+from typing import Any
+
 import torch
 import torchvision.models as models
 
-from typing import Any
 from .custom import Custom
 
 
