@@ -173,6 +173,7 @@ class BaseExtractor(metaclass=abc.ABCMeta):
             )
 
             image_ct += len(batch)
+            del batch
 
             if output_dir and (i % step_size == 0 or i == len(batches)):
                 if self.get_backend() == "pt":
@@ -224,7 +225,7 @@ class BaseExtractor(metaclass=abc.ABCMeta):
         ]
     ) -> Array:
         """Move activations to CPU and convert torch.Tensor to np.ndarray."""
-        return features.cpu().numpy()
+        return features.numpy()
 
     def get_transformations(
         self, resize_dim: int = 256, crop_dim: int = 224, apply_center_crop: bool = True
