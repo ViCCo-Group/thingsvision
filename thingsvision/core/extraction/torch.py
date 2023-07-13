@@ -85,7 +85,6 @@ class PyTorchExtractor(BaseExtractor):
 
     def _unregister_hook(self) -> None:
         self.hook_handle.remove()
-
         
     @torch.no_grad()
     def _extract_batch(
@@ -110,7 +109,8 @@ class PyTorchExtractor(BaseExtractor):
                 act = self.flatten_acts(act)
         if act.is_cuda or act.get_device() >= 0:
             torch.cuda.empty_cache()
-        return act.cpu()
+            act = act.cpu()
+        return act
 
     def forward(
         self, batch: TensorType["b", "c", "h", "w"]
