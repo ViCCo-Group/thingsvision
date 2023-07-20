@@ -4,7 +4,6 @@ from thingsvision.utils.storing import save_features
 from thingsvision.utils.data import ImageDataset, DataLoader
 from torchvision import transforms
 import numpy as np
-import pdb
 
 model_name = 'DreamSim'
 source = 'custom'
@@ -45,7 +44,7 @@ for model_type in ["clip_vitb32", "open_clip_vitb32"]:
         flatten_acts=True, # flatten 2D feature maps from convolutional layer
         output_type="ndarray", # or "tensor" (only applicable to PyTorch models)
     )
-    # pdb.set_trace()
+
     print("Done extracting features. Loading ground-truth features")
 
     embeddings = np.load(f"./dreamsim_test/{model_type}_embeds.npy")
