@@ -111,6 +111,14 @@ $ pip install git+https://github.com/serre-lab/Harmonization.git
 $ pip install keras-cv-attention-models>=1.3.5
 ```
 
+If you want to extract features for [DreamSim](https://dreamsim-nights.github.io/) from the [DreamSim repo](https://github.com/ssundaram21/dreamsim), you have to additionally run the following `pip` command in your `thingsvision` environment,
+
+```bash
+$ pip install dreamsim==0.1.2
+```
+
+See the [docs](https://thingsvision.github.io/AvailableModels.html) for which `DreamSim` models are available in `thingsvision`.
+
 #### Google Colab.
 Alternatively, you can use Google Colab to play around with `thingsvision` by uploading your image data to Google Drive (via directory mounting).
 You can find the jupyter notebook using `PyTorch` [here](https://colab.research.google.com/github/ViCCo-Group/thingsvision/blob/master/notebooks/pytorch.ipynb) and the `TensorFlow` example [here](https://colab.research.google.com/github/ViCCo-Group/thingsvision/blob/master/notebooks/tensorflow.ipynb).
