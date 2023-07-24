@@ -2,12 +2,11 @@ import os
 from typing import Any, Dict
 
 import numpy as np
-import timm
-import torchvision
-
 import tensorflow as tf
 import tensorflow.keras.applications as tensorflow_models
+import timm
 import torch
+import torchvision
 
 try:
     from torch.hub import load_state_dict_from_url
@@ -222,7 +221,7 @@ class SSLExtractor(PyTorchExtractor):
             "arch": "dino_vits16",
             "type": "hub",
         },
-         "dino-vit-small-p8": {
+        "dino-vit-small-p8": {
             "repository": "facebookresearch/dino:main",
             "arch": "dino_vits8",
             "type": "hub",
@@ -355,14 +354,14 @@ class SSLExtractor(PyTorchExtractor):
                         model_filepath, map_location=torch.device("cpu")
                     )
                 self.model = getattr(torchvision.models, model_config["arch"])()
-                if model_config["arch"] == 'resnet50':
+                if model_config["arch"] == "resnet50":
                     self.model.fc = torch.nn.Identity()
                 self.model.load_state_dict(model_state_dict, strict=True)
             elif model_config["type"] == "hub":
                 self.model = torch.hub.load(
                     model_config["repository"], model_config["arch"]
                 )
-                if model_config["arch"] == 'resnet50':
+                if model_config["arch"] == "resnet50":
                     self.model.fc = torch.nn.Identity()
             else:
                 raise ValueError(f"\nUnknown model type.\n")

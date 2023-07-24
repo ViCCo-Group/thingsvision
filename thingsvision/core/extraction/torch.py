@@ -2,10 +2,9 @@ from dataclasses import field
 from typing import Any, Callable, Iterator, List, Optional, Union
 
 import numpy as np
+import torch
 from torchtyping import TensorType
 from torchvision import transforms as T
-
-import torch
 
 from .base import BaseExtractor
 
@@ -85,7 +84,7 @@ class PyTorchExtractor(BaseExtractor):
 
     def _unregister_hook(self) -> None:
         self.hook_handle.remove()
-        
+
     @torch.no_grad()
     def _extract_batch(
         self,
