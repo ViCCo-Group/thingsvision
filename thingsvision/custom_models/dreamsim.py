@@ -22,10 +22,10 @@ class DreamSimModel(nn.Module):
 
         self.model_type = model_type
         self.checkpoint_path = f"./dreamsim_models/dreamsim_{self.model_type}"
-        self.model, _ = dreamsim(
-            pretrained=True, dreamsim_type=model_type, normalize_embeds=False
-        )
         self.device = device
+        self.model, _ = dreamsim(
+            pretrained=True, dreamsim_type=model_type, normalize_embeds=False, device=device
+        )
 
     def forward(self, x: Tensor) -> Tensor:
         return self.model.embed(x)
