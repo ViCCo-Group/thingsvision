@@ -299,4 +299,4 @@ extractor = get_extractor(
   model_parameters=model_parameters
 )
 ```
-To load the CLIP ViT-B/32 varient, pass `'clip_vitb32'` to the `variant` parameter instead.
+To load the CLIP ViT-B/32 variant, pass `'clip_vitb32'` to the `variant` parameter instead.
