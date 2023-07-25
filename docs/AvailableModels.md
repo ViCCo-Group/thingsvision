@@ -282,7 +282,7 @@ We provide the [DreamSim](https://dreamsim-nights.github.io/) model from the ori
 The model name is:
 - `DreamSim`
 
-We provide two `DreamSim` architecture: CLIP ViT-B/32 and OpenCLIP ViT-B/32. This can be specified using the `model_parameters` argument. For instance, to get the OpenCLIP variant of DreamSim you would do the following:
+We provide two `DreamSim` architectures: CLIP ViT-B/32 and OpenCLIP ViT-B/32. This can be specified using the `model_parameters` argument. For instance, to get the OpenCLIP variant of DreamSim you would do the following:
 ```python
 model_name = 'DreamSim'
 source = 'custom'
@@ -299,3 +299,4 @@ extractor = get_extractor(
   model_parameters=model_parameters
 )
 ```
+To load the CLIP ViT-B/32 varient, pass `'clip_vitb32'` to the `variant` parameter instead.
