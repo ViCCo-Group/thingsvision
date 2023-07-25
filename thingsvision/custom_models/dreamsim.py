@@ -1,5 +1,5 @@
 from typing import Callable, Tuple
-
+import os
 import torch
 import torch.nn as nn
 from dreamsim import dreamsim
@@ -57,3 +57,4 @@ class DreamSim(Custom):
 
     def create_model(self) -> Tuple[nn.Module, Callable]:
         return DreamSimModel(self.variant, self.device), self.preprocess
+
