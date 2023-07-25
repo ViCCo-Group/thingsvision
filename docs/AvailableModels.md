@@ -273,3 +273,29 @@ extractor = get_extractor(
   model_parameters=model_parameters
 )
 ```
+
+### DreamSim
+We provide the [DreamSim](https://dreamsim-nights.github.io/) model from the original [DreamSim repo](https://github.com/ssundaram21/dreamsim). To extract features, first install the `dreamsim` package with the following `pip` command 
+```bash
+ $ pip install dreamsim==0.1.2
+ ```
+The model name is:
+- `DreamSim`
+
+We provide two `DreamSim` architecture: CLIP ViT-B/32 and OpenCLIP ViT-B/32. This can be specified using the `model_parameters` argument. For instance, to get the OpenCLIP variant of DreamSim you would do the following:
+```python
+model_name = 'DreamSim'
+source = 'custom'
+device = 'cuda'
+model_parameters = {
+    'variant': 'open_clip_vitb32'
+}
+
+extractor = get_extractor(
+  model_name=model_name,
+  source=source,
+  device=device,
+  pretrained=True,
+  model_parameters=model_parameters
+)
+```
