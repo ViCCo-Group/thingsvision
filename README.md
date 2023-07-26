@@ -117,7 +117,7 @@ If you want to extract features for [DreamSim](https://dreamsim-nights.github.io
 $ pip install dreamsim==0.1.2
 ```
 
-See the [docs](https://thingsvision.github.io/AvailableModels.html) for which `DreamSim` models are available in `thingsvision`.
+See the [docs](https://vicco-group.github.io/thingsvision/AvailableModels.html) for which `DreamSim` models are available in `thingsvision`.
 
 #### Google Colab.
 Alternatively, you can use Google Colab to play around with `thingsvision` by uploading your image data to Google Drive (via directory mounting).
