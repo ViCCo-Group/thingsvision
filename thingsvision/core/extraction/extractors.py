@@ -2,12 +2,11 @@ import os
 from typing import Any, Dict
 
 import numpy as np
-import timm
-import torchvision
-
 import tensorflow as tf
 import tensorflow.keras.applications as tensorflow_models
+import timm
 import torch
+import torchvision
 
 try:
     from torch.hub import load_state_dict_from_url
@@ -16,6 +15,7 @@ except ImportError:
 
 from .tensorflow import TensorFlowExtractor
 from .torch import PyTorchExtractor
+from thingsvision.utils.checkpointing import get_torch_home
 
 # neccessary to prevent gpu memory conflicts between torch and tf
 gpus = tf.config.list_physical_devices("GPU")
@@ -173,9 +173,6 @@ class KerasExtractor(TensorFlowExtractor):
 
 
 class SSLExtractor(PyTorchExtractor):
-    ENV_TORCH_HOME = "TORCH_HOME"
-    ENV_XDG_CACHE_HOME = "XDG_CACHE_HOME"
-    DEFAULT_CACHE_DIR = "~/.cache"
     MODELS = {
         "simclr-rn50": {
             "url": "https://dl.fbaipublicfiles.com/vissl/model_zoo/simclr_rn50_800ep_simclr_8node_resnet_16_07_20.7e8feed1/model_final_checkpoint_phase799.torch",
@@ -222,7 +219,7 @@ class SSLExtractor(PyTorchExtractor):
             "arch": "dino_vits16",
             "type": "hub",
         },
-         "dino-vit-small-p8": {
+        "dino-vit-small-p8": {
             "repository": "facebookresearch/dino:main",
             "arch": "dino_vits8",
             "type": "hub",
@@ -302,7 +299,7 @@ class SSLExtractor(PyTorchExtractor):
         return converted_model
 
     def _replace_module_prefix(
-        self, state_dict: Dict[str, Any], prefix: str, replace_with: str = ""
+            self, state_dict: Dict[str, Any], prefix: str, replace_with: str = ""
     ):
         """
         Remove prefixes in a state_dict needed when loading models that are not VISSL
@@ -317,23 +314,6 @@ class SSLExtractor(PyTorchExtractor):
         }
         return state_dict
 
-    def _get_torch_home(self):
-        """
-        Gets the torch home folder used as a cache directory for the vissl models.
-        """
-        torch_home = os.path.expanduser(
-            os.getenv(
-                SSLExtractor.ENV_TORCH_HOME,
-                os.path.join(
-                    os.getenv(
-                        SSLExtractor.ENV_XDG_CACHE_HOME, SSLExtractor.DEFAULT_CACHE_DIR
-                    ),
-                    "torch",
-                ),
-            )
-        )
-        return torch_home
-
     def load_model_from_source(self) -> None:
         """
         Load a (pretrained) neural network model from vissl. Downloads the model when it is not available.
@@ -342,7 +322,7 @@ class SSLExtractor(PyTorchExtractor):
         if self.model_name in SSLExtractor.MODELS:
             model_config = SSLExtractor.MODELS[self.model_name]
             if model_config["type"] == "vissl":
-                cache_dir = os.path.join(self._get_torch_home(), "vissl")
+                cache_dir = os.path.join(get_torch_home(), "vissl")
                 model_filepath = os.path.join(cache_dir, self.model_name + ".torch")
                 if not os.path.exists(model_filepath):
                     os.makedirs(cache_dir, exist_ok=True)
@@ -355,14 +335,14 @@ class SSLExtractor(PyTorchExtractor):
                         model_filepath, map_location=torch.device("cpu")
                     )
                 self.model = getattr(torchvision.models, model_config["arch"])()
-                if model_config["arch"] == 'resnet50':
+                if model_config["arch"] == "resnet50":
                     self.model.fc = torch.nn.Identity()
                 self.model.load_state_dict(model_state_dict, strict=True)
             elif model_config["type"] == "hub":
                 self.model = torch.hub.load(
                     model_config["repository"], model_config["arch"]
                 )
-                if model_config["arch"] == 'resnet50':
+                if model_config["arch"] == "resnet50":
                     self.model.fc = torch.nn.Identity()
             else:
                 raise ValueError(f"\nUnknown model type.\n")

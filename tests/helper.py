@@ -138,6 +138,18 @@ MODEL_AND_MODULE_NAMES = {
         "pretrained": True,
         "source": "custom",
         "kwargs": {"variant": "ViT_B16"},
+    },
+    "DreamSim": {
+        "modules": ["model.mlp"],
+        "pretrained": True,
+        "source": "custom",
+        "kwargs": {"variant": "clip_vitb32"},
+    },
+    "DreamSim": {
+        "modules": ["model.mlp"],
+        "pretrained": True,
+        "source": "custom",
+        "kwargs": {"variant": "open_clip_vitb32"},
     }
 }
 

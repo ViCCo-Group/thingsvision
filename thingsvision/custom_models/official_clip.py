@@ -1,7 +1,6 @@
 from typing import Any
 
 import clip as official_clip
-from torchvision import transforms as T
 
 from thingsvision.custom_models.custom import Custom
 
