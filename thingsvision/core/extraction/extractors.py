@@ -15,6 +15,7 @@ except ImportError:
 
 from .tensorflow import TensorFlowExtractor
 from .torch import PyTorchExtractor
+from thingsvision.utils.checkpointing import get_torch_home
 
 # neccessary to prevent gpu memory conflicts between torch and tf
 gpus = tf.config.list_physical_devices("GPU")
@@ -172,9 +173,6 @@ class KerasExtractor(TensorFlowExtractor):
 
 
 class SSLExtractor(PyTorchExtractor):
-    ENV_TORCH_HOME = "TORCH_HOME"
-    ENV_XDG_CACHE_HOME = "XDG_CACHE_HOME"
-    DEFAULT_CACHE_DIR = "~/.cache"
     MODELS = {
         "simclr-rn50": {
             "url": "https://dl.fbaipublicfiles.com/vissl/model_zoo/simclr_rn50_800ep_simclr_8node_resnet_16_07_20.7e8feed1/model_final_checkpoint_phase799.torch",
@@ -301,7 +299,7 @@ class SSLExtractor(PyTorchExtractor):
         return converted_model
 
     def _replace_module_prefix(
-        self, state_dict: Dict[str, Any], prefix: str, replace_with: str = ""
+            self, state_dict: Dict[str, Any], prefix: str, replace_with: str = ""
     ):
         """
         Remove prefixes in a state_dict needed when loading models that are not VISSL
@@ -316,23 +314,6 @@ class SSLExtractor(PyTorchExtractor):
         }
         return state_dict
 
-    def _get_torch_home(self):
-        """
-        Gets the torch home folder used as a cache directory for the vissl models.
-        """
-        torch_home = os.path.expanduser(
-            os.getenv(
-                SSLExtractor.ENV_TORCH_HOME,
-                os.path.join(
-                    os.getenv(
-                        SSLExtractor.ENV_XDG_CACHE_HOME, SSLExtractor.DEFAULT_CACHE_DIR
-                    ),
-                    "torch",
-                ),
-            )
-        )
-        return torch_home
-
     def load_model_from_source(self) -> None:
         """
         Load a (pretrained) neural network model from vissl. Downloads the model when it is not available.
@@ -341,7 +322,7 @@ class SSLExtractor(PyTorchExtractor):
         if self.model_name in SSLExtractor.MODELS:
             model_config = SSLExtractor.MODELS[self.model_name]
             if model_config["type"] == "vissl":
-                cache_dir = os.path.join(self._get_torch_home(), "vissl")
+                cache_dir = os.path.join(get_torch_home(), "vissl")
                 model_filepath = os.path.join(cache_dir, self.model_name + ".torch")
                 if not os.path.exists(model_filepath):
                     os.makedirs(cache_dir, exist_ok=True)
