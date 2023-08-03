@@ -259,6 +259,26 @@ class SSLExtractor(PyTorchExtractor):
             "arch": "dino_resnet50",
             "type": "hub",
         },
+        "dinov2-vit-small-p14": {
+            "repository": "facebookresearch/dinov2",
+            "arch": "dinov2_vits14",
+            "type": "hub",
+        },
+        "dinov2-vit-base-p14": {
+            "repository": "facebookresearch/dinov2",
+            "arch": "dinov2_vitb14",
+            "type": "hub",
+        },
+        "dinov2-vit-large-p14": {
+            "repository": "facebookresearch/dinov2",
+            "arch": "dinov2_vitl14",
+            "type": "hub",
+        },
+        "dinov2-vit-giant-p14": {
+            "repository": "facebookresearch/dinov2",
+            "arch": "dinov2_vitg14",
+            "type": "hub",
+        },
     }
 
     def __init__(
