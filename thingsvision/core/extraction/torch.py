@@ -31,6 +31,11 @@ class PyTorchExtractor(BaseExtractor):
         self.activations = {}
         self.hook_handle = None
 
+        if 'extract_cls_token' in self.model_parameters:
+            self.extract_cls_token = self.model_parameters['extract_cls_token']
+        else:
+            self.extract_cls_token = False
+
         if not self.model:
             self.load_model()
         self.prepare_inference()
@@ -68,6 +73,11 @@ class PyTorchExtractor(BaseExtractor):
                 act = output[0]
             else:
                 act = output
+
+            if self.extract_cls_token:
+                # we extract only the representations of the first token (cls token)
+                act = act[:, 0]
+
             try:
                 self.activations[name] = act.clone().detach()
             except AttributeError:
