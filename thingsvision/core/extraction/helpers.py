@@ -38,6 +38,10 @@ def create_custom_extractor(
             import thingsvision.custom_models.harmonization as harmonization
 
             custom_model = getattr(harmonization, model_name)
+        elif model_name == "DreamSim":
+            import thingsvision.custom_models.dreamsim as dreamsim
+
+            custom_model = getattr(dreamsim, model_name)
         else:
             import thingsvision.custom_models as custom_models
 
@@ -45,7 +49,7 @@ def create_custom_extractor(
                 custom_model = getattr(custom_models, model_name)
             else:
                 raise ValueError(
-                    f"\nCould not find {model_name} among available custom models.\nChoose a different model.\n"
+                    f"\nCould not find {model_name} among available custom models.\nChoose a different model that is available.\n"
                 )
         model_parameters = model_parameters if model_parameters else {}
         custom_model = custom_model(device, model_parameters)
