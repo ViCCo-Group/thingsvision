@@ -1,5 +1,5 @@
 from dataclasses import field
-from typing import Any, Callable, Iterator, List, Optional, Union
+from typing import Any, Callable, Dict, Iterator, List, Optional, Union
 
 import numpy as np
 import torch
@@ -18,9 +18,11 @@ class PyTorchExtractor(BaseExtractor):
         pretrained: bool,
         device: str,
         model_path: str = None,
-        model_parameters: Any = field(default_factory=lambda: {}),
+        model_parameters: Dict[str, Union[str, bool, List[str]]] = field(
+            default_factory=lambda: {}
+        ),
         model: Any = None,
-        preprocess: Any = None,
+        preprocess: Optional[Callable] = None,
     ) -> None:
         super().__init__(device, preprocess)
         self.model_name = model_name
@@ -30,6 +32,10 @@ class PyTorchExtractor(BaseExtractor):
         self.model = model
         self.activations = {}
         self.hook_handle = None
+
+        if isinstance(self.model_parameters, dict):
+            if "extract_cls_token" in self.model_parameters:
+                self.extract_cls_token = self.model_parameters["extract_cls_token"]
 
         if not self.model:
             self.load_model()
@@ -101,6 +107,9 @@ class PyTorchExtractor(BaseExtractor):
         batch = batch.to(self.device)
         _ = self.forward(batch)
         act = self.activations[module_name]
+        if hasattr(self, "extract_cls_token"):
+            # we are only interested in the representations of the first token, i.e., [cls] token
+            act = act[:, 0, :]
         if flatten_acts:
             if self.model_name.lower().startswith("clip"):
                 act = self.flatten_acts(act, batch, module_name)

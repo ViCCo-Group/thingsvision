@@ -1,5 +1,6 @@
 import os
-from typing import Any, Dict
+from dataclasses import field
+from typing import Any, Callable, Dict, List, Optional, Union
 
 import numpy as np
 import tensorflow as tf
@@ -13,9 +14,10 @@ try:
 except ImportError:
     from torch.utils.model_zoo import load_url as load_state_dict_from_url
 
+from thingsvision.utils.checkpointing import get_torch_home
+
 from .tensorflow import TensorFlowExtractor
 from .torch import PyTorchExtractor
-from thingsvision.utils.checkpointing import get_torch_home
 
 # neccessary to prevent gpu memory conflicts between torch and tf
 gpus = tf.config.list_physical_devices("GPU")
@@ -41,8 +43,10 @@ class TorchvisionExtractor(PyTorchExtractor):
         pretrained: bool,
         device: str,
         model_path: str = None,
-        model_parameters: Dict = None,
-        preprocess: Any = None,
+        model_parameters: Dict[str, Union[str, bool, List[str]]] = field(
+            default_factory=lambda: {}
+        ),
+        preprocess: Optional[Callable] = None,
     ) -> None:
         model_parameters = (
             model_parameters if model_parameters else {"weights": "DEFAULT"},
@@ -111,8 +115,10 @@ class TimmExtractor(PyTorchExtractor):
         pretrained: bool,
         device: str,
         model_path: str = None,
-        model_parameters: Dict = None,
-        preprocess: Any = None,
+        model_parameters: Dict[str, Union[str, bool, List[str]]] = field(
+            default_factory=lambda: {}
+        ),
+        preprocess: Optional[Callable] = None,
     ) -> None:
         super().__init__(
             model_name=model_name,
@@ -140,8 +146,10 @@ class KerasExtractor(TensorFlowExtractor):
         pretrained: bool,
         device: str,
         model_path: str = None,
-        model_parameters: Dict = None,
-        preprocess: Any = None,
+        model_parameters: Dict[str, Union[str, bool, List[str]]] = field(
+            default_factory=lambda: {}
+        ),
+        preprocess: Optional[Callable] = None,
     ) -> None:
         model_parameters = (
             model_parameters if model_parameters else {"weights": "imagenet"}
@@ -259,6 +267,26 @@ class SSLExtractor(PyTorchExtractor):
             "arch": "dino_resnet50",
             "type": "hub",
         },
+        "dinov2-vit-small-p14": {
+            "repository": "facebookresearch/dinov2",
+            "arch": "dinov2_vits14",
+            "type": "hub",
+        },
+        "dinov2-vit-base-p14": {
+            "repository": "facebookresearch/dinov2",
+            "arch": "dinov2_vitb14",
+            "type": "hub",
+        },
+        "dinov2-vit-large-p14": {
+            "repository": "facebookresearch/dinov2",
+            "arch": "dinov2_vitl14",
+            "type": "hub",
+        },
+        "dinov2-vit-giant-p14": {
+            "repository": "facebookresearch/dinov2",
+            "arch": "dinov2_vitg14",
+            "type": "hub",
+        },
     }
 
     def __init__(
@@ -267,8 +295,10 @@ class SSLExtractor(PyTorchExtractor):
         pretrained: bool,
         device: str,
         model_path: str = None,
-        model_parameters: Dict = None,
-        preprocess: Any = None,
+        model_parameters: Dict[str, Union[str, bool, List[str]]] = field(
+            default_factory=lambda: {}
+        ),
+        preprocess: Optional[Callable] = None,
     ) -> None:
         super().__init__(
             model_name=model_name,
@@ -299,7 +329,7 @@ class SSLExtractor(PyTorchExtractor):
         return converted_model
 
     def _replace_module_prefix(
-            self, state_dict: Dict[str, Any], prefix: str, replace_with: str = ""
+        self, state_dict: Dict[str, Any], prefix: str, replace_with: str = ""
     ):
         """
         Remove prefixes in a state_dict needed when loading models that are not VISSL

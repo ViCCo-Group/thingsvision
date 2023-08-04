@@ -1,6 +1,6 @@
 import os
 from dataclasses import field
-from typing import Any, List
+from typing import Any, Callable, Dict, List, Optional, Union
 
 import numpy as np
 
@@ -21,9 +21,11 @@ class TensorFlowExtractor(BaseExtractor):
         pretrained: bool,
         device: str,
         model_path: str = None,
-        model_parameters: Any = field(default_factory=lambda: {}),
+        model_parameters: Dict[str, Union[str, bool, List[str]]] = field(
+            default_factory=lambda: {}
+        ),
         model: Any = None,
-        preprocess: Any = None,
+        preprocess: Optional[Callable] = None,
     ) -> None:
         super().__init__(device, preprocess)
         self.model_name = model_name

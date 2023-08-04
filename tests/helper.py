@@ -120,6 +120,12 @@ MODEL_AND_MODULE_NAMES = {
         "pretrained": True,
         "source": "ssl",
     },
+    "dino-vit-base-p8": {
+        "modules": ["norm"],
+        "pretrained": True,
+        "source": "ssl",
+        "extract_cls_token": True,
+    },
     # Harmonization models
     "Harmonization": {
         "modules": ["visual"],

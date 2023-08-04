@@ -1,6 +1,5 @@
 from .alexnet_ecoset import Alexnet_ecoset
 from .alexnet_salobjsub import AlexNet_SalObjSub
-from .dreamsim import DreamSim
 from .inception_ecoset import Inception_ecoset
 from .official_clip import clip
 from .openclip import OpenCLIP

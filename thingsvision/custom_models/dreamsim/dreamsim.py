@@ -23,10 +23,13 @@ class DreamSimModel(nn.Module):
 
         self.model_type = model_type
         self.device = device
-        model_dir = os.path.join(get_torch_home(), 'dreamsim')
+        model_dir = os.path.join(get_torch_home(), "dreamsim")
         self.model, _ = dreamsim(
-            pretrained=True, dreamsim_type=model_type, normalize_embeds=False,
-            device=device, cache_dir=model_dir
+            pretrained=True,
+            dreamsim_type=model_type,
+            normalize_embeds=False,
+            device=device,
+            cache_dir=model_dir,
         )
 
     def forward(self, x: Tensor) -> Tensor:
@@ -59,4 +62,3 @@ class DreamSim(Custom):
 
     def create_model(self) -> Tuple[nn.Module, Callable]:
         return DreamSimModel(self.variant, self.device), self.preprocess
-
