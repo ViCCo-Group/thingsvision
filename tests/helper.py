@@ -16,12 +16,6 @@ DATA_PATH = "./data"
 TEST_PATH = "./test_images"
 OUT_PATH = "./test"
 
-SSL_RN50_DEFAULT_CONFIG = {
-    "modules": ["avgpool"],
-    "pretrained": True,
-    "source": "ssl",
-}
-
 MODEL_AND_MODULE_NAMES = {
     # Torchvision models
     "vgg16": {
@@ -155,10 +149,24 @@ MODEL_AND_MODULE_NAMES = {
         "pretrained": True,
         "source": "ssl",
     },
+    "dino-vit-base-p8": {
+        "model_name": "dino-vit-base-p8",
+        "modules": ["norm"],
+        "pretrained": True,
+        "source": "ssl",
+        "kwargs": {"extract_cls_token": True}
+    },
+    "dinov2-vit-small-p14": {
+        "model_name": "dinov2-vit-small-p14",
+        "modules": ["norm"],
+        "pretrained": True,
+        "source": "ssl",
+        "kwargs": {"extract_cls_token": True}
+    },
     # Additional models
     "Harmonization_visual_ResNet50": {
         "model_name": "Harmonization",
-        "modules": ["visual"],
+        "modules": ["avg_pool"],
         "pretrained": True,
         "source": "custom",
         "kwargs": {"variant": "ResNet50"},
@@ -193,7 +201,6 @@ MODEL_AND_MODULE_NAMES = {
     },
 }
 
-
 FILE_FORMATS = ["hdf5", "npy", "mat", "pt", "txt"]
 DISTANCES = ["correlation", "cosine", "euclidean", "gaussian"]
 
@@ -202,7 +209,6 @@ NUM_OBJECTS = 1854
 # we want to iterate over two batches to exhaustively test mini-batching
 NUM_SAMPLES = int(BATCH_SIZE * 2)
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-
 
 tf_model = Sequential()
 tf_model.add(Dense(2, input_dim=1, activation="relu", use_bias=False, name="relu"))
@@ -294,7 +300,7 @@ def iterate_through_all_model_combinations():
 
 
 def create_extractor_and_dataloader(
-    model_name: str, pretrained: bool, source: str, kwargs: dict = {}
+        model_name: str, pretrained: bool, source: str, kwargs: dict = {}
 ):
     """Iterate through models and create model, dataset and data loader."""
     extractor = get_extractor(
@@ -345,6 +351,6 @@ def create_test_images(n_samples: int = NUM_SAMPLES) -> None:
             noisy_img = test_img + np.random.randn(H, W, C)
             noisy_img = noisy_img.astype(np.uint8)
             imageio.imsave(
-                os.path.join(TEST_PATH, cls, f"test_img_{i+1:03d}.png"), noisy_img
+                os.path.join(TEST_PATH, cls, f"test_img_{i + 1:03d}.png"), noisy_img
             )
         print("\n...Successfully created image dataset for testing.\n")
