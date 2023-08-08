@@ -147,7 +147,7 @@ See `thingsvision show-model -h` and `thingsvision extract-features -h` for a li
 
 #### Python commands
 
-To do this start by importing all the necessary components and instantiating a `thingsvision` extractor. Here we're using `AlexNet` from the `torchvision` library as the model to extract features from and also load the model to GPU for faster inference,
+To do this start by importing all the necessary components and instantiating a `thingsvision` extractor. Here we're using `CLIP` from the official clip repo as the model to extract features from and also load the model to GPU for faster inference,
 
 ```python
 import torch
@@ -155,15 +155,19 @@ from thingsvision import get_extractor
 from thingsvision.utils.storing import save_features
 from thingsvision.utils.data import ImageDataset, DataLoader
 
-model_name = 'alexnet'
-source = 'torchvision'
+model_name = 'clip'
+source = 'custom'
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
+model_parameters = {
+    'variant': 'ViT-B/32'
+}
 
 extractor = get_extractor(
-    model_name=model_name,
-    source=source,
-    device=device,
-    pretrained=True
+  model_name=model_name,
+  source=source,
+  device=device,
+  pretrained=True,
+  model_parameters=model_parameters,
 )
 ```
 
@@ -177,7 +181,7 @@ dataset = ImageDataset(
     root=root,
     out_path='path/to/features',
     backend=extractor.get_backend(), # backend framework of model
-    transforms=extractor.get_transformations(resize_dim=256, crop_dim=224) # set input dimensionality to whatever is required for your pretrained model
+    transforms=extractor.get_transformations(resize_dim=256, crop_dim=224) # set the input dimensionality to whichever values are required for your pretrained model
 )
 
 batches = DataLoader(
@@ -190,12 +194,12 @@ batches = DataLoader(
 Now all that is left is to extract the image features and store them to disk! Here we're extracting features from the last convolutional layer of AlexNet (`features.10`), but if you don't know which modules are available for a given model, just call `extractor.show_model()` to print all modules.
 
 ```python
-module_name = 'features.10'
+module_name = 'visual'
 
 features = extractor.extract_features(
     batches=batches,
     module_name=module_name,
-    flatten_acts=True, # flatten 2D feature maps from convolutional layer
+    flatten_acts=True,
     output_type="ndarray", # or "tensor" (only applicable to PyTorch models)
 )
 
