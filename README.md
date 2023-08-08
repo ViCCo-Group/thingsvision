@@ -191,7 +191,7 @@ batches = DataLoader(
 )
 ```
 
-Now all that is left is to extract the image features and store them on disk! Here we're extracting features from the image encoder layer (`visual`), but if you don't know which modules are available for a given model, just call `extractor.show_model()` to print all the modules.
+Now all that is left is to extract the image features and store them on disk! Here we're extracting features from the image encoder module of CLIP (`visual`), but if you don't know which modules are available for a given model, just call `extractor.show_model()` to print all the modules.
 
 ```python
 module_name = 'visual'
