@@ -149,6 +149,20 @@ MODEL_AND_MODULE_NAMES = {
         "pretrained": True,
         "source": "ssl",
     },
+    "dino-vit-tiny-p8": {
+        "model_name": "dino-vit-small-p8",
+        "modules": ["norm"],
+        "pretrained": True,
+        "source": "ssl",
+        "kwargs": {"extract_cls_token": True}
+    },
+    "dino-vit-small-p8": {
+        "model_name": "dino-vit-small-p8",
+        "modules": ["norm"],
+        "pretrained": True,
+        "source": "ssl",
+        "kwargs": {"extract_cls_token": True}
+    },
     "dino-vit-base-p8": {
         "model_name": "dino-vit-base-p8",
         "modules": ["norm"],
@@ -158,6 +172,13 @@ MODEL_AND_MODULE_NAMES = {
     },
     "dinov2-vit-small-p14": {
         "model_name": "dinov2-vit-small-p14",
+        "modules": ["norm"],
+        "pretrained": True,
+        "source": "ssl",
+        "kwargs": {"extract_cls_token": True}
+    },
+    "dinov2-vit-base-p14": {
+        "model_name": "dinov2-vit-base-p14",
         "modules": ["norm"],
         "pretrained": True,
         "source": "ssl",
