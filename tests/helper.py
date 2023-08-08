@@ -149,6 +149,13 @@ MODEL_AND_MODULE_NAMES = {
         "pretrained": True,
         "source": "ssl",
     },
+    "dino-vit-small-p8": {
+        "model_name": "dino-vit-small-p8",
+        "modules": ["norm"],
+        "pretrained": True,
+        "source": "ssl",
+        "kwargs": {"extract_cls_token": True}
+    },
     "dino-vit-base-p8": {
         "model_name": "dino-vit-base-p8",
         "modules": ["norm"],
