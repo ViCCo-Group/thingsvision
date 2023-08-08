@@ -174,7 +174,7 @@ extractor = get_extractor(
 As a next step, create both dataset and dataloader for your images. We assume that all of your images are in a single `root` directory which can contain subfolders (e.g., for individual classes). Therefore, we leverage the `ImageDataset` class. 
 
 ```python
-root='path/to/root/img/directory' # (e.g., './images/)
+root='path/to/root/image/directory' # (e.g., './images/)
 batch_size = 32
 
 dataset = ImageDataset(
