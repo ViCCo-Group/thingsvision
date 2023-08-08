@@ -375,7 +375,11 @@ class SSLExtractor(PyTorchExtractor):
                 self.model.load_state_dict(model_state_dict, strict=True)
             elif model_config["type"] == "hub":
                 if self.model_name.startswith("dino-vit"):
-                    if self.model_name == "dino-vit-small-p8":
+                    if self.model_name == "dino-vit-tiny-p8":
+                        model = vit_tiny(patch_size=8)
+                    elif self.model_name == "dino-vit-tiny-p16":
+                        model = vit_tiny(patch_size=16)
+                    elif self.model_name == "dino-vit-small-p8":
                         model = vit_small(patch_size=8)
                     elif self.model_name == "dino-vit-small-p16":
                         model = vit_small(patch_size=16)
@@ -384,7 +388,7 @@ class SSLExtractor(PyTorchExtractor):
                     elif self.model_name == "dino-vit-base-p16":
                         model = vit_base(patch_size=16)
                     else:
-                        raise ValueError()
+                        raise ValueError("\nProvided DINO version is not available.\n")
                     state_dict = torch.hub.load_state_dict_from_url(model_config["checkpoint_url"])
                     model.load_state_dict(state_dict, strict=True)
                     self.model = model
