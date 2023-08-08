@@ -18,7 +18,7 @@ from thingsvision.utils.checkpointing import get_torch_home
 
 from .tensorflow import TensorFlowExtractor
 from .torch import PyTorchExtractor
-from thingsvision.utils.models.dino import vit_base, vit_small
+from thingsvision.utils.models.dino import vit_tiny, vit_base, vit_small
 
 # neccessary to prevent gpu memory conflicts between torch and tf
 gpus = tf.config.list_physical_devices("GPU")
