@@ -388,7 +388,7 @@ class SSLExtractor(PyTorchExtractor):
                     elif self.model_name == "dino-vit-base-p16":
                         model = vit_base(patch_size=16)
                     else:
-                        raise ValueError("\nProvided DINO version is not available.\n")
+                        raise ValueError(f"\n{self.model_name} is not available.\n")
                     state_dict = torch.hub.load_state_dict_from_url(model_config["checkpoint_url"])
                     model.load_state_dict(state_dict, strict=True)
                     self.model = model
