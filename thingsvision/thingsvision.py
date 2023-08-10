@@ -91,7 +91,7 @@ def get_parsers():
         help="Path to directory where features should be stored. (default: ./features)",
     )
     parser_extract.add_argument(
-        "--flatten-acts", action="store_true", help="Flatten activations before saving."
+        "--flatten-acts", action="store_true", help="Flatten activations before saving them to disk."
     )
     parser_extract.add_argument(
         "--model-parameters",
