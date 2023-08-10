@@ -12,15 +12,20 @@ nav_order: 4
 
 Example:
 ```python
+import torch
+from thingsvision import get_extractor
+
 model_name = 'alexnet'
 source = 'torchvision'
-device = 'cpu'
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+model_parameters = {'weights': 'DEFAULT'}
 
 extractor = get_extractor(
   model_name=model_name,
   source=source,
   device=device,
-  pretrained=True
+  pretrained=True,
+  model_parameters=model_parameters,
 )
 ```
 
@@ -29,16 +34,20 @@ Model names are case-sensitive and must be spelled exactly as they are in the `t
 If you use `pretrained=True`, the model will by default be pretrained on ImageNet, otherwise it is initialized randomly. For some models, `torchvision` provides multiple weight initializations, in which case you can pass the name of the weights in the `model_parameters` argument, e.g. if you want to get the extractor for a `RegNet Y 32GF` model, pretrained using SWAG and finetuned on ImageNet, you would do the following:
 
 ```python
+import torch
+from thingsvision import get_extractor
+
 model_name = 'regnet_y_32gf'
 source = 'torchvision'
-device = 'cpu'
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+model_parameters = {'weights': 'IMAGENET1K_SWAG_LINEAR_V1'}
 
 extractor = get_extractor(
   model_name=model_name,
   source=source,
   device=device,
   pretrained=True,
-  model_parameters={'weights': 'IMAGENET1K_SWAG_LINEAR_V1'}
+  model_parameters=model_parameters,
 )
 ```
 
@@ -49,9 +58,12 @@ For a list of all available weights, please refer to the [torchvision documentat
 
 Example:
 ```python
+import torch
+from thingsvision import get_extractor
+
 model_name = 'tf_efficientnet_b0'
 source = 'timm'
-device = 'cpu'
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 extractor = get_extractor(
   model_name=model_name,
@@ -80,14 +92,18 @@ If you use `pretrained=True`, the model will be pretrained according to the mode
 All models have the ResNet50 architecture and are pretrained on ImageNet-1K. 
 Here, the model name describes the pre-training method, instead of the model architecture.
 
-DINO models are available in ViT (Vision Transformer) and XCiT (Cross-Covariance Image Transformer) variants. For ViT models trained using DINO, the following models are available: `dino-vit-small-p8`, `dino-vit-small-p16`, `dino-vit-big-p8`, `dino-vit-p16`, where the trailing number describes the image patch resolution in the ViT (i.e. either 8x8 or 16x16). For the XCiT models, we have `dino-xcit-small-12-p16`, `dino-xcit-small-12-p8`, `dino-xcit-medium-24-p16`, `dino-xcit-medium-24-p8`, where the penultimate number represents model depth (12 = small, 24 = medium).
+DINO models are available in ViT (Vision Transformer) and XCiT (Cross-Covariance Image Transformer) variants. For ViT models trained using DINO, the following models are available: `dino-vit-small-p8`, `dino-vit-small-p16`, `dino-vit-base-p8`, `dino-vit-base-p16`, where the trailing number describes the image patch resolution in the ViT (i.e. either 8x8 or 16x16). For the XCiT models, we have `dino-xcit-small-12-p16`, `dino-xcit-small-12-p8`, `dino-xcit-medium-24-p16`, `dino-xcit-medium-24-p8`, where the penultimate number represents model depth (12 = small, 24 = medium).
 
 
-Example:
+Example SimCLR:
+
 ```python
+import torch
+from thingsvision import get_extractor
+
 model_name = 'simclr-rn50'
 source = 'ssl'
-device = 'cpu'
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 extractor = get_extractor(
   model_name=model_name,
@@ -97,15 +113,38 @@ extractor = get_extractor(
 )
 ```
 
+Example DINO:
+
+```python
+import torch
+from thingsvision import get_extractor
+
+model_name = 'dino-vit-base-p16'
+source = 'ssl'
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+model_paramters = {"extract_cls_token": True} # extract features only for the [cls] token of DINO
+
+extractor = get_extractor(
+  model_name=model_name,
+  source=source,
+  device=device,
+  pretrained=True,
+  model_parameters=model_parameters,
+)
+```
+
 
 ## `keras`
 `thingsvision` supports all models from the `keras.applications` module. You can find a list of all available models [here](https://keras.io/api/applications/).
 
 Example:
 ```python
+import torch
+from thingsvision import get_extractor
+
 model_name = 'VGG16'
 source = 'keras'
-device = 'cpu'
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 extractor = get_extractor(
   model_name=model_name,
@@ -133,9 +172,12 @@ We provide all CORnet models from [this paper](https://proceedings.neurips.cc/pa
 
 Example:
 ```python
+import torch
+from thingsvision import get_extractor
+
 model_name = 'cornet-s'
 source = 'custom'
-device = 'cpu'
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 extractor = get_extractor(
   model_name=model_name,
@@ -155,30 +197,14 @@ We provide models trained on the [Ecoset](https://www.kietzmannlab.org/ecoset/) 
 - `Inception_ecoset`
 
 Example:
+
 ```python
+import torch
+from thingsvision import get_extractor
+
 model_name = 'Alexnet_ecoset'
 source = 'custom'
-device = 'cuda'
-
-extractor = get_extractor(
-  model_name=model_name,
-  source=source,
-  device=device,
-  pretrained=True
-)
-```
-
-### Models trained on ImageNet and fine-tuned on SalObjSub
-
-We provide an Alexnet model pretrained on ImageNet and fine-tuned on [SalObjSub](https://cs-people.bu.edu/jmzhang/sos.html). Available model name is:
-
-- `AlexNet_SalObjSub`
-
-Example:
-```python
-model_name = 'AlexNet_SalObjSub'
-source = 'custom'
-device = 'cpu'
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 extractor = get_extractor(
   model_name=model_name,
@@ -191,15 +217,19 @@ extractor = get_extractor(
 ### Official CLIP and OpenCLIP
 
 We provide models trained using [CLIP](https://arxiv.org/abs/2103.00020), both from the official repository and from [OpenCLIP](https://github.com/mlfoundations/open_clip). Available `model_name`s are:
+
 - `clip`
 - `OpenClip`
 
 Both provide multiple model architectures and, in the case of OpenCLIP also multiple training datasets, which can be specified using the `model_parameters` argument. For example, if you want to get a `ViT-B/32` model from official CLIP, you would do the following:
 
 ```python
+import torch
+from thingsvision import get_extractor
+
 model_name = 'clip'
 source = 'custom'
-device = 'cpu'
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
 model_parameters = {
     'variant': 'ViT-B/32'
 }
@@ -218,9 +248,12 @@ extractor = get_extractor(
 In the case of `OpenCLIP`, you can also specify the dataset used for training for most models, e.g. if you want to get a `ViT-B/32` model trained on the `LAION-400M` dataset, you would do the following:
 
 ```python
+import torch
+from thingsvision import get_extractor
+
 model_name = 'OpenCLIP'
 source = 'custom'
-device = 'cpu'
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
 model_parameters = {
     'variant': 'ViT-B/32',
     'dataset': 'laion400m_e32'
@@ -246,7 +279,7 @@ $ pip install git+https://github.com/serre-lab/Harmonization.git
 $ pip install keras-cv-attention-models>=1.3.5
 ```
 
-The following models from the [Harmonization repo](https://github.com/serre-lab/harmonization) are available as of now:
+The following models from the [Harmonization repo](https://github.com/serre-lab/harmonization) are available:
 
 - `ViT_B16`
 - `ResNet50`
@@ -257,10 +290,14 @@ The following models from the [Harmonization repo](https://github.com/serre-lab/
 - `LeViT_small`
 
 Example:
+
 ```python
+import torch
+from thingsvision import get_extractor
+
 model_name = 'Harmonization'
 source = 'custom'
-device = 'cpu'
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
 model_parameters = {
     'variant': 'ViT_B16'
 }
@@ -276,17 +313,23 @@ extractor = get_extractor(
 
 ### DreamSim
 We provide the [DreamSim](https://dreamsim-nights.github.io/) model from the original [DreamSim repo](https://github.com/ssundaram21/dreamsim). To extract features, first install the `dreamsim` package with the following `pip` command 
+
 ```bash
  $ pip install dreamsim==0.1.2
- ```
+```
+
 The model name is:
 - `DreamSim`
 
 We provide two `DreamSim` architectures: CLIP ViT-B/32 and OpenCLIP ViT-B/32. This can be specified using the `model_parameters` argument. For instance, to get the OpenCLIP variant of DreamSim you would do the following:
+
 ```python
+import torch
+from thingsvision import get_extractor
+
 model_name = 'DreamSim'
 source = 'custom'
-device = 'cuda'
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
 model_parameters = {
     'variant': 'open_clip_vitb32'
 }
