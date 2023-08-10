@@ -47,7 +47,7 @@
 
 <!-- About the Project -->
 ## :star2: About the Project
-`thingsvision` is a Python package that let's you easily extract image representations from many state-of-the-art neural networks for computer vision. In a nutshell, you feed `thingsvision` with a directory of images and tell it which neural network you are interested in. `thingsvision` will then give you the  representation of the indicated neural network for each image so that you will end up with one feature map (vector or matrix, depending on the layer) per image. You can use these features for further analyses. We use the word `features` for short when we mean "image representation".
+`thingsvision` is a Python package that let's you easily extract image representations from many state-of-the-art computer vision models. In a nutshell, you feed `thingsvision` with a directory of images and tell it which neural network you are interested in. `thingsvision` will then give you the  representation of the indicated neural network for each image so that you will end up with one feature map (vector or matrix, depending on the layer) per image. You can use these features for further analyses. We use the word `features` for short when we mean "image representation".
 
 :rotating_light: NOTE: some function calls mentioned in the original [paper](https://www.frontiersin.org/articles/10.3389/fninf.2021.679838/full) have been deprecated. To use this package successfully, exclusively follow this `README` and the [documentation](https://vicco-group.github.io/thingsvision/)! :rotating_light:
 
