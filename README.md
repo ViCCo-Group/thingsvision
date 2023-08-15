@@ -13,7 +13,7 @@
         <img src="https://img.shields.io/pypi/v/thingsvision" alt="PyPI" />
     </a>
     <a href="https://pepy.tech/project/thingsvision">
-        <img alt="Pepy" src="https://pepy.tech/badge/thingsvision">
+        <img src="https://img.shields.io/pypi/dm/thingsvision" alt="downloads">
     </a>
     <a href="https://www.python.org/" rel="nofollow">
         <img src="https://img.shields.io/badge/python-3.8%20%7C%203.9%20%7C%203.10-blue.svg" alt="Python version" />
