@@ -20,7 +20,7 @@ def get_parsers():
         prog="thingsvision",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         description=textwrap.dedent(
-            """ This is the thingsvision CLI. It allows you to extract features from images using state-of-the-art neural networks for Computer Vision."""
+            """ This is the thingsvision CLI. It allows you to extract features from images using state-of-the-art computer vision models."""
         ),
     )
 
@@ -35,7 +35,7 @@ def get_parsers():
         "--source",
         type=str,
         default="torchvision",
-        choices=["torchvision", "keras", "timm", "custom"],
+        choices=["torchvision", "keras", "timm", "ssl", "custom"],
         help="Source of the model to use for feature extraction. (default: torchvision)",
     )
     common_parser.add_argument(
@@ -97,7 +97,7 @@ def get_parsers():
         "--model-parameters",
         type=str,
         default=None,
-        help="Clip vision model has to be defined in the model_parameters dictionary. (default: None)",
+        help="For CLIP, OpenCLIP, DreamSIM, and DINO models a model_parameters dictionary has to be defined. (default: None)",
     )
     parser_extract.add_argument(
         "--module-name",
@@ -155,6 +155,7 @@ def main():
         source=args.source, 
         pretrained=True,
         device=args.device,
+        model_parameters=args.model_parameters,
     )
 
     if args.command == "show-model":
