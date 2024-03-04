@@ -220,6 +220,21 @@ MODEL_AND_MODULE_NAMES = {
         "source": "custom",
         "kwargs": {"variant": "open_clip_vitb32"},
     },
+        "DreamSim_mlp_dino_vitb16": {
+        "model_name": "DreamSim",
+        "modules": ["model.mlp"],
+        "pretrained": True,
+        "source": "custom",
+        "kwargs": {"variant": "dino_vitb16"},
+    },
+        "DreamSim_mlp_ensemble": {
+        "model_name": "DreamSim",
+        "modules": ["model.mlp"],
+        "pretrained": True,
+        "source": "custom",
+        "kwargs": {"variant": "ensemble"},
+    },
+}
 }
 
 FILE_FORMATS = ["hdf5", "npy", "mat", "pt", "txt"]
