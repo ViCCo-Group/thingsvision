@@ -50,7 +50,7 @@ class TorchvisionExtractor(PyTorchExtractor):
             preprocess: Optional[Callable] = None,
     ) -> None:
         model_parameters = (
-            model_parameters if model_parameters else {"weights": "DEFAULT"},
+            model_parameters if model_parameters else {"weights": "DEFAULT"}
         )
         super().__init__(
             model_name=model_name,
@@ -73,7 +73,7 @@ class TorchvisionExtractor(PyTorchExtractor):
             )
         weights = getattr(
             getattr(torchvision.models, f"{weights_name}"),
-            self.model_parameters[0]["weights"],
+            self.model_parameters["weights"],
         )
         return weights
 
