@@ -216,12 +216,12 @@ extractor = get_extractor(
 
 ### Official CLIP and OpenCLIP
 
-We provide models trained using [CLIP](https://arxiv.org/abs/2103.00020), both from the official repository and from [OpenCLIP](https://github.com/mlfoundations/open_clip). Available `model_name`s are:
+We provide [CLIP](https://arxiv.org/abs/2103.00020) models from the official CLIP repo and from [OpenCLIP](https://github.com/mlfoundations/open_clip). Available `model_name`'s are:
 
 - `clip`
 - `OpenClip`
 
-Both provide multiple model architectures and, in the case of OpenCLIP also multiple training datasets, which can be specified using the `model_parameters` argument. For example, if you want to get a `ViT-B/32` model from official CLIP, you would do the following:
+Both provide multiple model architectures and, in the case of OpenCLIP also different training datasets, which can both be specified using the `model_parameters` argument. For example, if you want to get a `ViT-B/32` model from the official CLIP repo (trained on WIT), you would do the following:
 
 ```python
 import torch
@@ -272,14 +272,14 @@ For a list of all available architectures and datasets, please refer to the [Ope
 
 ### Harmonization
 
-If you want to extract features for [harmonized models](https://vicco-group.github.io/thingsvision/AvailableModels.html#harmonization) from the [Harmonization repo](https://github.com/serre-lab/harmonization), you have to additionally run the following `pip` command in your `thingsvision` environment (FYI: as of now, this seems to be working smoothly on Ubuntu only but not on macOS),
+If you want to extract features for [harmonized models](https://vicco-group.github.io/thingsvision/AvailableModels.html#harmonization) from the [Harmonization repo](https://github.com/serre-lab/harmonization), you have to run the following `pip` command in your `thingsvision` environment (FYI: as of now, this seems to be working smoothly only on Ubuntu but not on macOS),
 
 ```bash
 $ pip install git+https://github.com/serre-lab/Harmonization.git
 $ pip install keras-cv-attention-models>=1.3.5
 ```
 
-The following models from the [Harmonization repo](https://github.com/serre-lab/harmonization) are available:
+The following models from [here](https://github.com/serre-lab/harmonization) are available for feature extraction:
 
 - `ViT_B16`
 - `ResNet50`
@@ -288,6 +288,7 @@ The following models from the [Harmonization repo](https://github.com/serre-lab/
 - `tiny_ConvNeXT`
 - `tiny_MaxViT`
 - `LeViT_small`
+
 
 Example:
 
@@ -310,6 +311,7 @@ extractor = get_extractor(
   model_parameters=model_parameters
 )
 ```
+
 
 ### DreamSim
 In `thingsvision` you can extract representations from [DreamSim](https://dreamsim-nights.github.io/). See the official [DreamSim repo](https://github.com/ssundaram21/dreamsim) for more information. To extract features, install the `dreamsim` package with the following `pip` command (ideally, into your `thingsvision` environment):
