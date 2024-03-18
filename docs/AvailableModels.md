@@ -312,7 +312,7 @@ extractor = get_extractor(
 ```
 
 ### DreamSim
-We provide the [DreamSim](https://dreamsim-nights.github.io/) model from the original [DreamSim repo](https://github.com/ssundaram21/dreamsim). To extract features, first install the `dreamsim` package with the following `pip` command 
+In `thingsvision` you can extract representations from [DreamSim](https://dreamsim-nights.github.io/). See the official [DreamSim repo](https://github.com/ssundaram21/dreamsim) for more information. To extract features, install the `dreamsim` package with the following `pip` command (ideally, into your `thingsvision` environment):
 
 ```bash
  $ pip install dreamsim==0.1.2
@@ -321,7 +321,7 @@ We provide the [DreamSim](https://dreamsim-nights.github.io/) model from the ori
 The base model name is:
 - `DreamSim`
 
-We provide four `DreamSim` architectures: `clip_vitb32`, `open_clip_vitb32`, `dino_vitb16`, and an `ensemble`. This can be specified using the `model_parameters` argument. For instance, to get the OpenCLIP variant of DreamSim you would do the following:
+We provide four `DreamSim` models: `clip_vitb32`, `open_clip_vitb32`, `dino_vitb16`, and a DreamSim `ensemble`. Specify this using the `model_parameters` argument. For instance, to get the OpenCLIP variant of DreamSim you want to do the following:
 
 ```python
 import torch
@@ -343,4 +343,5 @@ extractor = get_extractor(
   model_parameters=model_parameters
 )
 ```
-To load the CLIP ViT-B/32 version of DreamSim, pass `'clip_vitb32'` to the `variant` parameter instead. Caution (!): for the DreamSim `ensemble` features can only be extracted from the `model.mlp` module. We are working on a version that allows feature extraction from the `model` block.
+
+To load the CLIP ViT-B/32 version of DreamSim, pass `'clip_vitb32'` to the `variant` parameter instead. Caution (!): for the DreamSim `ensemble` features can only be extracted from the `model.mlp` module and not for the `model` block. We are currently working on a version that allows feature extraction from the `model` block. Please be patient until then.
