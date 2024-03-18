@@ -318,16 +318,17 @@ We provide the [DreamSim](https://dreamsim-nights.github.io/) model from the ori
  $ pip install dreamsim==0.1.2
 ```
 
-The model name is:
+The base model name is:
 - `DreamSim`
 
-We provide two `DreamSim` architectures: CLIP ViT-B/32 and OpenCLIP ViT-B/32. This can be specified using the `model_parameters` argument. For instance, to get the OpenCLIP variant of DreamSim you would do the following:
+We provide four `DreamSim` architectures: `clip_vitb32`, `open_clip_vitb32`, `dino_vitb16`, and an `ensemble`. This can be specified using the `model_parameters` argument. For instance, to get the OpenCLIP variant of DreamSim you would do the following:
 
 ```python
 import torch
 from thingsvision import get_extractor
 
 model_name = 'DreamSim'
+module_name = 'model.mlp'
 source = 'custom'
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 model_parameters = {
@@ -342,4 +343,4 @@ extractor = get_extractor(
   model_parameters=model_parameters
 )
 ```
-To load the CLIP ViT-B/32 variant, pass `'clip_vitb32'` to the `variant` parameter instead.
+To load the CLIP ViT-B/32 version of DreamSim, pass `'clip_vitb32'` to the `variant` parameter instead. Caution (!): for the DreamSim `ensemble` features can only be extracted from the `model.mlp` module. We are working on a version that allows feature extraction from the `model` block.
