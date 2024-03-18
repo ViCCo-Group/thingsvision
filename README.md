@@ -201,7 +201,7 @@ features = extractor.extract_features(
     batches=batches,
     module_name=module_name,
     flatten_acts=True,
-    output_type="ndarray", # or "tensor" (only applicable to PyTorch models of which CLIP is one!)
+    output_type="ndarray", # or "tensor" (only applicable to PyTorch models of which CLIP and DINO are ones!)
 )
 
 save_features(features, out_path='path/to/features', file_format='npy') # file_format can be set to "npy", "txt", "mat", "pt", or "hdf5"
