@@ -30,6 +30,13 @@ MODEL_AND_MODULE_NAMES = {
         "pretrained": False,
         "source": "torchvision",
     },
+    "vit_b_16": {
+        "model_name": "vit_b_16",
+        "modules": ["encoder.ln"],
+        "pretrained": True,
+        "source": "torchvision",
+        "kwargs": {"extract_cls_token": True, "weights": "DEFAULT"}
+    },
     # Hardcoded models
     "cornet_r": {
         "model_name": "cornet_r",
