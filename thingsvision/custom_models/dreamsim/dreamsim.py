@@ -18,7 +18,7 @@ class DreamSimModel(nn.Module):
         :param model_type: either clip_vitb32 or open_clip_vitb32
         """
         super().__init__()
-        if model_type not in ["clip_vitb32", "open_clip_vitb32"]:
+        if model_type not in ["clip_vitb32", "open_clip_vitb32", "dino_vitb16", "ensemble"]:
             raise ValueError(f"Model type {model_type} not supported")
 
         self.model_type = model_type
