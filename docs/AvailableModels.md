@@ -346,4 +346,4 @@ extractor = get_extractor(
 )
 ```
 
-To load the CLIP ViT-B/32 version of DreamSim, pass `'clip_vitb32'` to the `variant` parameter instead. Caution (!): for the DreamSim `ensemble` features can only be extracted from the `model.mlp` module and not for the `model` block. We are currently working on a version that allows feature extraction from the `model` block. Please be patient until then.
+To load the CLIP ViT-B/32 version of DreamSim, pass `'clip_vitb32'` to the `variant` parameter instead. Caution (!): for the DreamSim `dino_vitb16` and `ensemble` features can only be extracted from the `model.mlp` module and not for the `model` block. We are currently working on a version that allows feature extraction from the `model` block. Please be patient until then.
