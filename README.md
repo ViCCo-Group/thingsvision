@@ -217,7 +217,7 @@ aligned_features = extractor.align(
 )
 ```
 
-For more information about the available alignment types and models see [here](https://vicco-group.github.io/thingsvision/Alignment.html). 
+For more information about the available alignment types and models see the [docs](https://vicco-group.github.io/thingsvision/Alignment.html). 
 
 _For more examples on the many models available in `thingsvision` and explanations of additional functionality like how to optionally turn off center cropping, how to use HDF5 datasets (e.g. NSD stimuli), how to perform RSA or CKA, or how to easily extract features for the [THINGS image database](https://osf.io/jum2f/), please refer to the [Documentation](https://vicco-group.github.io/thingsvision/)._
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
