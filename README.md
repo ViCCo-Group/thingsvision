@@ -217,7 +217,8 @@ aligned_features = extractor.align(
 )
 ```
 
-For more information about the available alignment types and models see the [docs](https://vicco-group.github.io/thingsvision/Alignment.html). 
+For more information about the available alignment types and aligned models see the [docs](https://vicco-group.github.io/thingsvision/Alignment.html). 
+
 
 _For more examples on the many models available in `thingsvision` and explanations of additional functionality like how to optionally turn off center cropping, how to use HDF5 datasets (e.g. NSD stimuli), how to perform RSA or CKA, or how to easily extract features for the [THINGS image database](https://osf.io/jum2f/), please refer to the [Documentation](https://vicco-group.github.io/thingsvision/)._
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -257,21 +258,8 @@ If you use this GitHub repository (or any modules associated with it), please ci
 
 <!-- Contributions -->
 ## :gem: Contributions
-This library is based on the groundwork laid by [Lukas Muttenthaler](https://lukasmut.github.io/) and [Martin N. Hebart](http://martin-hebart.de/), who are both still actively involved, but has been extended and refined into its current form with the help of our many contributors,
 
-- [Alex Murphy](https://github.com/Alxmrphi) (software dev.)
-- [Florian Mahner](https://www.cbs.mpg.de/person/mahner/1483114) (software dev.)
-- [Hannes Hansen](https://github.com/hahahannes) (software dev.)
-- [Johannes Roth](https://jroth.space/) (software dev., design, docs)
-- [Jonas Dippel](https://github.com/jonasd4) (software dev.)
-- [Lukas Muttenthaler](https://lukasmut.github.io/) (software dev., design, docs, general responsibility)
-- [Martin N. Hebart](http://martin-hebart.de/) (design)
-- [Philipp Kaniuth](https://www.cbs.mpg.de/person/kaniuth/1483114) (design, docs)
-- [Roman Leipe](https://github.com/RLeipe) (sofware dev., docs),
-
-sorted alphabetically. 
-
-This is a joint open-source project between the Max Planck Institute for Human Cognitive and Brain Sciences, Leipzig, and the Machine Learning Group at Technische Universtität Berlin. Correspondence and requests for contributing should be adressed to [Lukas Muttenthaler](https://lukasmut.github.io/). Feel free to contact us if you want to become a contributor or have any suggestions/feedback. For the latter, you could also just post an issue or engange in discussions. We'll try to respond as fast as we can.
+This is a joint open-source project between the Max Planck Institute (MPI) for Human Cognitive and Brain Sciences, Leipzig, and the Machine Learning Group at Technische Universtität Berlin. Correspondence and requests for contributing should be adressed to [Lukas Muttenthaler](https://lukasmut.github.io/). Feel free to contact us if you want to become a contributor or have any suggestions/feedback. For the latter, you could also just post an issue or engange in discussions. We'll try to respond as fast as we can.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
