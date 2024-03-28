@@ -52,7 +52,7 @@ class ExtractionPretrainedTestCase(unittest.TestCase):
                     self.assertEqual(features.shape[0], num_objects)
 
                 if extractor.get_backend() == "pt":
-                    print(f"\nAligning representations from layer: {module_name} of model: {model_name}\n")
+                    print(f"\nAligning representations extracted from layer: {module_name} of model: {model_name}\n")
                     if model_name in helper.ALIGNED_MODELS.keys() and module_name == helper.ALIGNED_MODELS[model_name]:
                         aligned_features = extractor.align(features=features, module_name=module_name)
                         self.assertTrue(isinstance(aligned_features, Array))
