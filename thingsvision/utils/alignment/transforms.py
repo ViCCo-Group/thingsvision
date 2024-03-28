@@ -24,7 +24,6 @@ class Transform(metaclass=abc.ABCMeta):
             raise NotImplementedError(
                 f"\nRepresentational alignment of type: {alignment_type} is not yet implemented.\nChange type to gLocal!\n"
             )
-        self.transform = self.load_transform_from_remote()
 
     @abc.abstractmethod
     def load_transform_from_remote(self) -> Any:
@@ -45,6 +44,7 @@ class gLocal(Transform):
         self.url = os.path.join(
             gLocal_URL, self.model_name, self.module_name, "transform.npz"
         )
+        self.transform = self.load_transform_from_remote()
 
     def load_transform_from_remote(self) -> Any:
         """Load gLocal (affine) transform from official gLocal GitHub repo."""
