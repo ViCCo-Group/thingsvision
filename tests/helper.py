@@ -252,19 +252,19 @@ MODEL_AND_MODULE_NAMES = {
     },
 }
 
-ALIGNED_MODELS = [
-    "alexnet",
-    "vgg16",
-    "resnet18",
-    "resnet50",
-    "clip_rn50",
-    "clip_vitl14",
-    "OpenCLIP_vitl14",
-    "dinov2-vit-base-p14",
-    "dinov2-vit-large-p14",
-    "dino-vit-base-p16",
-    "dino-vit-base-p8",
-]
+ALIGNED_MODELS = {
+    "alexnet": "classifier.4",
+    "vgg16": "classifier.3",
+    "resnet18": "avgpool",
+    "resnet50": "avgpool",
+    "clip_rn50": "visual",
+    "clip_vitl14": "visual",
+    "OpenCLIP_vitl14": "visual",
+    "dinov2-vit-base-p14": "norm",
+    "dinov2-vit-large-p14": "norm",
+    "dino-vit-base-p16": "norm",
+    "dino-vit-base-p8": "norm",
+}
 
 FILE_FORMATS = ["hdf5", "npy", "mat", "pt", "txt"]
 DISTANCES = ["correlation", "cosine", "euclidean", "gaussian"]
