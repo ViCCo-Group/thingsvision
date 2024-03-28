@@ -211,7 +211,7 @@ save_features(features, out_path='path/to/features', file_format='npy') # file_f
 
 ```python
 aligned_features = extractor.align(
-    features=features
+    features=features,
     module_name=module_name,
     alignment_type="gLocal",
 )
