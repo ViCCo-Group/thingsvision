@@ -2,8 +2,9 @@ import warnings
 from typing import Any, Callable, Dict, Union
 
 import numpy as np
-import torch
 from torchtyping import TensorType
+
+import torch
 
 from .extractors import (
     KerasExtractor,

@@ -1,5 +1,6 @@
 __all__ = ["Transform"]
 
+import abc
 import os
 from typing import Any
 
@@ -11,23 +12,40 @@ Array = np.ndarray
 gLocal_URL = "https://raw.githubusercontent.com/LukasMut/gLocal/main/transforms/"
 
 
-class Transform:
+class Transform(metaclass=abc.ABCMeta):
     def __init__(
         self, model_name: str, module_name: str, alignment_type: str = "gLocal"
     ) -> None:
         self.model_name = model_name
         self.module_name = module_name
-        if alignment_type == "gLocal":
-            self.url = os.path.join(
-                gLocal_URL, self.model_name, self.module_name, "transform.npz"
-            )
-            self.transform = self._load_transform()
-        else:
+        if alignment_type != "gLocal":
             raise NotImplementedError(
-                f"\nRepresentational alignment of type: {alignment_type} is not yet implemented.\nChange to gLocal!\n"
+                f"\nRepresentational alignment of type: {alignment_type} is not yet implemented.\nChange type to gLocal!\n"
             )
+        self.transform = self.load_transform_from_remote()
 
-    def _load_transform(self) -> Any:
+    @abc.abstractmethod
+    def load_transform_from_remote(self) -> Any:
+        """Load transformation from remote."""
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def apply_transform(self, features: Array) -> Array:
+        """Apply (affine) transformation to a model's representation space."""
+        raise NotImplementedError
+
+
+class gLocal(Transform):
+    def __init__(self, model_name: str, module_name: str) -> None:
+        super().__init__(
+            model_name=model_name, module_name=module_name, alignment_type="gLocal"
+        )
+        self.url = os.path.join(
+            gLocal_URL, self.model_name, self.module_name, "transform.npz"
+        )
+
+    def load_transform_from_remote(self) -> Any:
+        """Load gLocal (affine) transform from official gLocal GitHub repo."""
         # Download the transform
         response = requests.get(self.url)
         # Check for successful download of transform
@@ -44,6 +62,7 @@ class Transform:
         return transform
 
     def apply_transform(self, features: Array) -> Array:
+        """Apply the gLocal transform to a model's representation space."""
         features = (features - self.transform["mean"]) / self.transform["std"]
         features = features @ self.transform["weights"]
         if "bias" in self.transform:

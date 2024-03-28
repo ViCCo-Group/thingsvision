@@ -2,11 +2,11 @@ from dataclasses import field
 from typing import Any, Callable, Dict, Iterator, List, Optional, Union
 
 import numpy as np
-import torch
+from thingsvision.utils.alignment import gLocal
 from torchtyping import TensorType
 from torchvision import transforms as T
 
-from thingsvision.utils.alignment import Transform
+import torch
 
 from .base import BaseExtractor
 
@@ -172,11 +172,16 @@ class PyTorchExtractor(BaseExtractor):
             model_name = "_".join((base_model, variant))
         else:
             model_name = self.model_name
-        transform = Transform(
-            model_name=model_name,
-            module_name=module_name,
-            alignment_type=alignment_type,
-        )
+        if alignment_type == "gLocal":
+            transform = gLocal(
+                model_name=model_name,
+                module_name=module_name,
+                alignment_type=alignment_type,
+            )
+        else:
+            raise NotImplementedError(
+                f"\nRepresentational alignment of type: {alignment_type} is not yet implemented.\nChange type to gLocal!\n"
+            )
         aligned_fetures = transform.apply_transform(features)
         return aligned_fetures
 

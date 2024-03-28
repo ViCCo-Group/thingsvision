@@ -3,11 +3,12 @@ from dataclasses import field
 from typing import Any, Callable, Dict, List, Optional, Union
 
 import numpy as np
+import timm
+import torchvision
+
 import tensorflow as tf
 import tensorflow.keras.applications as tensorflow_models
-import timm
 import torch
-import torchvision
 
 try:
     from torch.hub import load_state_dict_from_url
@@ -15,10 +16,10 @@ except ImportError:
     from torch.utils.model_zoo import load_url as load_state_dict_from_url
 
 from thingsvision.utils.checkpointing import get_torch_home
+from thingsvision.utils.models.dino import vit_base, vit_small, vit_tiny
 
 from .tensorflow import TensorFlowExtractor
 from .torch import PyTorchExtractor
-from thingsvision.utils.models.dino import vit_tiny, vit_base, vit_small
 
 # neccessary to prevent gpu memory conflicts between torch and tf
 gpus = tf.config.list_physical_devices("GPU")
@@ -50,9 +51,7 @@ class TorchvisionExtractor(PyTorchExtractor):
         preprocess: Optional[Callable] = None,
     ) -> None:
         model_parameters = (
-            model_parameters
-            if model_parameters
-            else {"weights": "DEFAULT"}
+            model_parameters if model_parameters else {"weights": "DEFAULT"}
         )
         super().__init__(
             model_name=model_name,
@@ -403,8 +402,9 @@ class SSLExtractor(PyTorchExtractor):
                     if model_config["arch"] == "resnet50":
                         self.model.fc = torch.nn.Identity()
             else:
-                raise ValueError(f"\nUnknown model type.\n")
+                type = model_config["type"]
+                raise ValueError(f"\nUnknown model type: {type}.\n")
         else:
             raise ValueError(
-                f"\nCould not find {self.model_name} in the SSLExtractor.\n"
+                f"\nCould not find {self.model_name} in the SSLExtractor.\nUse a different model.\n"
             )
