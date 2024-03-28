@@ -160,7 +160,7 @@ model_name = 'clip'
 source = 'custom'
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 model_parameters = {
-    'variant': 'ViT-B/32'
+    'variant': 'ViT-L/14'
 }
 
 extractor = get_extractor(

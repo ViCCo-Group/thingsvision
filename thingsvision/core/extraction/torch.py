@@ -176,7 +176,6 @@ class PyTorchExtractor(BaseExtractor):
             transform = gLocal(
                 model_name=model_name,
                 module_name=module_name,
-                alignment_type=alignment_type,
             )
         else:
             raise NotImplementedError(
