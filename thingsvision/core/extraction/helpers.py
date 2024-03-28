@@ -67,7 +67,7 @@ def create_custom_extractor(
         def __init__(self, *args, **kwargs) -> None:
             super().__init__(*args, **kwargs)
 
-    # TODO: this should probably be defined in the custom model itself
+    #TODO(lukasmut): this should probably be defined in the custom model itself
     if model_name.lower().startswith("clip"):
 
         def show_model(self):
