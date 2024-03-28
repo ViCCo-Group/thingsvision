@@ -118,6 +118,7 @@ def create_custom_extractor(
         pretrained=pretrained,
         device=device,
         model_path=model_path,
+        model_parameters=model_parameters,
         model=model,
         preprocess=preprocess,
     )
