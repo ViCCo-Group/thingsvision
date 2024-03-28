@@ -2,12 +2,14 @@ __all__ = ["gLocal"]
 
 import abc
 import os
-from typing import Any
+from typing import Any, Union
 
 import numpy as np
 import requests
+import torch
 
 Array = np.ndarray
+Tensor = torch.Tensor
 
 gLocal_URL = "https://raw.githubusercontent.com/LukasMut/gLocal/main/transforms/"
 
@@ -30,7 +32,7 @@ class Transform(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def apply_transform(self, features: Array) -> Array:
+    def apply_transform(self, features: Union[Array, Tensor]) -> Union[Array, Tensor]:
         """Apply (affine) transformation to a model's representation space."""
         raise NotImplementedError
 
@@ -61,7 +63,7 @@ class gLocal(Transform):
             )
         return transform
 
-    def apply_transform(self, features: Array) -> Array:
+    def apply_transform(self, features: Union[Array, Tensor]) -> Union[Array, Tensor]:
         """Apply the gLocal transform to a model's representation space."""
         features = (features - self.transform["mean"]) / self.transform["std"]
         features = features @ self.transform["weights"]
