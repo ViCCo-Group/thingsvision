@@ -160,8 +160,19 @@ class PyTorchExtractor(BaseExtractor):
         module_name: str,
         alignment_type: str = "gLocal",
     ) -> Union[Tensor, Array]:
+        if self.model_name.startswith("OpenCLIP"):
+            name = self.model_name.split("_")[0]
+            variant = self.model_parameters["variant"]
+            dataset = self.model_parameters["dataset"]
+            model_name = "_".join((name, variant, dataset))
+        elif self.model_name.startswith("clip"):
+            name = self.model_name.split("_")[0]
+            variant = self.model_parameters["variant"]
+            model_name = "_".join((name, variant))
+        else:
+            model_name = self.model_name
         transform = Transform(
-            model_name=self.model_name,
+            model_name=model_name,
             module_name=module_name,
             alignment_type=alignment_type,
         )

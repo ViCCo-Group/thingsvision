@@ -52,7 +52,7 @@ class TorchvisionExtractor(PyTorchExtractor):
         model_parameters = (
             model_parameters
             if model_parameters
-            else {"weights": "DEFAULT", "alignment": None}
+            else {"weights": "DEFAULT"}
         )
         super().__init__(
             model_name=model_name,

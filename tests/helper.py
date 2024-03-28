@@ -9,8 +9,9 @@ import torch
 import torch.nn as nn
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.models import Sequential
-from thingsvision.utils.data import DataLoader, ImageDataset
+
 from thingsvision import get_extractor
+from thingsvision.utils.data import DataLoader, ImageDataset
 
 DATA_PATH = "./data"
 TEST_PATH = "./test_images"
@@ -35,7 +36,7 @@ MODEL_AND_MODULE_NAMES = {
         "modules": ["encoder.ln"],
         "pretrained": True,
         "source": "torchvision",
-        "kwargs": {"extract_cls_token": True, "weights": "DEFAULT"}
+        "kwargs": {"extract_cls_token": True, "weights": "DEFAULT"},
     },
     # Hardcoded models
     "cornet_r": {
@@ -93,20 +94,20 @@ MODEL_AND_MODULE_NAMES = {
         "clip": True,
         "kwargs": {"variant": "ViT-B-32", "dataset": "openai"},
     },
-    "OpenCLIP_ViT-L-14_laion400m_e3":  {
+    "OpenCLIP_vitl14": {
         "model_name": "OpenCLIP",
         "modules": ["visual"],
         "pretrained": True,
         "source": "custom",
         "clip": True,
-        "kwargs": {"variant": "ViT-B-32", "dataset": "laion400m_e32"},
+        "kwargs": {"variant": "ViT-L-14", "dataset": "laion400m_e32"},
     },
     # Timm models
     "mixnet_l": {
         "model_name": "mixnet_l",
         "modules": ["conv_head"],
         "pretrained": True,
-        "source": "timm"
+        "source": "timm",
     },
     # Keras models
     "VGG16_keras": {
@@ -169,35 +170,35 @@ MODEL_AND_MODULE_NAMES = {
         "modules": ["norm"],
         "pretrained": True,
         "source": "ssl",
-        "kwargs": {"extract_cls_token": True}
+        "kwargs": {"extract_cls_token": True},
     },
     "dino-vit-small-p8": {
         "model_name": "dino-vit-small-p8",
         "modules": ["norm"],
         "pretrained": True,
         "source": "ssl",
-        "kwargs": {"extract_cls_token": True}
+        "kwargs": {"extract_cls_token": True},
     },
     "dino-vit-base-p8": {
         "model_name": "dino-vit-base-p8",
         "modules": ["norm"],
         "pretrained": True,
         "source": "ssl",
-        "kwargs": {"extract_cls_token": True}
+        "kwargs": {"extract_cls_token": True},
     },
     "dinov2-vit-small-p14": {
         "model_name": "dinov2-vit-small-p14",
         "modules": ["norm"],
         "pretrained": True,
         "source": "ssl",
-        "kwargs": {"extract_cls_token": True}
+        "kwargs": {"extract_cls_token": True},
     },
     "dinov2-vit-base-p14": {
         "model_name": "dinov2-vit-base-p14",
         "modules": ["norm"],
         "pretrained": True,
         "source": "ssl",
-        "kwargs": {"extract_cls_token": True}
+        "kwargs": {"extract_cls_token": True},
     },
     # Additional models
     "Harmonization_visual_ResNet50": {
@@ -252,14 +253,17 @@ MODEL_AND_MODULE_NAMES = {
 }
 
 ALIGNED_MODELS = [
-    'clip_RN50',
-    'clip_ViT-L/14',
-    'OpenCLIP_ViT-L-14_laion400m_e32',
-    'OpenCLIP_ViT-L-14_laion2b_s32b_b82k',
-    'dinov2-vit-base-p14',
-    'dinov2-vit-large-p14',
-    'dino-vit-base-p16',
-    'dino-vit-base-p8',
+    "alexnet",
+    "vgg16",
+    "resnet18",
+    "resnet50",
+    "clip_rn50",
+    "clip_vitl14",
+    "OpenCLIP_vitl14",
+    "dinov2-vit-base-p14",
+    "dinov2-vit-large-p14",
+    "dino-vit-base-p16",
+    "dino-vit-base-p8",
 ]
 
 FILE_FORMATS = ["hdf5", "npy", "mat", "pt", "txt"]
@@ -331,7 +335,6 @@ class SimpleDataset(object):
         self.backend = backend
 
     def __getitem__(self, idx: int) -> Tuple[Any, Any]:
-        target = 0
         value = self.values[idx]
 
         if self.backend == "pt":
@@ -347,7 +350,7 @@ class SimpleDataset(object):
 
 def iterate_through_all_model_combinations():
     for model_config in MODEL_AND_MODULE_NAMES.values():
-        model_name = model_config['model_name']
+        model_name = model_config["model_name"]
         pretrained = model_config["pretrained"]
         source = model_config["source"]
         kwargs = model_config.get("kwargs", {})
@@ -361,7 +364,7 @@ def iterate_through_all_model_combinations():
 
 
 def create_extractor_and_dataloader(
-        model_name: str, pretrained: bool, source: str, kwargs: dict = {}
+    model_name: str, pretrained: bool, source: str, kwargs: dict = {}
 ):
     """Iterate through models and create model, dataset and data loader."""
     extractor = get_extractor(

@@ -1,9 +1,9 @@
 __all__ = ["Transform"]
 
+import os
 from typing import Any
 
 import numpy as np
-import os
 import requests
 
 Array = np.ndarray
@@ -18,6 +18,9 @@ class Transform:
         self.model_name = model_name
         self.module_name = module_name
         if alignment_type == "gLocal":
+            self.url = os.path.join(
+                gLocal_URL, self.model_name, self.module_name, "transform.npz"
+            )
             self.transform = self._load_transform()
         else:
             raise NotImplementedError(
@@ -25,11 +28,8 @@ class Transform:
             )
 
     def _load_transform(self) -> Any:
-        url = os.path.join(
-            gLocal_URL, self.model_name, self.module_name, "transform.npz"
-        )
         # Download the transform
-        response = requests.get(url)
+        response = requests.get(self.url)
         # Check for successful download of transform
         if response.status_code == requests.codes.ok:
             # Write the content of transform to a temporary file
