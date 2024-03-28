@@ -6,7 +6,7 @@ nav_order: 7
 
 # Aligning neural network representations with human similarity judgments
 
-Recent research in the space of representation learning has demonstrated the usefulness of aligning neural network representations with human similarity judgments for both machine learning (ML) downstream tasks and the Cognitive Sciences (see [here]((https://proceedings.neurips.cc/paper_files/paper/2023/hash/9febda1c8344cc5f2d51713964864e93-Abstract-Conference.html)) and [here](https://arxiv.org/pdf/2310.13018.pdf)).
+Recent research in the space of representation learning has demonstrated the usefulness of aligning neural network representations with human similarity judgments for both machine learning (ML) downstream tasks and the Cognitive Sciences (see [here]((https://proceedings.neurips.cc/paper_files/paper/2023/hash/9febda1c8344cc5f2d51713964864e93-Abstract-Conference.html)) and [here](https://arxiv.org/pdf/2310.13018.pdf) for reference).
 
 ## [gLocal](https://proceedings.neurips.cc/paper_files/paper/2023/hash/9febda1c8344cc5f2d51713964864e93-Abstract-Conference.html)
 

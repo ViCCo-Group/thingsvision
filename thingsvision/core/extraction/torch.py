@@ -163,7 +163,7 @@ class PyTorchExtractor(BaseExtractor):
     ) -> Union[Tensor, Array]:
         if self.model_name == "OpenCLIP":
             base_model = self.model_name
-            variant = self.model_parameters.get("variant") 
+            variant = self.model_parameters.get("variant")
             dataset = self.model_parameters.get("dataset")
             model_name = "_".join((base_model, variant, dataset))
         elif self.model_name == "clip" or self.model_name == "DreamSim":
