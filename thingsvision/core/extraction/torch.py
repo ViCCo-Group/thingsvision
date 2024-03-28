@@ -21,9 +21,7 @@ class PyTorchExtractor(BaseExtractor):
         pretrained: bool,
         device: str,
         model_path: str = None,
-        model_parameters: Dict[str, Union[str, bool, List[str]]] = field(
-            default_factory=lambda: {}
-        ),
+        model_parameters: Dict[str, Union[str, bool, List[str]]] = None,
         model: Any = None,
         preprocess: Optional[Callable] = None,
     ) -> None:
@@ -36,7 +34,7 @@ class PyTorchExtractor(BaseExtractor):
         self.activations = {}
         self.hook_handle = None
 
-        if isinstance(self.model_parameters, dict):
+        if self.model_parameters:
             if "extract_cls_token" in self.model_parameters:
                 self.extract_cls_token = self.model_parameters["extract_cls_token"]
 
@@ -163,12 +161,12 @@ class PyTorchExtractor(BaseExtractor):
     ) -> Union[Tensor, Array]:
         if self.model_name == "OpenCLIP":
             base_model = self.model_name
-            variant = self.model_parameters.get("variant")
-            dataset = self.model_parameters.get("dataset")
+            variant = self.model_parameters["variant"]
+            dataset = self.model_parameters["dataset"]
             model_name = "_".join((base_model, variant, dataset))
         elif self.model_name == "clip" or self.model_name == "DreamSim":
             base_model = self.model_name
-            variant = self.model_parameters.get("variant")
+            variant = self.model_parameters["variant"]
             model_name = "_".join((base_model, variant))
         else:
             model_name = self.model_name

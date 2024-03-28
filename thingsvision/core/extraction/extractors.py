@@ -45,9 +45,7 @@ class TorchvisionExtractor(PyTorchExtractor):
         pretrained: bool,
         device: str,
         model_path: str = None,
-        model_parameters: Dict[str, Union[str, bool, List[str]]] = field(
-            default_factory=lambda: {}
-        ),
+        model_parameters: Dict[str, Union[str, bool, List[str]]] = None,
         preprocess: Optional[Callable] = None,
     ) -> None:
         model_parameters = (
@@ -117,9 +115,7 @@ class TimmExtractor(PyTorchExtractor):
         pretrained: bool,
         device: str,
         model_path: str = None,
-        model_parameters: Dict[str, Union[str, bool, List[str]]] = field(
-            default_factory=lambda: {}
-        ),
+        model_parameters: Dict[str, Union[str, bool, List[str]]] = None,
         preprocess: Optional[Callable] = None,
     ) -> None:
         super().__init__(
@@ -148,9 +144,7 @@ class KerasExtractor(TensorFlowExtractor):
         pretrained: bool,
         device: str,
         model_path: str = None,
-        model_parameters: Dict[str, Union[str, bool, List[str]]] = field(
-            default_factory=lambda: {}
-        ),
+        model_parameters: Dict[str, Union[str, bool, List[str]]] = None,
         preprocess: Optional[Callable] = None,
     ) -> None:
         model_parameters = (
@@ -301,9 +295,7 @@ class SSLExtractor(PyTorchExtractor):
         pretrained: bool,
         device: str,
         model_path: str = None,
-        model_parameters: Dict[str, Union[str, bool, List[str]]] = field(
-            default_factory=lambda: {}
-        ),
+        model_parameters: Dict[str, Union[str, bool, List[str]]] = None,
         preprocess: Optional[Callable] = None,
     ) -> None:
         super().__init__(

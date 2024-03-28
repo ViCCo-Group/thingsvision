@@ -53,6 +53,6 @@ class ExtractionPretrainedTestCase(unittest.TestCase):
 
                 if extractor.get_backend() == "pt":
                     if model_name in helper.ALIGNED_MODELS and module_name == helper.ALIGNED_MODELS[model_name]:
-                        aligned_fetures = extractor.align(features=features, module_name=module_name)
-                        self.assertTrue(isinstance(aligned_fetures, Array))
-                        self.assertEqual(aligned_fetures.shape, features.shape)
+                        aligned_features = extractor.align(features=features, module_name=module_name)
+                        self.assertTrue(isinstance(aligned_features, Array))
+                        self.assertEqual(aligned_features.shape, features.shape)

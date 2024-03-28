@@ -21,9 +21,7 @@ class TensorFlowExtractor(BaseExtractor):
         pretrained: bool,
         device: str,
         model_path: str = None,
-        model_parameters: Dict[str, Union[str, bool, List[str]]] = field(
-            default_factory=lambda: {}
-        ),
+        model_parameters: Dict[str, Union[str, bool, List[str]]] = None,
         model: Any = None,
         preprocess: Optional[Callable] = None,
     ) -> None:
