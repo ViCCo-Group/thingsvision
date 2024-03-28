@@ -78,14 +78,6 @@ MODEL_AND_MODULE_NAMES = {
         "clip": True,
         "kwargs": {"variant": "RN50"},
     },
-    "clip_vitl14": {
-        "model_name": "clip",
-        "modules": ["visual"],
-        "pretrained": True,
-        "source": "custom",
-        "clip": True,
-        "kwargs": {"variant": "ViT-L/14"},
-    },
     "OpenCLIP_vitl14": {
         "model_name": "OpenCLIP",
         "modules": ["visual"],
@@ -106,6 +98,12 @@ MODEL_AND_MODULE_NAMES = {
         "model_name": "VGG16",
         "modules": ["block1_conv1", "flatten"],
         "pretrained": True,
+        "source": "keras",
+    },
+    "VGG19_keras": {
+        "model_name": "VGG19",
+        "modules": ["block1_conv1", "flatten"],
+        "pretrained": False,
         "source": "keras",
     },
     # Vissl models
