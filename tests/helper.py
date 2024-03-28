@@ -45,6 +45,12 @@ MODEL_AND_MODULE_NAMES = {
         "pretrained": True,
         "source": "custom",
     },
+    "cornet_rt": {
+        "model_name": "cornet_rt",
+        "modules": ["decoder.flatten"],
+        "pretrained": True,
+        "source": "custom",
+    },
     "cornet_s": {
         "model_name": "cornet_s",
         "modules": ["decoder.flatten"],
@@ -71,6 +77,14 @@ MODEL_AND_MODULE_NAMES = {
         "source": "custom",
         "clip": True,
         "kwargs": {"variant": "RN50"},
+    },
+    "clip_vitl14": {
+        "model_name": "clip",
+        "modules": ["visual"],
+        "pretrained": True,
+        "source": "custom",
+        "clip": True,
+        "kwargs": {"variant": "ViT-L/14"},
     },
     "OpenCLIP_vitl14": {
         "model_name": "OpenCLIP",
