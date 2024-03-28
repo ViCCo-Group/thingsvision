@@ -3,6 +3,7 @@ __all__ = ["Transform"]
 from typing import Any
 
 import numpy as np
+import os
 import requests
 
 Array = np.ndarray
@@ -35,8 +36,6 @@ class Transform:
             with open("temp.npz", "wb") as f:
                 f.write(response.content)
             transform = np.load("temp.npz")
-            import os
-
             os.remove("temp.npz")
         else:
             raise FileNotFoundError(
