@@ -2,13 +2,16 @@ from dataclasses import field
 from typing import Any, Callable, Dict, Iterator, List, Optional, Union
 
 import numpy as np
-import torch
+from thingsvision.utils.alignment import gLocal
 from torchtyping import TensorType
 from torchvision import transforms as T
+
+import torch
 
 from .base import BaseExtractor
 
 Array = np.ndarray
+Tensor = torch.Tensor
 
 
 class PyTorchExtractor(BaseExtractor):
@@ -151,6 +154,36 @@ class PyTorchExtractor(BaseExtractor):
                     self.model_path, map_location=self.device
                 )
             self.model.load_state_dict(state_dict)
+
+    def align(
+        self,
+        features: Union[Tensor, Array],
+        module_name: str,
+        alignment_type: str = "gLocal",
+    ) -> Union[Tensor, Array]:
+        if self.model_name == "OpenCLIP":
+            base_model = self.model_name
+            variant = self.model_parameters.get("variant") 
+            dataset = self.model_parameters.get("dataset")
+            model_name = "_".join((base_model, variant, dataset))
+        elif self.model_name == "clip" or self.model_name == "DreamSim":
+            base_model = self.model_name
+            variant = self.model_parameters.get("variant")
+            model_name = "_".join((base_model, variant))
+        else:
+            model_name = self.model_name
+        if alignment_type == "gLocal":
+            transform = gLocal(
+                model_name=model_name,
+                module_name=module_name,
+                alignment_type=alignment_type,
+            )
+        else:
+            raise NotImplementedError(
+                f"\nRepresentational alignment of type: {alignment_type} is not yet implemented.\nChange type to gLocal!\n"
+            )
+        aligned_fetures = transform.apply_transform(features)
+        return aligned_fetures
 
     def prepare_inference(self) -> None:
         self.model = self.model.to(self.device)
