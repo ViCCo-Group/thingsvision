@@ -70,13 +70,13 @@ MODEL_AND_MODULE_NAMES = {
         "pretrained": True,
         "source": "custom",
     },
-    "clip_vitb32": {
+    "clip_vitl14": {
         "model_name": "clip",
         "modules": ["visual"],
         "pretrained": True,
         "source": "custom",
         "clip": True,
-        "kwargs": {"variant": "ViT-B/32"},
+        "kwargs": {"variant": "ViT-L/14"},
     },
     "clip_rn50": {
         "model_name": "clip",
@@ -85,14 +85,6 @@ MODEL_AND_MODULE_NAMES = {
         "source": "custom",
         "clip": True,
         "kwargs": {"variant": "RN50"},
-    },
-    "OpenCLIP_vitb32": {
-        "model_name": "OpenCLIP",
-        "modules": ["visual"],
-        "pretrained": True,
-        "source": "custom",
-        "clip": True,
-        "kwargs": {"variant": "ViT-B-32", "dataset": "openai"},
     },
     "OpenCLIP_vitl14": {
         "model_name": "OpenCLIP",
@@ -257,9 +249,8 @@ ALIGNED_MODELS = {
     "vgg16": "classifier.3",
     "resnet18": "avgpool",
     "resnet50": "avgpool",
-    "clip_rn50": "visual",
-    "clip_vitl14": "visual",
-    "OpenCLIP_vitl14": "visual",
+    "clip": "visual",
+    "OpenCLIP": "visual",
     "dinov2-vit-base-p14": "norm",
     "dinov2-vit-large-p14": "norm",
     "dino-vit-base-p16": "norm",
