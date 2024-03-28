@@ -45,12 +45,6 @@ MODEL_AND_MODULE_NAMES = {
         "pretrained": True,
         "source": "custom",
     },
-    "cornet_rt": {
-        "model_name": "cornet_rt",
-        "modules": ["decoder.flatten"],
-        "pretrained": False,
-        "source": "custom",
-    },
     "cornet_s": {
         "model_name": "cornet_s",
         "modules": ["decoder.flatten"],
@@ -69,14 +63,6 @@ MODEL_AND_MODULE_NAMES = {
         "modules": ["classifier.3"],
         "pretrained": True,
         "source": "custom",
-    },
-    "clip_vitl14": {
-        "model_name": "clip",
-        "modules": ["visual"],
-        "pretrained": True,
-        "source": "custom",
-        "clip": True,
-        "kwargs": {"variant": "ViT-L/14"},
     },
     "clip_rn50": {
         "model_name": "clip",
@@ -106,12 +92,6 @@ MODEL_AND_MODULE_NAMES = {
         "model_name": "VGG16",
         "modules": ["block1_conv1", "flatten"],
         "pretrained": True,
-        "source": "keras",
-    },
-    "VGG19_keras": {
-        "model_name": "VGG19",
-        "modules": ["block1_conv1", "flatten"],
-        "pretrained": False,
         "source": "keras",
     },
     # Vissl models
@@ -178,13 +158,6 @@ MODEL_AND_MODULE_NAMES = {
         "source": "ssl",
         "kwargs": {"extract_cls_token": True},
     },
-    "dinov2-vit-small-p14": {
-        "model_name": "dinov2-vit-small-p14",
-        "modules": ["norm"],
-        "pretrained": True,
-        "source": "ssl",
-        "kwargs": {"extract_cls_token": True},
-    },
     "dinov2-vit-base-p14": {
         "model_name": "dinov2-vit-base-p14",
         "modules": ["norm"],
@@ -234,13 +207,6 @@ MODEL_AND_MODULE_NAMES = {
         "pretrained": True,
         "source": "custom",
         "kwargs": {"variant": "dino_vitb16"},
-    },
-    "DreamSim_mlp_ensemble": {
-        "model_name": "DreamSim",
-        "modules": ["model.mlp"],
-        "pretrained": True,
-        "source": "custom",
-        "kwargs": {"variant": "ensemble"},
     },
 }
 
