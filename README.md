@@ -207,6 +207,18 @@ features = extractor.extract_features(
 save_features(features, out_path='path/to/features', file_format='npy') # file_format can be set to "npy", "txt", "mat", "pt", or "hdf5"
 ```
 
+*Human alignment*: If you want to align the extracted features with human object similarity according to the approach introduced in *[Improving neural network representations using human similiarty judgments](https://proceedings.neurips.cc/paper_files/paper/2023/hash/9febda1c8344cc5f2d51713964864e93-Abstract-Conference.html)* you can optionally `align` the extracted features using the following method:
+
+```python
+aligned_features = extractor.align(
+    features=features
+    module_name=module_name,
+    alignment_type="gLocal",
+)
+```
+
+For more information about the available alignment types and models see [here](https://vicco-group.github.io/thingsvision/Alignment.html). 
+
 _For more examples on the many models available in `thingsvision` and explanations of additional functionality like how to optionally turn off center cropping, how to use HDF5 datasets (e.g. NSD stimuli), how to perform RSA or CKA, or how to easily extract features for the [THINGS image database](https://osf.io/jum2f/), please refer to the [Documentation](https://vicco-group.github.io/thingsvision/)._
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

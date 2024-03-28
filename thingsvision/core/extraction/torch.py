@@ -5,10 +5,12 @@ import numpy as np
 import torch
 from torchtyping import TensorType
 from torchvision import transforms as T
+from thingsvision.utils.alignment import Transform
 
 from .base import BaseExtractor
 
 Array = np.ndarray
+Tensor = torch.Tensor
 
 
 class PyTorchExtractor(BaseExtractor):
@@ -151,6 +153,20 @@ class PyTorchExtractor(BaseExtractor):
                     self.model_path, map_location=self.device
                 )
             self.model.load_state_dict(state_dict)
+
+    def align(
+        self,
+        features: Union[Tensor, Array],
+        module_name: str,
+        alignment_type: str = "gLocal",
+    ) -> Union[Tensor, Array]:
+        transform = Transform(
+            model_name=self.model_name,
+            module_name=module_name,
+            alignment_type=alignment_type,
+        )
+        aligned_fetures = transform.apply_transform(features)
+        return aligned_fetures
 
     def prepare_inference(self) -> None:
         self.model = self.model.to(self.device)

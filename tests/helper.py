@@ -93,6 +93,14 @@ MODEL_AND_MODULE_NAMES = {
         "clip": True,
         "kwargs": {"variant": "ViT-B-32", "dataset": "openai"},
     },
+    "OpenCLIP_ViT-L-14_laion400m_e3":  {
+        "model_name": "OpenCLIP",
+        "modules": ["visual"],
+        "pretrained": True,
+        "source": "custom",
+        "clip": True,
+        "kwargs": {"variant": "ViT-B-32", "dataset": "laion400m_e32"},
+    },
     # Timm models
     "mixnet_l": {
         "model_name": "mixnet_l",
@@ -242,6 +250,17 @@ MODEL_AND_MODULE_NAMES = {
         "kwargs": {"variant": "ensemble"},
     },
 }
+
+ALIGNED_MODELS = [
+    'clip_RN50',
+    'clip_ViT-L/14',
+    'OpenCLIP_ViT-L-14_laion400m_e32',
+    'OpenCLIP_ViT-L-14_laion2b_s32b_b82k',
+    'dinov2-vit-base-p14',
+    'dinov2-vit-large-p14',
+    'dino-vit-base-p16',
+    'dino-vit-base-p8',
+]
 
 FILE_FORMATS = ["hdf5", "npy", "mat", "pt", "txt"]
 DISTANCES = ["correlation", "cosine", "euclidean", "gaussian"]
