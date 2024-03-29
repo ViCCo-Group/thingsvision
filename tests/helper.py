@@ -164,6 +164,13 @@ MODEL_AND_MODULE_NAMES = {
         "source": "ssl",
         "kwargs": {"extract_cls_token": True},
     },
+    "dinov2-vit-small-p14": {
+        "model_name": "dinov2-vit-small-p14",
+        "modules": ["norm"],
+        "pretrained": True,
+        "source": "ssl",
+        "kwargs": {"extract_cls_token": True},
+    },
     "dinov2-vit-base-p14": {
         "model_name": "dinov2-vit-base-p14",
         "modules": ["norm"],
