@@ -322,8 +322,7 @@ def iterate_through_all_model_combinations():
         )
 
         modules = model_config["modules"]
-        clip = model_config.get("clip", False)
-        yield extractor, dataset, batches, modules, model_name, clip
+        yield extractor, dataset, batches, modules, model_name
 
 
 def create_extractor_and_dataloader(
