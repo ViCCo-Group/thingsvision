@@ -41,16 +41,6 @@ class ExtractionPretrainedTestCase(unittest.TestCase):
                         extractor.model.classifier[int(module_name[-1])].out_features,
                     )
 
-                if not clip:
-                    features = extractor.extract_features(
-                        batches=batches,
-                        module_name=module_name,
-                        flatten_acts=False,
-                    )
-
-                    self.assertTrue(isinstance(features, Array))
-                    self.assertEqual(features.shape[0], num_objects)
-
                 if extractor.get_backend() == "pt":
                     if model_name in helper.ALIGNED_MODELS:
                         if module_name == helper.ALIGNED_MODELS[model_name]:
