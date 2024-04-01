@@ -34,6 +34,22 @@ class TensorFlowExtractor(BaseExtractor):
         if not self.model:
             self.load_model()
         self.prepare_inference()
+        
+    def _extract_batch(
+        self,
+        batch: Array,
+        module_name: str,
+        flatten_acts: bool,
+    ) -> Array:
+        layer_out = [self.model.get_layer(module_name).output]
+        activation_model = keras.models.Model(
+            inputs=self.model.input,
+            outputs=layer_out,
+        )
+        activations = activation_model.predict(batch)
+        if flatten_acts:
+            activations = activations.reshape(activations.shape[0], -1)
+        return activations
 
     def extract_batch(
         self,
@@ -43,14 +59,7 @@ class TensorFlowExtractor(BaseExtractor):
         output_type="ndarray",
     ) -> Array:
         self._module_and_output_check(module_name, output_type)
-        layer_out = [self.model.get_layer(module_name).output]
-        activation_model = keras.models.Model(
-            inputs=self.model.input,
-            outputs=layer_out,
-        )
-        activations = activation_model.predict(batch)
-        if flatten_acts:
-            activations = activations.reshape(activations.shape[0], -1)
+        activations = self._extract_batch(batch, module_name, flatten_acts)
         return activations
 
     def show_model(self) -> str:
