@@ -124,9 +124,9 @@ for batch in my_dataloader:
     batch=batch,
     module_name=module_name,
     flatten_acts=True, # flatten 2D feature maps from an early convolutional or attention layer
-    output_type="tensor", # optionally set the output type of feature matrix
+    output_type="tensor", # optionally set the output type of the feature matrix
     )
-  ... # whatever post-processing you want to add the features
+  ... # whatever post-processing you want to add to the extracted features
 ```
 
 ### Showing available modules of a model
