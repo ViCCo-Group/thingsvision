@@ -102,6 +102,36 @@ class PyTorchExtractor(BaseExtractor):
             act = self._to_numpy(act)
         self._unregister_hook()
         return act
+        
+    @torch.no_grad()
+    def _extract_batch(
+        self,
+        batch: TensorType["b", "c", "h", "w"],
+        module_name: str,
+        flatten_acts: bool,
+    ) -> Union[
+        TensorType["b", "num_maps", "h_prime", "w_prime"],
+        TensorType["b", "t", "d"],
+        TensorType["b", "p"],
+        TensorType["b", "d"],
+    ]:
+        # move current batch to torch device
+        batch = batch.to(self.device)
+        _ = self.forward(batch)
+        act = self.activations[module_name]
+        if hasattr(self, "extract_cls_token"):
+            if self.extract_cls_token:
+                # we are only interested in the representations of the first token, i.e., [cls] token
+                act = act[:, 0, :].clone()
+        if flatten_acts:
+            if self.model_name.lower().startswith("clip"):
+                act = self.flatten_acts(act, batch, module_name)
+            else:
+                act = self.flatten_acts(act)
+        if act.is_cuda or act.get_device() >= 0:
+            torch.cuda.empty_cache()
+            act = act.cpu()
+        return act
 
     def extract_features(
         self,
@@ -114,6 +144,7 @@ class PyTorchExtractor(BaseExtractor):
     ):
         self.model = self.model.to(self.device)
         self.activations = {}
+        self.register_hook(module_name=module_name)
         features = super().extract_features(
             batches=batches,
             module_name=module_name,
