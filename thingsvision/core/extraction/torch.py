@@ -86,7 +86,7 @@ class PyTorchExtractor(BaseExtractor):
             act = self._to_numpy(act)
         self._unregister_hook()
         return act
-        
+
     @torch.no_grad()
     def _extract_batch(
         self,

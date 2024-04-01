@@ -105,8 +105,7 @@ class BaseExtractor(metaclass=abc.ABCMeta):
             Returns the feature matrix (e.g., $X \in \mathbb{R}^{B \times d}$ if penultimate or logits layer or flatten_acts = True).
         """
         raise NotImplementedError
-        
-        
+
     @abc.abstractmethod
     def _extract_batch(
         self,

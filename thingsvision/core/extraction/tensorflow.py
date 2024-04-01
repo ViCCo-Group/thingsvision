@@ -34,7 +34,7 @@ class TensorFlowExtractor(BaseExtractor):
         if not self.model:
             self.load_model()
         self.prepare_inference()
-        
+
     def _extract_batch(
         self,
         batch: Array,
