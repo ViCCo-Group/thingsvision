@@ -83,6 +83,7 @@ class PyTorchExtractor(BaseExtractor):
         self._module_and_output_check(module_name, output_type)
         # move current batch to torch device
         batch = batch.to(self.device)
+        self.register_hook(module_name=module_name)
         _ = self.forward(batch)
         act = self.activations[module_name]
         if hasattr(self, "extract_cls_token"):
@@ -99,6 +100,7 @@ class PyTorchExtractor(BaseExtractor):
             act = act.cpu()
         if output_type == "ndarray":
             act = self._to_numpy(act)
+        self._unregister_hook()
         return act
 
     def extract_features(
@@ -112,7 +114,6 @@ class PyTorchExtractor(BaseExtractor):
     ):
         self.model = self.model.to(self.device)
         self.activations = {}
-        self.register_hook(module_name=module_name)
         features = super().extract_features(
             batches=batches,
             module_name=module_name,
