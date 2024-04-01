@@ -56,7 +56,7 @@ class TensorFlowExtractor(BaseExtractor):
         batch: Array,
         module_name: str,
         flatten_acts: bool,
-        output_type="ndarray",
+        output_type: str = "ndarray",
     ) -> Array:
         self._module_and_output_check(module_name, output_type)
         activations = self._extract_batch(batch, module_name, flatten_acts)
