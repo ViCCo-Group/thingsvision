@@ -62,7 +62,7 @@ class ExtractionPTvsTFTestCase(unittest.TestCase):
         np.testing.assert_allclose(tf_features, expected_features_tf)
 
         layer_name = "relu2"
-        expected_features = np.array([[4, 4], [0, 0]])
+        expected_features = np.array([[4., 4.], [0., 0.]])
         for i, batch in enumerate(tf_dl):
             tf_features = tf_model.extract_batch(
                 batch=batch,
