@@ -36,8 +36,13 @@ class TensorFlowExtractor(BaseExtractor):
         self.prepare_inference()
 
     def extract_batch(
-        self, batch: Array, module_name: str, flatten_acts: bool
+        self,
+        batch: Array,
+        module_name: str,
+        flatten_acts: bool,
+        output_type="ndarray",
     ) -> Array:
+        self._module_and_output_check(module_name, output_type)
         layer_out = [self.model.get_layer(module_name).output]
         activation_model = keras.models.Model(
             inputs=self.model.input,

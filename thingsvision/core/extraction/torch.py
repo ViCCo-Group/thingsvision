@@ -104,6 +104,7 @@ class PyTorchExtractor(BaseExtractor):
         TensorType["b", "p"],
         TensorType["b", "d"],
     ]:
+        self._module_and_output_check(module_name, output_type)
         # move current batch to torch device
         batch = batch.to(self.device)
         _ = self.forward(batch)

@@ -109,6 +109,17 @@ class BaseExtractor(metaclass=abc.ABCMeta):
     def get_output_types(self) -> List[str]:
         return ["ndarray", "tensor"]
 
+    def _module_and_output_check(self, module_name: str, output_type: str) -> None:
+        """Checks whether the provided module name and output type are valid."""
+        valid_names = self.get_module_names()
+        if not module_name in valid_names:
+            raise ValueError(
+                f"\n{module_name} is not a valid module name. Please choose a name from the following set of modules: {valid_names}\n"
+            )
+        assert (
+            output_type in self.get_output_types()
+        ), f"\nData type of output feature matrix must be set to one of the following available data types: {self.get_output_types()}\n"
+
     def extract_features(
         self,
         batches: Iterator[Union[TensorType["b", "c", "h", "w"], Array]],
@@ -164,14 +175,7 @@ class BaseExtractor(metaclass=abc.ABCMeta):
         output : np.ndarray or torch.Tensor
             Returns the feature matrix (e.g., $X \in \mathbb{R}^{n \times d}$ if penultimate or logits layer or flatten_acts = True).
         """
-        valid_names = self.get_module_names()
-        if not module_name in valid_names:
-            raise ValueError(
-                f"\n{module_name} is not a valid module name. Please choose a name from the following set of modules: {valid_names}\n"
-            )
-        assert (
-            output_type in self.get_output_types()
-        ), f"\nData type of output feature matrix must be set to one of the following available data types: {self.get_output_types()}\n"
+        self._module_and_output_check(module_name, output_type)
         if output_dir:
             os.makedirs(output_dir, exist_ok=True)
 
