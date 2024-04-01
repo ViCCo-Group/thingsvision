@@ -86,7 +86,7 @@ class BaseExtractor(metaclass=abc.ABCMeta):
         ],
         Array,
     ]:
-        """Extract hidden unit activations (at specified layer) for every image in the database.
+        """Extract hidden unit activations (at specified layer) for every image in a mini-batch.
 
         Parameters
         ----------
@@ -104,6 +104,24 @@ class BaseExtractor(metaclass=abc.ABCMeta):
         output : np.ndarray or torch.Tensor
             Returns the feature matrix (e.g., $X \in \mathbb{R}^{B \times d}$ if penultimate or logits layer or flatten_acts = True).
         """
+        raise NotImplementedError
+        
+        
+    @abc.abstractmethod
+    def _extract_batch(
+        self,
+        batch: Union[TensorType["b", "c", "h", "w"], Array],
+        module_name: str,
+        flatten_acts: bool,
+    ) -> Union[
+        Union[
+            TensorType["b", "num_maps", "h_prime", "w_prime"],
+            TensorType["b", "t", "d"],
+            TensorType["b", "p"],
+            TensorType["b", "d"],
+        ],
+        Array,
+    ]:
         raise NotImplementedError
 
     def get_output_types(self) -> List[str]:
@@ -189,7 +207,7 @@ class BaseExtractor(metaclass=abc.ABCMeta):
             enumerate(batches, start=1), desc="Batch", total=len(batches)
         ):
             features.append(
-                self.extract_batch(
+                self._extract_batch(
                     batch=batch, module_name=module_name, flatten_acts=flatten_acts
                 )
             )
