@@ -65,7 +65,7 @@ class ExtractionPTvsTFTestCase(unittest.TestCase):
         expected_features = np.array([[4, 4], [0, 0]])
         for i, batch in enumerate(tf_dl):
             tf_features = tf_model.extract_batch(
-                batches=batch,
+                batch=batch,
                 module_name=layer_name,
                 flatten_acts=False,
             )
@@ -73,7 +73,7 @@ class ExtractionPTvsTFTestCase(unittest.TestCase):
         
         for i, batch in enumerate(pt_dl):
             pt_features = pt_model.extract_batch(
-                batches=batch,
+                batch=batch,
                 module_name=layer_name,
                 flatten_acts=False,
                 output_type="ndarray",
