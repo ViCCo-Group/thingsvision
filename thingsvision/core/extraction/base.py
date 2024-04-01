@@ -76,7 +76,7 @@ class BaseExtractor(metaclass=abc.ABCMeta):
         batch: Union[TensorType["b", "c", "h", "w"], Array],
         module_name: str,
         flatten_acts: bool,
-        output_type: Optional[str] = None,
+        output_type: str,
     ) -> Union[
         Union[
             TensorType["b", "num_maps", "h_prime", "w_prime"],
