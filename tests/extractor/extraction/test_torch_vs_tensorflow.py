@@ -69,7 +69,7 @@ class ExtractionPTvsTFTestCase(unittest.TestCase):
                 module_name=layer_name,
                 flatten_acts=False,
             )
-            np.testing.assert_allclose(tf_features, expected_features[i])
+            np.testing.assert_allclose(tf_features, expected_features[i][None,:])
         
         for i, batch in enumerate(pt_dl):
             pt_features = pt_model.extract_batch(
@@ -78,5 +78,5 @@ class ExtractionPTvsTFTestCase(unittest.TestCase):
                 flatten_acts=False,
                 output_type="ndarray",
             )
-            np.testing.assert_allclose(pt_features, expected_features[i])
+            np.testing.assert_allclose(pt_features, expected_features[i][None,:])
             
