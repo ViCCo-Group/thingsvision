@@ -62,18 +62,21 @@ class ExtractionPTvsTFTestCase(unittest.TestCase):
         np.testing.assert_allclose(tf_features, expected_features_tf)
 
         layer_name = "relu2"
-        tf_features = tf_model.extract_features(
-            batches=tf_dl,
-            module_name=layer_name,
-            flatten_acts=False,
-        )
-        pt_features = pt_model.extract_features(
-            batches=pt_dl,
-            module_name=layer_name,
-            flatten_acts=False,
-            output_type="tensor",
-        )
-        expected_features_pt = torch.tensor([[4, 4], [0, 0]])
-        expected_features_tf = np.array([[4, 4], [0, 0]])
-        np.testing.assert_allclose(pt_features, expected_features_pt)
-        np.testing.assert_allclose(tf_features, expected_features_tf)
+        expected_features = np.array([[4, 4], [0, 0]])
+        for i, batch in enumerate(tf_dl):
+            tf_features = tf_model.extract_batch(
+                batches=batch,
+                module_name=layer_name,
+                flatten_acts=False,
+            )
+            np.testing.assert_allclose(tf_features, expected_features[i])
+        
+        for i, batch in enumerate(pt_dl):
+            pt_features = pt_model.extract_batch(
+                batches=batch,
+                module_name=layer_name,
+                flatten_acts=False,
+                output_type="ndarray",
+            )
+            np.testing.assert_allclose(pt_features, expected_features[i])
+            
