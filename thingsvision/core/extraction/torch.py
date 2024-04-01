@@ -41,30 +41,6 @@ class PyTorchExtractor(BaseExtractor):
             self.load_model()
         self.prepare_inference()
 
-    def extract_features(
-        self,
-        batches: Iterator,
-        module_name: str,
-        flatten_acts: bool,
-        output_type: str = "ndarray",
-        output_dir: Optional[str] = None,
-        step_size: Optional[int] = None,
-    ):
-        self.model = self.model.to(self.device)
-        self.activations = {}
-        self.register_hook(module_name=module_name)
-        features = super().extract_features(
-            batches=batches,
-            module_name=module_name,
-            flatten_acts=flatten_acts,
-            output_type=output_type,
-            output_dir=output_dir,
-            step_size=step_size,
-        )
-        if self.hook_handle:
-            self._unregister_hook()
-        return features
-
     def get_activation(self, name: str) -> Callable:
         """Store copy of activations for a specific layer of the model."""
 
@@ -124,6 +100,30 @@ class PyTorchExtractor(BaseExtractor):
         if output_type == "ndarray":
             act = self._to_numpy(act)
         return act
+
+    def extract_features(
+        self,
+        batches: Iterator,
+        module_name: str,
+        flatten_acts: bool,
+        output_type: str = "ndarray",
+        output_dir: Optional[str] = None,
+        step_size: Optional[int] = None,
+    ):
+        self.model = self.model.to(self.device)
+        self.activations = {}
+        self.register_hook(module_name=module_name)
+        features = super().extract_features(
+            batches=batches,
+            module_name=module_name,
+            flatten_acts=flatten_acts,
+            output_type=output_type,
+            output_dir=output_dir,
+            step_size=step_size,
+        )
+        if self.hook_handle:
+            self._unregister_hook()
+        return features
 
     def forward(
         self, batch: TensorType["b", "c", "h", "w"]
