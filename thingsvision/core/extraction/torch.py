@@ -67,7 +67,6 @@ class PyTorchExtractor(BaseExtractor):
     def _unregister_hook(self) -> None:
         self.hook_handle.remove()
 
-    @torch.no_grad()
     def extract_batch(
         self,
         batch: TensorType["b", "c", "h", "w"],
