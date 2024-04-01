@@ -1,11 +1,11 @@
 from typing import Any, Callable, Dict, Iterator, List, Optional, Union
 
 import numpy as np
-from thingsvision.utils.alignment import gLocal
+import torch
 from torchtyping import TensorType
 from torchvision import transforms as T
 
-import torch
+from thingsvision.utils.alignment import gLocal
 
 from .base import BaseExtractor
 
@@ -92,11 +92,12 @@ class PyTorchExtractor(BaseExtractor):
         self.hook_handle.remove()
 
     @torch.no_grad()
-    def _extract_batch(
+    def extract_batch(
         self,
         batch: TensorType["b", "c", "h", "w"],
         module_name: str,
         flatten_acts: bool,
+        output_type: str = "tensor",
     ) -> Union[
         TensorType["b", "num_maps", "h_prime", "w_prime"],
         TensorType["b", "t", "d"],
@@ -108,8 +109,9 @@ class PyTorchExtractor(BaseExtractor):
         _ = self.forward(batch)
         act = self.activations[module_name]
         if hasattr(self, "extract_cls_token"):
-            # we are only interested in the representations of the first token, i.e., [cls] token
-            act = act[:, 0, :].clone()
+            if self.extract_cls_token:
+                # we are only interested in the representations of the first token, i.e., [cls] token
+                act = act[:, 0, :].clone()
         if flatten_acts:
             if self.model_name.lower().startswith("clip"):
                 act = self.flatten_acts(act, batch, module_name)
@@ -118,6 +120,8 @@ class PyTorchExtractor(BaseExtractor):
         if act.is_cuda or act.get_device() >= 0:
             torch.cuda.empty_cache()
             act = act.cpu()
+        if output_type == "ndarray":
+            act = self._to_numpy(act)
         return act
 
     def forward(

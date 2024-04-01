@@ -35,7 +35,7 @@ class TensorFlowExtractor(BaseExtractor):
             self.load_model()
         self.prepare_inference()
 
-    def _extract_batch(
+    def extract_batch(
         self, batch: Array, module_name: str, flatten_acts: bool
     ) -> Array:
         layer_out = [self.model.get_layer(module_name).output]

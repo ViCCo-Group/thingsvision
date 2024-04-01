@@ -5,10 +5,9 @@ import warnings
 from typing import Callable, Iterator, List, Optional, Union
 
 import numpy as np
+import torch
 from torchtyping import TensorType
 from tqdm.auto import tqdm
-
-import torch
 
 Array = np.ndarray
 
@@ -72,11 +71,12 @@ class BaseExtractor(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def _extract_batch(
+    def extract_batch(
         self,
         batch: Union[TensorType["b", "c", "h", "w"], Array],
         module_name: str,
         flatten_acts: bool,
+        output_type: Optional[str] = None,
     ) -> Union[
         Union[
             TensorType["b", "num_maps", "h_prime", "w_prime"],
@@ -86,6 +86,24 @@ class BaseExtractor(metaclass=abc.ABCMeta):
         ],
         Array,
     ]:
+        """Extract hidden unit activations (at specified layer) for every image in the database.
+
+        Parameters
+        ----------
+        batch : np.ndarray or torch.Tensor
+            mini-batch of three-dimensional image tensors.
+        module_name : str
+            Name of the module for which features should be extraced.
+        flatten_acts : bool
+            Whether the activation of a tensor should be flattened to a vector.
+        output_type : str {"ndarray", "tensor"}
+            Whether to return output features as torch.Tensor or np.ndarray.
+            Available options are "ndarray" or "tensor".
+        Returns
+        -------
+        output : np.ndarray or torch.Tensor
+            Returns the feature matrix (e.g., $X \in \mathbb{R}^{B \times d}$ if penultimate or logits layer or flatten_acts = True).
+        """
         raise NotImplementedError
 
     def get_output_types(self) -> List[str]:
@@ -96,7 +114,7 @@ class BaseExtractor(metaclass=abc.ABCMeta):
         batches: Iterator[Union[TensorType["b", "c", "h", "w"], Array]],
         module_name: str,
         flatten_acts: bool,
-        output_type: str = "ndarray",
+        output_type: Optional[str] = "ndarray",
         output_dir: Optional[str] = None,
         step_size: Optional[int] = None,
     ) -> Union[
@@ -167,7 +185,7 @@ class BaseExtractor(metaclass=abc.ABCMeta):
             enumerate(batches, start=1), desc="Batch", total=len(batches)
         ):
             features.append(
-                self._extract_batch(
+                self.extract_batch(
                     batch=batch, module_name=module_name, flatten_acts=flatten_acts
                 )
             )
