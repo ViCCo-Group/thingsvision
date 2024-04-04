@@ -233,7 +233,7 @@ with extractor.batch_extraction(module_name, output_type="tensor") as e:
 ```python
 module_name = 'visual'
 
-# your custom dataset and dataloader classes come here (for example, a PyTorch data loader)
+# your custom dataset and dataloader classes come here (for example, TFRecords files)
 my_dataset = ...
 my_dataloader = ...
 
