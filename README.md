@@ -119,7 +119,7 @@ If you want to extract features for [DreamSim](https://dreamsim-nights.github.io
 $ pip install dreamsim==0.1.2
 ```
 
-See the [docs](https://vicco-group.github.io/thingsvision/AvailableModels.html) for which `DreamSim` models are available in `thingsvision`.
+See the [docs](https://vicco-group.github.io/thingsvision/AvailableModels.html#dreamsim) for which `DreamSim` models are available in `thingsvision`.
 
 #### Google Colab.
 Alternatively, you can use Google Colab to play around with `thingsvision` by uploading your image data to Google Drive (via directory mounting).
@@ -175,7 +175,7 @@ extractor = get_extractor(
 As a next step, create both dataset and dataloader for your images. We assume that all of your images are in a single `root` directory which can contain subfolders (e.g., for individual classes). Therefore, we leverage the `ImageDataset` class. 
 
 ```python
-root='path/to/root/image/directory' # (e.g., './images/)
+root='path/to/your/image/directory' # (e.g., './images/)
 batch_size = 32
 
 dataset = ImageDataset(

@@ -4,8 +4,8 @@ nav_order: 2
 ---
 # Getting started
 
-### Setting up your environment
-#### Working locally.
+## Setting up your environment
+### Working locally.
 First, create a new `conda environment` with Python version 3.8, 3.9, or 3.10 e.g. by using `conda`:
 
 ```bash
@@ -21,7 +21,7 @@ $ pip install git+https://github.com/openai/CLIP.git
 $ pip install git+https://github.com/serre-lab/Harmonization.git
 ```
 
-### Google Colab.
+### Google Colab
 Alternatively, you can use Google Colab to play around with `thingsvision` by uploading your image data to Google Drive (via directory mounting).
 You can find the jupyter notebook using `PyTorch` [here](https://colab.research.google.com/github/ViCCo-Group/thingsvision/blob/master/notebooks/pytorch.ipynb) and the `TensorFlow` example [here](https://colab.research.google.com/github/ViCCo-Group/thingsvision/blob/master/notebooks/tensorflow.ipynb).
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -30,7 +30,7 @@ You can find the jupyter notebook using `PyTorch` [here](https://colab.research.
 <!-- Basic usage -->
 ## Basic usage
 
-## Command Line Interface (CLI)
+### Command Line Interface (CLI)
 
 `thingsvision` was designed to simplify feature extraction. If you have some folder of images (e.g., `./images`) and want to extract features for each of these images without opening a Jupyter Notebook instance or writing a Python script, it's probably easiest to use our CLI. The interface includes two options,
 
@@ -44,10 +44,11 @@ thingsvision show-model --model-name "alexnet" --source "torchvision"
 thingsvision extract_features --image-root "./data" --model-name "alexnet" --module-name "features.10" --batch-size 32 --device "cuda" --source "torchvision" --file-format "npy" --out-path "./features"
 ```
 
-See `thingsvision show-model -h` and `thingsvision extract-features -h` for a list of all possible arguments. Note that the CLI provides just the basic extraction functionalities but is probably enough for most users that don't want to dive too deep into various models and modules. If you need more fine-grained control over the extraction itself, we recommend to use the python package directly and write your own Python script.
+See `thingsvision show-model -h` and `thingsvision extract-features -h` for a list of all possible arguments. Note that the CLI provides just the basic extraction functionalities but is probably enough for most users that don't want to dive too deep into various models and modules. 
 
+### Python commands for custom script or notebook
 
-To do this start by importing all the necessary components and instantiating a `thingsvision` extractor. Here we're using `AlexNet` from the `torchvision` library as the model to extract features from and also load the model to GPU for faster inference,
+If you need more fine-grained control over the extraction itself, we recommend to use the python package directly and write your own Python script. To do this start by importing all the necessary components and instantiating a `thingsvision` extractor. Here we're using a `CLIP` model as the model to extract features from. In addition, we move the model to GPU for faster inference,
 
 ```python
 import torch
@@ -55,53 +56,80 @@ from thingsvision import get_extractor
 from thingsvision.utils.storing import save_features
 from thingsvision.utils.data import ImageDataset, DataLoader
 
-model_name = 'alexnet'
-source = 'torchvision'
+model_name = 'clip'
+source = 'custom'
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
+model_parameters = {
+    'variant': 'ViT-B/32'
+}
 
 extractor = get_extractor(
   model_name=model_name,
   source=source,
   device=device,
-  pretrained=True
+  pretrained=True,
+  model_parameters=model_parameters,
 )
 ```
 
-As a next step, create both dataset and dataloader for your images. We assume that all of your images are in a single `root` directory which can contain subfolders (e.g., for individual classes). Therefore, we leverage the `ImageDataset` class. 
+As a next step, create both a dataset and a dataloader for your images. Here, we assume that all of your images are stored in a single `root` directory which can contain subfolders (e.g., for individual classes as in ImageNet). Therefore, we leverage the thingsvision `ImageDataset` class. 
 
 ```python
-root='path/to/root/img/directory' # (e.g., './images/)
+root='path/to/your/image/directory' # (e.g., './images/)
 batch_size = 32
 
 dataset = ImageDataset(
-  root=root,
-  out_path='path/to/features',
-  backend=extractor.get_backend(),
-  transforms=extractor.get_transformations()
+    root=root,
+    out_path='path/to/features',
+    backend=extractor.get_backend(), # backend framework of model
+    transforms=extractor.get_transformations(resize_dim=256, crop_dim=224) # set the input dimensionality to whichever values are required for your pretrained model
 )
 
 batches = DataLoader(
-  dataset=dataset,
-  batch_size=batch_size, 
-  backend=extractor.get_backend()
+    dataset=dataset,
+    batch_size=batch_size,
+    backend=extractor.get_backend() # backend framework of model
 )
 ```
 
-Now all that is left is to extract the image features and store them to disk! We're extracting features from the last convolutional layer of AlexNet (`features.10`).
+Now all that is left is to extract the image features and store them to disk! We're extracting features from the image encoder of CLIP (`visual`).
 
 ```python
-module_name = 'features.10'
+module_name = 'visual'
 
 features = extractor.extract_features(
   batches=batches,
   module_name=module_name,
-  flatten_acts=True  # flatten 2D feature maps from convolutional layer
+  flatten_acts=True, # flatten 2D feature maps from an early convolutional or attention layer
+  output_type="ndarray", # or "tensor" (only applicable to PyTorch models of which CLIP is one!)
 )
 
-save_features(features, out_path='path/to/features', file_format='npy')
+save_features(features, out_path='path/to/features', file_format='npy') # file_format can be set to "npy", "txt", "mat", "pt", or "hdf5"
 ```
 
-### Showing available modules
+### Extraction with custom data pipeline and training loop
+
+
+```python
+module_name = 'visual'
+
+# your custom dataset and dataloader classes come here (for example, a PyTorch data loader)
+my_dataset = ...
+my_dataloader = ...
+
+# your custom training loop comes here
+for batch in my_dataloader:
+  ... # whatever preprocessing you want to add to the batch
+  feature_batch = extractor.extract_batch(
+    batch=batch,
+    module_name=module_name,
+    flatten_acts=True, # flatten 2D feature maps from an early convolutional or attention layer
+    output_type="tensor", # optionally set the output type of the feature matrix
+    )
+  ... # whatever post-processing you want to add to the extracted features
+```
+
+### Showing available modules of a model
 If you don't know which modules exist in your model, you can use the `show_model` method to print a summary of the model architecture. For example, if you want to see which modules exist in AlexNet (using the extractor from above), you can run the following:
 
 ```python

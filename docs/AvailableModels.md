@@ -3,12 +3,12 @@ title: Available models and sources (+ examples)
 nav_order: 4
 ---
 
-# Available models and sources
+# Available models and their sources
 
-`thingsvision` currently supports many models from several different sources, which represent different places or other libraries from which the model architectures or weights can come from. You can find more information about which models are available in which source and notes on their usage on this page.
+`thingsvision` currently supports many models from several different sources, which represent different places or other libraries from which the model architectures or weights may come from. You can find more information about which models are available in which source on this page. Additionally, we provide several notes on their usage.
 
 ## `torchvision`
-`thingsvision` supports all models from the `torchvision.models` module. You can find a list of all available models [here](https://pytorch.org/vision/stable/models.html). 
+`thingsvision` supports all models from the `torchvision.models` module. You can find a list of all available `torchvision` models [here](https://pytorch.org/vision/stable/models.html). 
 
 Example:
 ```python
@@ -31,7 +31,7 @@ extractor = get_extractor(
 
 Model names are case-sensitive and must be spelled exactly as they are in the `torchvision` documentation (e.g., `alexnet`, `resnet18`, `vgg16`, ...).
 
-If you use `pretrained=True`, the model will by default be pretrained on ImageNet, otherwise it is initialized randomly. For some models, `torchvision` provides multiple weight initializations, in which case you can pass the name of the weights in the `model_parameters` argument, e.g. if you want to get the extractor for a `RegNet Y 32GF` model, pretrained using SWAG and finetuned on ImageNet, you would do the following:
+If you use `pretrained=True`, the model weights will by default be pretrained on ImageNet, otherwise it is initialized randomly. For some models, `torchvision` provides multiple weight initializations, in which case you can pass the name of the weights in the `model_parameters` argument, e.g. if you want to get the extractor for a `RegNet Y 32GF` model, pretrained using SWAG and finetuned on ImageNet, you want to do the following:
 
 ```python
 import torch
@@ -54,7 +54,7 @@ extractor = get_extractor(
 For a list of all available weights, please refer to the [torchvision documentation](https://pytorch.org/vision/stable/models.html).
 
 ## `timm`
-`thingsvision` supports all models from the `timm` module. You can find a list of all available models [here](https://rwightman.github.io/pytorch-image-models/models/).
+`thingsvision` supports all models from the `timm` module. You can find a list of all available `timm` models [here](https://rwightman.github.io/pytorch-image-models/models/).
 
 Example:
 ```python
@@ -79,6 +79,7 @@ If you use `pretrained=True`, the model will be pretrained according to the mode
 
 ## `ssl`
 `thingsvision` provides various Self-supervised learning models that are loaded from the [VISSL](https://vissl.readthedocs.io/en/v0.1.5/) library or the Torch Hub.
+
 * SimCLR (`simclr-rn50`)
 * MoCov V2 (`mocov2-rn50`), 
 * Jigsaw (`jigsaw-rn50`), 
@@ -89,11 +90,9 @@ If you use `pretrained=True`, the model will be pretrained according to the mode
 * VicReg (`vicreg-rn50`)
 * DINO (`dino-rn50`)
 
-All models have the ResNet50 architecture and are pretrained on ImageNet-1K. 
-Here, the model name describes the pre-training method, instead of the model architecture.
+All models have the ResNet50 architecture and are pretrained on ImageNet-1K.  Here, the model name describes the pre-training objective rather than the model architecture.
 
 DINO models are available in ViT (Vision Transformer) and XCiT (Cross-Covariance Image Transformer) variants. For ViT models trained using DINO, the following models are available: `dino-vit-small-p8`, `dino-vit-small-p16`, `dino-vit-base-p8`, `dino-vit-base-p16`, where the trailing number describes the image patch resolution in the ViT (i.e. either 8x8 or 16x16). For the XCiT models, we have `dino-xcit-small-12-p16`, `dino-xcit-small-12-p8`, `dino-xcit-medium-24-p16`, `dino-xcit-medium-24-p8`, where the penultimate number represents model depth (12 = small, 24 = medium).
-
 
 Example SimCLR:
 
@@ -122,7 +121,7 @@ from thingsvision import get_extractor
 model_name = 'dino-vit-base-p16'
 source = 'ssl'
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
-model_paramters = {"extract_cls_token": True} # extract features only for the [cls] token of DINO
+model_paramters = {"extract_cls_token": True} # extract features exclusively for the [cls] token of DINO
 
 extractor = get_extractor(
   model_name=model_name,
@@ -161,58 +160,6 @@ If you use `pretrained=True`, the model will be pretrained on ImageNet, otherwis
 ## `custom` 
 
 In addition, we provide several custom models - that are not available in other sources -, in the `custom` source. These models are:
-
-### CORnet
-We provide all CORnet models from [this paper](https://proceedings.neurips.cc/paper/2019/file/7813d1590d28a7dd372ad54b5d29d033-Paper.pdf). Available model names are:
-
-- `cornet-s`
-- `cornet-r`
-- `cornet-rt`
-- `cornet-z`
-
-Example:
-```python
-import torch
-from thingsvision import get_extractor
-
-model_name = 'cornet-s'
-source = 'custom'
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
-
-extractor = get_extractor(
-  model_name=model_name,
-  source=source,
-  device=device,
-  pretrained=True
-)
-```
-
-### Models trained on Ecoset
-
-We provide models trained on the [Ecoset](https://www.kietzmannlab.org/ecoset/) dataset, which contains 1.5m images from 565 categories selected to be both frequent in linguistic use and rated as concrete by human observers. Available `model_name`s are:
-
-- `Alexnet_ecoset`
-- `Resnet50_ecoset`
-- `VGG16_ecoset`
-- `Inception_ecoset`
-
-Example:
-
-```python
-import torch
-from thingsvision import get_extractor
-
-model_name = 'Alexnet_ecoset'
-source = 'custom'
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
-
-extractor = get_extractor(
-  model_name=model_name,
-  source=source,
-  device=device,
-  pretrained=True
-)
-```
 
 ### Official CLIP and OpenCLIP
 
@@ -270,7 +217,42 @@ extractor = get_extractor(
 
 For a list of all available architectures and datasets, please refer to the [OpenCLIP repo](https://github.com/mlfoundations/open_clip/blob/main/src/open_clip/pretrained.py).
 
-### Harmonization
+### [DreamSim](https://dreamsim-nights.github.io/)
+In `thingsvision` you can extract representations from [DreamSim](https://dreamsim-nights.github.io/). See the official [DreamSim repo](https://github.com/ssundaram21/dreamsim) for more information. To extract features, install the `dreamsim` package with the following `pip` command (ideally, into your `thingsvision` environment):
+
+```bash
+ $ pip install dreamsim==0.1.2
+```
+
+The base model name is:
+- `DreamSim`
+
+We provide four `DreamSim` models: `clip_vitb32`, `open_clip_vitb32`, `dino_vitb16`, and a DreamSim `ensemble`. Specify this using the `model_parameters` argument. For instance, to get the OpenCLIP variant of DreamSim you want to do the following:
+
+```python
+import torch
+from thingsvision import get_extractor
+
+model_name = 'DreamSim'
+module_name = 'model.mlp'
+source = 'custom'
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+model_parameters = {
+    'variant': 'open_clip_vitb32'
+}
+
+extractor = get_extractor(
+  model_name=model_name,
+  source=source,
+  device=device,
+  pretrained=True,
+  model_parameters=model_parameters
+)
+```
+
+To load the CLIP ViT-B/32 version of DreamSim, pass `'clip_vitb32'` to the `variant` parameter instead. Caution (!): for the DreamSim `dino_vitb16` and `ensemble` features can only be extracted from the `model.mlp` module and not for the `model` block. We are currently working on a version that allows feature extraction from the `model` block. Please be patient until then.
+
+### [Harmonization](https://github.com/serre-lab/harmonization)
 
 If you want to extract features for [harmonized models](https://vicco-group.github.io/thingsvision/AvailableModels.html#harmonization) from the [Harmonization repo](https://github.com/serre-lab/harmonization), you have to run the following `pip` command in your `thingsvision` environment (FYI: as of now, this seems to be working smoothly only on Ubuntu but not on macOS),
 
@@ -312,38 +294,55 @@ extractor = get_extractor(
 )
 ```
 
+### CORnet
+We provide all CORnet models from [this paper](https://proceedings.neurips.cc/paper/2019/file/7813d1590d28a7dd372ad54b5d29d033-Paper.pdf). Available model names are:
 
-### DreamSim
-In `thingsvision` you can extract representations from [DreamSim](https://dreamsim-nights.github.io/). See the official [DreamSim repo](https://github.com/ssundaram21/dreamsim) for more information. To extract features, install the `dreamsim` package with the following `pip` command (ideally, into your `thingsvision` environment):
+- `cornet-s`
+- `cornet-r`
+- `cornet-rt`
+- `cornet-z`
 
-```bash
- $ pip install dreamsim==0.1.2
-```
-
-The base model name is:
-- `DreamSim`
-
-We provide four `DreamSim` models: `clip_vitb32`, `open_clip_vitb32`, `dino_vitb16`, and a DreamSim `ensemble`. Specify this using the `model_parameters` argument. For instance, to get the OpenCLIP variant of DreamSim you want to do the following:
+Example:
 
 ```python
 import torch
 from thingsvision import get_extractor
 
-model_name = 'DreamSim'
-module_name = 'model.mlp'
+model_name = 'cornet-s'
 source = 'custom'
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
-model_parameters = {
-    'variant': 'open_clip_vitb32'
-}
 
 extractor = get_extractor(
   model_name=model_name,
   source=source,
   device=device,
-  pretrained=True,
-  model_parameters=model_parameters
+  pretrained=True
 )
 ```
 
-To load the CLIP ViT-B/32 version of DreamSim, pass `'clip_vitb32'` to the `variant` parameter instead. Caution (!): for the DreamSim `dino_vitb16` and `ensemble` features can only be extracted from the `model.mlp` module and not for the `model` block. We are currently working on a version that allows feature extraction from the `model` block. Please be patient until then.
+### Models trained on Ecoset
+
+We also provide models trained on the [Ecoset](https://www.kietzmannlab.org/ecoset/) dataset, which contains 1.5m images from 565 categories selected to be both frequent in linguistic use and rated as concrete by human observers. Available `model_name`s are:
+
+- `Alexnet_ecoset`
+- `Resnet50_ecoset`
+- `VGG16_ecoset`
+- `Inception_ecoset`
+
+Example:
+
+```python
+import torch
+from thingsvision import get_extractor
+
+model_name = 'Alexnet_ecoset'
+source = 'custom'
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+
+extractor = get_extractor(
+  model_name=model_name,
+  source=source,
+  device=device,
+  pretrained=True
+)
+```

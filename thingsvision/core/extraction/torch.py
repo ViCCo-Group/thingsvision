@@ -1,11 +1,11 @@
 from typing import Any, Callable, Dict, Iterator, List, Optional, Union
 
 import numpy as np
-from thingsvision.utils.alignment import gLocal
+import torch
 from torchtyping import TensorType
 from torchvision import transforms as T
 
-import torch
+from thingsvision.utils.alignment import gLocal
 
 from .base import BaseExtractor
 
@@ -41,30 +41,6 @@ class PyTorchExtractor(BaseExtractor):
             self.load_model()
         self.prepare_inference()
 
-    def extract_features(
-        self,
-        batches: Iterator,
-        module_name: str,
-        flatten_acts: bool,
-        output_type: str = "ndarray",
-        output_dir: Optional[str] = None,
-        step_size: Optional[int] = None,
-    ):
-        self.model = self.model.to(self.device)
-        self.activations = {}
-        self.register_hook(module_name=module_name)
-        features = super().extract_features(
-            batches=batches,
-            module_name=module_name,
-            flatten_acts=flatten_acts,
-            output_type=output_type,
-            output_dir=output_dir,
-            step_size=step_size,
-        )
-        if self.hook_handle:
-            self._unregister_hook()
-        return features
-
     def get_activation(self, name: str) -> Callable:
         """Store copy of activations for a specific layer of the model."""
 
@@ -91,6 +67,26 @@ class PyTorchExtractor(BaseExtractor):
     def _unregister_hook(self) -> None:
         self.hook_handle.remove()
 
+    def extract_batch(
+        self,
+        batch: TensorType["b", "c", "h", "w"],
+        module_name: str,
+        flatten_acts: bool,
+        output_type: str = "tensor",
+    ) -> Union[
+        TensorType["b", "num_maps", "h_prime", "w_prime"],
+        TensorType["b", "t", "d"],
+        TensorType["b", "p"],
+        TensorType["b", "d"],
+    ]:
+        self._module_and_output_check(module_name, output_type)
+        self.register_hook(module_name=module_name)
+        act = self._extract_batch(batch, module_name, flatten_acts)
+        if output_type == "ndarray":
+            act = self._to_numpy(act)
+        self._unregister_hook()
+        return act
+
     @torch.no_grad()
     def _extract_batch(
         self,
@@ -108,8 +104,9 @@ class PyTorchExtractor(BaseExtractor):
         _ = self.forward(batch)
         act = self.activations[module_name]
         if hasattr(self, "extract_cls_token"):
-            # we are only interested in the representations of the first token, i.e., [cls] token
-            act = act[:, 0, :].clone()
+            if self.extract_cls_token:
+                # we are only interested in the representations of the first token, i.e., [cls] token
+                act = act[:, 0, :].clone()
         if flatten_acts:
             if self.model_name.lower().startswith("clip"):
                 act = self.flatten_acts(act, batch, module_name)
@@ -119,6 +116,30 @@ class PyTorchExtractor(BaseExtractor):
             torch.cuda.empty_cache()
             act = act.cpu()
         return act
+
+    def extract_features(
+        self,
+        batches: Iterator,
+        module_name: str,
+        flatten_acts: bool,
+        output_type: str = "ndarray",
+        output_dir: Optional[str] = None,
+        step_size: Optional[int] = None,
+    ):
+        self.model = self.model.to(self.device)
+        self.activations = {}
+        self.register_hook(module_name=module_name)
+        features = super().extract_features(
+            batches=batches,
+            module_name=module_name,
+            flatten_acts=flatten_acts,
+            output_type=output_type,
+            output_dir=output_dir,
+            step_size=step_size,
+        )
+        if self.hook_handle:
+            self._unregister_hook()
+        return features
 
     def forward(
         self, batch: TensorType["b", "c", "h", "w"]

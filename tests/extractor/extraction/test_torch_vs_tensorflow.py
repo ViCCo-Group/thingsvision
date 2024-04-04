@@ -1,4 +1,5 @@
 import unittest
+import torch
 
 import numpy as np
 import tests.helper as helper
@@ -44,31 +45,42 @@ class ExtractionPTvsTFTestCase(unittest.TestCase):
         pt_model.backend = pt_backend
 
         layer_name = "relu"
-        tf_features = tf_model.extract_features(
-            batches=tf_dl,
-            module_name=layer_name,
-            flatten_acts=False,
-        )
-        pt_features = pt_model.extract_features(
-            batches=pt_dl,
-            module_name=layer_name,
-            flatten_acts=False,
-        )
-        expected_features = np.array([[2, 2], [0, 0]])
-        np.testing.assert_allclose(pt_features, expected_features)
-        np.testing.assert_allclose(tf_features, expected_features)
+        expected_features_pt = torch.tensor([[2., 2.], [0., 0.]])
+        expected_features_tf = np.array([[2., 2.], [0, 0.]])
+
+        for i, batch in enumerate(tf_dl):
+            tf_features = tf_model.extract_batch(
+                batch=batch,
+                module_name=layer_name,
+                flatten_acts=False,
+            )
+            np.testing.assert_allclose(tf_features, expected_features_tf[i][None,:])
+        
+        for i, batch in enumerate(pt_dl):
+            pt_features = pt_model.extract_batch(
+                batch=batch,
+                module_name=layer_name,
+                flatten_acts=False,
+                output_type="tensor",
+            )
+            np.testing.assert_allclose(pt_features, expected_features_pt[i][None,:])
 
         layer_name = "relu2"
-        tf_features = tf_model.extract_features(
-            batches=tf_dl,
-            module_name=layer_name,
-            flatten_acts=False,
-        )
-        pt_features = pt_model.extract_features(
-            batches=pt_dl,
-            module_name=layer_name,
-            flatten_acts=False,
-        )
-        expected_features = np.array([[4, 4], [0, 0]])
-        np.testing.assert_allclose(pt_features, expected_features)
-        np.testing.assert_allclose(tf_features, expected_features)
+        expected_features = np.array([[4., 4.], [0., 0.]])
+        for i, batch in enumerate(tf_dl):
+            tf_features = tf_model.extract_batch(
+                batch=batch,
+                module_name=layer_name,
+                flatten_acts=False,
+            )
+            np.testing.assert_allclose(tf_features, expected_features[i][None,:])
+        
+        for i, batch in enumerate(pt_dl):
+            pt_features = pt_model.extract_batch(
+                batch=batch,
+                module_name=layer_name,
+                flatten_acts=False,
+                output_type="ndarray",
+            )
+            np.testing.assert_allclose(pt_features, expected_features[i][None,:])
+            

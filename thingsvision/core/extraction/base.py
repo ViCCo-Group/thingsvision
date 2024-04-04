@@ -5,10 +5,9 @@ import warnings
 from typing import Callable, Iterator, List, Optional, Union
 
 import numpy as np
+import torch
 from torchtyping import TensorType
 from tqdm.auto import tqdm
-
-import torch
 
 Array = np.ndarray
 
@@ -72,6 +71,42 @@ class BaseExtractor(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @abc.abstractmethod
+    def extract_batch(
+        self,
+        batch: Union[TensorType["b", "c", "h", "w"], Array],
+        module_name: str,
+        flatten_acts: bool,
+        output_type: str,
+    ) -> Union[
+        Union[
+            TensorType["b", "num_maps", "h_prime", "w_prime"],
+            TensorType["b", "t", "d"],
+            TensorType["b", "p"],
+            TensorType["b", "d"],
+        ],
+        Array,
+    ]:
+        """Extract hidden unit activations (at specified layer) for every image in a mini-batch.
+
+        Parameters
+        ----------
+        batch : np.ndarray or torch.Tensor
+            mini-batch of three-dimensional image tensors.
+        module_name : str
+            Name of the module for which features should be extraced.
+        flatten_acts : bool
+            Whether the activation of a tensor should be flattened to a vector.
+        output_type : str {"ndarray", "tensor"}
+            Whether to return output features as torch.Tensor or np.ndarray.
+            Available options are "ndarray" or "tensor".
+        Returns
+        -------
+        output : np.ndarray or torch.Tensor
+            Returns the feature matrix (e.g., $X \in \mathbb{R}^{B \times d}$ if penultimate or logits layer or flatten_acts = True).
+        """
+        raise NotImplementedError
+
+    @abc.abstractmethod
     def _extract_batch(
         self,
         batch: Union[TensorType["b", "c", "h", "w"], Array],
@@ -91,12 +126,23 @@ class BaseExtractor(metaclass=abc.ABCMeta):
     def get_output_types(self) -> List[str]:
         return ["ndarray", "tensor"]
 
+    def _module_and_output_check(self, module_name: str, output_type: str) -> None:
+        """Checks whether the provided module name and output type are valid."""
+        valid_names = self.get_module_names()
+        if not module_name in valid_names:
+            raise ValueError(
+                f"\n{module_name} is not a valid module name. Please choose a name from the following set of modules: {valid_names}\n"
+            )
+        assert (
+            output_type in self.get_output_types()
+        ), f"\nData type of output feature matrix must be set to one of the following available data types: {self.get_output_types()}\n"
+
     def extract_features(
         self,
         batches: Iterator[Union[TensorType["b", "c", "h", "w"], Array]],
         module_name: str,
         flatten_acts: bool,
-        output_type: str = "ndarray",
+        output_type: Optional[str] = "ndarray",
         output_dir: Optional[str] = None,
         step_size: Optional[int] = None,
     ) -> Union[
@@ -146,14 +192,7 @@ class BaseExtractor(metaclass=abc.ABCMeta):
         output : np.ndarray or torch.Tensor
             Returns the feature matrix (e.g., $X \in \mathbb{R}^{n \times d}$ if penultimate or logits layer or flatten_acts = True).
         """
-        valid_names = self.get_module_names()
-        if not module_name in valid_names:
-            raise ValueError(
-                f"\n{module_name} is not a valid module name. Please choose a name from the following set of modules: {valid_names}\n"
-            )
-        assert (
-            output_type in self.get_output_types()
-        ), f"\nData type of output feature matrix must be set to one of the following available data types: {self.get_output_types()}\n"
+        self._module_and_output_check(module_name, output_type)
         if output_dir:
             os.makedirs(output_dir, exist_ok=True)
 

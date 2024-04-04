@@ -100,6 +100,12 @@ MODEL_AND_MODULE_NAMES = {
         "pretrained": True,
         "source": "keras",
     },
+    "VGG19_keras": {
+        "model_name": "VGG19",
+        "modules": ["block1_conv1", "flatten"],
+        "pretrained": False,
+        "source": "keras",
+    },
     # Vissl models
     "simclr-rn50": {
         "model_name": "simclr-rn50",
