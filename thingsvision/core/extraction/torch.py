@@ -57,7 +57,7 @@ class PyTorchExtractor(BaseExtractor):
 
         return hook
 
-    def register_hook(self, module_name: str) -> None:
+    def _register_hook(self, module_name: str) -> None:
         """Register a forward hook to store activations."""
         for n, m in self.model.named_modules():
             if n == module_name:
@@ -130,7 +130,7 @@ class PyTorchExtractor(BaseExtractor):
     ):
         self.model = self.model.to(self.device)
         self.activations = {}
-        self.register_hook(module_name=module_name)
+        self._register_hook(module_name=module_name)
         features = super().extract_features(
             batches=batches,
             module_name=module_name,
@@ -245,7 +245,7 @@ class BatchExtraction(object):
 
     def __enter__(self) -> PyTorchExtractor:
         self.extractor._module_and_output_check(self.module_name, self.output_type)
-        self.extractor.register_hook(self.module_name)
+        self.extractor._register_hook(self.module_name)
         setattr(self.extractor, "module_name", self.module_name)
         setattr(self.extractor, "output_type", self.output_type)
         return self.extractor
