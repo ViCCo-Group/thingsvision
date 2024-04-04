@@ -251,6 +251,6 @@ class BatchExtraction(object):
         return self.extractor
 
     def __exit__(self, *args):
-        self.extractor.unregister_hook()
+        self.extractor._unregister_hook()
         delattr(self.extractor, "module_name")
         delattr(self.extractor, "output_type")
