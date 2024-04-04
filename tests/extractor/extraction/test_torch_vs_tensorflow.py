@@ -54,7 +54,7 @@ class ExtractionPTvsTFTestCase(unittest.TestCase):
                 module_name=layer_name,
                 flatten_acts=False,
             )
-            expected_features = expected_features_pt[i][None, :]
+            expected_features = expected_features_tf[i][None, :]
             np.testing.assert_allclose(tf_features, expected_features)
 
         with pt_model.batch_extraction(layer_name, "tensor") as e:
