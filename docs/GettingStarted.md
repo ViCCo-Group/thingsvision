@@ -5,7 +5,8 @@ nav_order: 2
 # Getting started
 
 ## Setting up your environment
-### Working locally.
+
+### Working locally
 First, create a new `conda environment` with Python version 3.8, 3.9, or 3.10 e.g. by using `conda`:
 
 ```bash
@@ -109,6 +110,27 @@ save_features(features, out_path='path/to/features', file_format='npy') # file_f
 
 ### Extraction with custom data pipeline and training loop
 
+#### PyTorch
+
+```python
+module_name = 'visual'
+
+# your custom dataset and dataloader classes come here (for example, a PyTorch data loader)
+my_dataset = ...
+my_dataloader = ...
+
+with extractor.batch_extraction(module_name, output_type="tensor") as e: 
+  # your custom training loop comes here
+  for batch in my_dataloader:
+    ... # whatever preprocessing you want to add to the batch
+    feature_batch = e.extract_batch(
+      batch=batch,
+      flatten_acts=True, # flatten 2D feature maps from an early convolutional or attention layer
+      )
+    ... # whatever post-processing you want to add to the extracted features
+```
+
+#### TensorFlow / Keras
 
 ```python
 module_name = 'visual'
@@ -124,7 +146,6 @@ for batch in my_dataloader:
     batch=batch,
     module_name=module_name,
     flatten_acts=True, # flatten 2D feature maps from an early convolutional or attention layer
-    output_type="tensor", # optionally set the output type of the feature matrix
     )
   ... # whatever post-processing you want to add to the extracted features
 ```
