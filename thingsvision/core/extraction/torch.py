@@ -67,24 +67,26 @@ class PyTorchExtractor(BaseExtractor):
     def _unregister_hook(self) -> None:
         self.hook_handle.remove()
 
+    def batch_extraction(self, module_name: str, output_type: str) -> object:
+        return BatchExtraction(
+            extractor=self, module_name=module_name, output_type=output_type
+        )
+
     def extract_batch(
         self,
         batch: TensorType["b", "c", "h", "w"],
-        module_name: str,
         flatten_acts: bool,
-        output_type: str = "tensor",
     ) -> Union[
         TensorType["b", "num_maps", "h_prime", "w_prime"],
         TensorType["b", "t", "d"],
         TensorType["b", "p"],
         TensorType["b", "d"],
     ]:
-        self._module_and_output_check(module_name, output_type)
-        self.register_hook(module_name=module_name)
-        act = self._extract_batch(batch, module_name, flatten_acts)
-        if output_type == "ndarray":
+        act = self._extract_batch(
+            batch=batch, module_name=self.module_name, flatten_acts=flatten_acts
+        )
+        if self.output_type == "ndarray":
             act = self._to_numpy(act)
-        self._unregister_hook()
         return act
 
     @torch.no_grad()
@@ -230,3 +232,25 @@ class PyTorchExtractor(BaseExtractor):
 
     def get_backend(self) -> str:
         return "pt"
+
+
+class BatchExtraction(object):
+
+    def __init__(
+        self, extractor: PyTorchExtractor, module_name: str, output_type: str
+    ) -> None:
+        self.extractor = extractor
+        self.module_name = module_name
+        self.output_type = output_type
+
+    def __enter__(self) -> PyTorchExtractor:
+        self.extractor._module_and_output_check(self.module_name, self.output_type)
+        self.extractor.register_hook(self.module_name)
+        setattr(self.extractor, "module_name", self.module_name)
+        setattr(self.extractor, "output_type", self.output_type)
+        return self.extractor
+
+    def __exit__(self, *args):
+        self.extractor.unregister_hook()
+        delattr(self.extractor, "module_name")
+        delattr(self.extractor, "output_type")
