@@ -91,7 +91,7 @@ Neural networks come from different sources. With `thingsvision`, you can extrac
 
 <!-- Setting up your environment -->
 ### :computer: Setting up your environment
-#### Working locally.
+#### Working locally
 First, create a new `conda environment` with Python version 3.8, 3.9, or 3.10 e.g. by using `conda`:
 
 ```bash
@@ -121,7 +121,7 @@ $ pip install dreamsim==0.1.2
 
 See the [docs](https://vicco-group.github.io/thingsvision/AvailableModels.html#dreamsim) for which `DreamSim` models are available in `thingsvision`.
 
-#### Google Colab.
+#### Google Colab
 Alternatively, you can use Google Colab to play around with `thingsvision` by uploading your image data to Google Drive (via directory mounting).
 You can find the jupyter notebook using `PyTorch` [here](https://colab.research.google.com/github/ViCCo-Group/thingsvision/blob/master/notebooks/pytorch.ipynb) and the `TensorFlow` example [here](https://colab.research.google.com/github/ViCCo-Group/thingsvision/blob/master/notebooks/tensorflow.ipynb).
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -206,6 +206,48 @@ features = extractor.extract_features(
 
 save_features(features, out_path='path/to/features', file_format='npy') # file_format can be set to "npy", "txt", "mat", "pt", or "hdf5"
 ```
+
+#### Feature extraction with custom data pipeline
+
+##### PyTorch
+
+```python
+module_name = 'visual'
+
+# your custom dataset and dataloader classes come here (for example, a PyTorch data loader)
+my_dataset = ...
+my_dataloader = ...
+
+with extractor.batch_extraction(module_name, output_type="tensor") as e: 
+  for batch in my_dataloader:
+    ... # whatever preprocessing you want to add to the batch
+    feature_batch = e.extract_batch(
+      batch=batch,
+      flatten_acts=True, # flatten 2D feature maps from an early convolutional or attention layer
+      )
+    ... # whatever post-processing you want to add to the extracted features
+```
+
+##### TensorFlow / Keras
+
+```python
+module_name = 'visual'
+
+# your custom dataset and dataloader classes come here (for example, a PyTorch data loader)
+my_dataset = ...
+my_dataloader = ...
+
+for batch in my_dataloader:
+  ... # whatever preprocessing you want to add to the batch
+  feature_batch = extractor.extract_batch(
+    batch=batch,
+    module_name=module_name,
+    flatten_acts=True, # flatten 2D feature maps from an early convolutional or attention layer
+    )
+  ... # whatever post-processing you want to add to the extracted features
+```
+
+#### Human alignment
 
 *Human alignment*: If you want to align the extracted features with human object similarity according to the approach introduced in *[Improving neural network representations using human similiarty judgments](https://proceedings.neurips.cc/paper_files/paper/2023/hash/9febda1c8344cc5f2d51713964864e93-Abstract-Conference.html)* you can optionally `align` the extracted features using the following method:
 

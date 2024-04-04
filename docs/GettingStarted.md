@@ -108,7 +108,7 @@ features = extractor.extract_features(
 save_features(features, out_path='path/to/features', file_format='npy') # file_format can be set to "npy", "txt", "mat", "pt", or "hdf5"
 ```
 
-### Extraction with custom data pipeline and training loop
+### Extraction with custom data pipeline
 
 #### PyTorch
 
@@ -120,7 +120,6 @@ my_dataset = ...
 my_dataloader = ...
 
 with extractor.batch_extraction(module_name, output_type="tensor") as e: 
-  # your custom training loop comes here
   for batch in my_dataloader:
     ... # whatever preprocessing you want to add to the batch
     feature_batch = e.extract_batch(
@@ -139,7 +138,6 @@ module_name = 'visual'
 my_dataset = ...
 my_dataloader = ...
 
-# your custom training loop comes here
 for batch in my_dataloader:
   ... # whatever preprocessing you want to add to the batch
   feature_batch = extractor.extract_batch(
