@@ -15,13 +15,20 @@ To get started, please check out the [Getting Started](GettingStarted.md) page, 
 ## Model collection
 
 Neural networks come from different sources. With `thingsvision`, you can extract image representations of all models from:
+
 - [torchvision](https://pytorch.org/vision/0.8/models.html)
 - [Keras](https://www.tensorflow.org/api_docs/python/tf/keras/applications)
 - [timm](https://github.com/rwightman/pytorch-image-models)
-- Self-supervised learning models (e.g. SimCLR) coming from [vissl](https://github.com/facebookresearch/vissl) or the Torch Hub.
-- some custom models (VGG-16, Resnet50, Inception_v3 and Alexnet) trained on [Ecoset](https://www.pnas.org/doi/10.1073/pnas.2011417118)
+- `ssl` (self-supervised learning models)
+  - `simclr-rn50`, `mocov2-rn50`, `barlowtwins-rn50`, `pirl-rn50`
+  - `jigsaw-rn50`, `rotnet-rn50`, `swav-rn50`, `vicreg-rn50`
+  - `dino-rn50`, `dino-xcit-{small/medium}-{12/24}-p{8/16}`, `dino-vit-{tiny/small/base}-p{8/16}`, `dinov2-vit-{small/base/large/giant}-p14`<br>
+- [OpenCLIP](https://github.com/mlfoundations/open_clip) models (CLIP trained on LAION-{400M/2B/5B})
+- [CLIP](https://github.com/openai/CLIP) models (CLIP trained on WiT)
+- a few custom models (Alexnet, VGG-16, Resnet50, and Inception_v3) trained on [Ecoset](https://www.pnas.org/doi/10.1073/pnas.2011417118) rather than ImageNet and one Alexnet model pretrained on ImageNet and fine-tuned on [SalObjSub](https://cs-people.bu.edu/jmzhang/sos.html)<br>
 - each of the many [CORnet](https://github.com/dicarlolab/CORnet) versions
-- both [CLIP](https://github.com/openai/CLIP) variants (`clip-ViT` and `clip-RN`).<br> 
+- [Harmonization](https://arxiv.org/abs/2211.04533) models (see [Harmonization repo](https://github.com/serre-lab/harmonization)). The default variant is `ViT_B16`. Other available models are `ResNet50`, `VGG16`, `EfficientNetB0`, `tiny_ConvNeXT`, `tiny_MaxViT`, and `LeViT_small`<br> 
+- [DreamSim](https://dreamsim-nights.github.io/) models  (see [DreamSim repo](https://github.com/ssundaram21/dreamsim)). The default variant is `open_clip_vitb32`. Other available models are `clip_vitb32`, `dino_vitb16`, and an `ensemble`. See the [docs](https://vicco-group.github.io/thingsvision/AvailableModels.html#dreamsim) for more information
 
 Note that you have to use the respective model name (`str`). For example, if you want to use VGG16 from torchvision, use `vgg16` as the model name and if you want to use VGG16 from TensorFlow/Keras, use the model name `VGG16`. You further have to specify the model source by setting the `source` parameter (e.g., `timm`, `torchvision`, `keras`).<br>
 
