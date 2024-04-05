@@ -16,11 +16,11 @@ except ImportError:
 from thingsvision.utils.checkpointing import get_torch_home
 from thingsvision.utils.models.dino import vit_base, vit_small, vit_tiny
 from thingsvision.utils.models.mae import (
+    interpolate_pos_embed,
     vit_base_patch16,
     vit_huge_patch14,
     vit_large_patch16,
 )
-from thingsvision.utils.models.mae.utils import interpolate_pos_embed
 
 from .tensorflow import TensorFlowExtractor
 from .torch import PyTorchExtractor
