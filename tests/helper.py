@@ -184,6 +184,13 @@ MODEL_AND_MODULE_NAMES = {
         "source": "ssl",
         "kwargs": {"extract_cls_token": True},
     },
+    "mae-vit-base-p16": {
+        "model_name": "mae-vit-base-p16",
+        "modules": ["norm"],
+        "pretrained": True,
+        "source": "ssl",
+        "kwargs": {"extract_cls_token": True},
+    },
     # Additional models
     "Harmonization_visual_ResNet50": {
         "model_name": "Harmonization",
