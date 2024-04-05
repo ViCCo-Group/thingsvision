@@ -20,7 +20,7 @@ from thingsvision.utils.models.mae import (
     vit_huge_patch14,
     vit_large_patch16,
 )
-from thingsvision.utils.models.utils import interpolate_pos_embed
+from thingsvision.utils.models.mae.utils import interpolate_pos_embed
 
 from .tensorflow import TensorFlowExtractor
 from .torch import PyTorchExtractor
