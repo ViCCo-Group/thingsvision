@@ -180,7 +180,7 @@ MODEL_AND_MODULE_NAMES = {
     },
     "mae-vit-base-p16": {
         "model_name": "mae-vit-base-p16",
-        "modules": ["norm"],
+        "modules": ["norm", "fc_norm"],
         "pretrained": True,
         "source": "ssl",
         "kwargs": {"extract_cls_token": True},
