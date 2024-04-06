@@ -196,7 +196,6 @@ MODEL_AND_MODULE_NAMES = {
         "modules": ["fc_norm"],
         "pretrained": True,
         "source": "ssl",
-        "kwargs": {"extract_cls_token": True},
     },
     # Additional models
     "Harmonization_visual_ResNet50": {
