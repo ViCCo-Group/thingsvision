@@ -21,7 +21,6 @@ class VisionTransformer(vision_transformer.VisionTransformer):
 
     def __init__(self, **kwargs):
         super(VisionTransformer, self).__init__(**kwargs)
-        del self.head
 
     def forward_features(self, x):
         B = x.shape[0]
@@ -40,6 +39,7 @@ class VisionTransformer(vision_transformer.VisionTransformer):
         x = self.norm(x)
         outcome = x[:, 0]
         return outcome
+
 
 
 def vit_base_patch16(**kwargs):
