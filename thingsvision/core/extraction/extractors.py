@@ -416,6 +416,8 @@ class SSLExtractor(PyTorchExtractor):
                         model = vit_large_patch16(num_classes=0, drop_rate=0.0)
                     elif self.model_name == "mae-vit-huge-p14":
                         model = vit_huge_patch14(num_classes=0, drop_rate=0.0)
+                    else:
+                        raise ValueError(f"\n{self.model_name} is not available.\n")
                     state_dict = torch.hub.load_state_dict_from_url(
                         model_config["checkpoint_url"]
                     )
