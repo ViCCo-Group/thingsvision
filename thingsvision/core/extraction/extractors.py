@@ -424,7 +424,6 @@ class SSLExtractor(PyTorchExtractor):
                     checkpoint_model = state_dict["model"]
                     # interpolate position embedding
                     interpolate_pos_embed(model, checkpoint_model)
-                    # load pre-trained model
                     model.load_state_dict(checkpoint_model, strict=False)
                     self.model = model
                 else:
