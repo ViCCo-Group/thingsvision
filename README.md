@@ -47,7 +47,7 @@
 
 <!-- About the Project -->
 ## :star2: About the Project
-`thingsvision` is a Python package that let's you easily extract image representations from many state-of-the-art computer vision models. In a nutshell, you feed `thingsvision` with a directory of images and tell it which neural network you are interested in. `thingsvision` will then give you the  representation of the indicated neural network for each image so that you will end up with one feature map (vector or matrix, depending on the layer) per image. You can use these features for further analyses. We use the word `features` for short when we mean "image representation".
+`thingsvision` is a Python package for extracting (image) representations from many state-of-the-art computer vision models. In a nutshell, you feed `thingsvision` with a directory of images and tell it which neural network you are interested in. `thingsvision` will then give you the  representation of the indicated neural network for each image so that you will end up with one feature map (vector or matrix, depending on the layer) per image. You can use these features for further analyses. We use the word `features` for short when we mean "image representation".
 
 :rotating_light: NOTE: some function calls mentioned in the original [paper](https://www.frontiersin.org/articles/10.3389/fninf.2021.679838/full) have been deprecated. To use this package successfully, exclusively follow this `README` and the [documentation](https://vicco-group.github.io/thingsvision/)! :rotating_light:
 
@@ -75,7 +75,8 @@ Neural networks come from different sources. With `thingsvision`, you can extrac
 - `ssl` (self-supervised learning models)
   - `simclr-rn50`, `mocov2-rn50`, `barlowtwins-rn50`, `pirl-rn50`
   - `jigsaw-rn50`, `rotnet-rn50`, `swav-rn50`, `vicreg-rn50`
-  - `dino-rn50`, `dino-xcit-{small/medium}-{12/24}-p{8/16}`, `dino-vit-{tiny/small/base}-p{8/16}`, `dinov2-vit-{small/base/large/giant}-p14`<br>
+  - `dino-rn50`, `dino-xcit-{small/medium}-{12/24}-p{8/16}`, `dino-vit-{tiny/small/base}-p{8/16}`, `dinov2-vit-{small/base/large/giant}-p14`
+  - `mae-vit-{base/large}-p16`, `mae-vit-huge-p14`<br>
 - [OpenCLIP](https://github.com/mlfoundations/open_clip) models (CLIP trained on LAION-{400M/2B/5B})
 - [CLIP](https://github.com/openai/CLIP) models (CLIP trained on WiT)
 - a few custom models (Alexnet, VGG-16, Resnet50, and Inception_v3) trained on [Ecoset](https://www.pnas.org/doi/10.1073/pnas.2011417118) rather than ImageNet and one Alexnet model pretrained on ImageNet and fine-tuned on [SalObjSub](https://cs-people.bu.edu/jmzhang/sos.html)<br>
