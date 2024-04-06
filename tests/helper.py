@@ -185,12 +185,6 @@ MODEL_AND_MODULE_NAMES = {
         "source": "ssl",
         "kwargs": {"extract_cls_token": True},
     },
-    "mae-vit-large-p16": {
-        "model_name": "mae-vit-base-p16",
-        "modules": ["fc_norm"],
-        "pretrained": True,
-        "source": "ssl",
-    },
     # Additional models
     "Harmonization_visual_ResNet50": {
         "model_name": "Harmonization",
@@ -198,13 +192,6 @@ MODEL_AND_MODULE_NAMES = {
         "pretrained": True,
         "source": "custom",
         "kwargs": {"variant": "ResNet50"},
-    },
-    "Harmonization_fc2_VGG16": {
-        "model_name": "Harmonization",
-        "modules": ["fc2"],
-        "pretrained": True,
-        "source": "custom",
-        "kwargs": {"variant": "VGG16"},
     },
     "Harmonization_head_ViT_B16": {
         "model_name": "Harmonization",
