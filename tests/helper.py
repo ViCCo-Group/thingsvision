@@ -193,6 +193,13 @@ MODEL_AND_MODULE_NAMES = {
         "source": "custom",
         "kwargs": {"variant": "ResNet50"},
     },
+    "Harmonization_fc2_VGG16": {
+        "model_name": "Harmonization",
+        "modules": ["fc2"],
+        "pretrained": True,
+        "source": "custom",
+        "kwargs": {"variant": "VGG16"},
+    },
     "Harmonization_head_ViT_B16": {
         "model_name": "Harmonization",
         "modules": ["head"],
