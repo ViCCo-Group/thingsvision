@@ -411,11 +411,11 @@ class SSLExtractor(PyTorchExtractor):
                     self.model = model
                 elif self.model_name.startswith("mae"):
                     if self.model_name == "mae-vit-base-p16":
-                        model = vit_base_patch16(drop_path_rate=0.1)
+                        model = vit_base_patch16(num_classes=0, drop_path_rate=0.1)
                     elif self.model_name == "mae-vit-large-p16":
-                        model = vit_large_patch16(drop_path_rate=0.1)
+                        model = vit_large_patch16(num_classes=0, drop_path_rate=0.1)
                     elif self.model_name == "mae-vit-huge-p14":
-                        model = vit_huge_patch14(drop_path_rate=0.1)
+                        model = vit_huge_patch14(num_classes=0, drop_path_rate=0.1)
                     state_dict = torch.hub.load_state_dict_from_url(
                         model_config["checkpoint_url"]
                     )
