@@ -100,12 +100,6 @@ MODEL_AND_MODULE_NAMES = {
         "pretrained": True,
         "source": "keras",
     },
-    "VGG19_keras": {
-        "model_name": "VGG19",
-        "modules": ["block1_conv1", "flatten"],
-        "pretrained": False,
-        "source": "keras",
-    },
     # Vissl models
     "simclr-rn50": {
         "model_name": "simclr-rn50",
@@ -184,6 +178,13 @@ MODEL_AND_MODULE_NAMES = {
         "source": "ssl",
         "kwargs": {"extract_cls_token": True},
     },
+    "mae-vit-base-p16": {
+        "model_name": "mae-vit-base-p16",
+        "modules": ["norm", "fc_norm"],
+        "pretrained": True,
+        "source": "ssl",
+        "kwargs": {"extract_cls_token": True},
+    },
     # Additional models
     "Harmonization_visual_ResNet50": {
         "model_name": "Harmonization",
@@ -191,13 +192,6 @@ MODEL_AND_MODULE_NAMES = {
         "pretrained": True,
         "source": "custom",
         "kwargs": {"variant": "ResNet50"},
-    },
-    "Harmonization_fc2_VGG16": {
-        "model_name": "Harmonization",
-        "modules": ["fc2"],
-        "pretrained": True,
-        "source": "custom",
-        "kwargs": {"variant": "VGG16"},
     },
     "Harmonization_head_ViT_B16": {
         "model_name": "Harmonization",

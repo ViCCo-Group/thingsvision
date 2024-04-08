@@ -15,6 +15,12 @@ except ImportError:
 
 from thingsvision.utils.checkpointing import get_torch_home
 from thingsvision.utils.models.dino import vit_base, vit_small, vit_tiny
+from thingsvision.utils.models.mae import (
+    interpolate_pos_embed,
+    vit_base_patch16,
+    vit_huge_patch14,
+    vit_large_patch16,
+)
 
 from .tensorflow import TensorFlowExtractor
 from .torch import PyTorchExtractor
@@ -285,6 +291,24 @@ class SSLExtractor(PyTorchExtractor):
             "arch": "dinov2_vitg14",
             "type": "hub",
         },
+        "mae-vit-base-p16": {
+            "repository": "facebookresearch/mae",
+            "arch": "mae_vit_base_patch16",
+            "type": "hub",
+            "checkpoint_url": "https://dl.fbaipublicfiles.com/mae/pretrain/mae_pretrain_vit_base.pth",
+        },
+        "mae-vit-large-p16": {
+            "repository": "facebookresearch/mae",
+            "arch": "mae_vit_large_patch16",
+            "type": "hub",
+            "checkpoint_url": "https://dl.fbaipublicfiles.com/mae/pretrain/mae_pretrain_vit_large.pth",
+        },
+        "mae-vit-huge-p14": {
+            "repository": "facebookresearch/mae",
+            "arch": "mae_vit_huge_patch14",
+            "type": "hub",
+            "checkpoint_url": "https://dl.fbaipublicfiles.com/mae/pretrain/mae_pretrain_vit_huge.pth",
+        },
     }
 
     def __init__(
@@ -384,6 +408,23 @@ class SSLExtractor(PyTorchExtractor):
                         model_config["checkpoint_url"]
                     )
                     model.load_state_dict(state_dict, strict=True)
+                    self.model = model
+                elif self.model_name.startswith("mae"):
+                    if self.model_name == "mae-vit-base-p16":
+                        model = vit_base_patch16(num_classes=0, drop_rate=0.0)
+                    elif self.model_name == "mae-vit-large-p16":
+                        model = vit_large_patch16(num_classes=0, drop_rate=0.0)
+                    elif self.model_name == "mae-vit-huge-p14":
+                        model = vit_huge_patch14(num_classes=0, drop_rate=0.0)
+                    else:
+                        raise ValueError(f"\n{self.model_name} is not available.\n")
+                    state_dict = torch.hub.load_state_dict_from_url(
+                        model_config["checkpoint_url"]
+                    )
+                    checkpoint_model = state_dict["model"]
+                    # interpolate position embedding
+                    interpolate_pos_embed(model, checkpoint_model)
+                    model.load_state_dict(checkpoint_model, strict=False)
                     self.model = model
                 else:
                     self.model = torch.hub.load(

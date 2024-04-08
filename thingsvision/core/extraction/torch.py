@@ -106,7 +106,7 @@ class PyTorchExtractor(BaseExtractor):
         _ = self.forward(batch)
         act = self.activations[module_name]
         if hasattr(self, "extract_cls_token"):
-            if self.extract_cls_token:
+            if self.extract_cls_token and len(act.shape) > 2:
                 # we are only interested in the representations of the first token, i.e., [cls] token
                 act = act[:, 0, :].clone()
         if flatten_acts:
