@@ -45,6 +45,12 @@ def get_parsers():
         help="""Device to use for the extractor. Options are 'cpu', 'cuda', or 'cuda:x', 
                 where x is the GPU index. (default: cuda)""",
     )
+    common_parser.add_argument(
+        "--model-parameters",
+        type=str,
+        default=None,
+        help="For CLIP, OpenCLIP, DreamSIM, and DINO models a model_parameters dictionary has to be defined. (default: None)",
+    )
 
     subparsers = parent_parser.add_subparsers(
         title="Subcommands",
@@ -92,12 +98,6 @@ def get_parsers():
     )
     parser_extract.add_argument(
         "--flatten-acts", action="store_true", help="Flatten activations before saving them to disk."
-    )
-    parser_extract.add_argument(
-        "--model-parameters",
-        type=str,
-        default=None,
-        help="For CLIP, OpenCLIP, DreamSIM, and DINO models a model_parameters dictionary has to be defined. (default: None)",
     )
     parser_extract.add_argument(
         "--module-name",
@@ -159,7 +159,7 @@ def main():
     )
 
     if args.command == "show-model":
-        extractor.show_model()
+        print(extractor.show_model())
         sys.exit(1)
 
     if args.command == "extract-features":
