@@ -170,7 +170,7 @@ def main():
             transforms=extractor.get_transformations(),
         )
         batches = DataLoader(
-            dataset=dataset, batch_size=args.batch_size, backend=extractor.backend
+            dataset=dataset, batch_size=args.batch_size, backend=extractor.get_backend()
         )
 
         features = extractor.extract_features(
