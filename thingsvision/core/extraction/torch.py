@@ -147,7 +147,9 @@ class PyTorchExtractor(BaseExtractor):
         self, batch: TensorType["b", "c", "h", "w"]
     ) -> TensorType["b", "num_cls"]:
         """Default forward pass."""
-        return self.model(batch)
+        with torch.inference_mode():
+            pred = self.model(batch)
+        return pred
 
     @staticmethod
     def flatten_acts(
