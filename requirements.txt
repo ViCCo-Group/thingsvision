@@ -3,7 +3,7 @@ h5py
 keras-cv-attention-models>=1.3.5
 matplotlib
 numba
-numpy>=1.22.*
+numpy
 open_clip_torch==2.24.*
 pandas
 regex
