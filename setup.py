@@ -21,7 +21,7 @@ requirements = [
     "scipy",
     "tensorflow==2.9.* ; sys_platform != 'darwin' or platform_machine != 'arm64'",
     "tensorflow-macos==2.9.* ; sys_platform == 'darwin' and platform_machine == 'arm64'",
-    "timm>=0.6.*",
+    "timm",
     "torch>=1.9.0",
     "torchvision==0.15.1",
     "torchtyping",
