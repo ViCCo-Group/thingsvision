@@ -89,7 +89,7 @@ class PyTorchExtractor(BaseExtractor):
             act = self._to_numpy(act)
         return act
 
-    @torch.no_grad()
+    @torch.inference_mode()
     def _extract_batch(
         self,
         batch: TensorType["b", "c", "h", "w"],
@@ -143,7 +143,6 @@ class PyTorchExtractor(BaseExtractor):
             self._unregister_hook()
         return features
 
-    @torch.inference_mode()
     def forward(
         self, batch: TensorType["b", "c", "h", "w"]
     ) -> TensorType["b", "num_cls"]:
