@@ -119,20 +119,8 @@ MODEL_AND_MODULE_NAMES = {
         "pretrained": True,
         "source": "ssl",
     },
-    "rotnet-rn50": {
-        "model_name": "rotnet-rn50",
-        "modules": ["avgpool"],
-        "pretrained": True,
-        "source": "ssl",
-    },
     "swav-rn50": {
         "model_name": "swav-rn50",
-        "modules": ["avgpool"],
-        "pretrained": True,
-        "source": "ssl",
-    },
-    "pirl-rn50": {
-        "model_name": "pirl-rn50",
         "modules": ["avgpool"],
         "pretrained": True,
         "source": "ssl",
@@ -206,13 +194,6 @@ MODEL_AND_MODULE_NAMES = {
         "pretrained": True,
         "source": "custom",
         "kwargs": {"variant": "clip_vitb32"},
-    },
-    "DreamSim_mlp_open_clip_vitb32": {
-        "model_name": "DreamSim",
-        "modules": ["model.mlp"],
-        "pretrained": True,
-        "source": "custom",
-        "kwargs": {"variant": "open_clip_vitb32"},
     },
     "DreamSim_mlp_dino_vitb16": {
         "model_name": "DreamSim",
