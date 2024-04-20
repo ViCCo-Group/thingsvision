@@ -79,6 +79,7 @@ class CKATestCase(unittest.TestCase):
         for kernel in ["linear", "rbf"]:
             sigma = 0.5 if kernel == "rbf" else None
             for backend in ["numpy", "torch"]:
+                device = "cpu" if backend == "torch" else None
                 for debiased in [True, False]:
                     cka = get_cka(
                         backend=backend,
@@ -86,6 +87,7 @@ class CKATestCase(unittest.TestCase):
                         unbiased=debiased,
                         kernel=kernel,
                         sigma=sigma,
+                        device=device,
                     )
                     rho = cka.compare(features_i, features_j)
                     if backend == "torch":
