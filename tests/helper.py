@@ -195,13 +195,6 @@ MODEL_AND_MODULE_NAMES = {
         "source": "custom",
         "kwargs": {"variant": "clip_vitb32"},
     },
-    "DreamSim_mlp_open_clip_vitb32": {
-        "model_name": "DreamSim",
-        "modules": ["model.mlp"],
-        "pretrained": True,
-        "source": "custom",
-        "kwargs": {"variant": "open_clip_vitb32"},
-    },
     "DreamSim_mlp_dino_vitb16": {
         "model_name": "DreamSim",
         "modules": ["model.mlp"],
