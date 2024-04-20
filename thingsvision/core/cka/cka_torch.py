@@ -41,7 +41,7 @@ class CKATorch(CKABase):
                 )
                 self.device = "cuda:0"
 
-        print("Using device: ", self.device)
+        print(f"\nUsing device: {self.device}\n")
 
     @staticmethod
     def centering_matrix(m: int) -> TensorType["m", "m"]:
