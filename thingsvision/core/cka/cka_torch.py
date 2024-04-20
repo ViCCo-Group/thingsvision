@@ -13,25 +13,25 @@ class CKATorch(CKABase):
         self, m: int, kernel: str, device: str = "cpu", sigma: Optional[float] = None
     ) -> None:
         super().__init__(m=m, kernel=kernel, sigma=sigma)
-        self.device = device
-        self._check_device()
-        if self.device == "cpu":
+        device = self._check_device(device)
+        if device == "cpu":
             self.hsic = self._hsic
         else:
             self.hsic = torch.compile(self._hsic)
-        self.device = torch.device(self.device)
+        self.device = torch.device(device)
         self.H = self.H.to(self.device)
 
-    def _check_device(self) -> None:
-        if self.device.startswith("cuda"):
-            gpu_index = re.search(r"cuda:(\d+)", self.device)
+    @staticmethod
+    def _check_device(self, device: str) -> str:
+        if device.startswith("cuda"):
+            gpu_index = re.search(r"cuda:(\d+)", device)
 
             if not torch.cuda.is_available():
                 warnings.warn(
                     "\nCUDA is not available on your system. Switching to device='cpu'.\n",
                     category=UserWarning,
                 )
-                self.device = "cpu"
+                device = "cpu"
             elif gpu_index and int(gpu_index.group(1)) >= torch.cuda.device_count():
                 warnings.warn(
                     f"\nGPU index {gpu_index.group(1)} is out of range. "
@@ -39,9 +39,10 @@ class CKATorch(CKABase):
                     f"Switching to device='cuda:0'.\n",
                     category=UserWarning,
                 )
-                self.device = "cuda:0"
+                device = "cuda:0"
 
-        print(f"\nUsing device: {self.device}\n")
+        print(f"\nUsing device: {device}\n")
+        return device
 
     @staticmethod
     def centering_matrix(m: int) -> TensorType["m", "m"]:
