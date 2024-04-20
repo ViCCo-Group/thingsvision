@@ -88,12 +88,9 @@ class CKATestCase(unittest.TestCase):
                         sigma=sigma,
                     )
                     rho = cka.compare(features_i, features_j)
-                    if backend == "numpy":
-                        self.assertTrue(rho > float(-1) and rho < float(1))
-                    else:
-                        self.assertTrue(
-                            rho > torch.tensor(-1) and rho < torch.tensor(1)
-                        )
+                    if backend == "torch":
+                        rho = rho.item()
+                    self.assertTrue(rho > float(-1) and rho < float(1))
 
 
 class FileNamesTestCase(unittest.TestCase):
