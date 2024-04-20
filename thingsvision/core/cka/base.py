@@ -9,9 +9,12 @@ Tensor = torch.Tensor
 
 
 class CKABase(metaclass=abc.ABCMeta):
-    def __init__(self, m: int, kernel: str, sigma: Optional[float] = None) -> None:
+    def __init__(
+        self, m: int, kernel: str, unbiased: bool = False, sigma: Optional[float] = None
+    ) -> None:
         self.m = m  # number of examples
-        self.kernel = kernel
+        self.kernel = kernel  # linear or rbf kernel
+        self.unbiased = unbiased  # whether to use the unbiased version of CKA
         self.sigma = sigma
         self.H = self.centering_matrix(m)
 

@@ -8,21 +8,33 @@ Array = np.ndarray
 
 
 class CKANumPy(CKABase):
-    def __init__(self, m: int, kernel: str, sigma: float = None) -> None:
-        super().__init__(m=m, kernel=kernel, sigma=sigma)
-
-    @staticmethod
-    def centering_matrix(m: int) -> Array:
-        """Compute the centering matrix H."""
-        H = np.eye(m) - np.ones((m, m)) / m
-        return H
+    def __init__(
+        self, m: int, kernel: str, unbiased: bool = False, sigma: float = None
+    ) -> None:
+        super().__init__(m=m, kernel=kernel, unbiased=unbiased, sigma=sigma)
 
     def centering(self, K: Array) -> Array:
         """Centering of the gram matrix K."""
         if not np.allclose(K, K.T, rtol=1e-03, atol=1e-04):
             raise ValueError("\nInput array must be a symmetric matrix.\n")
-        K_c = self.H @ K @ self.H
-        return K_c
+        if self.unbiased:
+            # This formulation of the U-statistic, from Szekely, G. J., & Rizzo, M.
+            # L. (2014). Partial distance correlation with methods for dissimilarities.
+            # The Annals of Statistics, 42(6), 2382-2412, seems to be more numerically
+            # stable than the alternative from Song et al. (2007).
+            n = K.shape[0]
+            np.fill_diagonal(K, 0.0)
+            means = np.sum(K, axis=0, dtype=np.float64) / (n - 2)
+            means -= np.sum(means) / (2 * (n - 1))
+            K -= means[:, None]
+            K -= means[None, :]
+            np.fill_diagonal(K, 0.0)
+        else:
+            means = np.mean(K, axis=0, dtype=np.float64)
+            means -= np.mean(means) / 2
+            K -= means[:, None]
+            K -= means[None, :]
+        return K
 
     def apply_kernel(self, X: Array) -> Array:
         """Compute the gram matrix K."""

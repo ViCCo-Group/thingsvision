@@ -28,7 +28,8 @@ from thingsvision.core.cka import get_cka
 backend = "torch" # can be set to "torch" or numpy"
 m = # number of images (e.g., features_i.shape[0])
 kernel = 'linear'
+unbiased = True # whether to compute an unbiased version of CKA
 device = "cuda" # only necessary to be defined for "torch" backend
-cka = get_cka(backend=backend, m=m, kernel=kernel, device=device)
+cka = get_cka(backend=backend, m=m, kernel=kernel, unbiased=unbiased, device=device)
 rho = cka.compare(X=features_i, Y=features_j)
 ```

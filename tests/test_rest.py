@@ -1,13 +1,14 @@
 import os
 import unittest
 
-import torch
 import numpy as np
-from thingsvision.core.rsa import compute_rdm, correlate_rdms, plot_rdm
+import torch
 from thingsvision.core.cka import get_cka
+from thingsvision.core.rsa import compute_rdm, correlate_rdms, plot_rdm
 from thingsvision.utils.storing import save_features
 
 import tests.helper as helper
+
 
 class RSATestCase(unittest.TestCase):
     @classmethod
@@ -49,7 +50,6 @@ class RSATestCase(unittest.TestCase):
             self.assertTrue(corr > float(-1) and corr < float(1))
 
 
-
 class CKATestCase(unittest.TestCase):
 
     @classmethod
@@ -76,17 +76,26 @@ class CKATestCase(unittest.TestCase):
         )
         self.assertEqual(features_i.shape, features_j.shape)
         m = features_i.shape[0]
-        for kernel in ['linear', 'rbf']:
+        for kernel in ["linear", "rbf"]:
+            sigma = 0.5 if kernel == "rbf" else None
             for backend in ["numpy", "torch"]:
-                cka = get_cka(backend=backend, m=m, kernel=kernel, sigma=0.5 if kernel == 'rbf' else None)
-                rho = cka.compare(features_i, features_j)
-                if backend == "numpy":
-                    self.assertTrue(isinstance(rho, float))
-                    self.assertTrue(rho > float(-1) and rho < float(1))
-                else:
-                    self.assertTrue(isinstance(rho, torch.Tensor))
-                    self.assertTrue(rho > torch.tensor(-1) and rho < torch.tensor(1))
-
+                for debiased in [True, False]:
+                    cka = get_cka(
+                        backend=backend,
+                        m=m,
+                        unbiased=debiased,
+                        kernel=kernel,
+                        sigma=sigma,
+                    )
+                    rho = cka.compare(features_i, features_j)
+                    if backend == "numpy":
+                        self.assertTrue(isinstance(rho, float))
+                        self.assertTrue(rho > float(-1) and rho < float(1))
+                    else:
+                        self.assertTrue(isinstance(rho, torch.Tensor))
+                        self.assertTrue(
+                            rho > torch.tensor(-1) and rho < torch.tensor(1)
+                        )
 
 
 class FileNamesTestCase(unittest.TestCase):

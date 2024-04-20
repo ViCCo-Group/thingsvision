@@ -10,9 +10,14 @@ from .base import CKABase
 
 class CKATorch(CKABase):
     def __init__(
-        self, m: int, kernel: str, device: str = "cpu", sigma: Optional[float] = None
+        self,
+        m: int,
+        kernel: str,
+        unbiased: bool = False,
+        device: str = "cpu",
+        sigma: Optional[float] = None,
     ) -> None:
-        super().__init__(m=m, kernel=kernel, sigma=sigma)
+        super().__init__(m=m, kernel=kernel, unbiased=unbiased, sigma=sigma)
         device = self._check_device(device)
         if device == "cpu":
             self.hsic = self._hsic
@@ -44,18 +49,28 @@ class CKATorch(CKABase):
         print(f"\nUsing device: {device}\n")
         return device
 
-    @staticmethod
-    def centering_matrix(m: int) -> TensorType["m", "m"]:
-        """Compute the centering matrix H."""
-        H = torch.eye(m) - torch.ones((m, m)) / m
-        return H
-
     def centering(self, K: TensorType["m", "m"]) -> TensorType["m", "m"]:
         """Centering of the gram matrix K."""
         if not torch.allclose(K, K.T, rtol=1e-03, atol=1e-04):
             raise ValueError("\nInput array must be a symmetric matrix.\n")
-        K_c = self.H @ K @ self.H
-        return K_c
+        if self.unbiased:
+            # This formulation of the U-statistic, from Szekely, G. J., & Rizzo, M.
+            # L. (2014). Partial distance correlation with methods for dissimilarities.
+            # The Annals of Statistics, 42(6), 2382-2412, seems to be more numerically
+            # stable than the alternative from Song et al. (2007).
+            n = K.shape[0]
+            K.fill_diagonal_(0.0)
+            means = K.sum(dim=0) / (n - 2)
+            means -= means.sum() / (2 * (n - 1))
+            K -= means[:, None]
+            K -= means[None, :]
+            K.fill_diagonal_(0.0)
+        else:
+            means = K.mean(dim=0)
+            means -= means.mean() / 2
+            K -= means[:, None]
+            K -= means[None, :]
+        return K
 
     def apply_kernel(
         self, X: Union[TensorType["m", "d"], TensorType["m", "p"]]
