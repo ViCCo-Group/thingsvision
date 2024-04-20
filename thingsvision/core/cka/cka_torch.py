@@ -26,7 +26,7 @@ class CKATorch(CKABase):
         self.device = torch.device(device)
 
     @staticmethod
-    def _check_device(self, device: str) -> str:
+    def _check_device(device: str) -> str:
         if device.startswith("cuda"):
             gpu_index = re.search(r"cuda:(\d+)", device)
 
