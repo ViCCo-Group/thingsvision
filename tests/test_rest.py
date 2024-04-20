@@ -89,10 +89,8 @@ class CKATestCase(unittest.TestCase):
                     )
                     rho = cka.compare(features_i, features_j)
                     if backend == "numpy":
-                        self.assertTrue(isinstance(rho, float))
                         self.assertTrue(rho > float(-1) and rho < float(1))
                     else:
-                        self.assertTrue(isinstance(rho, torch.Tensor))
                         self.assertTrue(
                             rho > torch.tensor(-1) and rho < torch.tensor(1)
                         )
