@@ -16,12 +16,6 @@ class CKABase(metaclass=abc.ABCMeta):
         self.kernel = kernel  # linear or rbf kernel
         self.unbiased = unbiased  # whether to use the unbiased version of CKA
         self.sigma = sigma
-        self.H = self.centering_matrix(m)
-
-    @abc.abstractmethod
-    def centering_matrix(m: int) -> Union[Array, Tensor]:
-        """Compute the centering matrix H."""
-        raise NotImplementedError
 
     @abc.abstractmethod
     def centering(self, K: Union[Array, Tensor]) -> Union[Array, Tensor]:

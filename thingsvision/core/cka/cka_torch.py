@@ -24,7 +24,6 @@ class CKATorch(CKABase):
         else:
             self.hsic = torch.compile(self._hsic)
         self.device = torch.device(device)
-        self.H = self.H.to(self.device)
 
     @staticmethod
     def _check_device(self, device: str) -> str:
