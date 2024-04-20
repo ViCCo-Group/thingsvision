@@ -1,9 +1,10 @@
 import os
 import unittest
 
+import torch
 import numpy as np
 from thingsvision.core.rsa import compute_rdm, correlate_rdms, plot_rdm
-from thingsvision.core.cka import CKA
+from thingsvision.core.cka import get_cka
 from thingsvision.utils.storing import save_features
 
 import tests.helper as helper
@@ -76,10 +77,16 @@ class CKATestCase(unittest.TestCase):
         self.assertEqual(features_i.shape, features_j.shape)
         m = features_i.shape[0]
         for kernel in ['linear', 'rbf']:
-            cka = CKA(m=m, kernel=kernel, sigma=0.5 if kernel == 'rbf' else None)
-            rho = cka.compare(features_i, features_j)
-            self.assertTrue(isinstance(rho, float))
-            self.assertTrue(rho > float(-1) and rho < float(1))
+            for backend in ["numpy", "torch"]:
+                cka = get_cka(backend=backend, m=m, kernel=kernel, sigma=0.5 if kernel == 'rbf' else None)
+                rho = cka.compare(features_i, features_j)
+                if backend == "numpy":
+                    self.assertTrue(isinstance(rho, float))
+                    self.assertTrue(rho > float(-1) and rho < float(1))
+                else:
+                    self.assertTrue(isinstance(rho, torch.Tensor))
+                    self.assertTrue(rho > torch.tensor(-1) and rho < torch.tensor(1))
+
 
 
 class FileNamesTestCase(unittest.TestCase):

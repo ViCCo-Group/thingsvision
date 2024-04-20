@@ -1,1 +1,1 @@
-from .base import CKA
+from .helpers import get_cka

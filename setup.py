@@ -9,7 +9,6 @@ exec(open("thingsvision/_version.py").read())
 requirements = [
     "ftfy",
     "h5py",
-    # "keras-cv-attention-models>=1.3.5",
     "matplotlib",
     "numba",
     "numpy",
@@ -21,7 +20,7 @@ requirements = [
     "scipy",
     "tensorflow==2.9.* ; sys_platform != 'darwin' or platform_machine != 'arm64'",
     "tensorflow-macos==2.9.* ; sys_platform == 'darwin' and platform_machine == 'arm64'",
-    "timm==0.6.*",
+    "timm",
     "torch>=2.0.1",
     "torchvision==0.15.2",
     "torchtyping",

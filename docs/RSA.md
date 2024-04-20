@@ -1,5 +1,5 @@
 ---
-title: RSA tools
+title: Comparing representations
 nav_order: 8
 ---
 
@@ -23,10 +23,12 @@ corr_coeff = correlate_rdms(rdm_dnn, rdm_human, correlation='pearson')
 Perform CKA to compare image features of two different model architectures for the same layer, or two different layers of the same architecture.
 
 ```python
-from thingsvision.core.cka import CKA
+from thingsvision.core.cka import get_cka
 
+backend = "torch" # can be set to "torch" or numpy"
 m = # number of images (e.g., features_i.shape[0])
 kernel = 'linear'
-cka = CKA(m=m, kernel=kernel)
+device = "cuda" # only necessary to be defined for "torch" backend
+cka = get_cka(backend=backend, m=m, kernel=kernel, device=device)
 rho = cka.compare(X=features_i, Y=features_j)
 ```
