@@ -80,7 +80,7 @@ class CKATestCase(unittest.TestCase):
             if backend == "torch":
                 device = "cpu"
                 features_i = torch.from_numpy(features_i)
-                features_i = torch.from_numpy(features_j)
+                features_j = torch.from_numpy(features_j)
             else:
                 device = None
             for kernel in ["linear", "rbf"]:
