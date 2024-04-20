@@ -35,7 +35,7 @@ class CKANumPy(CKABase):
     def linear_kernel(self, X: Array) -> Array:
         return X @ X.T
 
-    def rbf_kernel(self, X: Array, sigma=None) -> Array:
+    def rbf_kernel(self, X: Array, sigma: float = None) -> Array:
         GX = X @ X.T
         KX = np.diag(GX) - GX + (np.diag(GX) - GX).T
         if sigma is None:
