@@ -9,9 +9,9 @@ BACKENDS = ["numpy", "torch"]
 def get_cka(
     backend: str,
     m: int,
-    kernel: str,
+    kernel: str = "linear",
     unbiased: bool = False,
-    sigma: Optional[float] = None,
+    sigma: Optional[float] = 1.0,
     device: Optional[str] = None,
 ) -> Union[CKANumPy, CKATorch]:
     assert backend in BACKENDS, f"\nSupported backends are: {BACKENDS}\n"
@@ -20,7 +20,7 @@ def get_cka(
     else:
         assert isinstance(
             device, str
-        ), "\nDevice must be set for using the PyTorch backend.\n"
+        ), "\nDevice must be set for using PyTorch backend.\n"
         cka = CKATorch(
             m=m, kernel=kernel, unbiased=unbiased, device=device, sigma=sigma
         )

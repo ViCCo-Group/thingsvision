@@ -1,4 +1,5 @@
 import math
+from typing import Optional
 
 import numpy as np
 
@@ -9,11 +10,13 @@ Array = np.ndarray
 
 class CKANumPy(CKABase):
     def __init__(
-        self, m: int, kernel: str, unbiased: bool = False, sigma: float = None
+        self, m: int, kernel: str, unbiased: bool = False, sigma: Optional[float] = 1.0
     ) -> None:
         super().__init__(m=m, kernel=kernel, unbiased=unbiased, sigma=sigma)
 
     def centering(self, K: Array) -> Array:
+        # The below code block is mainly copied from Simon Kornblith's implementation
+        # which can be found here: https://github.com/google-research/google-research/blob/master/representation_similarity/Demo.ipynb
         """Centering of the gram matrix K."""
         if not np.allclose(K, K.T, rtol=1e-03, atol=1e-04):
             raise ValueError("\nInput array must be a symmetric matrix.\n")
@@ -47,7 +50,7 @@ class CKANumPy(CKABase):
     def linear_kernel(self, X: Array) -> Array:
         return X @ X.T
 
-    def rbf_kernel(self, X: Array, sigma: float = None) -> Array:
+    def rbf_kernel(self, X: Array, sigma: float = 1.0) -> Array:
         GX = X @ X.T
         KX = np.diag(GX) - GX + (np.diag(GX) - GX).T
         if sigma is None:
@@ -57,7 +60,7 @@ class CKANumPy(CKABase):
         KX = np.exp(KX)
         return KX
 
-    def _hsic(self, X: Array, Y: Array) -> float:
+    def _hsic(self, X: Array, Y: Array) -> Array:
         K = self.apply_kernel(X)
         L = self.apply_kernel(Y)
         K_c = self.centering(K)
@@ -66,7 +69,7 @@ class CKANumPy(CKABase):
         # sum_{i=0}^{m} sum_{j=0}^{m} K^{\prime}_{ij} * L^{\prime}_{ij} = vec(K_c)^{T}vec(L_c)
         return np.sum(K_c * L_c)
 
-    def compare(self, X: Array, Y: Array) -> float:
+    def compare(self, X: Array, Y: Array) -> Array:
         hsic_xy = self._hsic(X, Y)
         hsic_xx = self._hsic(X, X)
         hsic_yy = self._hsic(Y, Y)

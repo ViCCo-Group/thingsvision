@@ -15,7 +15,7 @@ class CKATorch(CKABase):
         kernel: str,
         unbiased: bool = False,
         device: str = "cpu",
-        sigma: Optional[float] = None,
+        sigma: Optional[float] = 1.0,
     ) -> None:
         super().__init__(m=m, kernel=kernel, unbiased=unbiased, sigma=sigma)
         device = self._check_device(device)
@@ -50,6 +50,8 @@ class CKATorch(CKABase):
 
     def centering(self, K: TensorType["m", "m"]) -> TensorType["m", "m"]:
         """Centering of the gram matrix K."""
+        # The below code block is mainly copied from Simon Kornblith's implementation
+        # which can be found here: https://github.com/google-research/google-research/blob/master/representation_similarity/Demo.ipynb
         if not torch.allclose(K, K.T, rtol=1e-03, atol=1e-04):
             raise ValueError("\nInput array must be a symmetric matrix.\n")
         if self.unbiased:
@@ -87,7 +89,7 @@ class CKATorch(CKABase):
         return X @ X.T
 
     def rbf_kernel(
-        self, X: TensorType["m", "d"], sigma: float = None
+        self, X: TensorType["m", "d"], sigma: Optional[float] = 1.0
     ) -> TensorType["m", "m"]:
         GX = X @ X.T
         KX = torch.diag(GX) - GX + (torch.diag(GX) - GX).T

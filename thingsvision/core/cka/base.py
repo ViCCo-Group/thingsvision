@@ -10,7 +10,7 @@ Tensor = torch.Tensor
 
 class CKABase(metaclass=abc.ABCMeta):
     def __init__(
-        self, m: int, kernel: str, unbiased: bool = False, sigma: Optional[float] = None
+        self, m: int, kernel: str, unbiased: bool = False, sigma: Optional[float] = 1.0
     ) -> None:
         self.m = m  # number of examples
         self.kernel = kernel  # linear or rbf kernel
