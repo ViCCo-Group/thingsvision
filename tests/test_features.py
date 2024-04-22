@@ -4,10 +4,10 @@ import unittest
 
 import numpy as np
 import torch
-from thingsvision.core.extraction import center_features, normalize_features
-from thingsvision.utils.storing import save_features, split_features
 
 import tests.helper as helper
+from thingsvision.core.extraction import center_features, normalize_features
+from thingsvision.utils.storing import save_features, split_features
 
 
 class FeaturesTestCase(unittest.TestCase):
