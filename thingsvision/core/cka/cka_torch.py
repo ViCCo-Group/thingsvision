@@ -1,11 +1,14 @@
 import re
 import warnings
-from typing import Optional, Union
+from typing import Optional, Tuple, Union
 
+import numpy as np
 import torch
 from torchtyping import TensorType
 
 from .cka_base import CKABase
+
+Array = np.ndarray
 
 
 class CKATorch(CKABase):
@@ -125,11 +128,26 @@ class CKATorch(CKABase):
         # sum_{i=0}^{m} sum_{j=0}^{m} K^{\prime}_{ij} * L^{\prime}_{ij} = vec(K_c)^{T}vec(L_c)
         return torch.sum(K_c * L_c)
 
+    @staticmethod
+    def _check_types(
+        X: Union[Array, TensorType["m", "d"]],
+        Y: Union[Array, TensorType["m", "p"]],
+    ) -> Tuple[TensorType["m", "d"], TensorType["m", "p"]]:
+        if isinstance(X, Array):
+            X = torch.from_numpy(X)
+        if isinstance(Y, Array):
+            Y = torch.from_numpy(Y)
+        return X, Y
+
     @torch.inference_mode()
     def compare(
-        self, X: TensorType["m", "d"], Y: TensorType["m", "p"]
+        self,
+        X: Union[Array, TensorType["m", "d"]],
+        Y: Union[Array, TensorType["m", "p"]],
     ) -> TensorType["1"]:
         """Compare two representation spaces X and Y using CKA."""
+        X, Y = self._check_types(X, Y)
+        # move X and Y to current device
         X = X.to(self.device)
         Y = Y.to(self.device)
         hsic_xy = self.hsic(X, Y)

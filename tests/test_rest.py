@@ -2,12 +2,11 @@ import os
 import unittest
 
 import numpy as np
-import torch
+
+import tests.helper as helper
 from thingsvision.core.cka import get_cka
 from thingsvision.core.rsa import compute_rdm, correlate_rdms, plot_rdm
 from thingsvision.utils.storing import save_features
-
-import tests.helper as helper
 
 
 class RSATestCase(unittest.TestCase):
@@ -64,7 +63,10 @@ class CKATestCase(unittest.TestCase):
         )
         module_name_i = helper.MODEL_AND_MODULE_NAMES[model_name_i]["modules"][1]
         features_i = extractor.extract_features(
-            batches=batches, module_name=module_name_i, flatten_acts=False
+            batches=batches,
+            module_name=module_name_i,
+            flatten_acts=False,
+            output_type="ndarray",
         )
         model_name_j = "vgg19_bn"
         extractor, _, batches = helper.create_extractor_and_dataloader(
@@ -72,19 +74,17 @@ class CKATestCase(unittest.TestCase):
         )
         module_name = helper.MODEL_AND_MODULE_NAMES[model_name_j]["modules"][1]
         features_j = extractor.extract_features(
-            batches=batches, module_name=module_name, flatten_acts=False
+            batches=batches,
+            module_name=module_name,
+            flatten_acts=False,
+            output_type="ndarray",
         )
         self.assertEqual(features_i.shape, features_j.shape)
         m = features_i.shape[0]
         for backend in ["numpy", "torch"]:
-            if backend == "torch":
-                device = "cpu"
-                features_i = torch.from_numpy(features_i)
-                features_j = torch.from_numpy(features_j)
-            else:
-                device = None
+            device = "cpu" if backend == "torch" else None
             for kernel in ["linear", "rbf"]:
-                sigma = 0.5 if kernel == "rbf" else None
+                sigma = 1.0 if kernel == "rbf" else None
                 for debiased in [True, False]:
                     cka = get_cka(
                         backend=backend,

@@ -9,6 +9,7 @@ import torch
 import torch.nn as nn
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.models import Sequential
+
 from thingsvision import get_extractor
 from thingsvision.utils.data import DataLoader, ImageDataset
 
