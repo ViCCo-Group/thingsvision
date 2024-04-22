@@ -87,13 +87,19 @@ MODEL_AND_MODULE_NAMES = {
         "kwargs": {"variant": "ViT-L-14", "dataset": "laion400m_e32"},
     },
     # Timm models
-    "vit_base_patch16_224": {
-        "model_name": "vit_base_patch16_224",
-        "modules": ["encoder.ln"],
-        "pretrained": True,
-        "source": "timm",
-        "kwargs": {"token_extraction": "avg_pool"},
-    },
+    # "vit_base_patch16_224": {
+    #    "model_name": "vit_base_patch16_224",
+    #    "modules": ["encoder.ln"],
+    #    "pretrained": True,
+    #    "source": "timm",
+    #    "kwargs": {"token_extraction": "avg_pool"},
+    # },
+    # "mixnet_l": {
+    #    "model_name": "mixnet_l",
+    #    "modules": ["conv_head"],
+    #    "pretrained": True,
+    #    "source": "timm",
+    # },
     # Keras models
     "VGG16_keras": {
         "model_name": "VGG16",
