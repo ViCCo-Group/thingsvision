@@ -18,7 +18,7 @@ class CKATorch(CKABase):
         sigma: Optional[float] = 1.0,
     ) -> None:
         """
-        PyTorch implementation of CKA.
+        PyTorch implementation of CKA. Runs on CPU and CUDA.
         Args:
             m (int) - number of images / examples in a mini-batch or the full dataset;
             kernel (str) - 'linear' or 'rbf' kernel for computing the gram matrix;
