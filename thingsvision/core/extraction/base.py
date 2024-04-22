@@ -5,9 +5,10 @@ import warnings
 from typing import Callable, Iterator, List, Optional, Union
 
 import numpy as np
-import torch
 from torchtyping import TensorType
 from tqdm.auto import tqdm
+
+import torch
 
 Array = np.ndarray
 

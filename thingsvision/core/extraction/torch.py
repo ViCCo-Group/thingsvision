@@ -1,16 +1,18 @@
 from typing import Any, Callable, Dict, Iterator, List, Optional, Union
 
 import numpy as np
-import torch
+from thingsvision.utils.alignment import gLocal
 from torchtyping import TensorType
 from torchvision import transforms as T
 
-from thingsvision.utils.alignment import gLocal
+import torch
 
 from .base import BaseExtractor
 
 Array = np.ndarray
 Tensor = torch.Tensor
+
+TOKEN_EXTRACTIONS = ["cls_token", "avg_pool", "cls_token+avg_pool"]
 
 
 class PyTorchExtractor(BaseExtractor):
@@ -34,8 +36,11 @@ class PyTorchExtractor(BaseExtractor):
         self.hook_handle = None
 
         if self.model_parameters:
-            if "extract_cls_token" in self.model_parameters:
-                self.extract_cls_token = self.model_parameters["extract_cls_token"]
+            if "token_extraction" in self.model_parameters:
+                self.token_extraction = self.model_parameters["token_extraction"]
+                assert (
+                    self.token_extraction in TOKEN_EXTRACTIONS
+                ), f"\nFor token extraction use one of {TOKEN_EXTRACTIONS}.\n"
 
         if not self.model:
             self.load_model()
@@ -105,15 +110,25 @@ class PyTorchExtractor(BaseExtractor):
         batch = batch.to(self.device)
         _ = self.forward(batch)
         act = self.activations[module_name]
-        if hasattr(self, "extract_cls_token"):
-            if self.extract_cls_token and len(act.shape) > 2:
-                # we are only interested in the representations of the first token, i.e., [cls] token
-                act = act[:, 0, :].clone()
-        if flatten_acts:
-            if self.model_name.lower().startswith("clip"):
-                act = self.flatten_acts(act, batch, module_name)
-            else:
-                act = self.flatten_acts(act)
+        if len(act.shape) > 2:
+            if flatten_acts:
+                if self.model_name.lower().startswith("clip"):
+                    act = self.flatten_acts(act, batch, module_name)
+                else:
+                    act = self.flatten_acts(act)
+            elif hasattr(self, "token_extraction"):
+                if self.token_extraction == "cls_token":
+                    act = act[:, 0, :].clone()
+                elif self.token_extraction == "avg_pool":
+                    act = act[:, 1:, :].mean(dim=1).clone()
+                elif self.token_extraction == "cls_token+avg_pool":
+                    cls_token = act[:, 0, :].clone()
+                    pooled_tokens = act[:, 1:, :].mean(dim=1).clone()
+                    act = torch.cat((cls_token, pooled_tokens), dim=1)
+                else:
+                    raise ValueError(
+                        f"\n{self.token_extraction} is not a valid value for token extraction.\nChoose one of {TOKEN_EXTRACTIONS}\n"
+                    )
         if act.is_cuda or act.get_device() >= 0:
             torch.cuda.empty_cache()
             act = act.cpu()

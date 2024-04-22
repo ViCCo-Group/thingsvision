@@ -2,11 +2,12 @@ import os
 from typing import Any, Callable, Dict, List, Optional, Union
 
 import numpy as np
+import timm
+import torchvision
+
 import tensorflow as tf
 import tensorflow.keras.applications as tensorflow_models
-import timm
 import torch
-import torchvision
 
 try:
     from torch.hub import load_state_dict_from_url
