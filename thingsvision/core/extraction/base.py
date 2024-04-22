@@ -142,7 +142,7 @@ class BaseExtractor(metaclass=abc.ABCMeta):
         self,
         batches: Iterator[Union[TensorType["b", "c", "h", "w"], Array]],
         module_name: str,
-        flatten_acts: bool,
+        flatten_acts: bool = False,
         output_type: Optional[str] = "ndarray",
         output_dir: Optional[str] = None,
         step_size: Optional[int] = None,

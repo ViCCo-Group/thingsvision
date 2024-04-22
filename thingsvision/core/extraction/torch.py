@@ -120,10 +120,10 @@ class PyTorchExtractor(BaseExtractor):
                 if self.token_extraction == "cls_token":
                     act = act[:, 0, :].clone()
                 elif self.token_extraction == "avg_pool":
-                    act = act[:, 1:, :].mean(dim=1).clone()
+                    act = act[:, 1:, :].clone().mean(dim=1)
                 elif self.token_extraction == "cls_token+avg_pool":
                     cls_token = act[:, 0, :].clone()
-                    pooled_tokens = act[:, 1:, :].mean(dim=1).clone()
+                    pooled_tokens = act[:, 1:, :].clone().mean(dim=1)
                     act = torch.cat((cls_token, pooled_tokens), dim=1)
                 else:
                     raise ValueError(
@@ -138,7 +138,7 @@ class PyTorchExtractor(BaseExtractor):
         self,
         batches: Iterator,
         module_name: str,
-        flatten_acts: bool,
+        flatten_acts: bool = False,
         output_type: str = "ndarray",
         output_dir: Optional[str] = None,
         step_size: Optional[int] = None,
