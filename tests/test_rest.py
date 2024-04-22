@@ -77,14 +77,9 @@ class CKATestCase(unittest.TestCase):
         self.assertEqual(features_i.shape, features_j.shape)
         m = features_i.shape[0]
         for backend in ["numpy", "torch"]:
-            if backend == "torch":
-                device = "cpu"
-                features_i = torch.from_numpy(features_i)
-                features_j = torch.from_numpy(features_j)
-            else:
-                device = None
+            device = "cpu" if backend == "torch" else None
             for kernel in ["linear", "rbf"]:
-                sigma = 0.5 if kernel == "rbf" else None
+                sigma = 1.0 if kernel == "rbf" else None
                 for debiased in [True, False]:
                     cka = get_cka(
                         backend=backend,
