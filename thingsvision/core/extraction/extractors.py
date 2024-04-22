@@ -135,7 +135,7 @@ class TimmExtractor(PyTorchExtractor):
     def load_model_from_source(self) -> None:
         """Load a (pretrained) neural network model from <timm>."""
         if self.model_name in timm.list_models():
-            self.model = timm.create_model(self.model_name, self.pretrained)
+            self.model = timm.create_model(self.model_name, pretrained=self.pretrained)
         else:
             raise ValueError(
                 f"\nCould not find {self.model_name} in timm library.\nChoose a different model.\n"
