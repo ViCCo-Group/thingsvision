@@ -13,7 +13,7 @@ class CKABase(metaclass=abc.ABCMeta):
         self, m: int, kernel: str, unbiased: bool = False, sigma: Optional[float] = 1.0
     ) -> None:
         """
-        CKA base class from which other CKA classes inherit.
+        CKA abstract base class from which other CKA classes inherit.
         Args:
             m (int) - number of images / examples in a mini-batch or the full dataset;
             kernel (str) - 'linear' or 'rbf' kernel for computing the gram matrix;

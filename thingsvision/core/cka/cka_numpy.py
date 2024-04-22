@@ -3,7 +3,7 @@ from typing import Optional
 
 import numpy as np
 
-from .base import CKABase
+from .cka_base import CKABase
 
 Array = np.ndarray
 

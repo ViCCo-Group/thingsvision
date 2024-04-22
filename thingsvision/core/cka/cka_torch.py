@@ -5,7 +5,7 @@ from typing import Optional, Union
 import torch
 from torchtyping import TensorType
 
-from .base import CKABase
+from .cka_base import CKABase
 
 
 class CKATorch(CKABase):
