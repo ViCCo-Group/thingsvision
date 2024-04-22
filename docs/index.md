@@ -22,7 +22,8 @@ Neural networks come from different sources. With `thingsvision`, you can extrac
 - `ssl` (self-supervised learning models)
   - `simclr-rn50`, `mocov2-rn50`, `barlowtwins-rn50`, `pirl-rn50`
   - `jigsaw-rn50`, `rotnet-rn50`, `swav-rn50`, `vicreg-rn50`
-  - `dino-rn50`, `dino-xcit-{small/medium}-{12/24}-p{8/16}`, `dino-vit-{tiny/small/base}-p{8/16}`, `dinov2-vit-{small/base/large/giant}-p14`
+  - `dino-rn50`, `dino-xcit-{small/medium}-{12/24}-p{8/16}`
+  - `dino-vit-{tiny/small/base}-p{8/16}`, `dinov2-vit-{small/base/large/giant}-p14`
   - `mae-vit-{base/large}-p16`, `mae-vit-huge-p14`<br>
 - [OpenCLIP](https://github.com/mlfoundations/open_clip) models (CLIP trained on LAION-{400M/2B/5B})
 - [CLIP](https://github.com/openai/CLIP) models (CLIP trained on WiT)

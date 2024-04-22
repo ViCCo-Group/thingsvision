@@ -1,9 +1,9 @@
 import os
 import shutil
 import unittest
-import torch
 
 import numpy as np
+import torch
 from thingsvision.core.extraction import center_features, normalize_features
 from thingsvision.utils.storing import save_features, split_features
 
