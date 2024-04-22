@@ -59,8 +59,8 @@ With `thingsvision`, you can:
 - extract features for any imageset from many popular networks.
 - extract features for any imageset from your custom networks.
 - extract features for >26,000 images from the [THINGS image database](https://osf.io/jum2f/).
-- [align](https://vicco-group.github.io/thingsvision/Alignment.html) the extracted features with human object perception.
-- extract features from [HDF5 datasets](https://vicco-group.github.io/thingsvision/LoadingYourData.html#using-the-hdf5dataset-class) directly (e.g., NSD stimuli)
+- [align](https://vicco-group.github.io/thingsvision/Alignment.html) the extracted features with human object perception (e.g., using [gLocal](https://proceedings.neurips.cc/paper_files/paper/2023/hash/9febda1c8344cc5f2d51713964864e93-Abstract-Conference.html)).
+- extract features from [HDF5 datasets](https://vicco-group.github.io/thingsvision/LoadingYourData.html#using-the-hdf5dataset-class) directly (e.g., [NSD stimuli](https://naturalscenesdataset.org/))
 - conduct basic [Representational Similarity Analysis (RSA)](https://vicco-group.github.io/thingsvision/RSA.html#representational-similarity-analysis-rsa) after feature extraction.
 - perform efficient [Centered Kernel Alignment (CKA)](https://vicco-group.github.io/thingsvision/RSA.html#centered-kernel-alignment-cka) to compare image features across model-module combinations.
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
