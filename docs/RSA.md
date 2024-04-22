@@ -25,12 +25,12 @@ Perform CKA to compare image features of two different model architectures for t
 ```python
 from thingsvision.core.cka import get_cka
 
-backend = "torch" # can be set to "torch" or numpy"
+backend = "torch" # can be set to either 'torch' or 'numpy'
 m = # number of images (e.g., features_i.shape[0])
-kernel = 'linear' # linear or rbf kernel (for rbf kernel define sigma, i.e., width of the Gaussian)
+kernel = 'linear' # linear or rbf kernel (for rbf kernel define sigma, i.e., the width of the Gaussian)
 unbiased = True # whether to compute an unbiased version of CKA
-device = "cuda" # only necessary to be defined for "torch" backend
-sigma = None
+device = "cuda" # only necessary to be defined for the 'torch' backend (NumPy runs on CPU only)
+sigma = None # needs to be defined for 'rbf' kernel
 
 cka = get_cka(backend=backend, m=m, kernel=kernel, unbiased=unbiased, device=device, sigma=sigma)
 rho = cka.compare(X=features_i, Y=features_j)
