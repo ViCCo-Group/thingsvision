@@ -17,16 +17,27 @@ class CKATorch(CKABase):
         device: str = "cpu",
         sigma: Optional[float] = 1.0,
     ) -> None:
+        """
+        PyTorch implementation of CKA.
+        Args:
+            m (int) - number of images / examples in a mini-batch or the full dataset;
+            kernel (str) - 'linear' or 'rbf' kernel for computing the gram matrix;
+            unbiased (bool) - whether to compute an unbiased version of CKA;
+            device (str) - whether to perform CKA computation on CPU or GPU;
+            sigma (float) - for 'rbf' kernel sigma defines the width of the Gaussian;
+        """
         super().__init__(m=m, kernel=kernel, unbiased=unbiased, sigma=sigma)
         device = self._check_device(device)
         if device == "cpu":
             self.hsic = self._hsic
         else:
+            # use JIT compilation on CUDA
             self.hsic = torch.compile(self._hsic)
         self.device = torch.device(device)
 
     @staticmethod
     def _check_device(device: str) -> str:
+        """Check whether the selected device is available on current compute node."""
         if device.startswith("cuda"):
             gpu_index = re.search(r"cuda:(\d+)", device)
 
@@ -49,9 +60,9 @@ class CKATorch(CKABase):
         return device
 
     def centering(self, K: TensorType["m", "m"]) -> TensorType["m", "m"]:
-        """Centering of the gram matrix K."""
-        # The below code block is mainly copied from Simon Kornblith's implementation
-        # which can be found here: https://github.com/google-research/google-research/blob/master/representation_similarity/Demo.ipynb
+        """Centering of the (square) gram matrix K."""
+        # The below code block is mainly copied from Simon Kornblith's implementation;
+        # see here: https://github.com/google-research/google-research/blob/master/representation_similarity/Demo.ipynb
         if not torch.allclose(K, K.T, rtol=1e-03, atol=1e-04):
             raise ValueError("\nInput array must be a symmetric matrix.\n")
         if self.unbiased:
@@ -76,7 +87,7 @@ class CKATorch(CKABase):
     def apply_kernel(
         self, X: Union[TensorType["m", "d"], TensorType["m", "p"]]
     ) -> TensorType["m", "m"]:
-        """Compute the gram matrix K."""
+        """Compute the (square) gram matrix K."""
         try:
             K = getattr(self, f"{self.kernel}_kernel")(X)
         except AttributeError:
@@ -86,11 +97,13 @@ class CKATorch(CKABase):
     def linear_kernel(
         self, X: Union[TensorType["m", "d"], TensorType["m", "p"]]
     ) -> TensorType["m", "m"]:
+        """Use a linear kernel for computing the gram matrix."""
         return X @ X.T
 
     def rbf_kernel(
         self, X: TensorType["m", "d"], sigma: Optional[float] = 1.0
     ) -> TensorType["m", "m"]:
+        """Use an rbf kernel for computing the gram matrix. Sigma defines the width."""
         GX = X @ X.T
         KX = torch.diag(GX) - GX + (torch.diag(GX) - GX).T
         if sigma is None:
@@ -107,6 +120,7 @@ class CKATorch(CKABase):
         L = self.apply_kernel(Y)
         K_c = self.centering(K)
         L_c = self.centering(L)
+        """Compute the Hilbert-Schmidt independence criterion."""
         # np.sum(K_c * L_c) is equivalent to K_c.flatten() @ L_c.flatten() or in math
         # sum_{i=0}^{m} sum_{j=0}^{m} K^{\prime}_{ij} * L^{\prime}_{ij} = vec(K_c)^{T}vec(L_c)
         return torch.sum(K_c * L_c)
@@ -115,6 +129,7 @@ class CKATorch(CKABase):
     def compare(
         self, X: TensorType["m", "d"], Y: TensorType["m", "p"]
     ) -> TensorType["1"]:
+        """Compare two representation spaces X and Y using CKA."""
         X = X.to(self.device)
         Y = Y.to(self.device)
         hsic_xy = self.hsic(X, Y)

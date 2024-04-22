@@ -14,6 +14,7 @@ def get_cka(
     sigma: Optional[float] = 1.0,
     device: Optional[str] = None,
 ) -> Union[CKANumPy, CKATorch]:
+    """Return a NumPy or PyTorch implementation of CKA."""
     assert backend in BACKENDS, f"\nSupported backends are: {BACKENDS}\n"
     if backend == "numpy":
         cka = CKANumPy(m=m, kernel=kernel, unbiased=unbiased, sigma=sigma)

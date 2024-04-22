@@ -12,12 +12,20 @@ class CKANumPy(CKABase):
     def __init__(
         self, m: int, kernel: str, unbiased: bool = False, sigma: Optional[float] = 1.0
     ) -> None:
+        """
+        NumPy implementation of CKA.
+        Args:
+            m (int) - number of images / examples in a mini-batch or the full dataset;
+            kernel (str) - 'linear' or 'rbf' kernel for computing the gram matrix;
+            unbiased (bool) - whether to compute an unbiased version of CKA;
+            sigma (float) - for 'rbf' kernel sigma defines the width of the Gaussian;
+        """
         super().__init__(m=m, kernel=kernel, unbiased=unbiased, sigma=sigma)
 
     def centering(self, K: Array) -> Array:
-        # The below code block is mainly copied from Simon Kornblith's implementation
-        # which can be found here: https://github.com/google-research/google-research/blob/master/representation_similarity/Demo.ipynb
-        """Centering of the gram matrix K."""
+        # The below code block is mainly copied from Simon Kornblith's implementation;
+        # see here: https://github.com/google-research/google-research/blob/master/representation_similarity/Demo.ipynb
+        """Centering of the (square) gram matrix K."""
         if not np.allclose(K, K.T, rtol=1e-03, atol=1e-04):
             raise ValueError("\nInput array must be a symmetric matrix.\n")
         if self.unbiased:
@@ -40,7 +48,7 @@ class CKANumPy(CKABase):
         return K
 
     def apply_kernel(self, X: Array) -> Array:
-        """Compute the gram matrix K."""
+        """Compute the (square) gram matrix K."""
         try:
             K = getattr(self, f"{self.kernel}_kernel")(X)
         except AttributeError:
@@ -48,9 +56,11 @@ class CKANumPy(CKABase):
         return K
 
     def linear_kernel(self, X: Array) -> Array:
+        """Use a linear kernel for computing the gram matrix."""
         return X @ X.T
 
     def rbf_kernel(self, X: Array, sigma: float = 1.0) -> Array:
+        """Use an rbf kernel for computing the gram matrix. Sigma defines the width."""
         GX = X @ X.T
         KX = np.diag(GX) - GX + (np.diag(GX) - GX).T
         if sigma is None:
@@ -61,6 +71,7 @@ class CKANumPy(CKABase):
         return KX
 
     def _hsic(self, X: Array, Y: Array) -> Array:
+        """Compute the Hilbert-Schmidt independence criterion."""
         K = self.apply_kernel(X)
         L = self.apply_kernel(Y)
         K_c = self.centering(K)
@@ -70,6 +81,7 @@ class CKANumPy(CKABase):
         return np.sum(K_c * L_c)
 
     def compare(self, X: Array, Y: Array) -> Array:
+        """Compare two representation spaces X and Y using CKA."""
         hsic_xy = self._hsic(X, Y)
         hsic_xx = self._hsic(X, X)
         hsic_yy = self._hsic(Y, Y)
