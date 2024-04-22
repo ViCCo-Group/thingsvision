@@ -59,7 +59,7 @@ class CKATestCase(unittest.TestCase):
         """Test CKA for two different models."""
         model_name_i = "vgg16"
         extractor, _, batches = helper.create_extractor_and_dataloader(
-            model_name_i, pretrained=True, source="torchvision"
+            model_name_i, pretrained=False, source="torchvision"
         )
         module_name_i = helper.MODEL_AND_MODULE_NAMES[model_name_i]["modules"][1]
         features_i = extractor.extract_features(
