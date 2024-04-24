@@ -58,7 +58,7 @@ class PyTorchExtractor(BaseExtractor):
         self.prepare_inference()
 
     def get_activation(self, name: str) -> Callable:
-        """Store copy of activations for a specific layer of the model."""
+        """Store a copy of the representations for a specific module of the model."""
 
         def hook(model, input, output) -> None:
             # store copy of tensor rather than tensor itself
@@ -81,9 +81,11 @@ class PyTorchExtractor(BaseExtractor):
                 break
 
     def _unregister_hook(self) -> None:
+        """Remove the forward hook."""
         self.hook_handle.remove()
 
     def batch_extraction(self, module_name: str, output_type: str) -> object:
+        """Allows mini-batch extraction for custom data pipeline using a with-statement."""
         return BatchExtraction(
             extractor=self, module_name=module_name, output_type=output_type
         )
