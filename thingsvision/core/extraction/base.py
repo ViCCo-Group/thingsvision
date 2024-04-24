@@ -27,6 +27,7 @@ class BaseExtractor(metaclass=abc.ABCMeta):
         self.show_model()
 
     def _check_device(self) -> None:
+        """Check whether the selected device is available on the current compute node."""
         if self.device.startswith("cuda"):
             gpu_index = re.search(r"cuda:(\d+)", self.device)
 
@@ -45,7 +46,7 @@ class BaseExtractor(metaclass=abc.ABCMeta):
                 )
                 self.device = "cuda:0"
 
-        print("Using device: ", self.device)
+        print(f"\nUsing device: {self.device}\n")
 
     @abc.abstractmethod
     def show_model(self) -> None:
@@ -87,7 +88,7 @@ class BaseExtractor(metaclass=abc.ABCMeta):
         ],
         Array,
     ]:
-        """Extract hidden unit activations (at specified layer) for every image in a mini-batch.
+        """Extract the activations of a selected module for every image in a mini-batch.
 
         Parameters
         ----------
