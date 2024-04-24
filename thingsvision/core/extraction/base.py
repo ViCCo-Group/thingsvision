@@ -126,6 +126,7 @@ class BaseExtractor(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     def get_output_types(self) -> List[str]:
+        """Return the list of available output types (for the feature matrix)."""
         return ["ndarray", "tensor"]
 
     def _module_and_output_check(self, module_name: str, output_type: str) -> None:
