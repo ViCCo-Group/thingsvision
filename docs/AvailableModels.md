@@ -121,7 +121,27 @@ from thingsvision import get_extractor
 model_name = 'dino-vit-base-p16'
 source = 'ssl'
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
-model_paramters = {"extract_cls_token": True} # extract features exclusively for the [cls] token of DINO
+model_paramters = {"token_extraction": "cls_token"} # extract DINO features exclusively for the [cls] token
+
+extractor = get_extractor(
+  model_name=model_name,
+  source=source,
+  device=device,
+  pretrained=True,
+  model_parameters=model_parameters,
+)
+```
+
+Example MAE:
+
+```python
+import torch
+from thingsvision import get_extractor
+
+model_name = 'mae-vit-large-p16'
+source = 'ssl'
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+model_paramters = {"token_extraction": "avg_pool"} # average-pool tokens before extracting the MAE features
 
 extractor = get_extractor(
   model_name=model_name,

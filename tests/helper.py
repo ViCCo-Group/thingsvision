@@ -36,7 +36,7 @@ MODEL_AND_MODULE_NAMES = {
         "modules": ["encoder.ln"],
         "pretrained": True,
         "source": "torchvision",
-        "kwargs": {"extract_cls_token": True, "weights": "DEFAULT"},
+        "kwargs": {"token_extraction": "cls_token", "weights": "DEFAULT"},
     },
     # Hardcoded models
     "cornet_r": {
@@ -87,12 +87,19 @@ MODEL_AND_MODULE_NAMES = {
         "kwargs": {"variant": "ViT-L-14", "dataset": "laion400m_e32"},
     },
     # Timm models
-    "mixnet_l": {
-        "model_name": "mixnet_l",
-        "modules": ["conv_head"],
-        "pretrained": True,
-        "source": "timm",
-    },
+    # "vit_base_patch16_224": {
+    #    "model_name": "vit_base_patch16_224",
+    #    "modules": ["encoder.ln"],
+    #    "pretrained": True,
+    #    "source": "timm",
+    #    "kwargs": {"token_extraction": "avg_pool"},
+    # },
+    # "mixnet_l": {
+    #    "model_name": "mixnet_l",
+    #    "modules": ["conv_head"],
+    #    "pretrained": True,
+    #    "source": "timm",
+    # },
     # Keras models
     "VGG16_keras": {
         "model_name": "VGG16",
@@ -136,28 +143,28 @@ MODEL_AND_MODULE_NAMES = {
         "modules": ["norm"],
         "pretrained": True,
         "source": "ssl",
-        "kwargs": {"extract_cls_token": True},
+        "kwargs": {"token_extraction": "cls_token+avg_pool"},
     },
     "dino-vit-small-p8": {
         "model_name": "dino-vit-small-p8",
         "modules": ["norm"],
         "pretrained": True,
         "source": "ssl",
-        "kwargs": {"extract_cls_token": True},
+        "kwargs": {"token_extraction": "avg_pool"},
     },
     "dino-vit-base-p8": {
         "model_name": "dino-vit-base-p8",
         "modules": ["norm"],
         "pretrained": True,
         "source": "ssl",
-        "kwargs": {"extract_cls_token": True},
+        "kwargs": {"token_extraction": "cls_token"},
     },
     "dinov2-vit-small-p14": {
         "model_name": "dinov2-vit-small-p14",
         "modules": ["norm"],
         "pretrained": True,
         "source": "ssl",
-        "kwargs": {"extract_cls_token": True},
+        "kwargs": {"token_extraction": "cls_token+avg_pool"},
     },
     "dinov2-vit-base-p14": {
         "model_name": "dinov2-vit-base-p14",
@@ -171,7 +178,7 @@ MODEL_AND_MODULE_NAMES = {
         "modules": ["norm", "fc_norm"],
         "pretrained": True,
         "source": "ssl",
-        "kwargs": {"extract_cls_token": True},
+        "kwargs": {"token_extraction": "avg_pool"},
     },
     # Additional models
     "Harmonization_visual_ResNet50": {

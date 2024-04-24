@@ -5,9 +5,10 @@ import warnings
 from typing import Callable, Iterator, List, Optional, Union
 
 import numpy as np
-import torch
 from torchtyping import TensorType
 from tqdm.auto import tqdm
+
+import torch
 
 Array = np.ndarray
 
@@ -26,6 +27,7 @@ class BaseExtractor(metaclass=abc.ABCMeta):
         self.show_model()
 
     def _check_device(self) -> None:
+        """Check whether the selected device is available on the current compute node."""
         if self.device.startswith("cuda"):
             gpu_index = re.search(r"cuda:(\d+)", self.device)
 
@@ -44,7 +46,7 @@ class BaseExtractor(metaclass=abc.ABCMeta):
                 )
                 self.device = "cuda:0"
 
-        print("Using device: ", self.device)
+        print(f"\nUsing device: {self.device}\n")
 
     @abc.abstractmethod
     def show_model(self) -> None:
@@ -86,7 +88,7 @@ class BaseExtractor(metaclass=abc.ABCMeta):
         ],
         Array,
     ]:
-        """Extract hidden unit activations (at specified layer) for every image in a mini-batch.
+        """Extract the activations of a selected module for every image in a mini-batch.
 
         Parameters
         ----------
@@ -124,6 +126,7 @@ class BaseExtractor(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     def get_output_types(self) -> List[str]:
+        """Return the list of available output types (for the feature matrix)."""
         return ["ndarray", "tensor"]
 
     def _module_and_output_check(self, module_name: str, output_type: str) -> None:
@@ -141,7 +144,7 @@ class BaseExtractor(metaclass=abc.ABCMeta):
         self,
         batches: Iterator[Union[TensorType["b", "c", "h", "w"], Array]],
         module_name: str,
-        flatten_acts: bool,
+        flatten_acts: bool = False,
         output_type: Optional[str] = "ndarray",
         output_dir: Optional[str] = None,
         step_size: Optional[int] = None,

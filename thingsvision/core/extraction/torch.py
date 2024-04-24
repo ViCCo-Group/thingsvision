@@ -1,16 +1,19 @@
+import warnings
 from typing import Any, Callable, Dict, Iterator, List, Optional, Union
 
 import numpy as np
-import torch
+from thingsvision.utils.alignment import gLocal
 from torchtyping import TensorType
 from torchvision import transforms as T
 
-from thingsvision.utils.alignment import gLocal
+import torch
 
 from .base import BaseExtractor
 
 Array = np.ndarray
 Tensor = torch.Tensor
+
+TOKEN_EXTRACTIONS = ["cls_token", "avg_pool", "cls_token+avg_pool"]
 
 
 class PyTorchExtractor(BaseExtractor):
@@ -34,15 +37,28 @@ class PyTorchExtractor(BaseExtractor):
         self.hook_handle = None
 
         if self.model_parameters:
-            if "extract_cls_token" in self.model_parameters:
-                self.extract_cls_token = self.model_parameters["extract_cls_token"]
+            if "token_extraction" in self.model_parameters:
+                self.token_extraction = self.model_parameters["token_extraction"]
+                assert (
+                    self.token_extraction in TOKEN_EXTRACTIONS
+                ), f"\nFor token extraction use one of the following: {TOKEN_EXTRACTIONS}.\n"
+            elif "extract_cls_token" in self.model_parameters:
+                warnings.warn(
+                    "\nThe argument 'extract_cls_token' is deprecated since version 2.6.2!. "
+                    "\nFor future calls, use the keyword argument 'token_extraction' instead. "
+                    "\nSee the docs for more details.\n",
+                    category=DeprecationWarning,
+                )
+                if self.model_parameters["extract_cls_token"]:
+                    self.token_extraction = "cls_token"
 
         if not self.model:
             self.load_model()
+        # move model to current device and set it to eval mode
         self.prepare_inference()
 
     def get_activation(self, name: str) -> Callable:
-        """Store copy of activations for a specific layer of the model."""
+        """Store a copy of the representations for a specific module of the model."""
 
         def hook(model, input, output) -> None:
             # store copy of tensor rather than tensor itself
@@ -65,9 +81,11 @@ class PyTorchExtractor(BaseExtractor):
                 break
 
     def _unregister_hook(self) -> None:
+        """Remove the forward hook."""
         self.hook_handle.remove()
 
     def batch_extraction(self, module_name: str, output_type: str) -> object:
+        """Allows mini-batch extraction for custom data pipeline using a with-statement."""
         return BatchExtraction(
             extractor=self, module_name=module_name, output_type=output_type
         )
@@ -101,19 +119,31 @@ class PyTorchExtractor(BaseExtractor):
         TensorType["b", "p"],
         TensorType["b", "d"],
     ]:
-        # move current batch to torch device
+        """Extract representations from a batch of images."""
+        # move mini-batch to current device
         batch = batch.to(self.device)
         _ = self.forward(batch)
         act = self.activations[module_name]
-        if hasattr(self, "extract_cls_token"):
-            if self.extract_cls_token and len(act.shape) > 2:
-                # we are only interested in the representations of the first token, i.e., [cls] token
-                act = act[:, 0, :].clone()
-        if flatten_acts:
-            if self.model_name.lower().startswith("clip"):
-                act = self.flatten_acts(act, batch, module_name)
-            else:
-                act = self.flatten_acts(act)
+        if len(act.shape) > 2:
+            if flatten_acts:
+                if self.model_name.lower().startswith("clip"):
+                    act = self.flatten_acts(act, batch, module_name)
+                else:
+                    act = self.flatten_acts(act)
+            elif hasattr(self, "token_extraction"):
+                if self.token_extraction == "cls_token":
+                    act = act[:, 0, :].clone()
+                elif self.token_extraction == "avg_pool":
+                    act = act[:, 1:, :].clone().mean(dim=1)
+                elif self.token_extraction == "cls_token+avg_pool":
+                    cls_token = act[:, 0, :].clone()
+                    pooled_tokens = act[:, 1:, :].clone().mean(dim=1)
+                    act = torch.cat((cls_token, pooled_tokens), dim=1)
+                else:
+                    raise ValueError(
+                        f"\n{self.token_extraction} is not a valid value for token extraction. "
+                        "\nChoose one of the following: {TOKEN_EXTRACTIONS}.\n "
+                    )
         if act.is_cuda or act.get_device() >= 0:
             torch.cuda.empty_cache()
             act = act.cpu()
@@ -123,7 +153,7 @@ class PyTorchExtractor(BaseExtractor):
         self,
         batches: Iterator,
         module_name: str,
-        flatten_acts: bool,
+        flatten_acts: bool = False,
         output_type: str = "ndarray",
         output_dir: Optional[str] = None,
         step_size: Optional[int] = None,
@@ -181,6 +211,7 @@ class PyTorchExtractor(BaseExtractor):
         module_name: str,
         alignment_type: str = "gLocal",
     ) -> Union[Tensor, Array]:
+        """Align the representations with human (global) object similarity."""
         if self.model_name == "OpenCLIP":
             base_model = self.model_name
             variant = self.model_parameters["variant"]
@@ -205,10 +236,12 @@ class PyTorchExtractor(BaseExtractor):
         return aligned_fetures
 
     def prepare_inference(self) -> None:
+        """Prepare the model for inference by moving it to current device and setting it to eval mode."""
         self.model = self.model.to(self.device)
         self.model.eval()
 
     def get_module_names(self) -> List[str]:
+        """Return the names of all modules in a model."""
         module_names, _ = zip(*self.model.named_modules())
         module_names = list(filter(lambda n: len(n) > 0, module_names))
         return module_names
@@ -239,11 +272,22 @@ class BatchExtraction(object):
     def __init__(
         self, extractor: PyTorchExtractor, module_name: str, output_type: str
     ) -> None:
+        """
+        Mini-batch extraction object that can be used as a with-statement in a PyTorch extractor.
+
+        Parameters
+        ----------
+        extractor (object): PyTorchExtractor class.
+        module_name (str): The module of model for which features will be extracted.
+        output_type (str): Type of the feature matrix returned by the extractor.
+
+        """
         self.extractor = extractor
         self.module_name = module_name
         self.output_type = output_type
 
     def __enter__(self) -> PyTorchExtractor:
+        """Registering hooks and setting attributes during opening."""
         self.extractor._module_and_output_check(self.module_name, self.output_type)
         self.extractor._register_hook(self.module_name)
         setattr(self.extractor, "module_name", self.module_name)
@@ -251,6 +295,7 @@ class BatchExtraction(object):
         return self.extractor
 
     def __exit__(self, *args):
+        """Removing hooks and deleting attributes at closing."""
         self.extractor._unregister_hook()
         delattr(self.extractor, "module_name")
         delattr(self.extractor, "output_type")

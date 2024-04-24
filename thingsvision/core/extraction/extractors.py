@@ -2,11 +2,12 @@ import os
 from typing import Any, Callable, Dict, List, Optional, Union
 
 import numpy as np
+import timm
+import torchvision
+
 import tensorflow as tf
 import tensorflow.keras.applications as tensorflow_models
-import timm
 import torch
-import torchvision
 
 try:
     from torch.hub import load_state_dict_from_url
@@ -134,7 +135,7 @@ class TimmExtractor(PyTorchExtractor):
     def load_model_from_source(self) -> None:
         """Load a (pretrained) neural network model from <timm>."""
         if self.model_name in timm.list_models():
-            self.model = timm.create_model(self.model_name, self.pretrained)
+            self.model = timm.create_model(self.model_name, pretrained=self.pretrained)
         else:
             raise ValueError(
                 f"\nCould not find {self.model_name} in timm library.\nChoose a different model.\n"
