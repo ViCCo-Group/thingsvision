@@ -43,13 +43,13 @@ class PyTorchExtractor(BaseExtractor):
                     self.token_extraction in TOKEN_EXTRACTIONS
                 ), f"\nFor token extraction use one of the following: {TOKEN_EXTRACTIONS}.\n"
             elif "extract_cls_token" in self.model_parameters:
+                warnings.warn(
+                    "\nThe argument 'extract_cls_token' is deprecated since version 2.6.2!. "
+                    "\nFor future calls, use the keyword argument 'token_extraction' instead. "
+                    "\nSee the docs for more details.\n",
+                    category=DeprecationWarning,
+                )
                 if self.model_parameters["extract_cls_token"]:
-                    warnings.warn(
-                        "\nThe argument 'extract_cls_token' is deprecated since version 2.6.2!. "
-                        "\nFor future calls, use the keyword argument 'token_extraction' instead. "
-                        "\nSee the docs for more details.\n",
-                        category=DeprecationWarning,
-                    )
                     self.token_extraction = "cls_token"
 
         if not self.model:
