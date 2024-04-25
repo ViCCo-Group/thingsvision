@@ -209,6 +209,27 @@ MODEL_AND_MODULE_NAMES = {
         "source": "custom",
         "kwargs": {"variant": "dino_vitb16"},
     },
+    "SegmentAnything_vit_b": {
+        "model_name": "SegmentAnything",
+        "modules": ["flatten"],
+        "pretrained": True,
+        "source": "custom",
+        "kwargs": {"variant": "vit_b"},
+    },
+    "SegmentAnything_vit_l": {
+        "model_name": "SegmentAnything",
+        "modules": ["flatten"],
+        "pretrained": True,
+        "source": "custom",
+        "kwargs": {"variant": "vit_l"},
+    },
+    "SegmentAnything_vit_h": {
+        "model_name": "SegmentAnything",
+        "modules": ["flatten"],
+        "pretrained": True,
+        "source": "custom",
+        "kwargs": {"variant": "vit_h"},
+    },
 }
 
 ALIGNED_MODELS = {
@@ -321,7 +342,7 @@ def iterate_through_all_model_combinations():
 
 
 def create_extractor_and_dataloader(
-    model_name: str, pretrained: bool, source: str, kwargs: dict = {}
+        model_name: str, pretrained: bool, source: str, kwargs: dict = {}
 ):
     """Iterate through models and create model, dataset and data loader."""
     extractor = get_extractor(
