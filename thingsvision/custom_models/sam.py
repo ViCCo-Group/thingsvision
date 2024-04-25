@@ -1,10 +1,10 @@
 from typing import Any
+from functools import partial
 import torch
+from torchvision import transforms as T
 
 from .custom import Custom
-from functools import partial
 from thingsvision.utils.models.sam.image_encoder import ImageEncoderViT
-from torchvision import transforms as T
 
 MODEL_CONFIG = {
     "vit_b": {
@@ -63,8 +63,8 @@ def _get_preprocessing(resize_dim=1024, crop_dim=1024):
 def _adapt_state_dict(state_dict):
     new_state_dict = {}
     for key, val in state_dict.items():
-        if 'image_encoder' in key:
-            new_state_dict[key.replace('image_encoder.', '')] = val
+        if "image_encoder" in key:
+            new_state_dict[key.replace("image_encoder.", "")] = val
     return new_state_dict
 
 
@@ -83,7 +83,7 @@ class SegmentAnything(Custom):
     def create_model(self) -> Any:
         prompt_embed_dim = 256
         vit_patch_size = 16
-        params = MODEL_CONFIG[self.variant]['config']
+        params = MODEL_CONFIG[self.variant]["config"]
         image_size = 1024
         encoder = ImageEncoderViT(
             img_size=image_size,
@@ -97,7 +97,7 @@ class SegmentAnything(Custom):
             **params
         )
         state_dict = torch.hub.load_state_dict_from_url(
-            MODEL_CONFIG[self.variant]['weights']
+            MODEL_CONFIG[self.variant]["weights"]
         )
         # we need to modify the state_dict, removing the image_encoder prefix
         state_dict = _adapt_state_dict(state_dict)
