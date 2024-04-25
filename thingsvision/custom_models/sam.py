@@ -37,6 +37,19 @@ MODEL_CONFIG = {
 }
 
 
+class SAMWrapper(torch.nn.Module):
+
+    def __init__(self, encoder):
+        super().__init__()
+        self.encoder = encoder
+        self.avgpool = torch.nn.AdaptiveAvgPool2d(1)
+        self.flatten = torch.nn.Flatten()
+
+    def forward(self, x):
+        x = self.encoder(x)
+        return self.flatten(self.avgpool(x))
+
+
 def _get_preprocessing(resize_dim=1024, crop_dim=1024):
     normalize = T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     return T.Compose(([T.Resize(resize_dim),
@@ -69,7 +82,7 @@ class SegmentAnything(Custom):
         vit_patch_size = 16
         params = MODEL_CONFIG[self.variant]['config']
         image_size = 1024
-        model = ImageEncoderViT(
+        encoder = ImageEncoderViT(
             img_size=image_size,
             mlp_ratio=4,
             norm_layer=partial(torch.nn.LayerNorm, eps=1e-6),
@@ -84,6 +97,7 @@ class SegmentAnything(Custom):
             MODEL_CONFIG[self.variant]['weights']
         )
         state_dict = _adapt_state_dict(state_dict)
-        model = model.load_state_dict(state_dict, strict=True)
+        encoder.load_state_dict(state_dict, strict=True)
+        model = SAMWrapper(encoder)
         model.eval()
         return model, _get_preprocessing()
