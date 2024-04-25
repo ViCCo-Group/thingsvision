@@ -44,6 +44,14 @@ def _get_preprocessing(resize_dim=1024, crop_dim=1024):
                        T.ToTensor(), normalize]))
 
 
+def _adapt_state_dict(state_dict):
+    new_state_dict = {}
+    for key, val in state_dict.items():
+        if 'image_encoder' in key:
+            new_state_dict[key.replace('image_encoder.', '')] = val
+    return new_state_dict
+
+
 class SegmentAnything(Custom):
     def __init__(self, device, parameters) -> None:
         super().__init__(device)
@@ -58,9 +66,9 @@ class SegmentAnything(Custom):
 
     def create_model(self) -> Any:
         prompt_embed_dim = 256
-        image_size = 1024
         vit_patch_size = 16
         params = MODEL_CONFIG[self.variant]['config']
+        image_size = 1024
         model = ImageEncoderViT(
             img_size=image_size,
             mlp_ratio=4,
@@ -72,5 +80,10 @@ class SegmentAnything(Custom):
             out_chans=prompt_embed_dim,
             **params
         )
+        state_dict = torch.hub.load_state_dict_from_url(
+            MODEL_CONFIG[self.variant]['weights']
+        )
+        state_dict = _adapt_state_dict(state_dict)
+        model = model.load_state_dict(state_dict, strict=True)
         model.eval()
         return model, _get_preprocessing()
