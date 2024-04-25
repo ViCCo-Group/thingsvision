@@ -38,6 +38,9 @@ MODEL_CONFIG = {
 
 
 class SAMWrapper(torch.nn.Module):
+    """
+    Wrapper class to avgpool the output of the SAM model
+    """
 
     def __init__(self, encoder):
         super().__init__()
@@ -96,6 +99,7 @@ class SegmentAnything(Custom):
         state_dict = torch.hub.load_state_dict_from_url(
             MODEL_CONFIG[self.variant]['weights']
         )
+        # we need to modify the state_dict, removing the image_encoder prefix
         state_dict = _adapt_state_dict(state_dict)
         encoder.load_state_dict(state_dict, strict=True)
         model = SAMWrapper(encoder)
