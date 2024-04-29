@@ -125,12 +125,7 @@ class PyTorchExtractor(BaseExtractor):
         _ = self.forward(batch)
         act = self.activations[module_name]
         if len(act.shape) > 2:
-            if flatten_acts:
-                if self.model_name.lower().startswith("clip"):
-                    act = self.flatten_acts(act, batch, module_name)
-                else:
-                    act = self.flatten_acts(act)
-            elif hasattr(self, "token_extraction"):
+            if hasattr(self, "token_extraction"):
                 if self.token_extraction == "cls_token":
                     act = act[:, 0, :].clone()
                 elif self.token_extraction == "avg_pool":
@@ -144,6 +139,11 @@ class PyTorchExtractor(BaseExtractor):
                         f"\n{self.token_extraction} is not a valid value for token extraction. "
                         "\nChoose one of the following: {TOKEN_EXTRACTIONS}.\n "
                     )
+            elif flatten_acts:
+                if self.model_name.lower().startswith("clip"):
+                    act = self.flatten_acts(act, batch, module_name)
+                else:
+                    act = self.flatten_acts(act)
         if act.is_cuda or act.get_device() >= 0:
             torch.cuda.empty_cache()
             act = act.cpu()
