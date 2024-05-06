@@ -104,4 +104,4 @@ class SegmentAnything(Custom):
         encoder.load_state_dict(state_dict, strict=True)
         model = SAMWrapper(encoder)
         model.eval()
-        return model, _get_preprocessing()
+        return model, _get_preprocessing(resize_dim=image_size, crop_dim=image_size)

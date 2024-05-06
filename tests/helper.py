@@ -209,27 +209,6 @@ MODEL_AND_MODULE_NAMES = {
         "source": "custom",
         "kwargs": {"variant": "dino_vitb16"},
     },
-    "SegmentAnything_vit_b": {
-        "model_name": "SegmentAnything",
-        "modules": ["flatten"],
-        "pretrained": True,
-        "source": "custom",
-        "kwargs": {"variant": "vit_b"},
-    },
-    "SegmentAnything_vit_l": {
-        "model_name": "SegmentAnything",
-        "modules": ["flatten"],
-        "pretrained": True,
-        "source": "custom",
-        "kwargs": {"variant": "vit_l"},
-    },
-    "SegmentAnything_vit_h": {
-        "model_name": "SegmentAnything",
-        "modules": ["flatten"],
-        "pretrained": True,
-        "source": "custom",
-        "kwargs": {"variant": "vit_h"},
-    },
 }
 
 ALIGNED_MODELS = {
