@@ -209,6 +209,12 @@ MODEL_AND_MODULE_NAMES = {
         "source": "custom",
         "kwargs": {"variant": "dino_vitb16"},
     },
+    "kakobrain_align_model": {
+        "model_name": "Kakaobrain_Align",
+        "modules": ["pooler"],
+        "pretrained": True,
+        "source": "custom",
+    },
 }
 
 ALIGNED_MODELS = {
@@ -321,7 +327,7 @@ def iterate_through_all_model_combinations():
 
 
 def create_extractor_and_dataloader(
-    model_name: str, pretrained: bool, source: str, kwargs: dict = {}
+        model_name: str, pretrained: bool, source: str, kwargs: dict = {}
 ):
     """Iterate through models and create model, dataset and data loader."""
     extractor = get_extractor(
