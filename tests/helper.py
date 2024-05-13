@@ -12,6 +12,7 @@ from tensorflow.keras.models import Sequential
 
 from thingsvision import get_extractor
 from thingsvision.utils.data import DataLoader, ImageDataset
+from torch.utils.data import Subset
 
 DATA_PATH = "./data"
 TEST_PATH = "./test_images"
@@ -209,6 +210,16 @@ MODEL_AND_MODULE_NAMES = {
         "source": "custom",
         "kwargs": {"variant": "dino_vitb16"},
     },
+    "SegmentAnything_vit_b": {
+        "model_name": "SegmentAnything",
+        "modules": ["flatten"],
+        "pretrained": True,
+        "source": "custom",
+        "kwargs": {"variant": "vit_b"},
+        # model input size is large, therefore reduce test case on cpu
+        "batch_size": 1,
+        "num_samples": 1
+    },
 }
 
 ALIGNED_MODELS = {
@@ -312,8 +323,13 @@ def iterate_through_all_model_combinations():
         pretrained = model_config["pretrained"]
         source = model_config["source"]
         kwargs = model_config.get("kwargs", {})
+
+        # we can set batch size and num_samples to reduce load for large models requiring a large image size
+        batch_size = model_config.get("batch_size", BATCH_SIZE)
+        num_samples = model_config.get("num_samples", NUM_SAMPLES)
+
         extractor, dataset, batches = create_extractor_and_dataloader(
-            model_name, pretrained, source, kwargs
+            model_name, pretrained, source, kwargs, batch_size, num_samples
         )
 
         modules = model_config["modules"]
@@ -321,7 +337,8 @@ def iterate_through_all_model_combinations():
 
 
 def create_extractor_and_dataloader(
-        model_name: str, pretrained: bool, source: str, kwargs: dict = {}
+        model_name: str, pretrained: bool, source: str, kwargs: dict = {},
+        batch_size: int = BATCH_SIZE, num_samples: int = NUM_SAMPLES
 ):
     """Iterate through models and create model, dataset and data loader."""
     extractor = get_extractor(
@@ -337,9 +354,14 @@ def create_extractor_and_dataloader(
         backend=extractor.get_backend(),
         transforms=extractor.get_transformations(),
     )
+    if num_samples > NUM_SAMPLES:
+        raise ValueError("num samples in test case can not be larger than default value, only smaller")
+    elif num_samples < NUM_SAMPLES:
+        dataset = Subset(dataset, np.arange(num_samples))
+
     batches = DataLoader(
         dataset,
-        batch_size=BATCH_SIZE,
+        batch_size=batch_size,
         backend=extractor.get_backend(),
     )
     return extractor, dataset, batches

@@ -21,7 +21,6 @@ class ExtractionPretrainedTestCase(unittest.TestCase):
             module_names,
             model_name
         ) in helper.iterate_through_all_model_combinations():
-            self.assertEqual(len(dataset), len(batches) * helper.BATCH_SIZE)
             num_objects = len(dataset)
 
             for module_name in module_names:
