@@ -355,7 +355,7 @@ def create_extractor_and_dataloader(
         transforms=extractor.get_transformations(),
     )
     if num_samples > NUM_SAMPLES:
-        raise ValueError("num samples in test case can not be larger than default value, only smaller")
+        raise ValueError("\nNumber of samples in test case cannot be larger than the default value, only smaller.\n")
     elif num_samples < NUM_SAMPLES:
         dataset = Subset(dataset, np.arange(num_samples))
 
