@@ -54,3 +54,4 @@ class ExtractionPretrainedTestCase(unittest.TestCase):
             torch_home = get_torch_home()
             if os.path.exists(torch_home):
                 shutil.rmtree(torch_home)
+                os.makedirs(torch_home, exist_ok=True)
