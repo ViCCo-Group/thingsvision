@@ -366,3 +366,28 @@ extractor = get_extractor(
   pretrained=True
 )
 ```
+
+### Segment Anything
+
+We provide all models from [Segment Anything](https://github.com/facebookresearch/segment-anything).
+
+```python
+import torch
+from thingsvision import get_extractor
+
+model_name = 'SegmentAnything'
+source = 'custom'
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+
+model_parameters = {
+    'variant': 'vit_h' # also vit_l and vit_b
+}
+
+extractor = get_extractor(
+  model_name=model_name,
+  source=source,
+  device=device,
+  pretrained=True,
+  model_parameters=model_parameters
+)
+```
