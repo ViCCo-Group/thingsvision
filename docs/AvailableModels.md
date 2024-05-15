@@ -394,7 +394,7 @@ extractor = get_extractor(
 
 ### ALIGN model
 
-We provide the reproduction of the ALIGN model by kakaobrain from [here](https://huggingface.co/kakaobrain/coyo-align-b7-base).
+We provide Kakaobrain's reproduction of the original [ALIGN model](https://proceedings.mlr.press/v139/jia21b.html) from [huggingface](https://huggingface.co/kakaobrain/coyo-align-b7-base).
 
 ```python
 import torch
