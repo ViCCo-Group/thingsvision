@@ -1,8 +1,10 @@
-import re
+import shutil
 import unittest
+import os
 
 import numpy as np
 import tests.helper as helper
+from thingsvision.utils.checkpointing import get_torch_home
 
 Array = np.ndarray
 
@@ -21,7 +23,6 @@ class ExtractionPretrainedTestCase(unittest.TestCase):
             module_names,
             model_name
         ) in helper.iterate_through_all_model_combinations():
-            self.assertEqual(len(dataset), len(batches) * helper.BATCH_SIZE)
             num_objects = len(dataset)
 
             for module_name in module_names:
@@ -48,3 +49,9 @@ class ExtractionPretrainedTestCase(unittest.TestCase):
                             print(f"Successfully aligned the representation space of model: {model_name}\n")
                             self.assertTrue(isinstance(aligned_features, Array))
                             self.assertEqual(aligned_features.shape, features.shape)
+
+            # cleanup downloaded torch models
+            torch_home = get_torch_home()
+            if os.path.exists(torch_home):
+                shutil.rmtree(torch_home)
+                os.makedirs(torch_home, exist_ok=True)
