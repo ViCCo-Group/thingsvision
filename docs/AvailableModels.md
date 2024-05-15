@@ -391,3 +391,23 @@ extractor = get_extractor(
   model_parameters=model_parameters
 )
 ```
+
+### ALIGN model
+
+We provide the reproduction of the ALIGN model by kakaobrain from [here](https://huggingface.co/kakaobrain/coyo-align-b7-base).
+
+```python
+import torch
+from thingsvision import get_extractor
+
+model_name = 'Kakaobrain_Align'
+source = 'custom'
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+
+extractor = get_extractor(
+  model_name=model_name,
+  source=source,
+  device=device,
+  pretrained=True,
+)
+```
