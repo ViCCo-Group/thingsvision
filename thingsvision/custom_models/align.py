@@ -1,6 +1,6 @@
 from typing import Any
 from .custom import Custom
-from transformers import AlignVisionModel, AutoProcessor
+from transformers import AlignModel, AutoProcessor
 
 
 class Kakaobrain_Align(Custom):
@@ -9,11 +9,11 @@ class Kakaobrain_Align(Custom):
         self.backend = "pt"
 
     def create_model(self) -> Any:
-        model = AlignVisionModel.from_pretrained("kakaobrain/align-base")
+        model = AlignModel.from_pretrained("kakaobrain/align-base")
         processor = AutoProcessor.from_pretrained("kakaobrain/align-base")
 
         def preprocess_fn(images):
             out = processor(images=images, return_tensors="pt")
             return out['pixel_values'].squeeze(0)
 
-        return model, preprocess_fn
+        return model.vision_model, preprocess_fn
