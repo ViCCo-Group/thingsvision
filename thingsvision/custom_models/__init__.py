@@ -6,3 +6,4 @@ from .openclip import OpenCLIP
 from .resnet50_ecoset import Resnet50_ecoset
 from .vgg16_ecoset import VGG16_ecoset
 from .sam import SegmentAnything
+from .align import Kakaobrain_Align

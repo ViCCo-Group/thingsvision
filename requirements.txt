@@ -20,3 +20,4 @@ tqdm
 dreamsim==0.1.3
 git+https://github.com/openai/CLIP.git
 git+https://github.com/serre-lab/Harmonization.git
+transformers==4.40.1

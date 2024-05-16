@@ -220,6 +220,12 @@ MODEL_AND_MODULE_NAMES = {
         "batch_size": 1,
         "num_samples": 1
     },
+    "kakobrain_align_model": {
+        "model_name": "Kakaobrain_Align",
+        "modules": ["pooler"],
+        "pretrained": True,
+        "source": "custom",
+    },
 }
 
 ALIGNED_MODELS = {

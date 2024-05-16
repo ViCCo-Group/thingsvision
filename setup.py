@@ -26,6 +26,7 @@ requirements = [
     "torchtyping",
     "tqdm",
     "CLIP",
+    "transformers==4.40.1"
     # 'CLIP @ git+ssh://git@github.com/openai/CLIP@v1.0#egg=CLIP' # TODO: see issue #111
 ]
 
