@@ -4,7 +4,7 @@ import torch
 from torchvision import transforms as T
 
 from .custom import Custom
-from thingsvision.utils.models.sam.image_encoder import ImageEncoderViT
+from thingsvision.utils.models.sam import ImageEncoderViT
 
 MODEL_CONFIG = {
     "vit_b": {
