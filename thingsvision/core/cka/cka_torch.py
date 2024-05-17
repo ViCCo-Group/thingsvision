@@ -104,14 +104,16 @@ class CKATorch(CKABase):
         return X @ X.T
 
     def rbf_kernel(
-        self, X: TensorType["m", "d"], sigma: Optional[float] = 1.0
+        self, X: Union[TensorType["m", "d"], TensorType["m", "p"]]
     ) -> TensorType["m", "m"]:
         """Use an rbf kernel for computing the gram matrix. Sigma defines the width."""
         GX = X @ X.T
         KX = torch.diag(GX) - GX + (torch.diag(GX) - GX).T
-        if sigma is None:
+        if self.sigma is None:
             mdist = torch.median(KX[KX != 0])
             sigma = torch.sqrt(mdist)
+        else:
+            sigma = self.sigma
         KX *= -0.5 / sigma**2
         KX = KX.exp()
         return KX
