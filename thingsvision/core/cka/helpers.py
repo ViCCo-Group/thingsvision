@@ -13,6 +13,7 @@ def get_cka(
     unbiased: bool = False,
     sigma: Optional[float] = 1.0,
     device: Optional[str] = None,
+    verbose: Optional[bool] = False,
 ) -> Union[CKANumPy, CKATorch]:
     """Return a NumPy or PyTorch implementation of CKA."""
     assert backend in BACKENDS, f"\nSupported backends are: {BACKENDS}\n"
@@ -23,6 +24,11 @@ def get_cka(
             device, str
         ), "\nDevice must be set for using PyTorch backend.\n"
         cka = CKATorch(
-            m=m, kernel=kernel, unbiased=unbiased, device=device, sigma=sigma
+            m=m,
+            kernel=kernel,
+            unbiased=unbiased,
+            device=device,
+            sigma=sigma,
+            verbose=verbose,
         )
     return cka

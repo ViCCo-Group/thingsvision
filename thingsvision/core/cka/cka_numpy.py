@@ -59,13 +59,15 @@ class CKANumPy(CKABase):
         """Use a linear kernel for computing the gram matrix."""
         return X @ X.T
 
-    def rbf_kernel(self, X: Array, sigma: float = 1.0) -> Array:
+    def rbf_kernel(self, X: Array) -> Array:
         """Use an rbf kernel for computing the gram matrix. Sigma defines the width."""
         GX = X @ X.T
         KX = np.diag(GX) - GX + (np.diag(GX) - GX).T
-        if sigma is None:
+        if self.sigma is None:
             mdist = np.median(KX[KX != 0])
             sigma = math.sqrt(mdist)
+        else:
+            sigma = self.sigma
         KX *= -0.5 / sigma**2
         KX = np.exp(KX)
         return KX

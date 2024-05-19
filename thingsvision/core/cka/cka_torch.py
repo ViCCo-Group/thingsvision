@@ -18,6 +18,7 @@ class CKATorch(CKABase):
         kernel: str,
         unbiased: bool = False,
         device: str = "cpu",
+        verbose: bool = False,
         sigma: Optional[float] = 1.0,
     ) -> None:
         """
@@ -30,7 +31,7 @@ class CKATorch(CKABase):
             sigma (float) - for 'rbf' kernel sigma defines the width of the Gaussian;
         """
         super().__init__(m=m, kernel=kernel, unbiased=unbiased, sigma=sigma)
-        device = self._check_device(device)
+        device = self._check_device(device, verbose)
         if device == "cpu":
             self.hsic = self._hsic
         else:
@@ -39,7 +40,7 @@ class CKATorch(CKABase):
         self.device = torch.device(device)
 
     @staticmethod
-    def _check_device(device: str) -> str:
+    def _check_device(device: str, verbose: bool) -> str:
         """Check whether the selected device is available on current compute node."""
         if device.startswith("cuda"):
             gpu_index = re.search(r"cuda:(\d+)", device)
@@ -58,8 +59,8 @@ class CKATorch(CKABase):
                     category=UserWarning,
                 )
                 device = "cuda:0"
-
-        print(f"\nUsing device: {device}\n")
+        if verbose:
+            print(f"\nUsing device: {device}\n")
         return device
 
     def centering(self, K: TensorType["m", "m"]) -> TensorType["m", "m"]:
@@ -104,14 +105,16 @@ class CKATorch(CKABase):
         return X @ X.T
 
     def rbf_kernel(
-        self, X: TensorType["m", "d"], sigma: Optional[float] = 1.0
+        self, X: Union[TensorType["m", "d"], TensorType["m", "p"]]
     ) -> TensorType["m", "m"]:
         """Use an rbf kernel for computing the gram matrix. Sigma defines the width."""
         GX = X @ X.T
         KX = torch.diag(GX) - GX + (torch.diag(GX) - GX).T
-        if sigma is None:
+        if self.sigma is None:
             mdist = torch.median(KX[KX != 0])
             sigma = torch.sqrt(mdist)
+        else:
+            sigma = self.sigma
         KX *= -0.5 / sigma**2
         KX = KX.exp()
         return KX
