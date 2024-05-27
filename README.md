@@ -85,6 +85,7 @@ Neural networks come from different sources. With `thingsvision`, you can extrac
 - each of the many [CORnet](https://github.com/dicarlolab/CORnet) versions (recurrent vision models)
 - [Harmonization](https://arxiv.org/abs/2211.04533) models (see [Harmonization repo](https://github.com/serre-lab/harmonization)). The default variant is `ViT_B16`. Other available models are `ResNet50`, `VGG16`, `EfficientNetB0`, `tiny_ConvNeXT`, `tiny_MaxViT`, and `LeViT_small`<br> 
 - [DreamSim](https://dreamsim-nights.github.io/) models  (see [DreamSim repo](https://github.com/ssundaram21/dreamsim)). The default variant is `open_clip_vitb32`. Other available models are `clip_vitb32`, `dino_vitb16`, and an `ensemble`. See the [docs](https://vicco-group.github.io/thingsvision/AvailableModels.html#dreamsim) for more information
+- FAIR's [Segment Anything](https://vicco-group.github.io/thingsvision/AvailableModels.html#align-model) and Kakaobrain's [ALIGN](https://vicco-group.github.io/thingsvision/AvailableModels.html#align-model) implementation
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
