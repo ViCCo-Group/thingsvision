@@ -1,13 +1,13 @@
 import os
+import warnings
 from typing import Any, Callable, Dict, List, Optional, Union
 
 import numpy as np
-import timm
-import torchvision
-
 import tensorflow as tf
 import tensorflow.keras.applications as tensorflow_models
+import timm
 import torch
+import torchvision
 
 try:
     from torch.hub import load_state_dict_from_url
@@ -104,6 +104,11 @@ class TorchvisionExtractor(PyTorchExtractor):
         apply_center_crop: bool = True,
     ) -> Any:
         if self.weights:
+            warnings.warn(
+                message="\nInput arguments are ignored because transforms are automatically inferred from model weights.\n",
+                category=UserWarning,
+                stacklevel=2,
+            )
             transforms = self.weights.transforms()
         else:
             transforms = super().get_default_transformation(
@@ -140,6 +145,24 @@ class TimmExtractor(PyTorchExtractor):
             raise ValueError(
                 f"\nCould not find {self.model_name} in timm library.\nChoose a different model.\n"
             )
+
+    def get_default_transformation(
+        self,
+        mean,
+        std,
+        resize_dim: int = 256,
+        crop_dim: int = 224,
+        apply_center_crop: bool = True,
+    ) -> Any:
+        warnings.warn(
+            message="\nInput arguments are ignored because <timm> automatically infers transforms from model config.\n",
+            category=UserWarning,
+            stacklevel=2,
+        )
+        data_config = timm.data.resolve_model_data_config(self.model)
+        transforms = timm.data.create_transform(**data_config, is_training=False)
+
+        return transforms
 
 
 class KerasExtractor(TensorFlowExtractor):
