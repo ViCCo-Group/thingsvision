@@ -104,6 +104,11 @@ class TorchvisionExtractor(PyTorchExtractor):
         apply_center_crop: bool = True,
     ) -> Any:
         if self.weights:
+            warnings.warn(
+                message="\nInput arguments are ignored because transforms are automatically infered transforms from model weights.\n",
+                category=UserWarning,
+                stacklevel=2,
+            )
             transforms = self.weights.transforms()
         else:
             transforms = super().get_default_transformation(
