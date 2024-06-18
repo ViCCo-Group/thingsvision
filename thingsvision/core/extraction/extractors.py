@@ -141,6 +141,19 @@ class TimmExtractor(PyTorchExtractor):
                 f"\nCould not find {self.model_name} in timm library.\nChoose a different model.\n"
             )
 
+    def get_default_transformation(
+        self,
+        mean,
+        std,
+        resize_dim: int = 256,
+        crop_dim: int = 224,
+        apply_center_crop: bool = True,
+    ) -> Any:
+        data_config = timm.data.resolve_model_data_config(self.model)
+        transforms = timm.data.create_transform(**data_config, is_training=False)
+        
+        return transforms
+
 
 class KerasExtractor(TensorFlowExtractor):
     def __init__(
