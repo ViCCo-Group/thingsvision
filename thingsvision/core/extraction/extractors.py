@@ -105,7 +105,7 @@ class TorchvisionExtractor(PyTorchExtractor):
     ) -> Any:
         if self.weights:
             warnings.warn(
-                message="\nInput arguments are ignored because transforms are automatically infered transforms from model weights.\n",
+                message="\nInput arguments are ignored because transforms are automatically inferred from model weights.\n",
                 category=UserWarning,
                 stacklevel=2,
             )
