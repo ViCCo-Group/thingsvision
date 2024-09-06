@@ -9,10 +9,7 @@ import timm
 import torch
 import torchvision
 
-try:
-    from torch.hub import load_state_dict_from_url
-except ImportError:
-    from torch.utils.model_zoo import load_url as load_state_dict_from_url
+from torch.hub import load_state_dict_from_url
 
 from thingsvision.utils.checkpointing import get_torch_home
 from thingsvision.utils.models.dino import vit_base, vit_small, vit_tiny
