@@ -45,13 +45,13 @@ Array = np.ndarray
 
 class TorchvisionExtractor(PyTorchExtractor):
     def __init__(
-        self,
-        model_name: str,
-        pretrained: bool,
-        device: str,
-        model_path: str = None,
-        model_parameters: Dict[str, Union[str, bool, List[str]]] = None,
-        preprocess: Optional[Callable] = None,
+            self,
+            model_name: str,
+            pretrained: bool,
+            device: str,
+            model_path: str = None,
+            model_parameters: Dict[str, Union[str, bool, List[str]]] = None,
+            preprocess: Optional[Callable] = None,
     ) -> None:
         model_parameters = (
             model_parameters if model_parameters else {"weights": "DEFAULT"}
@@ -96,12 +96,12 @@ class TorchvisionExtractor(PyTorchExtractor):
             )
 
     def get_default_transformation(
-        self,
-        mean,
-        std,
-        resize_dim: int = 256,
-        crop_dim: int = 224,
-        apply_center_crop: bool = True,
+            self,
+            mean,
+            std,
+            resize_dim: int = 256,
+            crop_dim: int = 224,
+            apply_center_crop: bool = True,
     ) -> Any:
         if self.weights:
             warnings.warn(
@@ -120,13 +120,13 @@ class TorchvisionExtractor(PyTorchExtractor):
 
 class TimmExtractor(PyTorchExtractor):
     def __init__(
-        self,
-        model_name: str,
-        pretrained: bool,
-        device: str,
-        model_path: str = None,
-        model_parameters: Dict[str, Union[str, bool, List[str]]] = None,
-        preprocess: Optional[Callable] = None,
+            self,
+            model_name: str,
+            pretrained: bool,
+            device: str,
+            model_path: str = None,
+            model_parameters: Dict[str, Union[str, bool, List[str]]] = None,
+            preprocess: Optional[Callable] = None,
     ) -> None:
         super().__init__(
             model_name=model_name,
@@ -147,12 +147,12 @@ class TimmExtractor(PyTorchExtractor):
             )
 
     def get_default_transformation(
-        self,
-        mean,
-        std,
-        resize_dim: int = 256,
-        crop_dim: int = 224,
-        apply_center_crop: bool = True,
+            self,
+            mean,
+            std,
+            resize_dim: int = 256,
+            crop_dim: int = 224,
+            apply_center_crop: bool = True,
     ) -> Any:
         warnings.warn(
             message="\nInput arguments are ignored because <timm> automatically infers transforms from model config.\n",
@@ -167,13 +167,13 @@ class TimmExtractor(PyTorchExtractor):
 
 class KerasExtractor(TensorFlowExtractor):
     def __init__(
-        self,
-        model_name: str,
-        pretrained: bool,
-        device: str,
-        model_path: str = None,
-        model_parameters: Dict[str, Union[str, bool, List[str]]] = None,
-        preprocess: Optional[Callable] = None,
+            self,
+            model_name: str,
+            pretrained: bool,
+            device: str,
+            model_path: str = None,
+            model_parameters: Dict[str, Union[str, bool, List[str]]] = None,
+            preprocess: Optional[Callable] = None,
     ) -> None:
         model_parameters = (
             model_parameters if model_parameters else {"weights": "imagenet"}
@@ -336,13 +336,13 @@ class SSLExtractor(PyTorchExtractor):
     }
 
     def __init__(
-        self,
-        model_name: str,
-        pretrained: bool,
-        device: str,
-        model_path: str = None,
-        model_parameters: Dict[str, Union[str, bool, List[str]]] = None,
-        preprocess: Optional[Callable] = None,
+            self,
+            model_name: str,
+            pretrained: bool,
+            device: str,
+            model_path: str = None,
+            model_parameters: Dict[str, Union[str, bool, List[str]]] = None,
+            preprocess: Optional[Callable] = None,
     ) -> None:
         super().__init__(
             model_name=model_name,
@@ -353,12 +353,15 @@ class SSLExtractor(PyTorchExtractor):
             device=device,
         )
 
-    def _download_and_save_model(self, model_url: str, output_model_filepath: str):
+    def _download_and_save_model(self, model_url: str,
+                                 output_model_filepath: str, unique_model_id: str):
         """
         Downloads the model in vissl format, converts it to torchvision format and
         saves it under output_model_filepath.
         """
-        model = load_state_dict_from_url(model_url, map_location=torch.device("cpu"))
+        model = load_state_dict_from_url(model_url,
+                                         map_location=torch.device("cpu"),
+                                         file_name=f'{unique_model_id}.pt')
 
         # get the model trunk to rename
         if "classy_state_dict" in model.keys():
@@ -403,6 +406,7 @@ class SSLExtractor(PyTorchExtractor):
                     model_state_dict = self._download_and_save_model(
                         model_url=model_config["url"],
                         output_model_filepath=model_filepath,
+                        unique_model_id=f'thingsvision_vissl_{self.model_name}'
                     )
                 else:
                     model_state_dict = torch.load(
