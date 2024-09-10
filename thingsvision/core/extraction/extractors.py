@@ -234,14 +234,14 @@ class SSLExtractor(PyTorchExtractor):
             "type": "vissl",
         },
         "barlowtwins-rn50": {
-            "repository": "facebookresearch/barlowtwins:main",
             "arch": "resnet50",
-            "type": "hub",
+            "type": "checkpoint_url",
+            "checkpoint_url": "https://dl.fbaipublicfiles.com/barlowtwins/ljng/resnet50.pth"
         },
         "vicreg-rn50": {
-            "repository": "facebookresearch/vicreg:main",
             "arch": "resnet50",
-            "type": "hub",
+            "type": "checkpoint_url",
+            "checkpoint_url": "https://dl.fbaipublicfiles.com/vicreg/resnet50.pth"
         },
         "dino-vit-small-p16": {
             "repository": "facebookresearch/dino:main",
@@ -399,6 +399,7 @@ class SSLExtractor(PyTorchExtractor):
             # defines how the model should be loaded
             model_config = SSLExtractor.MODELS[self.model_name]
 
+            # VISSL MODELS
             if model_config["type"] == "vissl":
                 model_state_dict = self._load_vissl_state_dict(
                     model_url=model_config["url"],
@@ -409,6 +410,7 @@ class SSLExtractor(PyTorchExtractor):
                     self.model.fc = torch.nn.Identity()
                 self.model.load_state_dict(model_state_dict, strict=True)
 
+            # HUB MODELS
             elif model_config["type"] == "hub":
                 if self.model_name.startswith("dino-vit"):
                     if self.model_name == "dino-vit-tiny-p8":
@@ -456,6 +458,25 @@ class SSLExtractor(PyTorchExtractor):
                     )
                     if model_config["arch"] == "resnet50":
                         self.model.fc = torch.nn.Identity()
+
+            # MODELS FROM CHECKPOINT URL
+            elif model_config["type"] == "checkpoint_url":
+
+                # load architecture
+                self.model = getattr(torchvision.models, model_config["arch"])()
+                if model_config["arch"] == "resnet50":
+                    self.model.fc = torch.nn.Identity()
+
+                # load and cache state_dict
+                state_dict = torch.hub.load_state_dict_from_url(
+                    model_config["checkpoint_url"],
+                    # IMPORTANT that this is unique as it will be used for caching
+                    file_name=unique_model_filename
+                )
+
+                # load state dict to model
+                self.model.load_state_dict(state_dict, strict=True)
+
             else:
                 type = model_config["type"]
                 raise ValueError(f"\nUnknown model type: {type}.\n")
