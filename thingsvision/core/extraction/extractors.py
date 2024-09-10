@@ -470,6 +470,7 @@ class SSLExtractor(PyTorchExtractor):
                 # load and cache state_dict
                 state_dict = torch.hub.load_state_dict_from_url(
                     model_config["checkpoint_url"],
+                    map_location=torch.device("cpu"),
                     # IMPORTANT that this is unique as it will be used for caching
                     file_name=unique_model_filename
                 )
