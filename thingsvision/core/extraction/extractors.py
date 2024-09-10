@@ -429,6 +429,7 @@ class SSLExtractor(PyTorchExtractor):
                         raise ValueError(f"\n{self.model_name} is not available.\n")
                     state_dict = torch.hub.load_state_dict_from_url(
                         model_config["checkpoint_url"],
+                        map_location=torch.device("cpu"),
                         # This is used to cache the file
                         file_name=unique_model_filename
                     )
@@ -445,6 +446,7 @@ class SSLExtractor(PyTorchExtractor):
                         raise ValueError(f"\n{self.model_name} is not available.\n")
                     state_dict = torch.hub.load_state_dict_from_url(
                         model_config["checkpoint_url"],
+                        map_location=torch.device("cpu"),
                         file_name=unique_model_filename
                     )
                     checkpoint_model = state_dict["model"]
