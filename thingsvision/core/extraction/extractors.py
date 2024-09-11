@@ -353,7 +353,8 @@ class SSLExtractor(PyTorchExtractor):
     def _load_vissl_state_dict(self, model_url: str, unique_model_filename: str):
         """
         Downloads the model in vissl format, converts it to torchvision format and
-        saves it under output_model_filepath.
+        caches it under the unique_model_filename. Therefore, this file_name should be unique
+        per url. Otherwise, the wrong cached variant is loaded.
         """
         model = load_state_dict_from_url(model_url,
                                          map_location=torch.device("cpu"),
@@ -394,7 +395,7 @@ class SSLExtractor(PyTorchExtractor):
         if self.model_name in SSLExtractor.MODELS:
 
             # unique model id name for all models
-            unique_model_filename = f'thingsvision_ssl_v0_{self.model_name}'
+            unique_model_filename = f'thingsvision_ssl_v0_{self.model_name}.pth'
 
             # defines how the model should be loaded
             model_config = SSLExtractor.MODELS[self.model_name]
