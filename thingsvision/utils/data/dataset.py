@@ -128,7 +128,7 @@ class ImageDataset:
         if self.backend == "pt":
             img = self.transforms(img)
         elif self.backend == "tf":
-            img = tf.keras.preprocessing.image.img_to_array(img)
+            img = tf.keras.preprocessing.image.img_to_array(img) / 255.0 # the transforms don't scale RGB values, so we must do it manually
             img = self.transforms(img)
         else:
             raise ValueError(
