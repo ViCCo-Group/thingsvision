@@ -242,7 +242,7 @@ class KerasExtractor(TensorFlowExtractor):
                 return preproc_val
                 
         # If no match is found, print a warning message
-        warnings.warn(f"No preprocessing function found for model {model_name}, so falling back to default preprocessing.\nOften, models that come from Keras Applications have their own preprocessing functions, therefore this may create inaccurate results. If you need to manually specify a preprocessing function, please do so under the `transforms` argument when creating your DataSet")
+        warnings.warn(f"No preprocessing function found for model {model_name}, so falling back to default preprocessing.\nOften, models that come from Keras Applications have their own preprocessing functions.\nThus, this may create inaccurate results. If you need to manually specify a preprocessing function, please do so under the `transforms` argument when creating your Dataset")
         return None
 
 
