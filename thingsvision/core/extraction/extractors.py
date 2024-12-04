@@ -213,7 +213,7 @@ class KerasExtractor(TensorFlowExtractor):
     @staticmethod
     def get_preproc_fun(preproc_fun_name: str) -> Callable:
         """Get the preprocessing function associated with a specific model."""
-        return getattr(getattr(tensorflow_models, preproc_fun_name), "preprocess_input"))
+        return getattr(getattr(tensorflow_models, preproc_fun_name), "preprocess_input")
 
     
     def get_keras_preprocessing(self, model_name:str) -> Union[str, None]:
