@@ -199,10 +199,10 @@ class KerasExtractor(TensorFlowExtractor):
             self.model = model(weights=weights)
             preproc_fun_name = self.get_keras_preprocessing(self.model_name)
             if isinstance(preproc_fun_name, str):
-                # get preprocessing function associated with a specific model
+                # get preprocessing function for a specific model
                 preproc_fun = self.get_preproc_fun(preproc_fun_name)
                 # different models take differently sized inputs. this has to be accounted for.
-                resize_dim = self.model.layers[0].input_shape[0][-2] # -2 and -3 are H and W dims.
+                resize_dim = self.model.layers[0].input_shape[0][-2] # -2 and -3 are the H and W channel dims.
                 self.preprocess = tf.keras.Sequential([Lambda(preproc_fun), tf.keras.layers.experimental.preprocessing.Resizing(resize_dim, resize_dim)])
         else:
             raise ValueError(
