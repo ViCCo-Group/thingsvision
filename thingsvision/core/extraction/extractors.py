@@ -238,7 +238,7 @@ class KerasExtractor(TensorFlowExtractor):
         ]
         # Try each pattern
         for pattern, preproc_val in patterns:
-            if re.match(pattern, model_name):
+            if re.search(pattern, model_name):
                 return preproc_val
                 
         # If no match is found, print a warning message
