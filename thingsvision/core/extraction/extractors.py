@@ -9,7 +9,6 @@ import tensorflow.keras.applications as tensorflow_models
 import timm
 import torch
 import torchvision
-
 from tensorflow.keras.layers import Lambda
 from torch.hub import load_state_dict_from_url
 
@@ -44,13 +43,13 @@ Array = np.ndarray
 
 class TorchvisionExtractor(PyTorchExtractor):
     def __init__(
-            self,
-            model_name: str,
-            pretrained: bool,
-            device: str,
-            model_path: str = None,
-            model_parameters: Dict[str, Union[str, bool, List[str]]] = None,
-            preprocess: Optional[Callable] = None,
+        self,
+        model_name: str,
+        pretrained: bool,
+        device: str,
+        model_path: str = None,
+        model_parameters: Dict[str, Union[str, bool, List[str]]] = None,
+        preprocess: Optional[Callable] = None,
     ) -> None:
         model_parameters = (
             model_parameters if model_parameters else {"weights": "DEFAULT"}
@@ -95,12 +94,12 @@ class TorchvisionExtractor(PyTorchExtractor):
             )
 
     def get_default_transformation(
-            self,
-            mean,
-            std,
-            resize_dim: int = 256,
-            crop_dim: int = 224,
-            apply_center_crop: bool = True,
+        self,
+        mean,
+        std,
+        resize_dim: int = 256,
+        crop_dim: int = 224,
+        apply_center_crop: bool = True,
     ) -> Any:
         if self.weights:
             warnings.warn(
@@ -119,13 +118,13 @@ class TorchvisionExtractor(PyTorchExtractor):
 
 class TimmExtractor(PyTorchExtractor):
     def __init__(
-            self,
-            model_name: str,
-            pretrained: bool,
-            device: str,
-            model_path: str = None,
-            model_parameters: Dict[str, Union[str, bool, List[str]]] = None,
-            preprocess: Optional[Callable] = None,
+        self,
+        model_name: str,
+        pretrained: bool,
+        device: str,
+        model_path: str = None,
+        model_parameters: Dict[str, Union[str, bool, List[str]]] = None,
+        preprocess: Optional[Callable] = None,
     ) -> None:
         super().__init__(
             model_name=model_name,
@@ -146,12 +145,12 @@ class TimmExtractor(PyTorchExtractor):
             )
 
     def get_default_transformation(
-            self,
-            mean,
-            std,
-            resize_dim: int = 256,
-            crop_dim: int = 224,
-            apply_center_crop: bool = True,
+        self,
+        mean,
+        std,
+        resize_dim: int = 256,
+        crop_dim: int = 224,
+        apply_center_crop: bool = True,
     ) -> Any:
         warnings.warn(
             message="\nInput arguments are ignored because <timm> automatically infers transforms from model config.\n",
@@ -166,13 +165,13 @@ class TimmExtractor(PyTorchExtractor):
 
 class KerasExtractor(TensorFlowExtractor):
     def __init__(
-            self,
-            model_name: str,
-            pretrained: bool,
-            device: str,
-            model_path: str = None,
-            model_parameters: Dict[str, Union[str, bool, List[str]]] = None,
-            preprocess: Optional[Callable] = None,
+        self,
+        model_name: str,
+        pretrained: bool,
+        device: str,
+        model_path: str = None,
+        model_parameters: Dict[str, Union[str, bool, List[str]]] = None,
+        preprocess: Optional[Callable] = None,
     ) -> None:
         model_parameters = (
             model_parameters if model_parameters else {"weights": "imagenet"}
@@ -202,47 +201,56 @@ class KerasExtractor(TensorFlowExtractor):
                 # get preprocessing function for a specific model
                 preproc_fun = self.get_preproc_fun(preproc_fun_name)
                 # different models take differently sized inputs. this has to be accounted for.
-                resize_dim = self.model.layers[0].input_shape[0][-2] # -2 and -3 are the H and W channel dims.
-                self.preprocess = tf.keras.Sequential([Lambda(preproc_fun), tf.keras.layers.experimental.preprocessing.Resizing(resize_dim, resize_dim)])
+                resize_dim = self.model.layers[0].input_shape[0][
+                    -2
+                ]  # -2 and -3 are the H and W channel dims.
+                self.preprocess = tf.keras.Sequential(
+                    [
+                        Lambda(preproc_fun),
+                        tf.keras.layers.experimental.preprocessing.Resizing(
+                            resize_dim, resize_dim
+                        ),
+                    ]
+                )
         else:
             raise ValueError(
                 f"\nCould not find {self.model_name} among TensorFlow models.\n"
             )
-    
-    
+
     @staticmethod
     def get_preproc_fun(preproc_fun_name: str) -> Callable:
         """Get the preprocessing function associated with a specific model."""
         return getattr(getattr(tensorflow_models, preproc_fun_name), "preprocess_input")
 
-    
-    def get_keras_preprocessing(self, model_name:str) -> Union[str, None]:
+    def get_keras_preprocessing(self, model_name: str) -> Union[str, None]:
         """Get the preprocessing function for the corresponding model from `tensorflow.keras.applications.*`"""
-    
+
         patterns = [
-            (r'^ConvNeXt(Base|Large|Small|Tiny|XLarge)$', 'convnext'),
-            (r'^DenseNet\d+$', 'densenet'),
-            (r'^EfficientNetB[0-7]$', 'efficientnet'),
-            (r'^EfficientNetV2(B[0-3]|[LMS])$', 'efficientnet_v2'),
-            (r'^InceptionResNetV2$', 'inception_resnet_v2'),
-            (r'^InceptionV3$', 'inception_v3'),
-            (r'^MobileNet$', 'mobilenet'),
-            (r'^MobileNetV2$', 'mobilenet_v2'),
-            (r'^MobileNetV3(Large|Small)$', 'mobilenet_v3'),
-            (r'^NasNet(Large|Mobile)$', 'nasnet'),
-            (r'^ResNet\d+$', 'resnet'),
-            (r'^ResNet\d+V2$', 'resnet_v2'),
-            (r'^VGG16$', 'vgg16'),
-            (r'^VGG19$', 'vgg19'),
-            (r'^Xception$', 'xception')
+            (r"^ConvNeXt(Base|Large|Small|Tiny|XLarge)$", "convnext"),
+            (r"^DenseNet\d+$", "densenet"),
+            (r"^EfficientNetB[0-7]$", "efficientnet"),
+            (r"^EfficientNetV2(B[0-3]|[LMS])$", "efficientnet_v2"),
+            (r"^InceptionResNetV2$", "inception_resnet_v2"),
+            (r"^InceptionV3$", "inception_v3"),
+            (r"^MobileNet$", "mobilenet"),
+            (r"^MobileNetV2$", "mobilenet_v2"),
+            (r"^MobileNetV3(Large|Small)$", "mobilenet_v3"),
+            (r"^NasNet(Large|Mobile)$", "nasnet"),
+            (r"^ResNet\d+$", "resnet"),
+            (r"^ResNet\d+V2$", "resnet_v2"),
+            (r"^VGG16$", "vgg16"),
+            (r"^VGG19$", "vgg19"),
+            (r"^Xception$", "xception"),
         ]
         # Try each pattern
         for pattern, preproc_val in patterns:
             if re.search(pattern, model_name):
                 return preproc_val
-                
+
         # If no match is found, print a warning message
-        warnings.warn(f"No preprocessing function found for model {model_name}, so falling back to default preprocessing.\nOften, models that come from Keras Applications have their own preprocessing functions.\nThus, this may create inaccurate results. If you need to manually specify a preprocessing function, please do so under the `transforms` argument when creating your Dataset")
+        warnings.warn(
+            f"No preprocessing function found for model {model_name}, so falling back to default preprocessing.\nOften, models that come from Keras Applications have their own preprocessing functions.\nThus, this may create inaccurate results. If you need to manually specify a preprocessing function, please do so under the `transforms` argument when creating your Dataset"
+        )
         return None
 
 
@@ -281,12 +289,12 @@ class SSLExtractor(PyTorchExtractor):
         "barlowtwins-rn50": {
             "arch": "resnet50",
             "type": "checkpoint_url",
-            "checkpoint_url": "https://dl.fbaipublicfiles.com/barlowtwins/ljng/resnet50.pth"
+            "checkpoint_url": "https://dl.fbaipublicfiles.com/barlowtwins/ljng/resnet50.pth",
         },
         "vicreg-rn50": {
             "arch": "resnet50",
             "type": "checkpoint_url",
-            "checkpoint_url": "https://dl.fbaipublicfiles.com/vicreg/resnet50.pth"
+            "checkpoint_url": "https://dl.fbaipublicfiles.com/vicreg/resnet50.pth",
         },
         "dino-vit-small-p16": {
             "repository": "facebookresearch/dino:main",
@@ -378,13 +386,13 @@ class SSLExtractor(PyTorchExtractor):
     }
 
     def __init__(
-            self,
-            model_name: str,
-            pretrained: bool,
-            device: str,
-            model_path: str = None,
-            model_parameters: Dict[str, Union[str, bool, List[str]]] = None,
-            preprocess: Optional[Callable] = None,
+        self,
+        model_name: str,
+        pretrained: bool,
+        device: str,
+        model_path: str = None,
+        model_parameters: Dict[str, Union[str, bool, List[str]]] = None,
+        preprocess: Optional[Callable] = None,
     ) -> None:
         super().__init__(
             model_name=model_name,
@@ -401,9 +409,9 @@ class SSLExtractor(PyTorchExtractor):
         caches it under the unique_model_filename. Therefore, this file_name should be unique
         per url. Otherwise, the wrong cached variant is loaded.
         """
-        model = load_state_dict_from_url(model_url,
-                                         map_location=torch.device("cpu"),
-                                         file_name=unique_model_filename)
+        model = load_state_dict_from_url(
+            model_url, map_location=torch.device("cpu"), file_name=unique_model_filename
+        )
 
         # get the model trunk to rename
         if "classy_state_dict" in model.keys():
@@ -417,7 +425,7 @@ class SSLExtractor(PyTorchExtractor):
         return converted_model
 
     def _replace_module_prefix(
-            self, state_dict: Dict[str, Any], prefix: str, replace_with: str = ""
+        self, state_dict: Dict[str, Any], prefix: str, replace_with: str = ""
     ):
         """
         Remove prefixes in a state_dict needed when loading models that are not VISSL
@@ -440,7 +448,7 @@ class SSLExtractor(PyTorchExtractor):
         if self.model_name in SSLExtractor.MODELS:
 
             # unique model id name for all models
-            unique_model_filename = f'thingsvision_ssl_v0_{self.model_name}.pth'
+            unique_model_filename = f"thingsvision_ssl_v0_{self.model_name}.pth"
 
             # defines how the model should be loaded
             model_config = SSLExtractor.MODELS[self.model_name]
@@ -449,7 +457,7 @@ class SSLExtractor(PyTorchExtractor):
             if model_config["type"] == "vissl":
                 model_state_dict = self._load_vissl_state_dict(
                     model_url=model_config["url"],
-                    unique_model_filename=unique_model_filename
+                    unique_model_filename=unique_model_filename,
                 )
                 self.model = getattr(torchvision.models, model_config["arch"])()
                 if model_config["arch"] == "resnet50":
@@ -477,7 +485,7 @@ class SSLExtractor(PyTorchExtractor):
                         model_config["checkpoint_url"],
                         map_location=torch.device("cpu"),
                         # This is used to cache the file
-                        file_name=unique_model_filename
+                        file_name=unique_model_filename,
                     )
                     model.load_state_dict(state_dict, strict=True)
                     self.model = model
@@ -493,7 +501,7 @@ class SSLExtractor(PyTorchExtractor):
                     state_dict = torch.hub.load_state_dict_from_url(
                         model_config["checkpoint_url"],
                         map_location=torch.device("cpu"),
-                        file_name=unique_model_filename
+                        file_name=unique_model_filename,
                     )
                     checkpoint_model = state_dict["model"]
                     # interpolate position embedding
@@ -520,7 +528,7 @@ class SSLExtractor(PyTorchExtractor):
                     model_config["checkpoint_url"],
                     map_location=torch.device("cpu"),
                     # IMPORTANT that this is unique as it will be used for caching
-                    file_name=unique_model_filename
+                    file_name=unique_model_filename,
                 )
 
                 # load state dict to model

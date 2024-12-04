@@ -88,7 +88,10 @@ class TensorFlowExtractor(BaseExtractor):
         apply_center_crop: bool = True,
     ) -> Any:
         resize_dim = crop_dim
-        composes = [layers.experimental.preprocessing.Resizing(resize_dim, resize_dim), layers.experimental.preprocessing.Rescaling(1./255.)]
+        composes = [
+            layers.experimental.preprocessing.Resizing(resize_dim, resize_dim),
+            layers.experimental.preprocessing.Rescaling(1.0 / 255.0),
+        ]
         if apply_center_crop:
             pass
             # TODO: fix center crop problem with Keras
