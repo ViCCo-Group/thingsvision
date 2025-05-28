@@ -306,7 +306,7 @@ If you use this GitHub repository (or any modules associated with it), please ci
 <!-- Contributions -->
 ## :gem: Contributions
 
-This is a joint open-source project between the [Max Planck Institute for Human Cognitive and Brain Sciences](https://www.cbs.mpg.de/en), Leipzig, and the [Machine Learning Group](https://web.ml.tu-berlin.de/) at Technische Universtität Berlin. Correspondence and requests for contributing should be adressed to [Lukas Muttenthaler](https://lukasmut.github.io/). Feel free to contact us if you want to become a contributor or have any suggestions/feedback. For the latter, you could also just post an issue or engange in discussions. We'll try to respond as fast as we can.
+This is a joint open-source project between the [Max Planck Institute for Human Cognitive and Brain Sciences](https://www.cbs.mpg.de/en), Leipzig, and the [Machine Learning Group](https://web.ml.tu-berlin.de/) at Technische Universtität Berlin. Correspondence and requests for contributing should be adressed to Lukas Muttenthaler or Martin Hebart. Feel free to contact us if you want to become a contributor or have any suggestions/feedback. For the latter, you could also just post an issue or engange in discussions. We'll try to respond as fast as we can.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
