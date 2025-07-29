@@ -174,6 +174,9 @@ class PyTorchExtractor(BaseExtractor):
         output_dir: Optional[str] = None,
         step_size: Optional[int] = None,
     ):
+        assert (
+            bool(module_name) ^ bool(module_names)
+        ), "Please provide either a single module name or a list of module names for which features should be extracted.\n"
         self.model = self.model.to(self.device)
         self.activations = {}
         if module_name:
@@ -181,7 +184,6 @@ class PyTorchExtractor(BaseExtractor):
         self._register_hooks(module_names=module_names)
         features = super().extract_features(
             batches=batches,
-            module_name=module_name,
             module_names=module_names,
             flatten_acts=flatten_acts,
             output_type=output_type,
