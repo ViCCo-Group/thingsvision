@@ -110,7 +110,7 @@ class PyTorchExtractor(BaseExtractor):
         TensorType["b", "d"],
     ]:
         act = self._extract_batch(
-            batch=batch, module_name=self.module_names, flatten_acts=flatten_acts
+            batch=batch, module_names=self.module_names, flatten_acts=flatten_acts
         )
         if self.output_type == "ndarray":
             act = self._to_numpy(act)

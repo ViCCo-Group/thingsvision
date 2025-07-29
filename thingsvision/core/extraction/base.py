@@ -214,7 +214,7 @@ class BaseExtractor(metaclass=abc.ABCMeta):
             Returns the feature matrix (e.g., $X \in \mathbb{R}^{n \times d}$ if penultimate or logits layer or flatten_acts = True).
         """
         assert (
-            module_name ^ module_names
+            bool(module_name) ^ bool(module_names)
         ), "Please provide either a single module name or a list of module names for which features should be extracted.\n"
         if module_name:
             module_names = [module_name]

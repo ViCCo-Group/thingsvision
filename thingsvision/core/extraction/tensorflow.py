@@ -43,7 +43,7 @@ class TensorFlowExtractor(BaseExtractor):
         flatten_acts: bool = False,
     ) -> Array:
         assert (
-            module_name ^ module_names
+            bool(module_name) ^ bool(module_names)
         ), "Please provide either a single module name or a list of module names for which features should be extracted.\n"
         if module_name:
             module_names = [module_name]
@@ -66,7 +66,7 @@ class TensorFlowExtractor(BaseExtractor):
         output_type: str = "ndarray",
     ) -> Array:
         assert (
-            module_name ^ module_names
+            bool(module_name) ^ bool(module_names)
         ), "Please provide either a single module name or a list of module names for which features should be extracted.\n"
         if module_name:
             module_names = [module_name]
