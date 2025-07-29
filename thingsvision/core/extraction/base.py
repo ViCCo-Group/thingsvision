@@ -276,12 +276,12 @@ class BaseExtractor(metaclass=abc.ABCMeta):
         else:
             for module_name in module_names:
                 if self.get_backend() == "pt":
-                    features = torch.cat(features[module_name])
+                    features[module_name] = torch.cat(features[module_name])
                     if output_type == "ndarray":
-                        features = self._to_numpy(features)
+                        features[module_name] = self._to_numpy(features[module_name])
                 else:
-                    features = np.vstack(features[module_name])
-                    print(f"...Features shape: {features.shape}")
+                    features[module_name] = np.vstack(features[module_name])
+                    print(f"...Features shape: {features[module_name].shape}")
         return features
 
     @staticmethod
