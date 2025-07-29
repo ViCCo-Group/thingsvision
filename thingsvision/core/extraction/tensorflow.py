@@ -40,7 +40,7 @@ class TensorFlowExtractor(BaseExtractor):
         batch: Array,
         module_name: Optional[str] = None,
         module_names: Optional[List[str]] = None,
-        flatten_acts: bool,
+        flatten_acts: bool = False,
     ) -> Array:
         assert (
             module_name ^ module_names
