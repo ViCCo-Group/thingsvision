@@ -286,18 +286,15 @@ class BaseExtractor(metaclass=abc.ABCMeta):
 
     @staticmethod
     def _to_numpy(
-        features: Dict[
-            str,
-            Union[
-                TensorType["n", "num_maps", "h_prime", "w_prime"],
-                TensorType["n", "t", "d"],
-                TensorType["n", "p"],
-                TensorType["n", "d"],
-            ],
-        ],
-    ) -> Dict[str, Array]:
+        features: Union[
+            TensorType["n", "num_maps", "h_prime", "w_prime"],
+            TensorType["n", "t", "d"],
+            TensorType["n", "p"],
+            TensorType["n", "d"],
+        ]
+    ) -> Array:
         """Move activations to CPU and convert torch.Tensor to np.ndarray."""
-        return {k: v.cpu().numpy() for k, v in features.items()}
+        return features.numpy()
 
     def get_transformations(
         self, resize_dim: int = 256, crop_dim: int = 224, apply_center_crop: bool = True
