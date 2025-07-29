@@ -78,8 +78,8 @@ class BaseExtractor(metaclass=abc.ABCMeta):
         batch: Union[TensorType["b", "c", "h", "w"], Array],
         module_name: Optional[str] = None,
         module_names: Optional[List[str]] = None,
-        flatten_acts: bool,
-        output_type: str,
+        flatten_acts: bool = False,
+        output_type: str = "ndarray",
     ) -> Dict[
         str,
         Union[
@@ -118,7 +118,7 @@ class BaseExtractor(metaclass=abc.ABCMeta):
         batch: Union[TensorType["b", "c", "h", "w"], Array],
         module_name: Optional[str] = None,
         module_names: Optional[List[str]] = None,
-        flatten_acts: bool,
+        flatten_acts: bool = False,
     ) -> Dict[
         str,
         Union[
