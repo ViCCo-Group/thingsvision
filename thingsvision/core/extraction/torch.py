@@ -122,6 +122,7 @@ class PyTorchExtractor(BaseExtractor):
         """Extract representations from a batch of images."""
         # move mini-batch to current device
         batch = batch.to(self.device)
+        batch_size = batch.shape[0]
         _ = self.forward(batch)
         act = self.activations[module_name]
         if len(act.shape) > 2:
@@ -144,6 +145,11 @@ class PyTorchExtractor(BaseExtractor):
                     act = self.flatten_acts(act, batch, module_name)
                 else:
                     act = self.flatten_acts(act)
+        if act.shape[0] != batch_size:
+            raise ValueError(
+                f"The number of extracted features ({act.shape=}) does not match the batch size ({batch.shape=}). "
+                "Please check the model, the module name, and the model parameters ..."
+            )
         if act.is_cuda or act.get_device() >= 0:
             torch.cuda.empty_cache()
             act = act.cpu()

@@ -4,7 +4,7 @@ keras-cv-attention-models>=1.3.5
 matplotlib
 numba
 numpy<=1.26.4 
-open_clip_torch==2.24.*
+open_clip_torch==3.*
 pandas
 regex
 scikit-image
