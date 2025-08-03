@@ -27,13 +27,12 @@ class OpenCLIP(Custom):
 
     def create_model(self) -> Any:
         self.check_available_variants_and_datasets()
-        fun = partial(
-            open_clip.create_model_and_transforms,
-            model_name=self.variant,
-            pretrained=self.dataset,
-        )
+        kwargs = {
+            "model_name": self.variant,
+            "pretrained": self.dataset,
+        }
         if self.vision_cfg:
-            fun = partial(fun, vision_cfg=self.vision_cfg)
+            kwargs["vision_cfg"] = self.vision_cfg
 
-        model, _, preprocess = fun()
+        model, _, preprocess = open_clip.create_model_and_transforms(**kwargs)
         return model, preprocess

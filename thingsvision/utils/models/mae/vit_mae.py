@@ -10,6 +10,7 @@
 # --------------------------------------------------------
 
 from functools import partial
+from typing import Optional
 
 import torch
 import torch.nn as nn
@@ -22,24 +23,18 @@ class VisionTransformer(vision_transformer.VisionTransformer):
     def __init__(self, **kwargs):
         super(VisionTransformer, self).__init__(**kwargs)
 
-    def forward_features(self, x):
-        B = x.shape[0]
-        x = self.patch_embed(x)
-
-        cls_tokens = self.cls_token.expand(
-            B, -1, -1
-        )  # stole cls_tokens impl from Phil Wang, thanks
-        x = torch.cat((cls_tokens, x), dim=1)
-        x = x + self.pos_embed
-        x = self.pos_drop(x)
-
-        for blk in self.blocks:
-            x = blk(x)
-
-        x = self.norm(x)
-        outcome = x[:, 0]
+    def forward_features(
+        self, x: torch.Tensor, attn_mask: Optional[torch.Tensor] = None
+    ) -> torch.Tensor:
+        """Orig. vision_transformer.VisionTransformer.forward_features:
+        https://github.com/huggingface/pytorch-image-models/blob/v1.0.19/timm/models/vision_transformer.py
+        Add cls_token to after patch_embed and before patch_drop.
+        """
+        x = super().forward_features(x, attn_mask)
+        outcome = x[
+            :, 0
+        ]  # TODO: Not clear if we should not return all tokens or just the cls token
         return outcome
-
 
 
 def vit_base_patch16(**kwargs):
