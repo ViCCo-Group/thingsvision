@@ -81,15 +81,26 @@ class BaseExtractor(metaclass=abc.ABCMeta):
         module_names: Optional[List[str]] = None,
         flatten_acts: bool = False,
         output_type: str = "ndarray",
-    ) -> Dict[
-        str,
-        Union[
+    ) -> Union[
+        # This is the return type when 'module_names' is used
+        Dict[
+            str,
             Union[
-                TensorType["n", "num_maps", "h_prime", "w_prime"],
-                TensorType["n", "t", "d"],
-                TensorType["n", "p"],
-                TensorType["n", "d"],
+                Union[
+                    TensorType["n", "num_maps", "h_prime", "w_prime"],
+                    TensorType["n", "t", "d"],
+                    TensorType["n", "p"],
+                    TensorType["n", "d"],
+                ],
+                Array,
             ],
+        ],
+        # This is the return type when 'module_name' is used (for backward compatibility)
+        Union[
+            TensorType["n", "num_maps", "h_prime", "w_prime"],
+            TensorType["n", "t", "d"],
+            TensorType["n", "p"],
+            TensorType["n", "d"],
             Array,
         ],
     ]:
@@ -119,8 +130,7 @@ class BaseExtractor(metaclass=abc.ABCMeta):
     def _extract_batch(
         self,
         batch: Union[TensorType["b", "c", "h", "w"], Array],
-        module_name: Optional[str] = None,
-        module_names: Optional[List[str]] = None,
+        module_names: List[str],
         flatten_acts: bool = False,
     ) -> Dict[
         str,
@@ -163,15 +173,26 @@ class BaseExtractor(metaclass=abc.ABCMeta):
         output_type: Optional[str] = "ndarray",
         output_dir: Optional[str] = None,
         step_size: Optional[int] = None,
-    ) -> Dict[
-        str,
-        Union[
+    ) -> Union[
+        # This is the return type when 'module_names' is used
+        Dict[
+            str,
             Union[
-                TensorType["n", "num_maps", "h_prime", "w_prime"],
-                TensorType["n", "t", "d"],
-                TensorType["n", "p"],
-                TensorType["n", "d"],
+                Union[
+                    TensorType["n", "num_maps", "h_prime", "w_prime"],
+                    TensorType["n", "t", "d"],
+                    TensorType["n", "p"],
+                    TensorType["n", "d"],
+                ],
+                Array,
             ],
+        ],
+        # This is the return type when 'module_name' is used (for backward compatibility)
+        Union[
+            TensorType["n", "num_maps", "h_prime", "w_prime"],
+            TensorType["n", "t", "d"],
+            TensorType["n", "p"],
+            TensorType["n", "d"],
             Array,
         ],
     ]:
@@ -288,7 +309,7 @@ class BaseExtractor(metaclass=abc.ABCMeta):
                     print(f"...Features shape: {features[module_name].shape}")
         if module_name is not None:
             # for backward compatibility
-            features = features[module_name]
+            return features[module_name]
         return features
 
     @staticmethod

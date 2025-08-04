@@ -104,17 +104,40 @@ class PyTorchExtractor(BaseExtractor):
         batch: TensorType["b", "c", "h", "w"],
         flatten_acts: bool,
     ) -> Union[
-        TensorType["b", "num_maps", "h_prime", "w_prime"],
-        TensorType["b", "t", "d"],
-        TensorType["b", "p"],
-        TensorType["b", "d"],
+        # This is the return type when 'module_names' is used
+        Dict[
+            str,
+            Union[
+                Union[
+                    TensorType["n", "num_maps", "h_prime", "w_prime"],
+                    TensorType["n", "t", "d"],
+                    TensorType["n", "p"],
+                    TensorType["n", "d"],
+                ],
+                Array,
+            ],
+        ],
+        # This is the return type when 'module_name' is used (for backward compatibility)
+        Union[
+            TensorType["n", "num_maps", "h_prime", "w_prime"],
+            TensorType["n", "t", "d"],
+            TensorType["n", "p"],
+            TensorType["n", "d"],
+            Array,
+        ],
     ]:
-        act = self._extract_batch(
-            batch=batch, module_names=self.module_names, flatten_acts=flatten_acts
+        acts = self._extract_batch(
+            batch=batch,
+            module_name=getattr(self, "module_name", None),
+            module_names=getattr(self, "module_names", None),
+            flatten_acts=flatten_acts,
         )
         if self.output_type == "ndarray":
-            act = self._to_numpy(act)
-        return act
+            for module_name, act in acts.items():
+                acts[module_name] = self._to_numpy(act)
+        if getattr(self, "module_name", None) is not None:
+            return acts[self.module_name]
+        return acts
 
     @torch.no_grad()
     def _extract_batch(
@@ -291,7 +314,11 @@ class PyTorchExtractor(BaseExtractor):
 class BatchExtraction(object):
 
     def __init__(
-        self, extractor: PyTorchExtractor, module_names: List[str], output_type: str
+        self,
+        extractor: PyTorchExtractor,
+        module_name: Optional[List[str]] = None,
+        module_names: Optional[List[str]] = None,
+        output_type: str = "ndarray",
     ) -> None:
         """
         Mini-batch extraction object that can be used as a with-statement in a PyTorch extractor.
@@ -300,10 +327,18 @@ class BatchExtraction(object):
         ----------
         extractor (object): PyTorchExtractor class.
         module_name (str): The module of model for which features will be extracted.
+        module_names (List[str]): List of modules of model for which features will be extracted.
         output_type (str): Type of the feature matrix returned by the extractor.
 
         """
+        if not bool(module_name) ^ bool(module_names):
+            raise ValueError(
+                "\nPlease provide either a single module name or a list of module names, but not both.\n"
+            )
+        if module_name:
+            module_names = [module_name]
         self.extractor = extractor
+        self.module_name = module_name
         self.module_names = module_names
         self.output_type = output_type
 
@@ -311,6 +346,7 @@ class BatchExtraction(object):
         """Registering hooks and setting attributes during opening."""
         self.extractor._module_and_output_check(self.module_names, self.output_type)
         self.extractor._register_hooks(self.module_names)
+        setattr(self.extractor, "module_name", self.module_name)
         setattr(self.extractor, "module_names", self.module_names)
         setattr(self.extractor, "output_type", self.output_type)
         return self.extractor
@@ -318,5 +354,6 @@ class BatchExtraction(object):
     def __exit__(self, *args):
         """Removing hooks and deleting attributes at closing."""
         self.extractor._unregister_hooks()
+        delattr(self.extractor, "module_name")
         delattr(self.extractor, "module_names")
         delattr(self.extractor, "output_type")

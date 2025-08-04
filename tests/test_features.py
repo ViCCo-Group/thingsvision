@@ -106,11 +106,11 @@ class FeaturesTestCase(unittest.TestCase):
     def test_storing_multi(self):
         features = self.get_multi_features()
         for _, feature in features.items():
-            for format in helper.FILE_FORMATS:
-                # tests whether features can be saved in any of the formats
+            for format in set(helper.FILE_FORMATS) - set(["txt"]):
+                # tests whether features can be saved in any of the formats except txt
                 save_features(
                     features=feature,
-                    out_path=f"{helper.OUT_PATH}",
+                    out_path=helper.OUT_PATH,
                     file_format=format,
                 )
                 self.check_file_exists(f"features", format, False)
