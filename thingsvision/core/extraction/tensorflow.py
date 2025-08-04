@@ -42,7 +42,9 @@ class TensorFlowExtractor(BaseExtractor):
         module_names: Optional[List[str]] = None,
         flatten_acts: bool = False,
     ) -> Array:
-        assert module_names is None, "TensorFlowExtractor does not support multiple module names."
+        assert (
+            module_names is None
+        ), "TensorFlowExtractor does not support multiple module names."
         layer_out = [self.model.get_layer(module_name).output]
         activation_model = keras.models.Model(
             inputs=self.model.input,
@@ -61,7 +63,9 @@ class TensorFlowExtractor(BaseExtractor):
         flatten_acts: bool = False,
         output_type: str = "ndarray",
     ) -> Array:
-        assert module_names is None, "TensorFlowExtractor does not support multiple module names."
+        assert (
+            module_names is None
+        ), "TensorFlowExtractor does not support multiple module names."
         self._module_and_output_check(module_name, output_type)
         activations = self._extract_batch(batch, module_name, flatten_acts)
         return activations

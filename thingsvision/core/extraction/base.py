@@ -3,6 +3,7 @@ import os
 import re
 import warnings
 from typing import Callable, Dict, Iterator, List, Optional, Union
+from collections import defaultdict
 
 import numpy as np
 from torchtyping import TensorType
@@ -98,6 +99,8 @@ class BaseExtractor(metaclass=abc.ABCMeta):
         ----------
         batch : np.ndarray or torch.Tensor
             mini-batch of three-dimensional image tensors.
+        module_name : str
+            Name of the neural network layer for which features should be extracted.
         module_names : List[str]
             Names of the modules for which features should be extracted.
         flatten_acts : bool
@@ -213,9 +216,10 @@ class BaseExtractor(metaclass=abc.ABCMeta):
         output : np.ndarray or torch.Tensor
             Returns the feature matrix (e.g., $X \in \mathbb{R}^{n \times d}$ if penultimate or logits layer or flatten_acts = True).
         """
-        assert (
-            bool(module_name) ^ bool(module_names)
-        ), "Please provide either a single module name or a list of module names for which features should be extracted.\n"
+        if not bool(module_name) ^ bool(module_names):
+            raise ValueError(
+                "\nPlease provide either a single module name or a list of module names, but not both.\n"
+            )
         if module_name:
             module_names = [module_name]
         self._module_and_output_check(module_names, output_type)
@@ -227,7 +231,7 @@ class BaseExtractor(metaclass=abc.ABCMeta):
                 step_size = 8000 // (len(next(iter(batches))) * 3) + 1
 
         # create feature dict per module name
-        features = {name: [] for name in module_names}
+        features = defaultdict(list)
         image_ct, last_image_ct = 0, 0
         for i, batch in tqdm(
             enumerate(batches, start=1), desc="Batch", total=len(batches)
@@ -265,7 +269,7 @@ class BaseExtractor(metaclass=abc.ABCMeta):
                         )
                         features_subset = np.vstack(features[module_name])
                         np.save(features_subset_file, features_subset)
-                    features = {name: [] for name in module_names}
+                    features = defaultdict(list)
                     last_image_ct = image_ct
         print(
             f"...Features successfully extracted for all {image_ct} images in the database."
@@ -294,7 +298,7 @@ class BaseExtractor(metaclass=abc.ABCMeta):
             TensorType["n", "t", "d"],
             TensorType["n", "p"],
             TensorType["n", "d"],
-        ]
+        ],
     ) -> Array:
         """Move activations to CPU and convert torch.Tensor to np.ndarray."""
         return features.numpy()
