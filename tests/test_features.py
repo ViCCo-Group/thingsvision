@@ -158,8 +158,8 @@ class FeaturesTestCase(unittest.TestCase):
     def test_splitting_multi(self):
         n_splits = 3
         features = self.get_multi_features()
-        for _, feature in features.items():
-            for format in set(helper.FILE_FORMATS) - set(["txt"]):
+        for format in set(helper.FILE_FORMATS) - set(["txt"]):
+            for _, feature in features.items():
                 if format == "pt":
                     feature = torch.from_numpy(feature)
                 split_features(
@@ -172,7 +172,8 @@ class FeaturesTestCase(unittest.TestCase):
                 for i in range(1, n_splits):
                     self.check_file_exists(f"features_{i:02d}", format, False)
 
-            with self.assertRaises(Exception):
+        with self.assertRaises(Exception):
+            for _, feature in features.items():
                 split_features(
                     features=feature,
                     root=helper.OUT_PATH,

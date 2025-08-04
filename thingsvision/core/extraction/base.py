@@ -241,8 +241,11 @@ class BaseExtractor(metaclass=abc.ABCMeta):
             raise ValueError(
                 "\nPlease provide either a single module name or a list of module names, but not both.\n"
             )
-        if module_name:
+        if module_name is not None:
+            single_module_call = True
             module_names = [module_name]
+        else:
+            single_module_call = False
         self._module_and_output_check(module_names, output_type)
         if output_dir:
             os.makedirs(output_dir, exist_ok=True)
@@ -307,7 +310,7 @@ class BaseExtractor(metaclass=abc.ABCMeta):
                 else:
                     features[module_name] = np.vstack(features[module_name])
                     print(f"...Features shape: {features[module_name].shape}")
-        if module_name is not None:
+        if single_module_call:
             # for backward compatibility
             return features[module_name]
         return features

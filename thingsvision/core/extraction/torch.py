@@ -93,10 +93,15 @@ class PyTorchExtractor(BaseExtractor):
                 category=UserWarning,
             )
 
-    def batch_extraction(self, module_names: List[str], output_type: str) -> object:
+    def batch_extraction(
+        self,
+        module_name: Optional[str] = None,
+        module_names: Optional[List[str]] = None,
+        output_type: str = "ndarray",
+    ) -> object:
         """Allows mini-batch extraction for custom data pipeline using a with-statement."""
         return BatchExtraction(
-            extractor=self, module_names=module_names, output_type=output_type
+            extractor=self, module_name=module_name, module_names=module_names, output_type=output_type
         )
 
     def extract_batch(
@@ -128,8 +133,7 @@ class PyTorchExtractor(BaseExtractor):
     ]:
         acts = self._extract_batch(
             batch=batch,
-            module_name=getattr(self, "module_name", None),
-            module_names=getattr(self, "module_names", None),
+            module_names=self.module_names,
             flatten_acts=flatten_acts,
         )
         if self.output_type == "ndarray":
@@ -203,11 +207,13 @@ class PyTorchExtractor(BaseExtractor):
             )
         self.model = self.model.to(self.device)
         self.activations = {}
-        if module_name:
-            module_names = [module_name]
-        self._register_hooks(module_names=module_names)
+        if module_name is not None:
+            self._register_hooks(module_names=[module_name])
+        else:
+            self._register_hooks(module_names=module_names)
         features = super().extract_features(
             batches=batches,
+            module_name=module_name,
             module_names=module_names,
             flatten_acts=flatten_acts,
             output_type=output_type,
@@ -316,7 +322,7 @@ class BatchExtraction(object):
     def __init__(
         self,
         extractor: PyTorchExtractor,
-        module_name: Optional[List[str]] = None,
+        module_name: Optional[str] = None,
         module_names: Optional[List[str]] = None,
         output_type: str = "ndarray",
     ) -> None:
@@ -335,7 +341,8 @@ class BatchExtraction(object):
             raise ValueError(
                 "\nPlease provide either a single module name or a list of module names, but not both.\n"
             )
-        if module_name:
+        print(module_names, module_name, "INITIAKLAA")
+        if module_name is not None:
             module_names = [module_name]
         self.extractor = extractor
         self.module_name = module_name
@@ -344,6 +351,7 @@ class BatchExtraction(object):
 
     def __enter__(self) -> PyTorchExtractor:
         """Registering hooks and setting attributes during opening."""
+        print("EXTRACTOR", self.module_names)
         self.extractor._module_and_output_check(self.module_names, self.output_type)
         self.extractor._register_hooks(self.module_names)
         setattr(self.extractor, "module_name", self.module_name)
