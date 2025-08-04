@@ -38,19 +38,15 @@ class TensorFlowExtractor(BaseExtractor):
     def _extract_batch(
         self,
         batch: Array,
-        module_name: Optional[str] = None,
+        module_name: str,
         module_names: Optional[List[str]] = None,
         flatten_acts: bool = False,
     ) -> Array:
-        assert (
-            bool(module_name) ^ bool(module_names)
-        ), "Please provide either a single module name or a list of module names for which features should be extracted.\n"
-        if module_name:
-            module_names = [module_name]
-        layer_outs = [self.model.get_layer(name).output for name in module_names]
+        assert module_names is None, "TensorFlowExtractor does not support multiple module names."
+        layer_out = [self.model.get_layer(module_name).output]
         activation_model = keras.models.Model(
             inputs=self.model.input,
-            outputs=layer_outs,
+            outputs=layer_out,
         )
         activations = activation_model.predict(batch)
         if flatten_acts:
@@ -60,22 +56,14 @@ class TensorFlowExtractor(BaseExtractor):
     def extract_batch(
         self,
         batch: Array,
-        module_name: Optional[str] = None,
+        module_name: str,
         module_names: Optional[List[str]] = None,
         flatten_acts: bool = False,
         output_type: str = "ndarray",
     ) -> Array:
-        assert (
-            bool(module_name) ^ bool(module_names)
-        ), "Please provide either a single module name or a list of module names for which features should be extracted.\n"
-        if module_name:
-            module_names = [module_name]
-        self.model = self.model.to(self.device)
-        self.activations = {}
-        if module_name:
-            module_names = [module_name]
-        self._module_and_output_check(module_names, output_type)
-        activations = self._extract_batch(batch, module_names, flatten_acts)
+        assert module_names is None, "TensorFlowExtractor does not support multiple module names."
+        self._module_and_output_check(module_name, output_type)
+        activations = self._extract_batch(batch, module_name, flatten_acts)
         return activations
 
     def show_model(self) -> str:

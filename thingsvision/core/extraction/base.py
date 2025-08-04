@@ -282,6 +282,9 @@ class BaseExtractor(metaclass=abc.ABCMeta):
                 else:
                     features[module_name] = np.vstack(features[module_name])
                     print(f"...Features shape: {features[module_name].shape}")
+        if module_name is not None:
+            # for backward compatibility
+            features = features[module_name]
         return features
 
     @staticmethod

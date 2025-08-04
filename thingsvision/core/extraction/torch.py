@@ -190,9 +190,7 @@ class PyTorchExtractor(BaseExtractor):
             output_dir=output_dir,
             step_size=step_size,
         )
-        if self.hook_handles:
-            for handle in self.hook_handles:
-                handle.remove()
+        self._unregister_hooks()
         return features
 
     def forward(

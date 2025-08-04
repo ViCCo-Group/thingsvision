@@ -44,6 +44,19 @@ class FeaturesTestCase(unittest.TestCase):
             flatten_acts=False,
         )
         return features
+    
+    def get_multi_features(self):
+        model_name = "vgg16_bn"
+        extractor, _, batches = helper.create_extractor_and_dataloader(
+            model_name=model_name, pretrained=False, source="torchvision"
+        )
+        module_names = ["features.23", "classifier.3"]
+        features = extractor.extract_features(
+            batches=batches,
+            module_names=module_names,
+            flatten_acts=False,
+        )
+        return features
 
     def test_postprocessing(self):
         """Test different postprocessing methods (e.g., centering, normalization, compression)."""
@@ -89,6 +102,18 @@ class FeaturesTestCase(unittest.TestCase):
             )
 
             self.check_file_exists("features", format, False)
+    
+    def test_storing_multi(self):
+        features = self.get_multi_features()
+        for _, feature in features.items():
+            for format in helper.FILE_FORMATS:
+                # tests whether features can be saved in any of the formats
+                save_features(
+                    features=feature,
+                    out_path=f"{helper.OUT_PATH}",
+                    file_format=format,
+                )
+                self.check_file_exists(f"features", format, False)
 
     def test_splitting_2d(self):
         n_splits = 3
@@ -129,3 +154,28 @@ class FeaturesTestCase(unittest.TestCase):
                 file_format="txt",
                 n_splits=n_splits,
             )
+    
+    def test_splitting_multi(self):
+        n_splits = 3
+        features = self.get_multi_features()
+        for _, feature in features.items():
+            for format in set(helper.FILE_FORMATS) - set(["txt"]):
+                if format == "pt":
+                    feature = torch.from_numpy(feature)
+                split_features(
+                    features=feature,
+                    root=helper.OUT_PATH,
+                    file_format=format,
+                    n_splits=n_splits,
+                )
+
+                for i in range(1, n_splits):
+                    self.check_file_exists(f"features_{i:02d}", format, False)
+
+            with self.assertRaises(Exception):
+                split_features(
+                    features=feature,
+                    root=helper.OUT_PATH,
+                    file_format="txt",
+                    n_splits=n_splits,
+                )
