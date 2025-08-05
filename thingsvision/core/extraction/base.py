@@ -315,22 +315,23 @@ class BaseExtractor(metaclass=abc.ABCMeta):
                     for file in sorted(
                         os.listdir(os.path.join(output_dir, module_name))
                     ):
-                        if file.endswith(".npy") or file.endswith(".pt"):
-                            features.append(
-                                np.load(os.path.join(output_dir, module_name, file))
-                                if file.endswith(".npy")
-                                else torch.load(
-                                    os.path.join(output_dir, module_name, file)
+                        if self.get_backend() == "pt" and output_type != "ndarray":
+                            if file.endswith(".pt"):
+                                features.append(
+                                    torch.load(os.path.join(output_dir, module_name, file))
                                 )
-                            )
-                    features = np.concatenate(features) if output_type == "ndarray" else torch.cat(features)
+                        else:
+                            if file.endswith(".npy"):
+                                features.append(
+                                    np.load(os.path.join(output_dir, module_name, file))
+                                )
                     features_file = os.path.join(
                         output_dir, f"{module_name}/features{file_name_suffix}"
                     )
                     if output_type == "ndarray":
-                        np.save(f"{features_file}.npy", features)
+                        np.save(f"{features_file}.npy", np.concatenate(features))
                     else:  # output_type = tensor
-                        torch.save(features, f"{features_file}.pt")
+                        torch.save(torch.cat(features), f"{features_file}.pt")
                     print(
                         f"...Features for module '{module_name}' were saved to {features_file}."
                     )
