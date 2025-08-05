@@ -173,6 +173,7 @@ class BaseExtractor(metaclass=abc.ABCMeta):
         output_type: Optional[str] = "ndarray",
         output_dir: Optional[str] = None,
         step_size: Optional[int] = None,
+        file_name_suffix: str = "",
     ) -> Union[
         # This is the return type when 'module_names' is used
         Dict[
@@ -231,7 +232,8 @@ class BaseExtractor(metaclass=abc.ABCMeta):
             are saved to disk. The default uses a heuristic so that
             extracted features should fit into 8GB of free memory.
             Only used if output_dir is defined.
-
+        file_name_suffix: str
+            Suffix to append to the output file names (e.g., "_train", "_val").
         Returns
         -------
         output : np.ndarray or torch.Tensor
@@ -277,19 +279,19 @@ class BaseExtractor(metaclass=abc.ABCMeta):
                             features_subset = self._to_numpy(features_subset)
                             features_subset_file = os.path.join(
                                 output_dir,
-                                f"features_{module_name}_{last_image_ct}-{image_ct}.npy",
+                                f"{module_name}/features{file_name_suffix}_{last_image_ct}-{image_ct}.npy",
                             )
                             np.save(features_subset_file, features_subset)
                         else:  # output_type = tensor
                             features_subset_file = os.path.join(
                                 output_dir,
-                                f"features_{module_name}_{last_image_ct}-{image_ct}.pt",
+                                f"{module_name}/features{file_name_suffix}_{last_image_ct}-{image_ct}.pt",
                             )
                             torch.save(features_subset, features_subset_file)
                     else:
                         features_subset_file = os.path.join(
                             output_dir,
-                            f"features_{module_name}_{last_image_ct}-{image_ct}.npy",
+                            f"{module_name}/features{file_name_suffix}_{last_image_ct}-{image_ct}.npy",
                         )
                         features_subset = np.vstack(features[module_name])
                         np.save(features_subset_file, features_subset)

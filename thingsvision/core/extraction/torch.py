@@ -161,10 +161,16 @@ class PyTorchExtractor(BaseExtractor):
         """Extract representations from a batch of images."""
         # move mini-batch to current device
         batch = batch.to(self.device)
+        batch_size = batch.shape[0]
         _ = self.forward(batch)
         acts = {}
         for module_name in module_names:
             act = self.activations[module_name]
+            if act.shape[0] != batch_size:
+                raise ValueError(
+                    f"The number of extracted features ({act.shape=}) does not match the batch size ({batch.shape=}). "
+                    "Please check the model, the module name, and the model parameters ..."
+                )
             if len(act.shape) > 2:
                 if hasattr(self, "token_extraction"):
                     if self.token_extraction == "cls_token":
