@@ -87,20 +87,58 @@ MODEL_AND_MODULE_NAMES = {
         "clip": True,
         "kwargs": {"variant": "ViT-L-14", "dataset": "laion400m_e32"},
     },
+    "OpenCLIP_vitl14_custom_vision_cfg_avg_pool": {
+        "model_name": "OpenCLIP",
+        "modules": ["visual"],
+        "pretrained": True,
+        "source": "custom",
+        "clip": True,
+        "kwargs": {
+            "variant": "ViT-L-14",
+            "dataset": "laion400m_e32",
+            "vision_cfg": {
+                "image_size": 224,
+                "layers": 24,
+                "width": 1024,
+                "patch_size": 14,
+                "pool_type": "none",
+            },
+            "token_extraction": "avg_pool",
+        },
+    },
+    "OpenCLIP_vitl14_custom_vision_cfg_cls_token": {
+        "model_name": "OpenCLIP",
+        "modules": ["visual"],
+        "pretrained": True,
+        "source": "custom",
+        "clip": True,
+        "kwargs": {
+            "variant": "ViT-L-14",
+            "dataset": "laion400m_e32",
+            "vision_cfg": {
+                "image_size": 224,
+                "layers": 24,
+                "width": 1024,
+                "patch_size": 14,
+                "pool_type": "none",
+            },
+            "token_extraction": "cls_token",
+        },
+    },
     # Timm models
-    # "vit_base_patch16_224": {
-    #    "model_name": "vit_base_patch16_224",
-    #    "modules": ["encoder.ln"],
-    #    "pretrained": True,
-    #    "source": "timm",
-    #    "kwargs": {"token_extraction": "avg_pool"},
-    # },
-    # "mixnet_l": {
-    #    "model_name": "mixnet_l",
-    #    "modules": ["conv_head"],
-    #    "pretrained": True,
-    #    "source": "timm",
-    # },
+    "vit_base_patch16_224": {
+        "model_name": "vit_base_patch16_224",
+        "modules": ["norm"],
+        "pretrained": True,
+        "source": "timm",
+        "kwargs": {"token_extraction": "avg_pool"},
+    },
+    "mixnet_l": {
+        "model_name": "mixnet_l",
+        "modules": ["conv_head"],
+        "pretrained": True,
+        "source": "timm",
+    },
     # Keras models
     "VGG16_keras": {
         "model_name": "VGG16",
@@ -172,7 +210,7 @@ MODEL_AND_MODULE_NAMES = {
         "modules": ["norm"],
         "pretrained": True,
         "source": "ssl",
-        "kwargs": {"extract_cls_token": True},
+        "kwargs": {"token_extraction": "cls_token"},
     },
     "mae-vit-base-p16": {
         "model_name": "mae-vit-base-p16",
@@ -218,7 +256,7 @@ MODEL_AND_MODULE_NAMES = {
         "kwargs": {"variant": "vit_b"},
         # model input size is large, therefore reduce test case on cpu
         "batch_size": 1,
-        "num_samples": 1
+        "num_samples": 1,
     },
     "kakobrain_align_model": {
         "model_name": "Kakaobrain_Align",
@@ -343,8 +381,12 @@ def iterate_through_all_model_combinations():
 
 
 def create_extractor_and_dataloader(
-        model_name: str, pretrained: bool, source: str, kwargs: dict = {},
-        batch_size: int = BATCH_SIZE, num_samples: int = NUM_SAMPLES
+    model_name: str,
+    pretrained: bool,
+    source: str,
+    kwargs: dict = {},
+    batch_size: int = BATCH_SIZE,
+    num_samples: int = NUM_SAMPLES,
 ):
     """Iterate through models and create model, dataset and data loader."""
     extractor = get_extractor(
@@ -361,7 +403,9 @@ def create_extractor_and_dataloader(
         transforms=extractor.get_transformations(),
     )
     if num_samples > NUM_SAMPLES:
-        raise ValueError("\nNumber of samples in test case cannot be larger than the default value, only smaller.\n")
+        raise ValueError(
+            "\nNumber of samples in test case cannot be larger than the default value, only smaller.\n"
+        )
     elif num_samples < NUM_SAMPLES:
         dataset = Subset(dataset, np.arange(num_samples))
 
