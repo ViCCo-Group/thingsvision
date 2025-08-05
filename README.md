@@ -252,6 +252,48 @@ for batch in my_dataloader:
   ... # whatever post-processing you want to add to the extracted features
 ```
 
+#### Multi Module Feature Extraction
+
+We've added the functionality to also jointly extract features of multiple `module_names`.
+
+##### PyTorch
+
+```python
+module_names = ['visual', ...] # add more module_names here
+
+# your custom dataset and dataloader classes come here (for example, a PyTorch data loader)
+my_dataset = ...
+my_dataloader = ...
+
+with extractor.batch_extraction(module_names=module_names, output_type="tensor") as e: 
+  for batch in my_dataloader:
+    ... # whatever preprocessing you want to add to the batch
+    feature_batch_dict = e.extract_batch(
+      batch=batch,
+      flatten_acts=True, # flatten 2D feature maps from an early convolutional or attention layer
+      )
+    ... # whatever post-processing you want to add to the extracted features
+```
+
+##### TensorFlow / Keras
+
+```python
+module_names = ['visual', ...] # add more module_names here
+
+# your custom dataset and dataloader classes come here (for example, TFRecords files)
+my_dataset = ...
+my_dataloader = ...
+
+for batch in my_dataloader:
+  ... # whatever preprocessing you want to add to the batch
+  feature_batch = extractor.extract_batch(
+    batch=batch,
+    module_names=module_names,
+    flatten_acts=True, # flatten 2D feature maps from an early convolutional or attention layer
+    )
+  ... # whatever post-processing you want to add to the extracted features
+```
+
 #### Human alignment
 
 *Human alignment*: If you want to align the extracted features with human object similarity according to the approach introduced in *[Improving neural network representations using human similiarty judgments](https://proceedings.neurips.cc/paper_files/paper/2023/hash/9febda1c8344cc5f2d51713964864e93-Abstract-Conference.html)* you can optionally `align` the extracted features using the following method:

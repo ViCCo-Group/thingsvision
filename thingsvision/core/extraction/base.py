@@ -174,6 +174,7 @@ class BaseExtractor(metaclass=abc.ABCMeta):
         output_dir: Optional[str] = None,
         step_size: Optional[int] = None,
         file_name_suffix: str = "",
+        save_in_one_file: bool = False,
     ) -> Union[
         # This is the return type when 'module_names' is used
         Dict[
@@ -234,6 +235,11 @@ class BaseExtractor(metaclass=abc.ABCMeta):
             Only used if output_dir is defined.
         file_name_suffix: str
             Suffix to append to the output file names (e.g., "_train", "_val").
+        save_in_one_file : bool
+            If True, all features are saved in one file. If output_dir is defined,
+            the features are saved in separate files for each module name. They are first
+            saved in chunks of step_size batches, and then all features are concatenated
+            and saved in one file.
         Returns
         -------
         output : np.ndarray or torch.Tensor
@@ -301,6 +307,34 @@ class BaseExtractor(metaclass=abc.ABCMeta):
             f"...Features successfully extracted for all {image_ct} images in the database."
         )
         if output_dir:
+            if save_in_one_file:
+                # load features per module name and concatenate them
+                for module_name in module_names:
+                    # load from files
+                    features = []
+                    for file in sorted(
+                        os.listdir(os.path.join(output_dir, module_name))
+                    ):
+                        if file.endswith(".npy") or file.endswith(".pt"):
+                            features.append(
+                                np.load(os.path.join(output_dir, module_name, file))
+                                if file.endswith(".npy")
+                                else torch.load(
+                                    os.path.join(output_dir, module_name, file)
+                                )
+                            )
+                    features = np.concatenate(features) if output_type == "ndarray" else torch.cat(features)
+                    features_file = os.path.join(
+                        output_dir, f"{module_name}/features{file_name_suffix}"
+                    )
+                    if output_type == "ndarray":
+                        np.save(f"{features_file}.npy", features)
+                    else:  # output_type = tensor
+                        torch.save(features, f"{features_file}.pt")
+                    print(
+                        f"...Features for module '{module_name}' were saved to {features_file}."
+                    )
+                
             print(f"...Features were saved to {output_dir}.")
             return None
         else:
