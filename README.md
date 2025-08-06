@@ -97,7 +97,7 @@ Neural networks come from different sources. With `thingsvision`, you can extrac
 <!-- Setting up your environment -->
 ### :computer: Setting up your environment
 #### Working locally
-First, create a new `conda environment` with Python version 3.10, or 3.11 e.g. by using `conda`:
+First, create a new `conda environment` with Python version 3.10, 3.11, or 3.12 e.g. by using `conda`:
 ```bash
 $ conda create -n thingsvision python=3.10
 $ conda activate thingsvision
