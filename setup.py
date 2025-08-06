@@ -19,8 +19,6 @@ requirements = [
     "scikit-image",
     "scikit-learn",
     "scipy",
-    # "tensorflow==2.9.* ; sys_platform != 'darwin' or platform_machine != 'arm64'",
-    # "tensorflow-macos==2.9.* ; sys_platform == 'darwin' and platform_machine == 'arm64'",
     "tensorflow<2.16",
     "timm",
     "torch>=2.0.0",
@@ -29,10 +27,6 @@ requirements = [
     "tqdm",
     "transformers==4.40.1",
     "pytest",
-    "CLIP @ git+https://github.com/openai/CLIP.git",
-    "dreamsim==0.1.3",
-    "Harmonization @ git+https://github.com/serre-lab/Harmonization.git",
-    "vit-keras==0.1.2",
     ]
 
 setuptools.setup(
@@ -56,7 +50,10 @@ setuptools.setup(
     ],
     entry_points={"console_scripts": ["thingsvision = thingsvision.thingsvision:main"]},
     python_requires=">=3.10",
-    dependency_links=[
-        "git+https://github.com/openai/CLIP.git",
-    ],
+    extras_require={
+        "clip": ["CLIP @ git+https://github.com/openai/CLIP.git"],
+        "dreamsim": ["dreamsim==0.1.3"],
+        "harmonization": ["keras-cv-attention-models>=1.3.5", "vit-keras==0.1.2","Harmonization @ git+https://github.com/serre-lab/Harmonization.git"],
+        "full":["CLIP @ git+https://github.com/openai/CLIP.git", "dreamsim==0.1.3", "keras-cv-attention-models>=1.3.5", "vit-keras==0.1.2","Harmonization @ git+https://github.com/serre-lab/Harmonization.git" ],
+    }
 )
