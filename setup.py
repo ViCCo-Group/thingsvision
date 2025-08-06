@@ -49,11 +49,5 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     entry_points={"console_scripts": ["thingsvision = thingsvision.thingsvision:main"]},
-    python_requires=">=3.10",
-    extras_require={
-        "clip": ["CLIP @ git+https://github.com/openai/CLIP.git"],
-        "dreamsim": ["dreamsim==0.1.3"],
-        "harmonization": ["keras-cv-attention-models>=1.3.5", "vit-keras==0.1.2","Harmonization @ git+https://github.com/serre-lab/Harmonization.git"],
-        "full":["CLIP @ git+https://github.com/openai/CLIP.git", "dreamsim==0.1.3", "keras-cv-attention-models>=1.3.5", "vit-keras==0.1.2","Harmonization @ git+https://github.com/serre-lab/Harmonization.git" ],
-    }
+    python_requires=">=3.10"
 )
