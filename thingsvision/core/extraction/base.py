@@ -264,6 +264,7 @@ class BaseExtractor(metaclass=abc.ABCMeta):
 
         # create feature dict per module name
         features = defaultdict(list)
+        feature_file_names = defaultdict(list)
         image_ct, last_image_ct = 0, 0
         for i, batch in tqdm(
             enumerate(batches, start=1), desc="Batch", total=len(batches)
@@ -303,6 +304,7 @@ class BaseExtractor(metaclass=abc.ABCMeta):
                         np.save(features_subset_file, features_subset)
                     features = defaultdict(list)
                     last_image_ct = image_ct
+                    feature_file_names[module_name].append(features_subset_file)
         print(
             f"...Features successfully extracted for all {image_ct} images in the database."
         )
@@ -312,18 +314,16 @@ class BaseExtractor(metaclass=abc.ABCMeta):
                 for module_name in module_names:
                     # load from files
                     features = []
-                    for file in sorted(
-                        os.listdir(os.path.join(output_dir, module_name))
-                    ):
+                    for file in feature_file_names[module_name]:
                         if self.get_backend() == "pt" and output_type != "ndarray":
                             if file.endswith(".pt"):
                                 features.append(
-                                    torch.load(os.path.join(output_dir, module_name, file))
+                                    torch.load(os.path.join(output_dir, file))
                                 )
                         else:
                             if file.endswith(".npy"):
                                 features.append(
-                                    np.load(os.path.join(output_dir, module_name, file))
+                                    np.load(os.path.join(output_dir, file))
                                 )
                     features_file = os.path.join(
                         output_dir, f"{module_name}/features{file_name_suffix}"
@@ -335,6 +335,9 @@ class BaseExtractor(metaclass=abc.ABCMeta):
                     print(
                         f"...Features for module '{module_name}' were saved to {features_file}."
                     )
+                    # remove temporary files
+                    for file in feature_file_names[module_name]:
+                        os.remove(os.path.join(output_dir, file))
                 
             print(f"...Features were saved to {output_dir}.")
             return None

@@ -97,32 +97,17 @@ Neural networks come from different sources. With `thingsvision`, you can extrac
 <!-- Setting up your environment -->
 ### :computer: Setting up your environment
 #### Working locally
-First, create a new `conda environment` with Python version 3.8, 3.9, 3.10, or 3.11 e.g. by using `conda`:
-
+First, create a new `conda environment` with Python version 3.10, or 3.11 e.g. by using `conda`:
 ```bash
-$ conda create -n thingsvision python=3.9
+$ conda create -n thingsvision python=3.10
 $ conda activate thingsvision
 ```
-
 Then, activate the environment and simply install `thingsvision` via running the following `pip` command in your terminal.
-
 ```bash
 $ pip install --upgrade thingsvision
-$ pip install git+https://github.com/openai/CLIP.git
 ```
 
-If you want to extract features for [harmonized models](https://vicco-group.github.io/thingsvision/AvailableModels.html#harmonization) from the [Harmonization repo](https://github.com/serre-lab/harmonization), you have to additionally run the following `pip` command in your `thingsvision` environment (FYI: as of now, this seems to be working smoothly on Ubuntu only but not on macOS),
-
-```bash
-$ pip install git+https://github.com/serre-lab/Harmonization.git
-$ pip install keras-cv-attention-models>=1.3.5
-```
-
-If you want to extract features for [DreamSim](https://dreamsim-nights.github.io/) from the [DreamSim repo](https://github.com/ssundaram21/dreamsim), you have to additionally run the following `pip` command in your `thingsvision` environment,
-
-```bash
-$ pip install dreamsim==0.1.2
-```
+The package automatically installs the [Harmonization](https://github.com/serre-lab/harmonization) and [DreamSim](https://github.com/ssundaram21/dreamsim) repositories. See the documentation for available [harmonized models](https://vicco-group.github.io/thingsvision/AvailableModels.html#harmonization) and [DreamSim models](https://vicco-group.github.io/thingsvision/AvailableModels.html#dreamsim) in `thingsvision`.
 
 See the [docs](https://vicco-group.github.io/thingsvision/AvailableModels.html#dreamsim) for which `DreamSim` models are available in `thingsvision`.
 
