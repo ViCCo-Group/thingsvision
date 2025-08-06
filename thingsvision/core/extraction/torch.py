@@ -347,7 +347,6 @@ class BatchExtraction(object):
             raise ValueError(
                 "\nPlease provide either a single module name or a list of module names, but not both.\n"
             )
-        print(module_names, module_name, "INITIAKLAA")
         if module_name is not None:
             module_names = [module_name]
         self.extractor = extractor
