@@ -2,7 +2,8 @@ import abc
 import os
 import re
 import warnings
-from typing import Callable, Iterator, List, Optional, Union
+from typing import Callable, Dict, Iterator, List, Optional, Union
+from collections import defaultdict
 
 import numpy as np
 from torchtyping import TensorType
@@ -76,17 +77,32 @@ class BaseExtractor(metaclass=abc.ABCMeta):
     def extract_batch(
         self,
         batch: Union[TensorType["b", "c", "h", "w"], Array],
-        module_name: str,
-        flatten_acts: bool,
-        output_type: str,
+        module_name: Optional[str] = None,
+        module_names: Optional[List[str]] = None,
+        flatten_acts: bool = False,
+        output_type: str = "ndarray",
     ) -> Union[
-        Union[
-            TensorType["b", "num_maps", "h_prime", "w_prime"],
-            TensorType["b", "t", "d"],
-            TensorType["b", "p"],
-            TensorType["b", "d"],
+        # This is the return type when 'module_names' is used
+        Dict[
+            str,
+            Union[
+                Union[
+                    TensorType["n", "num_maps", "h_prime", "w_prime"],
+                    TensorType["n", "t", "d"],
+                    TensorType["n", "p"],
+                    TensorType["n", "d"],
+                ],
+                Array,
+            ],
         ],
-        Array,
+        # This is the return type when 'module_name' is used (for backward compatibility)
+        Union[
+            TensorType["n", "num_maps", "h_prime", "w_prime"],
+            TensorType["n", "t", "d"],
+            TensorType["n", "p"],
+            TensorType["n", "d"],
+            Array,
+        ],
     ]:
         """Extract the activations of a selected module for every image in a mini-batch.
 
@@ -95,7 +111,9 @@ class BaseExtractor(metaclass=abc.ABCMeta):
         batch : np.ndarray or torch.Tensor
             mini-batch of three-dimensional image tensors.
         module_name : str
-            Name of the module for which features should be extraced.
+            Name of the neural network layer for which features should be extracted.
+        module_names : List[str]
+            Names of the modules for which features should be extracted.
         flatten_acts : bool
             Whether the activation of a tensor should be flattened to a vector.
         output_type : str {"ndarray", "tensor"}
@@ -112,16 +130,19 @@ class BaseExtractor(metaclass=abc.ABCMeta):
     def _extract_batch(
         self,
         batch: Union[TensorType["b", "c", "h", "w"], Array],
-        module_name: str,
-        flatten_acts: bool,
-    ) -> Union[
+        module_names: List[str],
+        flatten_acts: bool = False,
+    ) -> Dict[
+        str,
         Union[
-            TensorType["b", "num_maps", "h_prime", "w_prime"],
-            TensorType["b", "t", "d"],
-            TensorType["b", "p"],
-            TensorType["b", "d"],
+            Union[
+                TensorType["n", "num_maps", "h_prime", "w_prime"],
+                TensorType["n", "t", "d"],
+                TensorType["n", "p"],
+                TensorType["n", "d"],
+            ],
+            Array,
         ],
-        Array,
     ]:
         raise NotImplementedError
 
@@ -129,13 +150,16 @@ class BaseExtractor(metaclass=abc.ABCMeta):
         """Return the list of available output types (for the feature matrix)."""
         return ["ndarray", "tensor"]
 
-    def _module_and_output_check(self, module_name: str, output_type: str) -> None:
+    def _module_and_output_check(
+        self, module_names: List[str], output_type: str
+    ) -> None:
         """Checks whether the provided module name and output type are valid."""
         valid_names = self.get_module_names()
-        if not module_name in valid_names:
-            raise ValueError(
-                f"\n{module_name} is not a valid module name. Please choose a name from the following set of modules: {valid_names}\n"
-            )
+        for module_name in module_names:
+            if module_name not in valid_names:
+                raise ValueError(
+                    f"\n{module_name} is not a valid module name. Please choose a name from the following set of modules: {valid_names}\n"
+                )
         assert (
             output_type in self.get_output_types()
         ), f"\nData type of output feature matrix must be set to one of the following available data types: {self.get_output_types()}\n"
@@ -143,19 +167,36 @@ class BaseExtractor(metaclass=abc.ABCMeta):
     def extract_features(
         self,
         batches: Iterator[Union[TensorType["b", "c", "h", "w"], Array]],
-        module_name: str,
+        module_name: Optional[str] = None,
+        module_names: Optional[List[str]] = None,
         flatten_acts: bool = False,
         output_type: Optional[str] = "ndarray",
         output_dir: Optional[str] = None,
         step_size: Optional[int] = None,
+        file_name_suffix: str = "",
+        save_in_one_file: bool = False,
     ) -> Union[
+        # This is the return type when 'module_names' is used
+        Dict[
+            str,
+            Union[
+                Union[
+                    TensorType["n", "num_maps", "h_prime", "w_prime"],
+                    TensorType["n", "t", "d"],
+                    TensorType["n", "p"],
+                    TensorType["n", "d"],
+                ],
+                Array,
+            ],
+        ],
+        # This is the return type when 'module_name' is used (for backward compatibility)
         Union[
             TensorType["n", "num_maps", "h_prime", "w_prime"],
             TensorType["n", "t", "d"],
             TensorType["n", "p"],
             TensorType["n", "d"],
+            Array,
         ],
-        Array,
     ]:
         """Extract hidden unit activations (at specified layer) for every image in the database.
 
@@ -166,8 +207,11 @@ class BaseExtractor(metaclass=abc.ABCMeta):
             mini-batches, where each element is a
             subsample of the full (image) dataset.
         module_name : str
-            Layer name. Name of neural network layer for
-            which features should be extraced.
+            Layer name. Name of the neural network layer for
+            which features should be extracted.
+        module_names : List[str]
+            Layer names. Names of neural network layers for
+            which features should be extracted.
         flatten_acts : bool
             Whether activation tensor (e.g., activations
             from an early layer of the neural network model)
@@ -189,13 +233,28 @@ class BaseExtractor(metaclass=abc.ABCMeta):
             are saved to disk. The default uses a heuristic so that
             extracted features should fit into 8GB of free memory.
             Only used if output_dir is defined.
-
+        file_name_suffix: str
+            Suffix to append to the output file names (e.g., "_train", "_val").
+        save_in_one_file : bool
+            If True, all features are saved in one file. If output_dir is defined,
+            the features are saved in separate files for each module name. They are first
+            saved in chunks of step_size batches, and then all features are concatenated
+            and saved in one file.
         Returns
         -------
         output : np.ndarray or torch.Tensor
             Returns the feature matrix (e.g., $X \in \mathbb{R}^{n \times d}$ if penultimate or logits layer or flatten_acts = True).
         """
-        self._module_and_output_check(module_name, output_type)
+        if not bool(module_name) ^ bool(module_names):
+            raise ValueError(
+                "\nPlease provide either a single module name or a list of module names, but not both.\n"
+            )
+        if module_name is not None:
+            single_module_call = True
+            module_names = [module_name]
+        else:
+            single_module_call = False
+        self._module_and_output_check(module_names, output_type)
         if output_dir:
             os.makedirs(output_dir, exist_ok=True)
 
@@ -203,58 +262,97 @@ class BaseExtractor(metaclass=abc.ABCMeta):
                 # if step size is not given, assume that features to every image consume 3MB of memory and that the user has at least 8GB of free RAM
                 step_size = 8000 // (len(next(iter(batches))) * 3) + 1
 
-        features = []
+        # create feature dict per module name
+        features = defaultdict(list)
+        feature_file_names = defaultdict(list)
         image_ct, last_image_ct = 0, 0
         for i, batch in tqdm(
             enumerate(batches, start=1), desc="Batch", total=len(batches)
         ):
-            features.append(
-                self._extract_batch(
-                    batch=batch, module_name=module_name, flatten_acts=flatten_acts
-                )
+            modules_features = self._extract_batch(
+                batch=batch, module_names=module_names, flatten_acts=flatten_acts
             )
 
             image_ct += len(batch)
             del batch
 
-            if output_dir and (i % step_size == 0 or i == len(batches)):
-                if self.get_backend() == "pt":
-                    features_subset = torch.cat(features)
-                    if output_type == "ndarray":
-                        features_subset = self._to_numpy(features_subset)
+            for module_name in module_names:
+                features[module_name].append(modules_features[module_name])
+
+                if output_dir and (i % step_size == 0 or i == len(batches)):
+                    if self.get_backend() == "pt":
+                        features_subset = torch.cat(features[module_name])
+                        if output_type == "ndarray":
+                            features_subset = self._to_numpy(features_subset)
+                            features_subset_file = os.path.join(
+                                output_dir,
+                                f"{module_name}/features{file_name_suffix}_{last_image_ct}-{image_ct}.npy",
+                            )
+                            np.save(features_subset_file, features_subset)
+                        else:  # output_type = tensor
+                            features_subset_file = os.path.join(
+                                output_dir,
+                                f"{module_name}/features{file_name_suffix}_{last_image_ct}-{image_ct}.pt",
+                            )
+                            torch.save(features_subset, features_subset_file)
+                    else:
                         features_subset_file = os.path.join(
                             output_dir,
-                            f"features_{last_image_ct}-{image_ct}.npy",
+                            f"{module_name}/features{file_name_suffix}_{last_image_ct}-{image_ct}.npy",
                         )
+                        features_subset = np.vstack(features[module_name])
                         np.save(features_subset_file, features_subset)
-                    else:  # output_type = tensor
-                        features_subset_file = os.path.join(
-                            output_dir,
-                            f"features_{last_image_ct}-{image_ct}.pt",
-                        )
-                        torch.save(features_subset, features_subset_file)
-                else:
-                    features_subset_file = os.path.join(
-                        output_dir, f"features_{last_image_ct}-{image_ct}.npy"
-                    )
-                    features_subset = np.vstack(features)
-                    np.save(features_subset_file, features_subset)
-                features = []
-                last_image_ct = image_ct
+                    features = defaultdict(list)
+                    last_image_ct = image_ct
+                    feature_file_names[module_name].append(features_subset_file)
         print(
             f"...Features successfully extracted for all {image_ct} images in the database."
         )
         if output_dir:
+            if save_in_one_file:
+                # load features per module name and concatenate them
+                for module_name in module_names:
+                    # load from files
+                    features = []
+                    for file in feature_file_names[module_name]:
+                        if self.get_backend() == "pt" and output_type != "ndarray":
+                            if file.endswith(".pt"):
+                                features.append(
+                                    torch.load(os.path.join(output_dir, file))
+                                )
+                        else:
+                            if file.endswith(".npy"):
+                                features.append(
+                                    np.load(os.path.join(output_dir, file))
+                                )
+                    features_file = os.path.join(
+                        output_dir, f"{module_name}/features{file_name_suffix}"
+                    )
+                    if output_type == "ndarray":
+                        np.save(f"{features_file}.npy", np.concatenate(features))
+                    else:  # output_type = tensor
+                        torch.save(torch.cat(features), f"{features_file}.pt")
+                    print(
+                        f"...Features for module '{module_name}' were saved to {features_file}."
+                    )
+                    # remove temporary files
+                    for file in feature_file_names[module_name]:
+                        os.remove(os.path.join(output_dir, file))
+                
             print(f"...Features were saved to {output_dir}.")
             return None
         else:
-            if self.get_backend() == "pt":
-                features = torch.cat(features)
-                if output_type == "ndarray":
-                    features = self._to_numpy(features)
-            else:
-                features = np.vstack(features)
-                print(f"...Features shape: {features.shape}")
+            for module_name in module_names:
+                if self.get_backend() == "pt":
+                    features[module_name] = torch.cat(features[module_name])
+                    if output_type == "ndarray":
+                        features[module_name] = self._to_numpy(features[module_name])
+                else:
+                    features[module_name] = np.vstack(features[module_name])
+                    print(f"...Features shape: {features[module_name].shape}")
+        if single_module_call:
+            # for backward compatibility
+            return features[module_name]
         return features
 
     @staticmethod
@@ -264,7 +362,7 @@ class BaseExtractor(metaclass=abc.ABCMeta):
             TensorType["n", "t", "d"],
             TensorType["n", "p"],
             TensorType["n", "d"],
-        ]
+        ],
     ) -> Array:
         """Move activations to CPU and convert torch.Tensor to np.ndarray."""
         return features.numpy()

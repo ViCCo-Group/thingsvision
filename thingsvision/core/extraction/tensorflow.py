@@ -38,28 +38,44 @@ class TensorFlowExtractor(BaseExtractor):
     def _extract_batch(
         self,
         batch: Array,
-        module_name: str,
+        module_names: Optional[List[str]],
         flatten_acts: bool,
-    ) -> Array:
-        layer_out = [self.model.get_layer(module_name).output]
+    ) -> Dict[str, Array]:
+        layer_outputs = [self.model.get_layer(name).output for name in module_names]
         activation_model = keras.models.Model(
             inputs=self.model.input,
-            outputs=layer_out,
+            outputs=layer_outputs,
         )
-        activations = activation_model.predict(batch)
+        activations_list = activation_model.predict(batch)
+        if len(module_names) == 1:
+            activations_list = [activations_list]
+        activations_dict = {
+            name: act for name, act in zip(module_names, activations_list)
+        }
         if flatten_acts:
-            activations = activations.reshape(activations.shape[0], -1)
-        return activations
+            for name, act in activations_dict.items():
+                activations_dict[name] = act.reshape(act.shape[0], -1)
+        return activations_dict
 
     def extract_batch(
         self,
         batch: Array,
-        module_name: str,
-        flatten_acts: bool,
+        module_name: Optional[str] = None,
+        module_names: Optional[List[str]] = None,
+        flatten_acts: bool = False,
         output_type: str = "ndarray",
-    ) -> Array:
-        self._module_and_output_check(module_name, output_type)
-        activations = self._extract_batch(batch, module_name, flatten_acts)
+    ) -> Union[Array, Dict[str, Array]]:
+        if not bool(module_name) ^ bool(module_names):
+            raise ValueError(
+                "\nPlease provide either a single module name or a list of module names, but not both.\n"
+            )
+        if not module_names:
+            module_names = [module_name]
+        self._module_and_output_check(module_names, output_type)
+        # Extract features from the specified module, tensorflow does not support multiple modules extraction
+        activations = self._extract_batch(batch, module_names, flatten_acts)
+        if module_name:
+            return activations[module_name]
         return activations
 
     def show_model(self) -> str:

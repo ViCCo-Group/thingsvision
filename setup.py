@@ -15,6 +15,7 @@ requirements = [
     "open_clip_torch==3.*",
     "pandas",
     "regex",
+    "safetensors<0.6",
     "scikit-image",
     "scikit-learn",
     "scipy",

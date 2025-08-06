@@ -73,21 +73,35 @@ class PyTorchExtractor(BaseExtractor):
 
         return hook
 
-    def _register_hook(self, module_name: str) -> None:
-        """Register a forward hook to store activations."""
+    def _register_hooks(self, module_names: List[str]) -> None:
+        """Register a forward hook to store activations for multiple modules."""
+        self.hook_handles = []
         for n, m in self.model.named_modules():
-            if n == module_name:
-                self.hook_handle = m.register_forward_hook(self.get_activation(n))
-                break
+            if n in module_names:
+                handle = m.register_forward_hook(self.get_activation(n))
+                self.hook_handles.append(handle)
 
-    def _unregister_hook(self) -> None:
-        """Remove the forward hook."""
-        self.hook_handle.remove()
+    def _unregister_hooks(self) -> None:
+        """Unregister all forward hooks."""
+        if self.hook_handles:
+            for handle in self.hook_handles:
+                handle.remove()
+            self.hook_handles = []
+        else:
+            warnings.warn(
+                "\nNo hooks were registered. Nothing to unregister.\n",
+                category=UserWarning,
+            )
 
-    def batch_extraction(self, module_name: str, output_type: str) -> object:
+    def batch_extraction(
+        self,
+        module_name: Optional[str] = None,
+        module_names: Optional[List[str]] = None,
+        output_type: str = "ndarray",
+    ) -> object:
         """Allows mini-batch extraction for custom data pipeline using a with-statement."""
         return BatchExtraction(
-            extractor=self, module_name=module_name, output_type=output_type
+            extractor=self, module_name=module_name, module_names=module_names, output_type=output_type
         )
 
     def extract_batch(
@@ -95,88 +109,124 @@ class PyTorchExtractor(BaseExtractor):
         batch: TensorType["b", "c", "h", "w"],
         flatten_acts: bool,
     ) -> Union[
-        TensorType["b", "num_maps", "h_prime", "w_prime"],
-        TensorType["b", "t", "d"],
-        TensorType["b", "p"],
-        TensorType["b", "d"],
+        # This is the return type when 'module_names' is used
+        Dict[
+            str,
+            Union[
+                Union[
+                    TensorType["n", "num_maps", "h_prime", "w_prime"],
+                    TensorType["n", "t", "d"],
+                    TensorType["n", "p"],
+                    TensorType["n", "d"],
+                ],
+                Array,
+            ],
+        ],
+        # This is the return type when 'module_name' is used (for backward compatibility)
+        Union[
+            TensorType["n", "num_maps", "h_prime", "w_prime"],
+            TensorType["n", "t", "d"],
+            TensorType["n", "p"],
+            TensorType["n", "d"],
+            Array,
+        ],
     ]:
-        act = self._extract_batch(
-            batch=batch, module_name=self.module_name, flatten_acts=flatten_acts
+        acts = self._extract_batch(
+            batch=batch,
+            module_names=self.module_names,
+            flatten_acts=flatten_acts,
         )
         if self.output_type == "ndarray":
-            act = self._to_numpy(act)
-        return act
+            for module_name, act in acts.items():
+                acts[module_name] = self._to_numpy(act)
+        if getattr(self, "module_name", None) is not None:
+            return acts[self.module_name]
+        return acts
 
     @torch.no_grad()
     def _extract_batch(
         self,
         batch: TensorType["b", "c", "h", "w"],
-        module_name: str,
+        module_names: List[str],
         flatten_acts: bool,
-    ) -> Union[
-        TensorType["b", "num_maps", "h_prime", "w_prime"],
-        TensorType["b", "t", "d"],
-        TensorType["b", "p"],
-        TensorType["b", "d"],
+    ) -> Dict[
+        str,
+        Union[
+            TensorType["b", "num_maps", "h_prime", "w_prime"],
+            TensorType["b", "t", "d"],
+            TensorType["b", "p"],
+            TensorType["b", "d"],
+        ],
     ]:
         """Extract representations from a batch of images."""
         # move mini-batch to current device
         batch = batch.to(self.device)
         batch_size = batch.shape[0]
         _ = self.forward(batch)
-        act = self.activations[module_name]
-        if len(act.shape) > 2:
-            if hasattr(self, "token_extraction"):
-                if self.token_extraction == "cls_token":
-                    act = act[:, 0, :].clone()
-                elif self.token_extraction == "avg_pool":
-                    act = act[:, 1:, :].clone().mean(dim=1)
-                elif self.token_extraction == "cls_token+avg_pool":
-                    cls_token = act[:, 0, :].clone()
-                    pooled_tokens = act[:, 1:, :].clone().mean(dim=1)
-                    act = torch.cat((cls_token, pooled_tokens), dim=1)
-                else:
-                    raise ValueError(
-                        f"\n{self.token_extraction} is not a valid value for token extraction. "
-                        "\nChoose one of the following: {TOKEN_EXTRACTIONS}.\n "
-                    )
-            elif flatten_acts:
-                if self.model_name.lower().startswith("clip"):
-                    act = self.flatten_acts(act, batch, module_name)
-                else:
-                    act = self.flatten_acts(act)
-        if act.shape[0] != batch_size:
-            raise ValueError(
-                f"The number of extracted features ({act.shape=}) does not match the batch size ({batch.shape=}). "
-                "Please check the model, the module name, and the model parameters ..."
-            )
-        if act.is_cuda or act.get_device() >= 0:
-            torch.cuda.empty_cache()
-            act = act.cpu()
-        return act
+        acts = {}
+        for module_name in module_names:
+            act = self.activations[module_name]
+            if act.shape[0] != batch_size:
+                raise ValueError(
+                    f"The number of extracted features ({act.shape=}) does not match the batch size ({batch.shape=}). "
+                    "Please check the model, the module name, and the model parameters ..."
+                )
+            if len(act.shape) > 2:
+                if hasattr(self, "token_extraction"):
+                    if self.token_extraction == "cls_token":
+                        act = act[:, 0, :].clone()
+                    elif self.token_extraction == "avg_pool":
+                        act = act[:, 1:, :].clone().mean(dim=1)
+                    elif self.token_extraction == "cls_token+avg_pool":
+                        cls_token = act[:, 0, :].clone()
+                        pooled_tokens = act[:, 1:, :].clone().mean(dim=1)
+                        act = torch.cat((cls_token, pooled_tokens), dim=1)
+                    else:
+                        raise ValueError(
+                            f"\n{self.token_extraction} is not a valid value for token extraction. "
+                            "\nChoose one of the following: {TOKEN_EXTRACTIONS}.\n "
+                        )
+                elif flatten_acts:
+                    if self.model_name.lower().startswith("clip"):
+                        act = self.flatten_acts(act, batch, module_name)
+                    else:
+                        act = self.flatten_acts(act)
+            if act.is_cuda or act.get_device() >= 0:
+                torch.cuda.empty_cache()
+                act = act.cpu()
+            acts[module_name] = act
+        return acts
 
     def extract_features(
         self,
         batches: Iterator,
-        module_name: str,
+        module_name: Optional[str] = None,
+        module_names: Optional[List[str]] = None,
         flatten_acts: bool = False,
         output_type: str = "ndarray",
         output_dir: Optional[str] = None,
         step_size: Optional[int] = None,
     ):
+        if not bool(module_name) ^ bool(module_names):
+            raise ValueError(
+                "\nPlease provide either a single module name or a list of module names, but not both.\n"
+            )
         self.model = self.model.to(self.device)
         self.activations = {}
-        self._register_hook(module_name=module_name)
+        if module_name is not None:
+            self._register_hooks(module_names=[module_name])
+        else:
+            self._register_hooks(module_names=module_names)
         features = super().extract_features(
             batches=batches,
             module_name=module_name,
+            module_names=module_names,
             flatten_acts=flatten_acts,
             output_type=output_type,
             output_dir=output_dir,
             step_size=step_size,
         )
-        if self.hook_handle:
-            self._unregister_hook()
+        self._unregister_hooks()
         return features
 
     def forward(
@@ -189,7 +239,7 @@ class PyTorchExtractor(BaseExtractor):
     def flatten_acts(
         act: Union[
             TensorType["b", "num_maps", "h_prime", "w_prime"], TensorType["b", "t", "d"]
-        ]
+        ],
     ) -> TensorType["b", "p"]:
         """Default flattening of activations."""
         return act.view(act.size(0), -1)
@@ -276,7 +326,11 @@ class PyTorchExtractor(BaseExtractor):
 class BatchExtraction(object):
 
     def __init__(
-        self, extractor: PyTorchExtractor, module_name: str, output_type: str
+        self,
+        extractor: PyTorchExtractor,
+        module_name: Optional[str] = None,
+        module_names: Optional[List[str]] = None,
+        output_type: str = "ndarray",
     ) -> None:
         """
         Mini-batch extraction object that can be used as a with-statement in a PyTorch extractor.
@@ -285,23 +339,33 @@ class BatchExtraction(object):
         ----------
         extractor (object): PyTorchExtractor class.
         module_name (str): The module of model for which features will be extracted.
+        module_names (List[str]): List of modules of model for which features will be extracted.
         output_type (str): Type of the feature matrix returned by the extractor.
 
         """
+        if not bool(module_name) ^ bool(module_names):
+            raise ValueError(
+                "\nPlease provide either a single module name or a list of module names, but not both.\n"
+            )
+        if module_name is not None:
+            module_names = [module_name]
         self.extractor = extractor
         self.module_name = module_name
+        self.module_names = module_names
         self.output_type = output_type
 
     def __enter__(self) -> PyTorchExtractor:
         """Registering hooks and setting attributes during opening."""
-        self.extractor._module_and_output_check(self.module_name, self.output_type)
-        self.extractor._register_hook(self.module_name)
+        self.extractor._module_and_output_check(self.module_names, self.output_type)
+        self.extractor._register_hooks(self.module_names)
         setattr(self.extractor, "module_name", self.module_name)
+        setattr(self.extractor, "module_names", self.module_names)
         setattr(self.extractor, "output_type", self.output_type)
         return self.extractor
 
     def __exit__(self, *args):
         """Removing hooks and deleting attributes at closing."""
-        self.extractor._unregister_hook()
+        self.extractor._unregister_hooks()
         delattr(self.extractor, "module_name")
+        delattr(self.extractor, "module_names")
         delattr(self.extractor, "output_type")

@@ -16,7 +16,7 @@
         <img src="https://img.shields.io/pypi/dm/thingsvision" alt="downloads">
     </a>
     <a href="https://www.python.org/" rel="nofollow">
-        <img src="https://img.shields.io/badge/python-3.9%20%7C%203.10%20%7C%203.11-blue.svg" alt="Python version" />
+        <img src="https://img.shields.io/badge/python-3.9%20%7C%203.10%20%7C%203.11%20%7C%203.12-blue.svg" alt="Python version" />
     </a>
     <a href="https://github.com/ViCCo-Group/thingsvision/blob/master/LICENSE" rel="nofollow">
         <img src="https://img.shields.io/pypi/l/thingsvision" alt="License" />
@@ -97,34 +97,17 @@ Neural networks come from different sources. With `thingsvision`, you can extrac
 <!-- Setting up your environment -->
 ### :computer: Setting up your environment
 #### Working locally
-First, create a new `conda environment` with Python version 3.8, 3.9, 3.10, or 3.11 e.g. by using `conda`:
-
+First, create a new `conda environment` with Python version 3.10, 3.11, or 3.12 e.g. by using `conda`:
 ```bash
-$ conda create -n thingsvision python=3.9
+$ conda create -n thingsvision python=3.10
 $ conda activate thingsvision
 ```
-
 Then, activate the environment and simply install `thingsvision` via running the following `pip` command in your terminal.
-
 ```bash
 $ pip install --upgrade thingsvision
-$ pip install git+https://github.com/openai/CLIP.git
 ```
 
-If you want to extract features for [harmonized models](https://vicco-group.github.io/thingsvision/AvailableModels.html#harmonization) from the [Harmonization repo](https://github.com/serre-lab/harmonization), you have to additionally run the following `pip` command in your `thingsvision` environment (FYI: as of now, this seems to be working smoothly on Ubuntu only but not on macOS),
-
-```bash
-$ pip install git+https://github.com/serre-lab/Harmonization.git
-$ pip install keras-cv-attention-models>=1.3.5
-```
-
-If you want to extract features for [DreamSim](https://dreamsim-nights.github.io/) from the [DreamSim repo](https://github.com/ssundaram21/dreamsim), you have to additionally run the following `pip` command in your `thingsvision` environment,
-
-```bash
-$ pip install dreamsim==0.1.2
-```
-
-See the [docs](https://vicco-group.github.io/thingsvision/AvailableModels.html#dreamsim) for which `DreamSim` models are available in `thingsvision`.
+The package automatically installs the [Harmonization](https://github.com/serre-lab/harmonization) and [DreamSim](https://github.com/ssundaram21/dreamsim) repositories. See the documentation for available [harmonized models](https://vicco-group.github.io/thingsvision/AvailableModels.html#harmonization) and [DreamSim models](https://vicco-group.github.io/thingsvision/AvailableModels.html#dreamsim) in `thingsvision`.
 
 #### Google Colab
 Alternatively, you can use Google Colab to play around with `thingsvision` by uploading your image data to Google Drive (via directory mounting).
@@ -247,6 +230,49 @@ for batch in my_dataloader:
   feature_batch = extractor.extract_batch(
     batch=batch,
     module_name=module_name,
+    flatten_acts=True, # flatten 2D feature maps from an early convolutional or attention layer
+    )
+  ... # whatever post-processing you want to add to the extracted features
+```
+
+#### Multi Module Feature Extraction
+
+It is possible to jointly extract features for multiple `module_names` of  a single model.
+
+##### PyTorch
+
+```python
+
+module_names = ['visual', ...] # add more module_names here
+
+# your custom dataset and dataloader classes come here (for example, a PyTorch data loader)
+my_dataset = ...
+my_dataloader = ...
+
+with extractor.batch_extraction(module_names=module_names, output_type="tensor") as e: 
+  for batch in my_dataloader:
+    ... # whatever preprocessing you want to add to the batch
+    feature_batch_dict = e.extract_batch(
+      batch=batch,
+      flatten_acts=True, # flatten 2D feature maps from an early convolutional or attention layer
+      )
+    ... # whatever post-processing you want to add to the extracted features
+```
+
+##### TensorFlow / Keras
+
+```python
+module_names = ['visual', ...] # add more module_names here
+
+# your custom dataset and dataloader classes come here (for example, TFRecords files)
+my_dataset = ...
+my_dataloader = ...
+
+for batch in my_dataloader:
+  ... # whatever preprocessing you want to add to the batch
+  feature_batch = extractor.extract_batch(
+    batch=batch,
+    module_names=module_names,
     flatten_acts=True, # flatten 2D feature maps from an early convolutional or attention layer
     )
   ... # whatever post-processing you want to add to the extracted features
