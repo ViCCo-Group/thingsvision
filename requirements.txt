@@ -17,9 +17,9 @@ torch>=2.0.0
 torchvision==0.15.2
 torchtyping
 tqdm
+transformers==4.40.1
 pytest
 git+https://github.com/openai/CLIP.git
 dreamsim==0.1.3
 vit-keras==0.1.2
 git+https://github.com/serre-lab/Harmonization.git
-transformers==4.40.1

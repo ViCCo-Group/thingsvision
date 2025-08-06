@@ -104,7 +104,7 @@ $ conda activate thingsvision
 ```
 Then, activate the environment and simply install `thingsvision` via running the following `pip` command in your terminal.
 ```bash
-$ pip install --upgrade thingsvision
+$ pip install --upgrade thingsvision[full]
 ```
 
 The package automatically installs the [Harmonization](https://github.com/serre-lab/harmonization) and [DreamSim](https://github.com/ssundaram21/dreamsim) repositories. See the documentation for available [harmonized models](https://vicco-group.github.io/thingsvision/AvailableModels.html#harmonization) and [DreamSim models](https://vicco-group.github.io/thingsvision/AvailableModels.html#dreamsim) in `thingsvision`.
