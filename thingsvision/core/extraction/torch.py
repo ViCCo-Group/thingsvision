@@ -356,7 +356,6 @@ class BatchExtraction(object):
 
     def __enter__(self) -> PyTorchExtractor:
         """Registering hooks and setting attributes during opening."""
-        print("EXTRACTOR", self.module_names)
         self.extractor._module_and_output_check(self.module_names, self.output_type)
         self.extractor._register_hooks(self.module_names)
         setattr(self.extractor, "module_name", self.module_name)
