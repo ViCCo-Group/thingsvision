@@ -1,6 +1,5 @@
 ftfy
 h5py
-keras-cv-attention-models>=1.3.5
 matplotlib
 numba
 numpy<2
@@ -20,6 +19,7 @@ tqdm
 transformers==4.40.1
 pytest
 git+https://github.com/openai/CLIP.git
-dreamsim==0.1.3
+keras-cv-attention-models>=1.3.5
 vit-keras==0.1.2
 git+https://github.com/serre-lab/Harmonization.git
+dreamsim==0.1.3

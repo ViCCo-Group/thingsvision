@@ -104,10 +104,19 @@ $ conda activate thingsvision
 ```
 Then, activate the environment and simply install `thingsvision` via running the following `pip` command in your terminal.
 ```bash
-$ pip install --upgrade thingsvision[full]
+$ pip install --upgrade thingsvision
+$ pip install git+https://github.com/openai/CLIP.git
 ```
-
-The package automatically installs the [Harmonization](https://github.com/serre-lab/harmonization) and [DreamSim](https://github.com/ssundaram21/dreamsim) repositories. See the documentation for available [harmonized models](https://vicco-group.github.io/thingsvision/AvailableModels.html#harmonization) and [DreamSim models](https://vicco-group.github.io/thingsvision/AvailableModels.html#dreamsim) in `thingsvision`.
+If you want to extract features for [harmonized models](https://vicco-group.github.io/thingsvision/AvailableModels.html#harmonization) from the [Harmonization repo](https://github.com/serre-lab/harmonization), you have to additionally run the following `pip` command in your `thingsvision` environment,
+```bash
+$ pip install "keras-cv-attention-models>=1.3.5" "vit-keras==0.1.2"
+$ pip install git+https://github.com/serre-lab/Harmonization.git
+```
+If you want to extract features for [DreamSim](https://dreamsim-nights.github.io/) from the [DreamSim repo](https://github.com/ssundaram21/dreamsim), you have to additionally run the following `pip` command in your `thingsvision` environment,
+```bash
+$ pip install dreamsim==0.1.3
+```
+See the [docs](https://vicco-group.github.io/thingsvision/AvailableModels.html#dreamsim) for which `DreamSim` models are available in `thingsvision`.
 
 #### Google Colab
 Alternatively, you can use Google Colab to play around with `thingsvision` by uploading your image data to Google Drive (via directory mounting).
