@@ -237,11 +237,12 @@ for batch in my_dataloader:
 
 #### Multi Module Feature Extraction
 
-We've added the functionality to also jointly extract features of multiple `module_names`.
+It is possible to jointly extract features for multiple `module_names` of  a single model.
 
 ##### PyTorch
 
 ```python
+
 module_names = ['visual', ...] # add more module_names here
 
 # your custom dataset and dataloader classes come here (for example, a PyTorch data loader)
