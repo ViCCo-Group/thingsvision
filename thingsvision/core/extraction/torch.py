@@ -206,6 +206,8 @@ class PyTorchExtractor(BaseExtractor):
         output_type: str = "ndarray",
         output_dir: Optional[str] = None,
         step_size: Optional[int] = None,
+        file_name_suffix: str = "",
+        save_in_one_file: bool = False,
     ):
         if not bool(module_name) ^ bool(module_names):
             raise ValueError(
@@ -225,6 +227,8 @@ class PyTorchExtractor(BaseExtractor):
             output_type=output_type,
             output_dir=output_dir,
             step_size=step_size,
+            file_name_suffix=file_name_suffix,
+            save_in_one_file=save_in_one_file,
         )
         self._unregister_hooks()
         return features
