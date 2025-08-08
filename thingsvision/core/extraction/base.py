@@ -277,6 +277,8 @@ class BaseExtractor(metaclass=abc.ABCMeta):
             del batch
 
             for module_name in module_names:
+                if output_dir:
+                    os.makedirs(os.path.join(output_dir, module_name), exist_ok=True)
                 features[module_name].append(modules_features[module_name])
 
                 if output_dir and (i % step_size == 0 or i == len(batches)):
