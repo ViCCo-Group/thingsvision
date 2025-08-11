@@ -16,6 +16,7 @@ torch>=2.0.0
 torchvision==0.15.2
 torchtyping
 tqdm
+accelerate<1.10.0
 transformers==4.40.1
 pytest
 git+https://github.com/openai/CLIP.git

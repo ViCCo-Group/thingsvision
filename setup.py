@@ -25,6 +25,7 @@ requirements = [
     "torchvision==0.15.2",
     "torchtyping",
     "tqdm",
+    "accelerate<1.10.0",
     "transformers==4.40.1",
     "pytest",
     ]
