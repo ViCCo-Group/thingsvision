@@ -164,6 +164,14 @@ class BaseExtractor(metaclass=abc.ABCMeta):
             output_type in self.get_output_types()
         ), f"\nData type of output feature matrix must be set to one of the following available data types: {self.get_output_types()}\n"
 
+    def _save_features(self, features, features_file, extension):
+        if extension == "npy":
+            np.save(features_file, features)
+        elif extension == "pt":
+            torch.save(features, features_file)
+        else:
+            raise ValueError(f"Invalid extension: {extension}")
+
     def extract_features(
         self,
         batches: Iterator[Union[TensorType["b", "c", "h", "w"], Array]],
@@ -280,31 +288,35 @@ class BaseExtractor(metaclass=abc.ABCMeta):
                 features[module_name].append(modules_features[module_name])
 
                 if output_dir and (i % step_size == 0 or i == len(batches)):
+                    curr_output_dir = os.path.join(output_dir, module_name)
+                    if not os.path.exists(curr_output_dir):
+                        print(f"Creating output directory: {curr_output_dir}")
+                        os.makedirs(curr_output_dir)
+
                     if self.get_backend() == "pt":
                         features_subset = torch.cat(features[module_name])
                         if output_type == "ndarray":
                             features_subset = self._to_numpy(features_subset)
-                            features_subset_file = os.path.join(
-                                output_dir,
-                                f"{module_name}/features{file_name_suffix}_{last_image_ct}-{image_ct}.npy",
-                            )
-                            np.save(features_subset_file, features_subset)
-                        else:  # output_type = tensor
-                            features_subset_file = os.path.join(
-                                output_dir,
-                                f"{module_name}/features{file_name_suffix}_{last_image_ct}-{image_ct}.pt",
-                            )
-                            torch.save(features_subset, features_subset_file)
+                            file_extension = "npy"
+                        else:
+                            file_extension = "pt"
                     else:
-                        features_subset_file = os.path.join(
-                            output_dir,
-                            f"{module_name}/features{file_name_suffix}_{last_image_ct}-{image_ct}.npy",
-                        )
                         features_subset = np.vstack(features[module_name])
-                        np.save(features_subset_file, features_subset)
-                    features = defaultdict(list)
-                    last_image_ct = image_ct
+                        file_extension = "npy"
+
+                    features_subset_file = os.path.join(
+                        curr_output_dir,
+                        f"features{file_name_suffix}_{last_image_ct}-{image_ct}.{file_extension}",
+                    )
+                    self._save_features(
+                        features_subset, features_subset_file, file_extension
+                    )
+
+                    # Note: we add full file paths to feature_file_names to be able to load the features later
                     feature_file_names[module_name].append(features_subset_file)
+                    features[module_name] = []
+                    last_image_ct = image_ct
+
         print(
             f"...Features successfully extracted for all {image_ct} images in the database."
         )
@@ -316,29 +328,31 @@ class BaseExtractor(metaclass=abc.ABCMeta):
                     features = []
                     for file in feature_file_names[module_name]:
                         if self.get_backend() == "pt" and output_type != "ndarray":
-                            if file.endswith(".pt"):
-                                features.append(
-                                    torch.load(os.path.join(output_dir, file))
-                                )
+                            features.append(torch.load(file))
+                        elif file.endswith(".npy"):
+                            features.append(np.load(file))
                         else:
-                            if file.endswith(".npy"):
-                                features.append(
-                                    np.load(os.path.join(output_dir, file))
-                                )
+                            raise ValueError(
+                                f"Invalid or unsupported file extension: {file}"
+                            )
+
                     features_file = os.path.join(
                         output_dir, f"{module_name}/features{file_name_suffix}"
                     )
                     if output_type == "ndarray":
-                        np.save(f"{features_file}.npy", np.concatenate(features))
-                    else:  # output_type = tensor
-                        torch.save(torch.cat(features), f"{features_file}.pt")
+                        self._save_features(
+                            np.concatenate(features), features_file + ".npy", "npy"
+                        )
+                    else:
+                        self._save_features(
+                            torch.cat(features), features_file + ".pt", "pt"
+                        )
                     print(
                         f"...Features for module '{module_name}' were saved to {features_file}."
                     )
-                    # remove temporary files
                     for file in feature_file_names[module_name]:
                         os.remove(os.path.join(output_dir, file))
-                
+
             print(f"...Features were saved to {output_dir}.")
             return None
         else:
@@ -349,9 +363,11 @@ class BaseExtractor(metaclass=abc.ABCMeta):
                         features[module_name] = self._to_numpy(features[module_name])
                 else:
                     features[module_name] = np.vstack(features[module_name])
-                    print(f"...Features shape: {features[module_name].shape}")
+                print(
+                    f"...Features for module '{module_name}' have shape: {features[module_name].shape}"
+                )
+
         if single_module_call:
-            # for backward compatibility
             return features[module_name]
         return features
 

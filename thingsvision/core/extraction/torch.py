@@ -7,6 +7,7 @@ from torchtyping import TensorType
 from torchvision import transforms as T
 
 import torch
+from torch.utils.data import DataLoader
 
 from .base import BaseExtractor
 
@@ -101,7 +102,10 @@ class PyTorchExtractor(BaseExtractor):
     ) -> object:
         """Allows mini-batch extraction for custom data pipeline using a with-statement."""
         return BatchExtraction(
-            extractor=self, module_name=module_name, module_names=module_names, output_type=output_type
+            extractor=self,
+            module_name=module_name,
+            module_names=module_names,
+            output_type=output_type,
         )
 
     def extract_batch(
@@ -206,6 +210,8 @@ class PyTorchExtractor(BaseExtractor):
         output_type: str = "ndarray",
         output_dir: Optional[str] = None,
         step_size: Optional[int] = None,
+        file_name_suffix: str = "",
+        save_in_one_file: bool = False,
     ):
         if not bool(module_name) ^ bool(module_names):
             raise ValueError(
@@ -217,15 +223,19 @@ class PyTorchExtractor(BaseExtractor):
             self._register_hooks(module_names=[module_name])
         else:
             self._register_hooks(module_names=module_names)
-        features = super().extract_features(
-            batches=batches,
-            module_name=module_name,
-            module_names=module_names,
-            flatten_acts=flatten_acts,
-            output_type=output_type,
-            output_dir=output_dir,
-            step_size=step_size,
-        )
+
+        with ImageOnlyDataloaderModifier(dataloader=batches) as dataloader:
+            features = super().extract_features(
+                batches=dataloader,
+                module_name=module_name,
+                module_names=module_names,
+                flatten_acts=flatten_acts,
+                output_type=output_type,
+                output_dir=output_dir,
+                step_size=step_size,
+                file_name_suffix=file_name_suffix,
+                save_in_one_file=save_in_one_file,
+            )
         self._unregister_hooks()
         return features
 
@@ -369,3 +379,49 @@ class BatchExtraction(object):
         delattr(self.extractor, "module_name")
         delattr(self.extractor, "module_names")
         delattr(self.extractor, "output_type")
+
+
+class ImageOnlyDataloaderModifier:
+    """Class to temporarily replace the collate function of a dataloader with images only collate.
+    This is useful when we want to use the dataloader for feature extraction with thingsvision.
+    Assumes that a dataloader either returns image or a tuple of (image, *args) or a list of (image, *args).
+    If the dataloader returns a tuple of (image, *args) or a list of (image, *args), it will return only the images.
+    The class does not modify otherwise (e.g., specialized dataloaders).
+    """
+
+    def __init__(self, dataloader: DataLoader) -> None:
+        self.dataloader = dataloader
+        self.new_collate_fn = self._images_only_collate
+        self.original_collate_fn = None
+        self.should_replace = False
+
+    @staticmethod
+    def _images_only_collate(batch: list[tuple[torch.Tensor, ...]]) -> torch.Tensor:
+        """Collate function to return only the images from the batch.
+        This is useful when we want to use the dataloader for feature extraction with thingsvision.
+        """
+        return torch.stack([item[0] for item in batch])
+    
+    def _check_dataloader_format(self) -> bool:
+        sample_batch = next(iter(self.dataloader))
+        return isinstance(sample_batch, (tuple, list)) and len(sample_batch) == 2
+
+    def __enter__(self) -> DataLoader:
+        """Enter the context manager and replace the collate function with images only collate,
+        if the dataloader is in the correct format.
+        """
+        self.should_replace = self._check_dataloader_format()
+        if self.should_replace:
+            warnings.warn(
+                "\nThe dataloader is not in the correct format. The collate function will be replaced with images only collate.\n"
+            )
+            self.original_collate_fn = self.dataloader.collate_fn
+            self.dataloader.collate_fn = self.new_collate_fn
+        return self.dataloader
+
+    def __exit__(self, *args) -> None:
+        """Exit the context manager and restore the original collate function,
+        if the dataloader was not in the correct format.
+        """
+        if self.should_replace and self.original_collate_fn is not None:
+            self.dataloader.collate_fn = self.original_collate_fn
