@@ -44,7 +44,7 @@ class FeaturesTestCase(unittest.TestCase):
             flatten_acts=False,
         )
         return features
-    
+
     def get_multi_features(self):
         model_name = "vgg16_bn"
         extractor, _, batches = helper.create_extractor_and_dataloader(
@@ -102,7 +102,7 @@ class FeaturesTestCase(unittest.TestCase):
             )
 
             self.check_file_exists("features", format, False)
-    
+
     def test_storing_multi(self):
         features = self.get_multi_features()
         for _, feature in features.items():
@@ -114,6 +114,14 @@ class FeaturesTestCase(unittest.TestCase):
                     file_format=format,
                 )
                 self.check_file_exists(f"features", format, False)
+
+    def test_extract_multi(self):
+        features = self.get_multi_features()
+        row_counts = [feature.shape[0] for feature in features.values()]
+        self.assertTrue(
+            all(count == row_counts[0] for count in row_counts),
+            "Not all features have the same number of rows!",
+        )
 
     def test_splitting_2d(self):
         n_splits = 3
@@ -154,7 +162,7 @@ class FeaturesTestCase(unittest.TestCase):
                 file_format="txt",
                 n_splits=n_splits,
             )
-    
+
     def test_splitting_multi(self):
         n_splits = 3
         features = self.get_multi_features()
