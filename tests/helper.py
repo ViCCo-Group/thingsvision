@@ -12,7 +12,7 @@ from tensorflow.keras.models import Sequential
 
 from thingsvision import get_extractor
 from thingsvision.utils.data import DataLoader, ImageDataset
-from torch.utils.data import Subset
+from torch.utils.data import Subset, Dataset
 
 DATA_PATH = "./data"
 TEST_PATH = "./test_images"
@@ -359,6 +359,35 @@ class SimpleDataset(object):
 
     def __len__(self) -> int:
         return len(self.values)
+
+
+class MockImageDataset(Dataset):
+    """Mock dataset that returns (image, label) tuples"""
+
+    def __init__(self, size=10):
+        self.size = size
+
+    def __len__(self):
+        return self.size
+
+    def __getitem__(self, idx):
+        image = torch.randn(3, 32, 32)
+        label = torch.tensor(idx % 5)
+        return image, label
+
+
+class MockImageOnlyDataset(Dataset):
+    """Mock dataset that returns only images (not tuples)"""
+
+    def __init__(self, size=10):
+        self.size = size
+
+    def __len__(self):
+        return self.size
+
+    def __getitem__(self, idx):
+        # Return only image tensor (no tuple)
+        return torch.randn(3, 32, 32)
 
 
 def iterate_through_all_model_combinations():

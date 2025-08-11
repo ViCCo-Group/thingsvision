@@ -1,12 +1,15 @@
 import os
 import unittest
-
+import warnings
 import numpy as np
+import torch
+from torch.utils.data import DataLoader
 
 import tests.helper as helper
 from thingsvision.core.cka import get_cka
 from thingsvision.core.rsa import compute_rdm, correlate_rdms, plot_rdm
 from thingsvision.utils.storing import save_features
+from thingsvision.core.extraction.torch import ImageOnlyDataloaderModifier
 
 
 class RSATestCase(unittest.TestCase):
@@ -114,3 +117,99 @@ class FileNamesTestCase(unittest.TestCase):
                 if f.endswith("png"):
                     img_files.append(os.path.join(root, f))
         self.assertEqual(sorted(file_names), sorted(img_files))
+
+
+class TestImageOnlyDataloaderModifier(unittest.TestCase):
+
+    def test_context_manager_with_tuple_format_dataloader(self):
+        """
+        Test 1: Test the context manager with a dataloader that returns (image, label) tuples.
+        Should replace collate function and extract only images.
+        """
+        dataset = helper.MockImageDataset(size=4)
+        dataloader = DataLoader(dataset, batch_size=2, shuffle=False)
+        modifier = ImageOnlyDataloaderModifier(dataloader)
+
+        original_collate_fn = dataloader.collate_fn
+
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+
+            with modifier as modified_dataloader:
+                self.assertEqual(len(w), 1)
+                self.assertIn(
+                    "The dataloader is not in the correct format", str(w[0].message)
+                )
+
+                self.assertNotEqual(modified_dataloader.collate_fn, original_collate_fn)
+                self.assertEqual(
+                    modified_dataloader.collate_fn, modifier.new_collate_fn
+                )
+                self.assertTrue(modifier.should_replace)
+
+                batch = next(iter(modified_dataloader))
+                self.assertIsInstance(batch, torch.Tensor)
+                self.assertEqual(batch.shape, (2, 3, 32, 32))
+
+        self.assertEqual(dataloader.collate_fn, original_collate_fn)
+        self.assertEqual(modifier.original_collate_fn, original_collate_fn)
+
+    def test_context_manager_with_image_only_dataloader(self):
+        """
+        Test 2: Test the context manager with a dataloader that already returns only images.
+        Should NOT replace collate function since format is already correct.
+        """
+
+        dataset = helper.MockImageOnlyDataset(size=4)
+        dataloader = DataLoader(dataset, batch_size=2, shuffle=False)
+        modifier = ImageOnlyDataloaderModifier(dataloader)
+
+        original_collate_fn = dataloader.collate_fn
+
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+
+            with modifier as modified_dataloader:
+                assert len(w) == 0
+                assert modified_dataloader.collate_fn == original_collate_fn
+                assert modifier.should_replace is False
+                assert modifier.original_collate_fn is None
+
+                batch = next(iter(modified_dataloader))
+                assert isinstance(batch, torch.Tensor)
+                assert batch.shape == (2, 3, 32, 32)
+
+        assert dataloader.collate_fn == original_collate_fn
+
+    def test_images_only_collate_function(self):
+        """
+        Test 3: Test the static _images_only_collate function directly.
+        Verify it correctly extracts images from tuples.
+        """
+        mock_batch = [
+            (torch.randn(3, 32, 32), torch.tensor(0)),
+            (torch.randn(3, 32, 32), torch.tensor(1)),
+            (torch.randn(3, 32, 32), torch.tensor(2)),
+        ]
+
+        result = ImageOnlyDataloaderModifier._images_only_collate(mock_batch)
+
+        assert isinstance(result, torch.Tensor)
+        assert result.shape == (3, 3, 32, 32)
+
+        for i, (original_image, _) in enumerate(mock_batch):
+            torch.testing.assert_close(result[i], original_image)
+
+    def test_check_dataloader_format_method(self):
+        """
+        Bonus Test: Test the _check_dataloader_format method directly.
+        """
+        dataset_tuple = helper.MockImageDataset(size=2)
+        dataloader_tuple = DataLoader(dataset_tuple, batch_size=1)
+        modifier_tuple = ImageOnlyDataloaderModifier(dataloader_tuple)
+        assert modifier_tuple._check_dataloader_format() is True
+
+        dataset_image = helper.MockImageOnlyDataset(size=2)
+        dataloader_image = DataLoader(dataset_image, batch_size=1)
+        modifier_image = ImageOnlyDataloaderModifier(dataloader_image)
+        assert modifier_image._check_dataloader_format() is False
