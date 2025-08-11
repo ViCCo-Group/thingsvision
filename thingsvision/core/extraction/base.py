@@ -351,7 +351,7 @@ class BaseExtractor(metaclass=abc.ABCMeta):
                         f"...Features for module '{module_name}' were saved to {features_file}."
                     )
                     for file in feature_file_names[module_name]:
-                        os.remove(os.path.join(output_dir, file))
+                        os.remove(file)
 
             print(f"...Features were saved to {output_dir}.")
             return None
