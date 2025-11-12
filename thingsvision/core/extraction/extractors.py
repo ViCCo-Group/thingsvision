@@ -383,6 +383,26 @@ class SSLExtractor(PyTorchExtractor):
             "type": "hub",
             "checkpoint_url": "https://dl.fbaipublicfiles.com/mae/pretrain/mae_pretrain_vit_huge.pth",
         },
+        "capi-vitl14-p205": {
+            "repository": "facebookresearch/capi:main",
+            "arch": "capi_vitl14_p205",
+            "type": "hub",
+        },
+        "capi-vitl14-lvd": {
+            "repository": "facebookresearch/capi:main",
+            "arch": "capi_vitl14_lvd",
+            "type": "hub",
+        },
+        "capi-vitl14-in22k": {
+            "repository": "facebookresearch/capi:main",
+            "arch": "capi_vitl14_in22k",
+            "type": "hub",
+        },
+        "capi-vitl14-in1k": {
+            "repository": "facebookresearch/capi:main",
+            "arch": "capi_vitl14_in1k",
+            "type": "hub",
+        },
     }
 
     def __init__(
