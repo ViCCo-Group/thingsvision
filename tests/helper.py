@@ -219,6 +219,13 @@ MODEL_AND_MODULE_NAMES = {
         "source": "ssl",
         "kwargs": {"token_extraction": "avg_pool"},
     },
+    "capi-vitl14-in1k": {
+        "model_name": "capi-vitl14-in1k",
+        "modules": ["norm", "fc_norm"],
+        "pretrained": True,
+        "source": "ssl",
+        "kwargs": {"token_extraction": "cls_token"},
+    },
     # Additional models
     "Harmonization_visual_ResNet50": {
         "model_name": "Harmonization",

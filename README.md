@@ -78,7 +78,8 @@ Neural networks come from different sources. With `thingsvision`, you can extrac
   - `dino-rn50`, `dino-xcit-{small/medium}-{12/24}-p{8/16}`
   - `dino-vit-{tiny/small/base}-p{8/16}`
   - `dinov2-vit-{small/base/large/giant}-p14`
-  - `mae-vit-{base/large}-p16`, `mae-vit-huge-p14`<br>
+  - `mae-vit-{base/large}-p16`, `mae-vit-huge-p14`
+  - `capi-vitl14-{p205/lvd/in22k/in1k}` (trained on different datasets)<br>
 - [OpenCLIP](https://github.com/mlfoundations/open_clip) models (CLIP trained on LAION-{400M/2B/5B})
 - [CLIP](https://github.com/openai/CLIP) models (CLIP trained on WiT)
 - a few custom models (Alexnet, VGG-16, Resnet50, and Inception_v3) trained on [Ecoset](https://www.pnas.org/doi/10.1073/pnas.2011417118)<br>
