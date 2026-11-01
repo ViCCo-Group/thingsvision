@@ -24,13 +24,14 @@ class VisionTransformer(vision_transformer.VisionTransformer):
         super(VisionTransformer, self).__init__(**kwargs)
 
     def forward_features(
-        self, x: torch.Tensor, attn_mask: Optional[torch.Tensor] = None
+        self, x: torch.Tensor, attn_mask: Optional[torch.Tensor] = None, **kwargs
     ) -> torch.Tensor:
         """Orig. vision_transformer.VisionTransformer.forward_features:
         https://github.com/huggingface/pytorch-image-models/blob/v1.0.19/timm/models/vision_transformer.py
         Add cls_token to after patch_embed and before patch_drop.
         """
-        x = super().forward_features(x, attn_mask)
+        # timm's forward also passes is_causal since 1.0.26
+        x = super().forward_features(x, attn_mask, **kwargs)
         outcome = x[
             :, 0
         ]  # TODO: Not clear if we should not return all tokens or just the cls token
