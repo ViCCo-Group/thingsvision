@@ -13,7 +13,7 @@ class VGG16_ecoset(Custom):
 
     def create_model(self) -> Any:
         model = models.vgg16(weights=None, num_classes=565)
-        path_to_weights = "https://osf.io/z5uf3/download"
+        path_to_weights = "https://osf.io/download/z5uf3/"
         state_dict = torch.hub.load_state_dict_from_url(
             path_to_weights, map_location=self.device, file_name="VGG16_ecoset"
         )
