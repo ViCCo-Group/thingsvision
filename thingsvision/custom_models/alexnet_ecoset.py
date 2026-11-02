@@ -13,7 +13,7 @@ class Alexnet_ecoset(Custom):
 
     def create_model(self) -> Any:
         model = models.alexnet(weights=None, num_classes=565)
-        path_to_weights = "https://osf.io/t6h3c/download"
+        path_to_weights = "https://osf.io/download/t6h3c/"
         state_dict = torch.hub.load_state_dict_from_url(
             path_to_weights, map_location=self.device, file_name="Alexnet_ecoset"
         )

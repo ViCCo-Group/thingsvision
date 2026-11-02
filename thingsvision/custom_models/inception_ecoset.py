@@ -13,7 +13,7 @@ class Inception_ecoset(Custom):
 
     def create_model(self) -> Any:
         model = models.inception_v3(weights=None, num_classes=565)
-        path_to_weights = "https://osf.io/zn24d/download"
+        path_to_weights = "https://osf.io/download/zn24d/"
         state_dict = torch.hub.load_state_dict_from_url(
             path_to_weights, map_location=self.device, file_name="Inception_ecoset"
         )

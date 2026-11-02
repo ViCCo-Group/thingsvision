@@ -13,7 +13,7 @@ class Resnet50_ecoset(Custom):
 
     def create_model(self) -> Any:
         model = models.resnet50(weights=None, num_classes=565)
-        path_to_weights = "https://osf.io/gd9kn/download"
+        path_to_weights = "https://osf.io/download/gd9kn/"
         state_dict = torch.hub.load_state_dict_from_url(
             path_to_weights, map_location=self.device, file_name="Resnet50_ecoset"
         )
